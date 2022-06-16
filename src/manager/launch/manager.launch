@@ -1,0 +1,48 @@
+<!-- -->
+<launch>
+  <!-- CARLA connection -->
+  <arg name='host' default='localhost'/>
+  <arg name='port' default='2000'/>
+  <arg name='timeout' default='10'/>
+  <arg name='agent_config' default='$(find manager)/config/ego_vehicle.json'/>
+  <arg name='data_file' default='$(find scenario_node)/data/standard.json'/>
+  <arg name='scenario_id' default='-1'/>
+  <arg name='route_id' default='-1'/>
+  <arg name='method' default=''/>
+  <arg name='risk_level' default='-1'/>
+  <arg name='train_agent' default='False'/>
+  <arg name='train_agent_episodes' default='5000'/>
+  <arg name='sample_episode_num' default='20'/>
+
+  <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
+  <arg name="track" default='Town05'/>
+
+  <!-- Synchronous mode-->
+  <arg name='synchronous_mode' default='True'/>
+  <arg name='synchronous_mode_wait_for_vehicle_control_command' default='False'/>
+  <arg name='fixed_delta_seconds' default='0.05'/>
+
+  <!-- Agents parameters-->
+  <arg name='policy' default='sac'/>
+  <arg name='obs_type' default='0'/>
+  <arg name='load_dir' default='None'/>
+
+  <node pkg="manager" type="manager.py" name="manager_node" output="screen">
+    <param name="host" value="$(arg host)" />
+    <param name="port" value="$(arg port)" />
+    <param name="track" value="$(arg track)" />
+    <param name="agent_config" value="$(arg agent_config)" />
+    <param name="data_file" value="$(arg data_file)" />
+    <param name="scenario_id" value="$(arg scenario_id)" />
+    <param name="route_id" value="$(arg route_id)" />
+    <param name="method" value="$(arg method)" />
+    <param name="risk_level" value="$(arg risk_level)" />
+    <param name="train_agent" value="$(arg train_agent)" />
+    <param name="train_agent_episodes" value="$(arg train_agent_episodes)" />
+    <param name="sample_episode_num" value="$(arg sample_episode_num)" />
+    <param name="policy" value="$(arg policy)" />
+    <param name="obs_type" value="$(arg obs_type)" />
+    <param name="load_dir" value="$(arg load_dir)" />
+  </node>
+
+</launch>

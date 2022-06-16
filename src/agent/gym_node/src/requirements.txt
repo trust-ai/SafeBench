@@ -1,0 +1,10 @@
+gym
+pygame
+scikit-image
+cpprb
+easydict
+tensorboardX
+torchvision==0.10.0
+# di-engine
+lmdb
+einops

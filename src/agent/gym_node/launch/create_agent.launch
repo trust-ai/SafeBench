@@ -1,0 +1,30 @@
+<!-- -->
+<launch>
+    <arg name='policy' default='sac'/>
+    <arg name='mode' default='eval'/>
+    <arg name='seed' default='0'/>
+    <arg name='device' default='gpu'/>
+    <arg name='epochs' default='4000'/>
+    <arg name='port' default='2000'/>
+    <arg name='sample_episode_num' default='10'/>
+    <arg name='role_name' default='ego_vehicle'/>
+    <arg name='config_file' default='config_carla.yaml'/>
+    <arg name='load_dir' default='$(find gym_node)/src/planning/data/sac'/>
+    <arg name="continue_from_epoch" default='0'/>
+    <arg name="obs_type" default='0'/>
+
+    <node pkg="gym_node" type="run.py" name="gym_node_$(arg policy)" output="screen">\
+        <param name="policy" value="$(arg policy)" />
+        <param name="mode" value="$(arg mode)" />
+        <param name="seed" value="$(arg seed)" />
+        <param name="device" value="$(arg device)" />
+        <param name="epochs" value="$(arg epochs)" />
+        <param name="port" value="$(arg port)" />
+        <param name="sample_episode_num" value="$(arg sample_episode_num)" />
+        <param name="role_name" value="$(arg role_name)" />
+        <param name="config_file" value="$(arg config_file)" />
+        <param name="load_dir" value="$(arg load_dir)" />
+        <param name="continue_from_epoch" value="$(arg continue_from_epoch)" />
+        <param name="obs_type" value="$(arg obs_type)" />
+    </node>
+</launch>
