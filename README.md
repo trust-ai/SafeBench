@@ -8,7 +8,7 @@
 # SafeBench: A Benchmarking Platform for Safety Evaluation of Autonomous Vehicles
 
 This is an evaluation platform based on Carla Simulator. The structure of this platform is shown in this figure:
-![pipeline](./misc/pipeline.png)
+![pipeline](./misc/pipeline_2.png)
 
 ## Instructions
 
