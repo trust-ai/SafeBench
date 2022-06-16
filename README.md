@@ -56,6 +56,7 @@ src
  └── CMakeLists.txt
 ```
 
-## TODO List
+
+## Reference
 
 This repo is modified from [GRAIC](https://github.com/PoPGRI/Race).
