@@ -173,6 +173,10 @@ class CarlaEnv(gym.Env):
         self._timestamp = self.world.get_snapshot().timestamp.elapsed_seconds
         # For video recording
         self.scenario_count = 0
+        self.data_id = -1
+        self.scenario_id = -1
+        self.route_id = -1
+        self.method = ''
 
     def initialize(self):
         # Make video recording dir
@@ -292,7 +296,11 @@ class CarlaEnv(gym.Env):
 
         init_waypoints = []
         if response is not None:
-            for pose in response.ego_vehicle_route.poses:
+            self.data_id = response.route_info.data_id
+            self.scenario_id = response.route_info.scenario_id
+            self.route_id = response.route_info.route_id
+            self.method = response.route_info.method
+            for pose in response.route_info.ego_vehicle_route.poses:
                 carla_transform = trans.ros_pose_to_carla_transform(pose.pose)
                 current_waypoint = map.get_waypoint(carla_transform.location)
                 init_waypoints.append(current_waypoint)
@@ -385,7 +393,7 @@ class CarlaEnv(gym.Env):
             if not terminal:
                 rospy.loginfo('Terminate due scenario runner')
             images = sorted(os.listdir(self.record_images_dir))
-            writer = cv2.VideoWriter(os.path.join(self.record_dir, 'record.mp4'), cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), 10, (self.display_size * 3, self.display_size))
+            writer = cv2.VideoWriter(os.path.join(self.record_dir, 'scenario_{}_route_{}_{}_{}.mp4'.format(self.scenario_id, self.route_id, self.method, self.data_id)), cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), 10, (self.display_size * 3, self.display_size))
             for img_name in images:
                 img_path = os.path.join(self.record_images_dir, img_name)
                 img = cv2.imread(img_path)

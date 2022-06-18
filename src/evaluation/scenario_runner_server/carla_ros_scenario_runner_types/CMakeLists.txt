@@ -13,7 +13,7 @@ if(${ROS_VERSION} EQUAL 1)
   add_service_files(DIRECTORY srv FILES ExecuteScenario.srv UpdateRenderMap.srv)
 
   add_message_files(DIRECTORY msg FILES CarlaScenario.msg CarlaScenarioList.msg
-                    CarlaScenarioRunnerStatus.msg CarlaScenarioStatus.msg)
+                    CarlaScenarioRunnerStatus.msg CarlaScenarioStatus.msg EgoRoute.msg)
 
   generate_messages(DEPENDENCIES geometry_msgs nav_msgs)
 
@@ -44,6 +44,7 @@ elseif(${ROS_VERSION} EQUAL 2)
     msg/CarlaScenarioList.msg
     msg/CarlaScenarioRunnerStatus.msg
     msg/CarlaScenarioStatus.msg
+    msg/EgoRoute.msg
     srv/ExecuteScenario.srv
     srv/GetEgoVehicleRoute.srv
     srv/UpdateRenderMap.srv

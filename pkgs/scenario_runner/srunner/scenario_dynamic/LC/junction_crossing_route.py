@@ -129,9 +129,9 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
 
         if traffic_light_other is None:
             print("No traffic light for the given location of the other vehicle found")
-
-        traffic_light_other.set_state(carla.TrafficLightState.Red)
-        traffic_light_other.set_red_time(self.timeout)
+        else:
+            traffic_light_other.set_state(carla.TrafficLightState.Red)
+            traffic_light_other.set_red_time(self.timeout)
 
     def update_behavior(self):
         cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
@@ -206,7 +206,6 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
                                                          debug_mode,
                                                          criteria_enable=criteria_enable)
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
-        # traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0], True)
         if self._traffic_light is None:
             raise RuntimeError("No traffic light for the given location found")
         self._traffic_light.set_state(carla.TrafficLightState.Green)
@@ -251,9 +250,10 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
 
         traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0].transform, False, True)
         if traffic_light_other is None:
-            raise RuntimeError("No traffic light for the given location found")
-        traffic_light_other.set_state(carla.TrafficLightState.Green)
-        traffic_light_other.set_green_time(self.timeout)
+            print("No traffic light for the given location found")
+        else:
+            traffic_light_other.set_state(carla.TrafficLightState.Green)
+            traffic_light_other.set_green_time(self.timeout)
 
     def update_behavior(self):
         """
@@ -326,7 +326,6 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
                                                          debug_mode,
                                                          criteria_enable=criteria_enable)
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
-        # traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0], True)
         if self._traffic_light is None:
             raise RuntimeError("No traffic light for the given location found")
         self._traffic_light.set_state(carla.TrafficLightState.Red)
@@ -371,9 +370,10 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
 
         traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0].transform, False, True)
         if traffic_light_other is None:
-            raise RuntimeError("No traffic light for the given location found")
-        traffic_light_other.set_state(carla.TrafficLightState.Green)
-        traffic_light_other.set_green_time(self.timeout)
+            print("No traffic light for the given location found")
+        else:
+            traffic_light_other.set_state(carla.TrafficLightState.Green)
+            traffic_light_other.set_green_time(self.timeout)
 
     def update_behavior(self):
         """

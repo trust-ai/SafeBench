@@ -22,6 +22,7 @@ import carla
 
 import rospy
 from carla_ros_scenario_runner_types.srv import GetEgoVehicleRoute
+from carla_ros_scenario_runner_types.msg import EgoRoute
 from ros_compatibility import (
     CompatibleNode,
     QoSProfile,
@@ -76,6 +77,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
     _spawn_index = 0
     _blueprint_library = None
     _ego_vehicle_route = None
+    _scenario_config = None
     _traffic_manager_port = 8000
     _random_seed = 2000
     _rng = random.RandomState(_random_seed)
@@ -421,6 +423,18 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         return CarlaDataProvider._ego_vehicle_route
 
     @staticmethod
+    def set_scenario_config(config):
+        CarlaDataProvider._scenario_config = config
+
+    @staticmethod
+    def get_scenario_config():
+        """
+        returns the currently set route of the ego vehicle
+        Note: Can be None
+        """
+        return CarlaDataProvider._scenario_config
+
+    @staticmethod
     def get_ego_vehicle_route_callback(req, response=None):
         """
         returns the currently set route of the ego vehicle
@@ -438,10 +452,30 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
                 msg.poses.append(pose)
         else:
             rospy.loginfo("Ego Vehicle Route is None.")
+
+        data_id = -1
+        scenario_id = -1
+        route_id = -1
+        scenario_generation_method = ''
+        if CarlaDataProvider._scenario_config is not None:
+            data_id = CarlaDataProvider._scenario_config.data_id
+            scenario_id = CarlaDataProvider._scenario_config.scenario_id
+            route_id = CarlaDataProvider._scenario_config.route_id
+            scenario_generation_method = CarlaDataProvider._scenario_config.scenario_generation_method
+        else:
+            rospy.loginfo("Scenario config is None.")
+
         rospy.loginfo("Responded {} waypoints.".format(len(msg.poses)))
 
+        route_info = EgoRoute()
+        route_info.data_id = data_id
+        route_info.scenario_id = scenario_id
+        route_info.route_id = route_id
+        route_info.method = scenario_generation_method
+        route_info.ego_vehicle_route = msg
+
         response = get_service_response(GetEgoVehicleRoute)
-        response.ego_vehicle_route = msg
+        response.route_info = route_info
         return response
 
     @staticmethod
@@ -857,6 +891,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         CarlaDataProvider._world = None
         CarlaDataProvider._sync_flag = False
         CarlaDataProvider._ego_vehicle_route = None
+        CarlaDataProvider._scenario_config = None
         CarlaDataProvider._carla_actor_pool = dict()
         CarlaDataProvider._client = None
         CarlaDataProvider._spawn_points = None

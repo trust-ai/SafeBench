@@ -312,6 +312,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         self.route = route
         self.route_length = len(route)
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
+        CarlaDataProvider.set_scenario_config(config)
         print('ego route updated!')
 
         if config.agent is not None:
