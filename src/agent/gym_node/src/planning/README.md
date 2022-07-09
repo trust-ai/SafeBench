@@ -13,13 +13,6 @@ pip install -e .
 
 When you run the training jobs, conda or pip install the packages if anything is missing.
 
-### TODO (for Weijie):
-* ~~clean structure~~
-* Try this repo and train a ppo agent with 4-states obs so that you can get familiar with this repo and some basic tools.
-* Modify the `env_wrapper.py` to incorporate prediction embeddings to the state space. Use a different `OBS_TYPE` for any new observations you added.
-* Train another ppo agent with the new observation type, compare the performance with `OBS_TYPE=0` (the 4-states one).
-
-
 ### How to Run
 Simply run
 ```
@@ -75,5 +68,4 @@ python plot.py data/experiment_folder -y EpRet EpCost
 Tensorboard could be used to monitor the training process, simply run:
 ```
 tensorboard --logdir /dir/to/the/result/folder
-
-
+```
