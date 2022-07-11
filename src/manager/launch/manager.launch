@@ -25,7 +25,7 @@
   <!-- Agents parameters-->
   <arg name='policy' default='sac'/>
   <arg name='obs_type' default='0'/>
-  <arg name='load_dir' default='None'/>
+  <arg name='load_dir' default='$(find gym_node)/src/planning/data/sac'/>
 
   <node pkg="manager" type="manager.py" name="manager_node" output="screen">
     <param name="host" value="$(arg host)" />
