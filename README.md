@@ -42,6 +42,10 @@ Finally, you should be able to see that the Carla window changes the map and spa
 ## File Structure
 
 ```
+pkgs
+ └── scenario_runner
+       ├── srunner
+       └── scenario_runner.py
 src
  ├── agent
  │     └── gym_node
