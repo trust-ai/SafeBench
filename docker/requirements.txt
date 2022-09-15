@@ -1,0 +1,12 @@
+gym
+pygame
+scikit-image
+cpprb
+easydict
+tensorboardX
+lmdb
+einops
+pexpect
+joblib
+tqdm
+websocket-client
