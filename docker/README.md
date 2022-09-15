@@ -14,6 +14,7 @@ On this tutorial you will learn
   * How to configure your docker container to have SafeBench working on rendering without a display attached.
   * How to use TurboVNC to view the contents of SafeBench on your local machine.
 
+You can also check out [this video](https://drive.google.com/file/d/1akOcuhkX0Ip1nD7R6ouzStJkwfZaXLFV/view?usp=sharing) which shows the following steps to run SafeBench on a remote server. Note that in the video it starts from step 3 because the docker image is already ready. You may need to follow the first 2 steps to build your own docker image on the server.
 
 ## Preliminaries
 

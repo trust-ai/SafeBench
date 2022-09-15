@@ -12,6 +12,8 @@ This is an evaluation platform based on Carla Simulator. The structure of this p
 
 ## Instructions
 
+**Note**: these instructions are for users who want to run SafeBench on a desktop with a physical display plugged in. You can also check out [this video](https://drive.google.com/file/d/1JAY4veYIICv66DzI4a2rzw2BhThRbqrO/view?usp=sharing) which shows how to run the following steps and what are their effects. For users who want to run SafeBench on a remote server without physical screens, please follow the instructions [here](./docker).
+
 Firstly, make sure you already install the NVIDIA driver on your mechine. All environment settings are store in a docker image, please follow the instructions below to install all things.
 
 ### Step 1. Download docker image
