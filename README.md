@@ -22,10 +22,12 @@ Firstly, make sure you already install the NVIDIA driver on your mechine. All en
 2. Install NVIDIA-Docker2 by following [this link](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker).
 3. Pull the [Docker image](https://hub.docker.com/r/garyxcj/carla): `docker pull garyxcj/carla`
 
-### Step 2. Download source code
+### Step 2. Download source code and checkpoints
 
 Download the source code from this repo: 
 `git clone https://github.com/trust-ai/SafeBench.git`
+
+We also provide the checkpoints of the RL models used in our paper. You can download them [here](https://drive.google.com/drive/folders/1ONBoqMV6ngzn4szAIU1iLXRw9m8TT5UR?usp=sharing).
 
 ### Step 3. Run the Docker container
 
@@ -50,7 +52,7 @@ The command of running the container is in `run_docker.sh`, you just need to run
     ```
 4. launch platform: `roslaunch manager manager.launch`. You can also use specific arguments. For example:
     ```
-    roslaunch manager manager.launch data_file:=path_to_scenario_data policy:=algorithm_name obs_type:=input_observation_type load_dir:=path_to_saved_model
+    roslaunch manager manager.launch data_file:=/home/carla/Evaluation/src/evaluation/scenario_node/data/standard.json policy:=sac obs_type:=0 load_dir:=/home/carla/models/sac
     ```
    You can find more details in the launch file: `src/manager/launch/manager.launch`.
 
