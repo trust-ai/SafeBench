@@ -50,13 +50,16 @@ The command of running the container is in `run_docker.sh`, you just need to run
     catkin_make
     . ./devel/setup.bash
     ```
-4. launch platform: `roslaunch manager manager.launch`. You can also use specific arguments. For example:
+4. Launch platform: `roslaunch manager manager.launch`. You can also use specific arguments. For example:
     ```
     roslaunch manager manager.launch data_file:=/home/carla/Evaluation/src/evaluation/scenario_node/data/standard.json policy:=sac obs_type:=0 load_dir:=/home/carla/models/sac
     ```
-   You can find more details in the launch file: `src/manager/launch/manager.launch`.
-
-Finally, you should be able to see that the Carla window changes the map and spawns an ego vehicle. Another window of pygame will also show up for controlling the ego vehicle.
+   You should be able to see that the Carla window changes the map and spawns an ego vehicle. Another window of pygame will also show up for controlling the ego vehicle. You can find more details in the launch file: `src/manager/launch/manager.launch`.
+5. Evaluate AD algorithms:
+   ```
+   python3 pkgs/evaluation/evaluate_results.py
+   ```
+   
 
 ## File Structure
 
