@@ -31,9 +31,9 @@ This tutorial assumes two machines:
 Assume you are in the current folder (`./docker`). You need to copy some files here. Run the following commands in the current folder.
 
 	cp /etc/X11/xorg.conf xorg.conf
-	cp /usr/lib/nvidia nvidia
-	cp /usr/lib/xorg/modules xorg
-	cp /usr/lib/x86_64-linux-gnu/nvidia/ gnu_nvidia
+	cp -r /usr/lib/nvidia nvidia
+	cp -r /usr/lib/xorg/modules xorg
+	cp -r /usr/lib/x86_64-linux-gnu/nvidia/ gnu_nvidia
 
 Make sure the *Files* section in `xorg.conf` include all other paths. Please see the example in the provided `xorg.conf` file.
 
