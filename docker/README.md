@@ -103,6 +103,7 @@ You can also use specific arguments. For example:
 
 More details can be found in the launch file: `src/manager/launch/manager.launch`.
 
+Note: if this command does not exit properly, you may need to use manually kill the ROS process: `pkill -9 -f ros` and restart CARLA.
 
 ## Local Configurations
 
