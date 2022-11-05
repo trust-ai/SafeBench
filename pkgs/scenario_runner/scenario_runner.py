@@ -472,14 +472,15 @@ class ScenarioRunner(object):
 
         self.world = self.client.get_world()
 
-        if self._args.sync:
-            settings = self.world.get_settings()
-            settings.synchronous_mode = True
-            settings.fixed_delta_seconds = 1.0 / self.frame_rate
-            self.world.apply_settings(settings)
+        # if self._args.sync:
+        settings = self.world.get_settings()
+        settings.synchronous_mode = True
+        settings.fixed_delta_seconds = 1.0 / self.frame_rate
+        settings.deterministic_ragdolls = True
+        self.world.apply_settings(settings)
 
-            self.traffic_manager.set_synchronous_mode(True)
-            self.traffic_manager.set_random_device_seed(int(self._args.trafficManagerSeed))
+        self.traffic_manager.set_synchronous_mode(True)
+        self.traffic_manager.set_random_device_seed(int(self._args.trafficManagerSeed))
 
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
@@ -487,7 +488,7 @@ class ScenarioRunner(object):
 
         # Wait for the world to be ready
         if CarlaDataProvider.is_sync_mode():
-            self.world.tick()
+            self.tick = self.world.tick()
         else:
             self.world.wait_for_tick()
         if CarlaDataProvider.get_map().name != town and CarlaDataProvider.get_map().name != "OpenDriveMap":

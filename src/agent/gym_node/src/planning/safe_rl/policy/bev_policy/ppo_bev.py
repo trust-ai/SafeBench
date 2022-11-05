@@ -98,7 +98,7 @@ class PPO_BEV(Policy):
     def process_img(self, raw_obs):
         return self.encoder(raw_obs)
 
-    def act(self, obs, eval=False):
+    def act(self, obs, deterministic=False):
         '''
         Given a single obs, return the action, value, logp.
         This API is used to interact with the env.
@@ -109,7 +109,7 @@ class PPO_BEV(Policy):
         '''
         obs = to_tensor(obs).reshape(1, -1)
         with torch.no_grad():
-            _, a, logp_a = self.actor_forward(obs, deterministic=eval)
+            _, a, logp_a = self.actor_forward(obs, deterministic=deterministic)
             v = self.critic_forward(self.critic, obs)
         # squeeze them to the right shape
         a, v, logp_a = np.squeeze(to_ndarray(a), axis=0), np.squeeze(

@@ -116,7 +116,7 @@ class OnPolicyWorker:
         else:
             obs = raw_obs
         for i in range(self.timeout_steps):
-            action, _, _ = self.policy.act(obs, eval=True)
+            action, _, _ = self.policy.act(obs, deterministic=True)
             raw_obs_next, reward, done, info = self.env.step(action)
             if self.obs_type > 1:
                 obs_next = self.policy.process_img(raw_obs_next)

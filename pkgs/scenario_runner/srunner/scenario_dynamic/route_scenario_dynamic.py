@@ -421,11 +421,18 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         """
         # move ego to correct position
         elevate_transform = self.route[0][0]
-        elevate_transform.location.z += 0.5
+        # elevate_transform.location.z += 0.5
 
-        ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.lincoln.mkz2017',
-                                                          elevate_transform,
-                                                          rolename='ego_vehicle')
+        success = False
+        while not success:
+            try:
+                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.lincoln.mkz2017',
+                                                                  elevate_transform,
+                                                                  rolename='ego_vehicle')
+                success = True
+            except RuntimeError:
+                elevate_transform.location.z += 0.1
+
         # Collision sensor
         collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
 

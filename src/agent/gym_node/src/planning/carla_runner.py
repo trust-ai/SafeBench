@@ -240,7 +240,7 @@ class CarlaRunner:
                         obs = self.policy.process_img(raw_obs)
                     else:
                         obs = raw_obs
-                    res = self.policy.act(obs)
+                    res = self.policy.act(obs, deterministic=True)
                     action = res[0]
                     raw_obs_next, reward, done, info = self.env.step(action)
                     if render:
