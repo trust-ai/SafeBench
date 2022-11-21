@@ -1,0 +1,10 @@
+gym==0.23.1
+pygame
+scikit-image
+tqdm
+joblib
+pyyaml
+tensorboardX
+cpprb
+easydict
+matplotlib
