@@ -44,6 +44,7 @@ class CarlaEnv(gym.Env):
         self.desired_speed = params['desired_speed']
         self.max_ego_spawn_times = params['max_ego_spawn_times']
         self.display_route = params['display_route']
+
         if 'pixor' in params.keys():
             self.pixor = params['pixor']
             self.pixor_size = params['pixor_size']
@@ -125,9 +126,11 @@ class CarlaEnv(gym.Env):
         print('Connecting to Carla server...')
         self.client = carla.Client('localhost', port)
         self.client.set_timeout(10.0)
+        # TODO: here load world should be done by scenario runner
         self.world = self.client.load_world(params['town'])
         self.trafficManager = self.client.get_trafficmanager(traffic_port)
         self.trafficManager.set_global_distance_to_leading_vehicle(1.0)
+        # TODO:
         self.SpawnActor = carla.command.SpawnActor
         self.SetAutopilot = carla.command.SetAutopilot
         self.SetVehicleLightState = carla.command.SetVehicleLightState
@@ -138,6 +141,7 @@ class CarlaEnv(gym.Env):
         self.world.set_weather(carla.WeatherParameters.ClearNoon)
 
         # Get spawn points
+        # TODO: here vehicle spawn should be done by scenario runner
         self.vehicle_spawn_points = list(
             self.world.get_map().get_spawn_points())
         self.walker_spawn_points = []
@@ -241,6 +245,7 @@ class CarlaEnv(gym.Env):
             self.client.apply_batch_sync(batch, True)
             self.trafficManager.global_percentage_speed_difference(30.0)
         # Spawn pedestrians
+        # TODO: here spawn actors
         batch = []
         walker_speed = []
         random.shuffle(self.walker_spawn_points)
@@ -270,6 +275,7 @@ class CarlaEnv(gym.Env):
         self.vehicle_velocities.append(vehicle_info_dict_list[3])
 
         # Spawn the ego vehicle
+        # TODO: here spawn ego vehicles
         ego_spawn_times = 0
         while True:
             if ego_spawn_times > self.max_ego_spawn_times:

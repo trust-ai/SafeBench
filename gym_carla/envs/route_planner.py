@@ -130,6 +130,7 @@ class RoutePlanner():
     if max_index >= 0:
       for i in range(max_index - 1):
         self._waypoint_buffer.popleft()
+    # TODO: waypoint location list?
 
     return waypoints, self._target_road_option, self._current_waypoint, self._target_waypoint
 
