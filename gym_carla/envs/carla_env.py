@@ -23,6 +23,10 @@ from gym_carla.envs.render import BirdeyeRender
 from gym_carla.envs.route_planner import RoutePlanner
 from gym_carla.envs.misc import *
 
+from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from scenario_runner.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
+from scenario_runner.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
+
 
 class CarlaEnv(gym.Env):
     """An OpenAI gym wrapper for CARLA simulator."""
@@ -127,7 +131,9 @@ class CarlaEnv(gym.Env):
         self.client = carla.Client('localhost', port)
         self.client.set_timeout(10.0)
         # TODO: here load world should be done by scenario runner
+        # TODO:
         self.world = self.client.load_world(params['town'])
+        self.trafficManagerPort = traffic_port
         self.trafficManager = self.client.get_trafficmanager(traffic_port)
         self.trafficManager.set_global_distance_to_leading_vehicle(1.0)
         # TODO:
@@ -211,7 +217,63 @@ class CarlaEnv(gym.Env):
         self.lidar_sensor = None
         self.camera_sensor = None
 
-    def reset(self):
+        """for scenario runner"""
+        self.scenario = None
+        self.scenario_manager = None
+
+    def init_world(self, config):
+        self.world = self.client.load_world(config.town)
+        CarlaDataProvider.set_client(self.client)
+        CarlaDataProvider.set_world(self.world)
+        CarlaDataProvider.set_traffic_manager_port(int(self.trafficManagerPort))
+        self.world.set_weather(carla.WeatherParameters.ClearNoon)
+        # Collision sensor
+        self.collision_hist = []  # The collision history
+        self.collision_hist_l = 1  # collision history length
+        self.collision_bp = self.world.get_blueprint_library().find(
+            'sensor.other.collision')
+
+        # Lidar sensor
+        self.lidar_data = None
+        self.lidar_height = 2.1
+        self.lidar_trans = carla.Transform(
+            carla.Location(x=0.0, z=self.lidar_height))
+        self.lidar_bp = self.world.get_blueprint_library().find(
+            'sensor.lidar.ray_cast')
+        self.lidar_bp.set_attribute('channels', '32')
+        self.lidar_bp.set_attribute('range', '5000')
+
+        # Camera sensor
+        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3),
+                                   dtype=np.uint8)
+        self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
+        self.camera_bp = self.world.get_blueprint_library().find(
+            'sensor.camera.rgb')
+        # Modify the attributes of the blueprint to set image resolution and field of view.
+        self.camera_bp.set_attribute('image_size_x', str(self.obs_size))
+        self.camera_bp.set_attribute('image_size_y', str(self.obs_size))
+        self.camera_bp.set_attribute('fov', '110')
+        # Set the time in seconds between sensor captures
+        self.camera_bp.set_attribute('sensor_tick', '0.02')
+
+        # Set fixed simulation step for synchronous mode
+        self.settings = self.world.get_settings()
+        self.settings.fixed_delta_seconds = self.dt
+
+        self._init_renderer()
+        print('Finish initializing renderer')
+
+    def load_scenario(self, config):
+        self.scenario = RouteScenarioDynamic(world=self.world, config=config, timeout=800)
+        self.ego = self.scenario.ego_vehicles[0]
+        self.scenario_manager = ScenarioManagerDynamic()
+        self.scenario_manager.load_scenario(self.scenario)
+        self.scenario_manager._init_scenarios()
+
+    #TODO: get config,
+    def reset(self, **kwargs):
+        config = kwargs['config']
+        # TODO: load scenario, spawn ego actors
         # Clear sensor objects
         if self.collision_sensor is not None:
             self._stop_sensor()
@@ -226,35 +288,48 @@ class CarlaEnv(gym.Env):
         # Disable sync mode
         #self._set_synchronous_mode(False)
 
-        # Spawn surrounding vehicles
-        random.shuffle(self.vehicle_spawn_points)
-        count = self.number_of_vehicles
-        batch = []
-        if count > 0:
-            for spawn_point in self.vehicle_spawn_points:
-                blueprint = self._create_vehicle_bluepprint(
-                    'vehicle.*', number_of_wheels=[4])
-                blueprint.set_attribute('role_name', 'autopilot')
-                batch.append(
-                    self.SpawnActor(blueprint, spawn_point).then(
-                        self.SetAutopilot(self.FutureActor, True,
-                                          self.trafficManager.get_port())))
-                count -= 1
-                if count <= 0:
-                    break
-            self.client.apply_batch_sync(batch, True)
-            self.trafficManager.global_percentage_speed_difference(30.0)
-        # Spawn pedestrians
-        # TODO: here spawn actors
-        batch = []
-        walker_speed = []
-        random.shuffle(self.walker_spawn_points)
-        count = self.number_of_walkers
-        while count > 0:
-            if self._try_spawn_random_walker_at(
-                    random.choice(self.walker_spawn_points)):
-                count -= 1
+        # first load and init world
+        self.init_world(config)
 
+        print("###### world init completed #######")
+
+        # then load base route scenario, same time, load ego vehicle
+        self.load_scenario(config)
+        print("##### route scenario loading completed #####")
+
+
+
+
+
+        # # Spawn surrounding vehicles
+        # random.shuffle(self.vehicle_spawn_points)
+        # count = self.number_of_vehicles
+        # batch = []
+        # if count > 0:
+        #     for spawn_point in self.vehicle_spawn_points:
+        #         blueprint = self._create_vehicle_bluepprint(
+        #             'vehicle.*', number_of_wheels=[4])
+        #         blueprint.set_attribute('role_name', 'autopilot')
+        #         batch.append(
+        #             self.SpawnActor(blueprint, spawn_point).then(
+        #                 self.SetAutopilot(self.FutureActor, True,
+        #                                   self.trafficManager.get_port())))
+        #         count -= 1
+        #         if count <= 0:
+        #             break
+        #     self.client.apply_batch_sync(batch, True)
+        #     self.trafficManager.global_percentage_speed_difference(30.0)
+        # # Spawn pedestrians
+        # # TODO: here spawn actors
+        # batch = []
+        # walker_speed = []
+        # random.shuffle(self.walker_spawn_points)
+        # count = self.number_of_walkers
+        # while count > 0:
+        #     if self._try_spawn_random_walker_at(
+        #             random.choice(self.walker_spawn_points)):
+        #         count -= 1
+        #
         # Get actors polygon list
         self.vehicle_polygons = []
         vehicle_poly_dict = self._get_actor_polygons('vehicle.*')
@@ -275,24 +350,23 @@ class CarlaEnv(gym.Env):
         self.vehicle_velocities.append(vehicle_info_dict_list[3])
 
         # Spawn the ego vehicle
-        # TODO: here spawn ego vehicles
-        ego_spawn_times = 0
-        while True:
-            if ego_spawn_times > self.max_ego_spawn_times:
-                self.reset()
-
-            if self.task_mode == 'random':
-                transform = random.choice(self.vehicle_spawn_points)
-            if self.task_mode == 'roundabout':
-                self.start = [52.1 + np.random.uniform(-5, 5), -4.2,
-                              178.66]  # random
-                # self.start=[52.1,-4.2, 178.66] # static
-                transform = set_carla_transform(self.start)
-            if self._try_spawn_ego_vehicle_at(transform):
-                break
-            else:
-                ego_spawn_times += 1
-                time.sleep(0.1)
+        # ego_spawn_times = 0
+        # while True:
+        #     if ego_spawn_times > self.max_ego_spawn_times:
+        #         self.reset()
+        #
+        #     if self.task_mode == 'random':
+        #         transform = random.choice(self.vehicle_spawn_points)
+        #     if self.task_mode == 'roundabout':
+        #         self.start = [52.1 + np.random.uniform(-5, 5), -4.2,
+        #                       178.66]  # random
+        #         # self.start=[52.1,-4.2, 178.66] # static
+        #         transform = set_carla_transform(self.start)
+        #     if self._try_spawn_ego_vehicle_at(transform):
+        #         break
+        #     else:
+        #         ego_spawn_times += 1
+        #         time.sleep(0.1)
 
         # Add collision sensor
         self.collision_sensor = self.world.spawn_actor(self.collision_bp,
@@ -349,6 +423,8 @@ class CarlaEnv(gym.Env):
         return self._get_obs()
 
     def step(self, action):
+        # TODO: get update
+        self.scenario_manager._get_update()
         # Calculate acceleration and steering
         if self.discrete:
             acc = self.discrete_act[0][action // self.n_steer]

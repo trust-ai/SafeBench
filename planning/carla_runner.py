@@ -232,10 +232,13 @@ class CarlaRunner:
             self.data_dict = self._log_metrics(epoch, total_steps,
                                                time.time() - start_time, self.verbose)
 
-    def eval(self, epochs=10, sleep=0.01, render=True):
+    def eval(self, route_configurations, epochs=10, sleep=0.01, render=True):
         total_steps = 0
         for epoch in range(epochs):
-            raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(), 0, 0, 0
+            # every epoch, different config
+            config = route_configurations[epoch]
+            kwargs = {"config": config}
+            raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(**kwargs), 0, 0, 0
             if render:
                 self.env.render()
             for i in range(self.timeout_steps):

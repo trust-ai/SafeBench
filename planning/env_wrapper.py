@@ -33,6 +33,11 @@ class EnvWrapper(gym.Wrapper):
         obs = super().reset(**kwargs)
         return self._preprocess_obs(obs)
 
+    # def reset(self, config):
+    #     # obs = super().reset(config)
+    #     obs = self._env.reset(config)
+    #     return self._preprocess_obs(obs)
+
     def step(self, action):
         action = self._postprocess_action(action)
         reward = 0

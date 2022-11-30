@@ -1,7 +1,11 @@
 import os.path as osp
 
+import json
+
 from planning.carla_runner import CarlaRunner
 from planning.safe_rl.util.run_util import load_config
+
+from scenario_runner.srunner.tools.route_parser import RouteParser
 
 CONFIG_DIR = osp.join(osp.dirname(osp.realpath(__file__)), "config")
 
@@ -23,6 +27,34 @@ def gen_data_dir_name(config: dict):
         name += '_' + DATA_DIR_KEYS[k] + '_' + str(config[k])
     return name
 
+
+def get_scenario_configs():
+    data_file = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/data/standard.json'
+    print('Using data file:', data_file)
+    route_configurations = []
+    route_file_formatter = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/route/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
+    scenario_file_formatter = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/route/scenarios/scenario_%02d.json'
+
+    with open(data_file, 'r') as f:
+        data_full = json.loads(f.read())
+        data_full = [item for item in data_full if item["scenario_id"] == 5]
+
+    print('loading {} data'.format(len(data_full)))
+    for item in data_full:
+        route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
+        scenario_file = scenario_file_formatter % item['scenario_id']
+        parsed_configs = RouteParser.parse_routes_file(route_file, scenario_file)
+        assert len(parsed_configs) == 1, item
+        config = parsed_configs[0]
+        config.data_id = item['data_id']
+        config.scenario_generation_method = item['method']
+        config.scenario_id = item['scenario_id']
+        config.route_id = item['route_id']
+        config.risk_level = item['risk_level']
+        config.parameters = item['parameters']
+        route_configurations.append(config)
+
+    return route_configurations
 
 if __name__ == '__main__':
     import argparse
@@ -58,7 +90,11 @@ if __name__ == '__main__':
     runner = CarlaRunner(**config)
 
     # runner = SafetyGymRunner(**config)
+
+    route_configurations = get_scenario_configs()
+    print("##### Route parsing done #####")
+
     if args.mode == "train":
         runner.train()
     else:
-        runner.eval(render=False, sleep=0)
+        runner.eval(render=False, sleep=0, route_configurations=route_configurations)
