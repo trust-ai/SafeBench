@@ -132,7 +132,7 @@ class CarlaEnv(gym.Env):
         self.client.set_timeout(10.0)
         # TODO: here load world should be done by scenario runner
         # TODO:
-        self.world = self.client.load_world(params['town'])
+        # self.world = self.client.load_world(params['town'])
         self.trafficManagerPort = traffic_port
         self.trafficManager = self.client.get_trafficmanager(traffic_port)
         self.trafficManager.set_global_distance_to_leading_vehicle(1.0)
@@ -141,67 +141,66 @@ class CarlaEnv(gym.Env):
         self.SetAutopilot = carla.command.SetAutopilot
         self.SetVehicleLightState = carla.command.SetVehicleLightState
         self.FutureActor = carla.command.FutureActor
-        print('Carla server connected!')
 
         # Set weather
-        self.world.set_weather(carla.WeatherParameters.ClearNoon)
+        # self.world.set_weather(carla.WeatherParameters.ClearNoon)
 
-        # Get spawn points
-        # TODO: here vehicle spawn should be done by scenario runner
-        self.vehicle_spawn_points = list(
-            self.world.get_map().get_spawn_points())
-        self.walker_spawn_points = []
-        for i in range(self.number_of_walkers):
-            spawn_point = carla.Transform()
-            loc = self.world.get_random_location_from_navigation()
-            if loc is not None:
-                spawn_point.location = loc
-                self.walker_spawn_points.append(spawn_point)
-        print('Finish spawning {} walkers'.format(self.number_of_walkers))
+        # # Get spawn points
+        # # TODO: here vehicle spawn should be done by scenario runner
+        # self.vehicle_spawn_points = list(
+        #     self.world.get_map().get_spawn_points())
+        # self.walker_spawn_points = []
+        # for i in range(self.number_of_walkers):
+        #     spawn_point = carla.Transform()
+        #     loc = self.world.get_random_location_from_navigation()
+        #     if loc is not None:
+        #         spawn_point.location = loc
+        #         self.walker_spawn_points.append(spawn_point)
+        # print('Finish spawning {} walkers'.format(self.number_of_walkers))
 
-        # Create the ego vehicle blueprint
-        self.ego_bp = self._create_vehicle_bluepprint(
-            params['ego_vehicle_filter'], color='49,8,8')
+        # # Create the ego vehicle blueprint
+        # self.ego_bp = self._create_vehicle_bluepprint(
+        #     params['ego_vehicle_filter'], color='49,8,8')
 
-        # Collision sensor
-        self.collision_hist = []  # The collision history
-        self.collision_hist_l = 1  # collision history length
-        self.collision_bp = self.world.get_blueprint_library().find(
-            'sensor.other.collision')
-
-        # Lidar sensor
-        self.lidar_data = None
-        self.lidar_height = 2.1
-        self.lidar_trans = carla.Transform(
-            carla.Location(x=0.0, z=self.lidar_height))
-        self.lidar_bp = self.world.get_blueprint_library().find(
-            'sensor.lidar.ray_cast')
-        self.lidar_bp.set_attribute('channels', '32')
-        self.lidar_bp.set_attribute('range', '5000')
-
-        # Camera sensor
-        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3),
-                                   dtype=np.uint8)
-        self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
-        self.camera_bp = self.world.get_blueprint_library().find(
-            'sensor.camera.rgb')
-        # Modify the attributes of the blueprint to set image resolution and field of view.
-        self.camera_bp.set_attribute('image_size_x', str(self.obs_size))
-        self.camera_bp.set_attribute('image_size_y', str(self.obs_size))
-        self.camera_bp.set_attribute('fov', '110')
-        # Set the time in seconds between sensor captures
-        self.camera_bp.set_attribute('sensor_tick', '0.02')
-
-        # Set fixed simulation step for synchronous mode
-        self.settings = self.world.get_settings()
-        self.settings.fixed_delta_seconds = self.dt
+        # # Collision sensor
+        # self.collision_hist = []  # The collision history
+        # self.collision_hist_l = 1  # collision history length
+        # self.collision_bp = self.world.get_blueprint_library().find(
+        #     'sensor.other.collision')
+        #
+        # # Lidar sensor
+        # self.lidar_data = None
+        # self.lidar_height = 2.1
+        # self.lidar_trans = carla.Transform(
+        #     carla.Location(x=0.0, z=self.lidar_height))
+        # self.lidar_bp = self.world.get_blueprint_library().find(
+        #     'sensor.lidar.ray_cast')
+        # self.lidar_bp.set_attribute('channels', '32')
+        # self.lidar_bp.set_attribute('range', '5000')
+        #
+        # # Camera sensor
+        # self.camera_img = np.zeros((self.obs_size, self.obs_size, 3),
+        #                            dtype=np.uint8)
+        # self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
+        # self.camera_bp = self.world.get_blueprint_library().find(
+        #     'sensor.camera.rgb')
+        # # Modify the attributes of the blueprint to set image resolution and field of view.
+        # self.camera_bp.set_attribute('image_size_x', str(self.obs_size))
+        # self.camera_bp.set_attribute('image_size_y', str(self.obs_size))
+        # self.camera_bp.set_attribute('fov', '110')
+        # # Set the time in seconds between sensor captures
+        # self.camera_bp.set_attribute('sensor_tick', '0.02')
+        #
+        # # Set fixed simulation step for synchronous mode
+        # self.settings = self.world.get_settings()
+        # self.settings.fixed_delta_seconds = self.dt
 
         # Record the time of total steps and resetting steps
         self.reset_step = 0
         self.total_step = 0
 
         # Initialize the renderer
-        self._init_renderer()
+        # self._init_renderer()
         print('Finish initializing renderer')
 
         # Get pixel grid points
@@ -221,8 +220,8 @@ class CarlaEnv(gym.Env):
         self.scenario = None
         self.scenario_manager = None
 
-    def init_world(self, config):
-        self.world = self.client.load_world(config.town)
+    def init_world(self, town):
+        self.world = self.client.load_world(town)
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
         CarlaDataProvider.set_traffic_manager_port(int(self.trafficManagerPort))
@@ -261,6 +260,8 @@ class CarlaEnv(gym.Env):
         self.settings.fixed_delta_seconds = self.dt
 
         self._init_renderer()
+
+        # self._init_renderer()
         print('Finish initializing renderer')
 
     def load_scenario(self, config):
@@ -288,10 +289,10 @@ class CarlaEnv(gym.Env):
         # Disable sync mode
         #self._set_synchronous_mode(False)
 
-        # first load and init world
-        self.init_world(config)
-
-        print("###### world init completed #######")
+        # # first load and init world
+        # self.init_world(config)
+        #
+        # print("###### world init completed #######")
 
         # then load base route scenario, same time, load ego vehicle
         self.load_scenario(config)

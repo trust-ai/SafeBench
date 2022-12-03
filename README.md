@@ -1,7 +1,4 @@
-# Red Team Repo
-
-## System Requirements
-- Tested in Ubuntu 18.04, it should be ok on 20.04
+# SafeBench
 
 ## Installation
 1. Setup conda environment
@@ -12,7 +9,7 @@ $ conda activate env_name
 
 2. Clone this git repo in an appropriate folder
 ```
-$ git clone git@github.com:trust-ai/safe-av-red-team.git
+$ git clone git@github.com:trust-ai/SafeBench_v2.git
 ```
 
 3. Enter the repo root folder and install the packages:
@@ -33,13 +30,13 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ## Usage
 1. Enter the CARLA root folder and launch the CARLA server by:
 ```
-$ ./CarlaUE4.sh -windowed -carla-port=2000
+$ ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 ```
 You can use ```Alt+F1``` to get back your mouse control.
 
 Or you can run in on a remote server with non-display mode by:
 ```
-$ DISPLAY= ./CarlaUE4.sh -opengl -carla-port=2000
+$ DISPLAY= ./CarlaUE4.sh -prefernvidia -opengl -carla-port=2000
 ```
 
 2. Run the test file:
@@ -57,5 +54,3 @@ Then export the DISPLAY env variable:
 export DISPLAY=:99
 ```
 Then run `test.py` as usual.
-
-

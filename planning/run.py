@@ -40,6 +40,8 @@ def get_scenario_configs():
         data_full = [item for item in data_full if item["scenario_id"] == 5]
 
     print('loading {} data'.format(len(data_full)))
+
+    map_town_config = {}
     for item in data_full:
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
         scenario_file = scenario_file_formatter % item['scenario_id']
@@ -54,7 +56,17 @@ def get_scenario_configs():
         config.parameters = item['parameters']
         route_configurations.append(config)
 
-    return route_configurations
+        # build town and config mapping map
+        cur_town = config.town
+        if cur_town in map_town_config:
+            cur_config_list = map_town_config[cur_town]
+            cur_config_list.append(config)
+            map_town_config[cur_town] = cur_config_list
+        else:
+            cur_config_list = [config]
+            map_town_config[cur_town] = cur_config_list
+
+    return route_configurations, map_town_config
 
 if __name__ == '__main__':
     import argparse
@@ -87,14 +99,17 @@ if __name__ == '__main__':
     config["port"] = args.port
     config["traffic_port"] = args.traffic_port
 
+    route_configurations, map_town_config = get_scenario_configs()
+    print("##### Route parsing done #####")
+
+    config["map_town_config"] = map_town_config
+
     runner = CarlaRunner(**config)
 
     # runner = SafetyGymRunner(**config)
 
-    route_configurations = get_scenario_configs()
-    print("##### Route parsing done #####")
 
     if args.mode == "train":
         runner.train()
     else:
-        runner.eval(render=False, sleep=0, route_configurations=route_configurations)
+        runner.eval(render=False, sleep=0)

@@ -16,6 +16,18 @@ from planning.safe_rl.util.torch_util import export_device_env_variable, seed_to
 from planning.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
 from planning.env_wrapper import carla_env
 
+import threading
+
+class MyThread(threading.Thread):
+    def __init__(self, threadId, config, env, function):
+        threading.Thread.__init__(self)
+        self.threadId = threadId
+        self.config = config
+        self.function = function
+        self.env = env
+    def run(self):
+        pass
+
 
 class CarlaRunner:
     '''
@@ -66,6 +78,9 @@ class CarlaRunner:
         seed_torch(seed)
         torch.set_num_threads(threads)
         export_device_env_variable(device, id=device_id)
+
+        self.map_town_config = kwarg['map_town_config']
+        print(self.map_town_config)
 
         self.episode_rerun_num = episode_rerun_num
         self.sample_episode_num = sample_episode_num
@@ -232,42 +247,57 @@ class CarlaRunner:
             self.data_dict = self._log_metrics(epoch, total_steps,
                                                time.time() - start_time, self.verbose)
 
-    def eval(self, route_configurations, epochs=10, sleep=0.01, render=True):
-        total_steps = 0
-        for epoch in range(epochs):
-            # every epoch, different config
-            config = route_configurations[epoch]
-            kwargs = {"config": config}
-            raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(**kwargs), 0, 0, 0
-            if render:
-                self.env.render()
-            for i in range(self.timeout_steps):
-                if self.obs_type > 1:
-                    obs = self.policy.process_img(raw_obs)
-                else:
-                    obs = raw_obs
-                res = self.policy.act(obs, deterministic=True)
-                action = res[0]
-                raw_obs_next, reward, done, info = self.env.step(action)
+
+    # def init_world(self):
+    #
+
+    # def run_eval(self, epochs=10, sleep=0.01, render=True):
+    #     for town in self.map_town_config:
+
+
+
+    def eval(self, epochs=10, sleep=0.01, render=True):
+        # build town and config mapping map
+        for town in self.map_town_config:
+            total_steps = 0
+            # load world here
+            self.env.init_world(town)
+            print("###### init world completed #######")
+            config_lists = self.map_town_config[town]
+            for epoch in range(epochs):
+                # every epoch, different config
+                config = config_lists[epoch]
+                kwargs = {"config": config}
+                raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(**kwargs), 0, 0, 0
                 if render:
                     self.env.render()
-                time.sleep(sleep)
+                for i in range(self.timeout_steps):
+                    if self.obs_type > 1:
+                        obs = self.policy.process_img(raw_obs)
+                    else:
+                        obs = raw_obs
+                    res = self.policy.act(obs, deterministic=True)
+                    action = res[0]
+                    raw_obs_next, reward, done, info = self.env.step(action)
+                    if render:
+                        self.env.render()
+                    time.sleep(sleep)
 
-                if done:
-                    break
+                    if done:
+                        break
 
-                if "cost" in info:
-                    ep_cost += info["cost"]
+                    if "cost" in info:
+                        ep_cost += info["cost"]
 
-                ep_reward += reward
-                ep_len += 1
-                total_steps += 1
-                raw_obs = raw_obs_next
+                    ep_reward += reward
+                    ep_len += 1
+                    total_steps += 1
+                    raw_obs = raw_obs_next
 
-            self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="eval")
+                self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="eval")
 
-            # Log info about epoch
-            self._log_metrics(epoch, total_steps)
+                # Log info about epoch
+                self._log_metrics(epoch, total_steps)
 
     def _log_metrics(self, epoch, total_steps, time=None, verbose=True):
         # self.logger.log_tabular('CostLimit', self.cost_limit)
