@@ -30,7 +30,7 @@ from scenario_runner.srunner.scenario_manager.scenario_manager_dynamic import Sc
 
 class CarlaEnv(gym.Env):
     """An OpenAI gym wrapper for CARLA simulator."""
-    def __init__(self, port, traffic_port, params):
+    def __init__(self, port, traffic_port, params, world=None):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
         self.max_past_step = params['max_past_step']
@@ -128,14 +128,15 @@ class CarlaEnv(gym.Env):
 
         # Connect to carla server and get world object
         print('Connecting to Carla server...')
-        self.client = carla.Client('localhost', port)
-        self.client.set_timeout(10.0)
+        # self.client = carla.Client('localhost', port)
+        # self.client.set_timeout(10.0)
         # TODO: here load world should be done by scenario runner
         # TODO:
         # self.world = self.client.load_world(params['town'])
+        self.world = world
         self.trafficManagerPort = traffic_port
-        self.trafficManager = self.client.get_trafficmanager(traffic_port)
-        self.trafficManager.set_global_distance_to_leading_vehicle(1.0)
+        # self.trafficManager = self.client.get_trafficmanager(traffic_port)
+        # self.trafficManager.set_global_distance_to_leading_vehicle(1.0)
         # TODO:
         self.SpawnActor = carla.command.SpawnActor
         self.SetAutopilot = carla.command.SetAutopilot
@@ -220,12 +221,12 @@ class CarlaEnv(gym.Env):
         self.scenario = None
         self.scenario_manager = None
 
-    def init_world(self, town):
-        self.world = self.client.load_world(town)
-        CarlaDataProvider.set_client(self.client)
-        CarlaDataProvider.set_world(self.world)
-        CarlaDataProvider.set_traffic_manager_port(int(self.trafficManagerPort))
-        self.world.set_weather(carla.WeatherParameters.ClearNoon)
+    def init_world(self):
+        # self.world = self.client.load_world(town)
+        # CarlaDataProvider.set_client(self.client)
+        # CarlaDataProvider.set_world(self.world)
+        # CarlaDataProvider.set_traffic_manager_port(int(self.trafficManagerPort))
+        # self.world.set_weather(carla.WeatherParameters.ClearNoon)
         # Collision sensor
         self.collision_hist = []  # The collision history
         self.collision_hist_l = 1  # collision history length
@@ -413,7 +414,7 @@ class CarlaEnv(gym.Env):
         # Enable sync mode
         self.settings.synchronous_mode = True
         self.world.apply_settings(self.settings)
-        self.trafficManager.set_synchronous_mode(True)
+        # self.trafficManager.set_synchronous_mode(True)
 
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
@@ -442,9 +443,9 @@ class CarlaEnv(gym.Env):
             throttle = 0
             brake = np.clip(-acc / 8, 0, 1)
         vehicleList = self.world.get_actors().filter('vehicle.*')
-        for v in vehicleList:
-            #if v.attributes['role_name'] != "hero":
-            self.trafficManager.auto_lane_change(v, True)
+        # for v in vehicleList:
+        #     #if v.attributes['role_name'] != "hero":
+        #     self.trafficManager.auto_lane_change(v, True)
         # Apply control
         act = carla.VehicleControl(throttle=float(throttle),
                                    steer=float(-steer),
@@ -564,9 +565,9 @@ class CarlaEnv(gym.Env):
             'vehicle.*', number_of_wheels=number_of_wheels)
         blueprint.set_attribute('role_name', 'autopilot')
         vehicle = self.world.try_spawn_actor(blueprint, transform)
-        tm_port = self.trafficManager.get_port()
+        # tm_port = self.trafficManager.get_port()
         if vehicle is not None:
-            vehicle.set_autopilot(True, tm_port)
+            # vehicle.set_autopilot(True, tm_port)
             return True
         return False
 

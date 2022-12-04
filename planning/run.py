@@ -112,4 +112,5 @@ if __name__ == '__main__':
     if args.mode == "train":
         runner.train()
     else:
-        runner.eval(render=False, sleep=0)
+        # runner.eval(render=False, sleep=0)
+        runner.run_eval(render=False, sleep=0)

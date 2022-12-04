@@ -29,8 +29,8 @@ class EnvWrapper(gym.Wrapper):
         act_lim = np.ones((act_dim), dtype=np.float32)
         self.action_space = gym.spaces.Box(-act_lim, act_lim, dtype=np.float32)
 
-    def init_world(self, town):
-        self._env.init_world(town)
+    def init_world(self):
+        self._env.init_world()
 
     def reset(self, **kwargs):
         obs = super().reset(**kwargs)
@@ -147,6 +147,6 @@ params = {
 }
 
 
-def carla_env(obs_type, port, traffic_port):
+def carla_env(obs_type, port, traffic_port, world=None):
     CFG.OBS_TYPE = obs_type
-    return EnvWrapper(gym.make('carla-v0', port=port, traffic_port=traffic_port, params=params), cfg=CFG)
+    return EnvWrapper(gym.make('carla-v0', port=port, traffic_port=traffic_port, params=params, world=world), cfg=CFG)
