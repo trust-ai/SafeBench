@@ -780,7 +780,7 @@ class CarlaEnv(gym.Env):
 
         # Display on pygame
         # TODO: Solve pygame display problem
-        pygame.display.flip()
+        # pygame.display.flip()
 
         # State observation
         ego_trans = self.ego.get_transform()

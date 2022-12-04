@@ -18,10 +18,10 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
-4. Download [CARLA_0.9.11](https://github.com/carla-simulator/carla/releases/tag/0.9.11), extract it to some folder, and add CARLA to ```PYTHONPATH``` environment variable. You can add the following environment variables to your `~/.bashrc`:
+4. Download [CARLA_0.9.13](https://github.com/carla-simulator/carla/releases), extract it to some folder, and add CARLA to ```PYTHONPATH``` environment variable. You can add the following environment variables to your `~/.bashrc`:
 ```
-export CARLA_ROOT=/home/zuxin/carla-0.9.11 # replace this with your own dir
-export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.11-py3.7-linux-x86_64.egg
+export CARLA_ROOT=/home/zuxin/carla-0.9.13 # replace this with your own dir
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI

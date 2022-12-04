@@ -289,7 +289,7 @@ class CarlaRunner:
                 # self.eval(epochs=epochs, sleep=sleep, render=render, config=config, world=world)
                 thread_list.append(thread)
                 i += 1
-                if i == 1:
+                if i == 2:
                     break
 
             for cur_thread in thread_list:
