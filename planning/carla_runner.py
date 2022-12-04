@@ -23,14 +23,17 @@ from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDa
 import threading
 
 class MyThread(threading.Thread):
-    def __init__(self, threadId, config, env, function):
+    def __init__(self, threadId, epochs, sleep, render, config, world, function):
         threading.Thread.__init__(self)
         self.threadId = threadId
         self.config = config
         self.function = function
-        self.env = env
+        self.epochs = epochs
+        self.sleep = sleep
+        self.render = render
+        self.world = world
     def run(self):
-        pass
+        self.function(config=self.config, world=self.world, epochs=self.epochs, sleep=self.sleep, render=self.render)
 
 
 class CarlaRunner:
@@ -279,8 +282,20 @@ class CarlaRunner:
             world = self.init_world(town)
             print("###### init world completed #######")
             config_lists = self.map_town_config[town]
+            thread_list = []
+            i = 0
             for config in config_lists:
-                self.eval(epochs=epochs, sleep=sleep, render=render, config=config, world=world)
+                thread = MyThread(i, epochs, sleep, render, config, world, self.eval)
+                # self.eval(epochs=epochs, sleep=sleep, render=render, config=config, world=world)
+                thread_list.append(thread)
+                i += 1
+                if i == 1:
+                    break
+
+            for cur_thread in thread_list:
+                cur_thread.start()
+
+            time.sleep(100)
 
     def eval(self, config, world, epochs=10, sleep=0.01, render=True):
         # build town and config mapping map

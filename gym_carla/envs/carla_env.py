@@ -127,7 +127,7 @@ class CarlaEnv(gym.Env):
         self.observation_space = spaces.Dict(observation_space_dict)
 
         # Connect to carla server and get world object
-        print('Connecting to Carla server...')
+        # print('Connecting to Carla server...')
         # self.client = carla.Client('localhost', port)
         # self.client.set_timeout(10.0)
         # TODO: here load world should be done by scenario runner
@@ -202,7 +202,7 @@ class CarlaEnv(gym.Env):
 
         # Initialize the renderer
         # self._init_renderer()
-        print('Finish initializing renderer')
+        # print('Finish initializing renderer')
 
         # Get pixel grid points
         if self.pixor:
@@ -779,6 +779,7 @@ class CarlaEnv(gym.Env):
         self.display.blit(camera_surface, (self.display_size * 2, 0))
 
         # Display on pygame
+        # TODO: Solve pygame display problem
         pygame.display.flip()
 
         # State observation
