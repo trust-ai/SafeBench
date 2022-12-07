@@ -20,7 +20,7 @@ $ pip install -e .
 
 4. Download [CARLA_0.9.13](https://github.com/carla-simulator/carla/releases), extract it to some folder, and add CARLA to ```PYTHONPATH``` environment variable. You can add the following environment variables to your `~/.bashrc`:
 ```
-export CARLA_ROOT=/home/zuxin/carla-0.9.13 # replace this with your own dir
+export CARLA_ROOT=/home/shuaiwa2/Carla_0.9.13 # replace this with your own dir
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
@@ -39,9 +39,9 @@ Or you can run in on a remote server with non-display mode by:
 $ DISPLAY= ./CarlaUE4.sh -prefernvidia -opengl -carla-port=2000
 ```
 
-2. Run the test file:
+2. Run the platform with specific parameters:
 ```
-$ python test.py
+$ python planning/run.py -p sac -o 0 -m eval -s 0 --port 2000 --traffic_port 8000 -d {directory of model for ego vehicles}
 ```
 See details of ```test.py``` about how to use the CARLA gym wrapper.
 
@@ -53,4 +53,3 @@ Then export the DISPLAY env variable:
 ```
 export DISPLAY=:99
 ```
-Then run `test.py` as usual.
