@@ -12,7 +12,7 @@
          fog_distance="0"
          wetness="0"
       />
-      <waypoint pitch="0.0" roll="0.0" x="41.37" y="195.4" yaw="90" z="1.21" />
+      <waypoint pitch="0.0" roll="0.0" x="41.37" y="198.9" yaw="90" z="1.21" />
       <waypoint pitch="0.0" roll="0.0" x="41.37" y="207.4" yaw="90" z="1.21" />
       <waypoint pitch="0.0" roll="0.0" x="70.37" y="240.88" yaw="0" z="1.21" />
    </route>
