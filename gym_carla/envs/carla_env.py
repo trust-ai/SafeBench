@@ -221,6 +221,24 @@ class CarlaEnv(gym.Env):
         self.scenario = None
         self.scenario_manager = None
 
+        """for exiting"""
+        self.is_running = True
+
+        """for render outside"""
+        # self.birdeye_render_vehicle_polygons = []
+        # self.birdeye_render_walker_polygons = []
+        # self.birdeye_render_waypoints = []
+        # self.birdeye_render_types_list = []
+        # self.birdeye_list = []
+        # self.lidar_list = []
+
+        # self.render_result = {}
+        self.render_result = []
+
+        # self.count_step = 0
+
+
+
     def init_world(self):
         # self.world = self.client.load_world(town)
         # CarlaDataProvider.set_client(self.client)
@@ -260,10 +278,10 @@ class CarlaEnv(gym.Env):
         self.settings = self.world.get_settings()
         self.settings.fixed_delta_seconds = self.dt
 
-        self._init_renderer()
-
         # self._init_renderer()
-        print('Finish initializing renderer')
+
+        self._init_renderer()
+        # print('Finish initializing renderer')
 
     def load_scenario(self, config):
         self.scenario = RouteScenarioDynamic(world=self.world, config=config, timeout=800)
@@ -422,11 +440,17 @@ class CarlaEnv(gym.Env):
         # Set ego information for render
         self.birdeye_render.set_hero(self.ego, self.ego.id)
 
+        self.scenario_manager._running = True
+
         return self._get_obs()
 
     def step(self, action):
         # TODO: get update
         self.scenario_manager._get_update()
+
+        self.is_running = self.scenario_manager._running
+
+
         # Calculate acceleration and steering
         if self.discrete:
             acc = self.discrete_act[0][action // self.n_steer]
@@ -689,15 +713,34 @@ class CarlaEnv(gym.Env):
 
     def _get_obs(self):
         """Get the observations."""
-        ## Birdeye rendering
+
+        """
+        self.birdeye_render_vehicle_polygons
+        self.birdeye_render_walker_polygons
+        self.birdeye_render_waypoints
+        self.birdeye_render_types_list
+        self.birdeye_list
+        self.lidar_list
+        self.camera_list
+        """
+        # Birdeye rendering
         self.birdeye_render.vehicle_polygons = self.vehicle_polygons
         self.birdeye_render.walker_polygons = self.walker_polygons
         self.birdeye_render.waypoints = self.waypoints
+
+        # self.birdeye_render_vehicle_polygons.append(self.vehicle_polygons)
+        # self.birdeye_render_walker_polygons.append(self.walker_polygons)
+        # self.birdeye_render_waypoints.append(self.waypoints)
+
+
 
         # birdeye view with roadmap and actors
         birdeye_render_types = ['roadmap', 'actors']
         if self.display_route:
             birdeye_render_types.append('waypoints')
+
+        # self.birdeye_render_types_list.append(birdeye_render_types)
+
         self.birdeye_render.render(self.display, birdeye_render_types)
         birdeye = pygame.surfarray.array3d(self.display)
         birdeye = birdeye[0:self.display_size, :, :]
@@ -722,6 +765,8 @@ class CarlaEnv(gym.Env):
 
         # Display birdeye image
         birdeye_surface = rgb_to_display_surface(birdeye, self.display_size)
+
+        # self.birdeye_list.append(birdeye_surface)
         self.display.blit(birdeye_surface, (0, 0))
 
         ## Lidar image generation
@@ -770,17 +815,30 @@ class CarlaEnv(gym.Env):
         lidar = lidar * 255
 
         # Display lidar image
+
         lidar_surface = rgb_to_display_surface(lidar, self.display_size)
+        # self.lidar_list.append(lidar_surface)
         self.display.blit(lidar_surface, (self.display_size, 0))
 
         ## Display camera image
+
         camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
+
         camera_surface = rgb_to_display_surface(camera, self.display_size)
+
+        # self.camera_list.append(camera_surface)
         self.display.blit(camera_surface, (self.display_size * 2, 0))
+
+        # self.render_result["birdeye_render_vehicle_polygons"] = self.
 
         # Display on pygame
         # TODO: Solve pygame display problem
         # pygame.display.flip()
+        cur_render_tuple = (self.vehicle_polygons, self.walker_polygons, self.waypoints, birdeye_render_types, birdeye_surface, lidar_surface, camera_surface)
+        self.render_result.append(cur_render_tuple)
+
+        # self.count_step += 1
+        # print(self.count_step)
 
         # State observation
         ego_trans = self.ego.get_transform()

@@ -277,6 +277,7 @@ class ScenarioManagerDynamic(object):
             update behavior
             """
             # print("Running scenario: " + running_scenario.name)
+            #TODO: just for debugging
             running_scenario.update_behavior()
 
         # """
@@ -325,7 +326,7 @@ class ScenarioManagerDynamic(object):
         #         #     self.triggered_scenario.remove(running_scenario)
         #         #     self._running = False
         #
-        #     self.update_running_status()
+        self.update_running_status()
         #
         #     # actors = list(CarlaDataProvider.get_actors())
         #     # print('ego', actors[0][1].get_transform())

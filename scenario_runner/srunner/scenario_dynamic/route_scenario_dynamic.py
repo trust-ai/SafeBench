@@ -506,6 +506,8 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         for criterion_name, criterion in self.criteria.items():
             running_status[criterion_name] = criterion.update()
 
+        # print("running status: ", running_status)
+
         # print(running_status['ego_velocity'])
         # print(running_status['route_complete'])
 
@@ -514,6 +516,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             stop = True
             print('stop due to collision')
         if self.route_length > 1:  # only check when evaluating
+            # print(running_status['route_complete'])
             if running_status['route_complete'] == 100:
                 stop = True
                 print('stop due to route completion')
@@ -567,7 +570,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicles[0], optional=True)
         criteria['off_road'] = OffRoadTest(actor=self.ego_vehicles[0], optional=True)
         criteria['collision'] = CollisionTest(actor=self.ego_vehicles[0], terminate_on_failure=True)
-        criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicles[0])
+        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicles[0])
         criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicles[0])
         if self.route_length > 1:  # only check when evaluating
             criteria['distance_to_route'] = InRouteTest(self.ego_vehicles[0], route=route, offroad_max=30)

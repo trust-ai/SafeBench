@@ -18,7 +18,10 @@ from planning.safe_rl.util.torch_util import export_device_env_variable, seed_to
 from planning.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
 from planning.env_wrapper import carla_env
 
+from gym_carla.envs.render import BirdeyeRender
 from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+
+import pygame
 
 import threading
 
@@ -33,7 +36,11 @@ class MyThread(threading.Thread):
         self.render = render
         self.world = world
     def run(self):
-        self.function(config=self.config, world=self.world, epochs=self.epochs, sleep=self.sleep, render=self.render)
+        print("thread started, ", self.threadId)
+        cur_ego, cur_render_result = self.function(config=self.config, world=self.world, epochs=self.epochs, sleep=self.sleep, render=self.render)
+        self.ego = cur_ego
+        self.render_result = cur_render_result
+        print("thread done", self.threadId)
 
 
 class CarlaRunner:
@@ -133,6 +140,10 @@ class CarlaRunner:
         self.trafficManager = self.client.get_trafficmanager(traffic_port)
         self.trafficManager.set_global_distance_to_leading_vehicle(1.0)
         self.trafficManager.set_synchronous_mode(True)
+
+        self.display_size = 256
+        self.obs_range = 32
+        self.d_behind = 12
 
 
     def _train_mode_init(self, seed, exp_name, policy, timeout_steps, data_dir,
@@ -268,6 +279,9 @@ class CarlaRunner:
 
 
     def init_world(self, town):
+        # before init world, clear all things
+
+
         world = self.client.load_world(town)
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(world)
@@ -276,6 +290,23 @@ class CarlaRunner:
 
         return world
 
+    def _init_renderer(self, num_threads):
+        """Initialize the birdeye view renderer.
+    """
+        pygame.init()
+        self.display = pygame.display.set_mode(
+            (self.display_size * 3, self.display_size * num_threads),
+            pygame.HWSURFACE | pygame.DOUBLEBUF)
+
+        pixels_per_meter = self.display_size / self.obs_range
+        pixels_ahead_vehicle = (self.obs_range / 2 -
+                                self.d_behind) * pixels_per_meter
+        self.birdeye_params = {
+            'screen_size': [self.display_size, self.display_size],
+            'pixels_per_meter': pixels_per_meter,
+            'pixels_ahead_vehicle': pixels_ahead_vehicle
+        }
+        # birdeye_render = BirdeyeRender(world, birdeye_params)
 
     def run_eval(self, epochs=10, sleep=0.01, render=True):
         for town in self.map_town_config:
@@ -284,18 +315,89 @@ class CarlaRunner:
             config_lists = self.map_town_config[town]
             thread_list = []
             i = 0
-            for config in config_lists:
+            # thread1 = MyThread(i, epochs, sleep, render, config_lists[0], world, self.eval)
+            # thread2 = MyThread(i, epochs, sleep, render, config_lists[2], world, self.eval)
+            # thread_list.append(thread1)
+            # thread_list.append(thread2)
+
+            chosen_config = [3]
+            # for config in config_lists:
+            for i in range(len(config_lists)):
+                config = config_lists[i]
+                if i not in chosen_config:
+                    continue
                 thread = MyThread(i, epochs, sleep, render, config, world, self.eval)
                 # self.eval(epochs=epochs, sleep=sleep, render=render, config=config, world=world)
                 thread_list.append(thread)
-                i += 1
-                if i == 2:
-                    break
 
             for cur_thread in thread_list:
                 cur_thread.start()
 
-            time.sleep(100)
+            for cur_thread in thread_list:
+                cur_thread.join()
+
+            print("all threads are done")
+
+            self._init_renderer(len(thread_list))
+
+            print("init render complete")
+
+            self.render_display(thread_list, world)
+            # # get all egos
+            # thread_egos = []
+            # for cur_thread in thread_list:
+            #     birdeye_render = BirdeyeRender(world, self.birdeye_params)
+            #     birdeye_render.set_hero(cur_thread.ego, cur_thread.ego.id)
+            #
+            #     # get all the information
+            #     self.birdeye_render.vehicle_polygons = self.vehicle_polygons
+            #     self.birdeye_render.walker_polygons = self.walker_polygons
+            #     self.birdeye_render.waypoints = self.waypoints
+
+            # print("exiting town: ", town)
+
+            # time.sleep(100)
+
+    def render_display(self, thread_list, world):
+        print("in render display")
+        # print(len(thread_list[0].render_result))
+        birdeye_render_list = []
+
+        max_len = 0
+
+        for cur_thread in thread_list:
+            birdeye_render = BirdeyeRender(world, self.birdeye_params)
+            birdeye_render.set_hero(cur_thread.ego, cur_thread.ego.id)
+            birdeye_render_list.append(birdeye_render)
+
+            print(len(cur_thread.render_result))
+
+            max_len = max(len(cur_thread.render_result), max_len)
+
+        # print(self.timeout_steps)
+
+        for i in range(max_len):
+            for j in range(len(thread_list)):
+                if i >= len(thread_list[j].render_result):
+                    continue
+                # if j != 0:
+                #     continue
+                cur_render_result = thread_list[j].render_result[i]
+                cur_birdeye_render = birdeye_render_list[j]
+
+                cur_birdeye_render.vehicle_polygons = cur_render_result[0]
+                cur_birdeye_render.walker_polygons = cur_render_result[1]
+                cur_birdeye_render.waypoints = cur_render_result[2]
+
+                # cur_birdeye_render.render(self.display, cur_render_result[3])
+
+                self.display.blit(cur_render_result[4], (0, j * self.display_size))
+                self.display.blit(cur_render_result[5], (self.display_size, j * self.display_size))
+                self.display.blit(cur_render_result[6], (self.display_size * 2, j * self.display_size))
+                pygame.display.flip()
+            time.sleep(0.1)
+
+
 
     def eval(self, config, world, epochs=10, sleep=0.01, render=True):
         # build town and config mapping map
@@ -308,40 +410,45 @@ class CarlaRunner:
         env = carla_env(self.obs_type, self.port, self.traffic_port, world=world)
         env.init_world()
         # config_lists = self.map_town_config[town]
-        for epoch in range(epochs):
-            # every epoch, different config
-            # config = config_lists[epoch]
-            kwargs = {"config": config}
-            raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
+        # for epoch in range(epochs):
+        # every epoch, different config
+        # config = config_lists[epoch]
+        kwargs = {"config": config}
+        raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
+        ego = env.ego
+        if render:
+            env.render()
+        for i in range(self.timeout_steps):
+            # check if current scenario is running out
+            if not env.is_running:
+                return ego, env.render_result
+            if self.obs_type > 1:
+                obs = self.policy.process_img(raw_obs)
+            else:
+                obs = raw_obs
+            res = self.policy.act(obs, deterministic=True)
+            action = res[0]
+            raw_obs_next, reward, done, info = env.step(action)
             if render:
                 env.render()
-            for i in range(self.timeout_steps):
-                if self.obs_type > 1:
-                    obs = self.policy.process_img(raw_obs)
-                else:
-                    obs = raw_obs
-                res = self.policy.act(obs, deterministic=True)
-                action = res[0]
-                raw_obs_next, reward, done, info = env.step(action)
-                if render:
-                    env.render()
-                time.sleep(sleep)
+            time.sleep(sleep)
 
-                if done:
-                    break
+            if done:
+                break
 
-                if "cost" in info:
-                    ep_cost += info["cost"]
+            if "cost" in info:
+                ep_cost += info["cost"]
 
-                ep_reward += reward
-                ep_len += 1
-                total_steps += 1
-                raw_obs = raw_obs_next
+            ep_reward += reward
+            ep_len += 1
+            total_steps += 1
+            raw_obs = raw_obs_next
 
-            self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="eval")
+        self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="eval")
 
-            # Log info about epoch
-            self._log_metrics(epoch, total_steps)
+        # Log info about epoch
+        # self._log_metrics(epoch, total_steps)
+        return ego, env.render_result
 
     def _log_metrics(self, epoch, total_steps, time=None, verbose=True):
         # self.logger.log_tabular('CostLimit', self.cost_limit)

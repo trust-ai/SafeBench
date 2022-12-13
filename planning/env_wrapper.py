@@ -16,6 +16,8 @@ class EnvWrapper(gym.Wrapper):
         super().__init__(env)
         self.cfg = cfg
         self._env = env
+
+        self.is_running = True
         # self.spec.id = "GymCarla"
         self.spec.max_episode_steps = cfg.MAX_EPISODE_LEN
         env._max_episode_steps = cfg.MAX_EPISODE_LEN
@@ -29,11 +31,15 @@ class EnvWrapper(gym.Wrapper):
         act_lim = np.ones((act_dim), dtype=np.float32)
         self.action_space = gym.spaces.Box(-act_lim, act_lim, dtype=np.float32)
 
+        self.render_result = []
+
     def init_world(self):
         self._env.init_world()
 
     def reset(self, **kwargs):
         obs = super().reset(**kwargs)
+
+        self.ego = self._env.ego
         return self._preprocess_obs(obs)
 
     # def reset(self, config):
@@ -48,6 +54,8 @@ class EnvWrapper(gym.Wrapper):
         done = False
         for i in range(self.frame_skip):
             o, r, d, info = super().step(action)
+
+            self.is_running = self._env.is_running
             if d:
                 done = True
             r, info = self._preprocess_reward(r, info)
@@ -57,6 +65,8 @@ class EnvWrapper(gym.Wrapper):
                 cost += info["cost"]
         if "cost" in info:
             info["cost"] = cost
+
+        self.render_result = self._env.render_result
         return o, reward, done, info
 
     def _build_obs_space(self, obs_type):
