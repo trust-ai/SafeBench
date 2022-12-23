@@ -37,21 +37,72 @@ from scenario_runner.srunner.scenario_dynamic.basic_scenario_dynamic import Basi
 from scenario_runner.srunner.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 from scenario_runner.srunner.tools.route_manipulation import interpolate_trajectory
 
-from scenario_runner.srunner.scenario_dynamic.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
+
+# standard
+from scenario_runner.srunner.scenario_dynamic.standard.object_crash_vehicle_dynamic import DynamicObjectCrossingDynamic
+from scenario_runner.srunner.scenario_dynamic.standard.object_crash_intersection_dynamic import VehicleTurningRouteDynamic
+from scenario_runner.srunner.scenario_dynamic.standard.other_leading_vehicle_dynamic import OtherLeadingVehicleDynamic
+from scenario_runner.srunner.scenario_dynamic.standard.maneuver_opposite_direction_dynamic import ManeuverOppositeDirectionDynamic
+from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
+from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionLeftTurnDynamic
+from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurnDynamic
+from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRouteDynamic
+
+# lc
+# from srunner.scenario_dynamic.LC.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_lc
+# from srunner.scenario_dynamic.LC.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_lc
+# from srunner.scenario_dynamic.LC.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_lc
+# from srunner.scenario_dynamic.LC.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_lc
+from scenario_runner.srunner.scenario_dynamic.LC.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_lc
+# from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_lc
+# from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_lc
+# from srunner.scenario_dynamic.LC.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_lc
+
+# carla_challenge
+
+# from scenario_runner.srunner.scenario_dynamic.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
+# from srunner.scenario_dynamic.carla_challenge.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_carla_challenge
+# from srunner.scenario_dynamic.carla_challenge.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_carla_challenge
+# from srunner.scenario_dynamic.carla_challenge.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_carla_challenge
+# from srunner.scenario_dynamic.carla_challenge.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_carla_challenge
+from scenario_runner.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_carla_challenge
+# from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_carla_challenge
+# from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_carla_challenge
+# from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_carla_challenge
 
 
 SECONDS_GIVEN_PER_METERS = 1
 
 NUMBER_CLASS_TRANSLATION = {
     "standard": {
-        "Scenario3": OppositeVehicleRunningRedLightDynamic,
-        "Scenario4": OppositeVehicleRunningRedLightDynamic,
-        "Scenario5": OppositeVehicleRunningRedLightDynamic,
-        "Scenario6": OppositeVehicleRunningRedLightDynamic,
-        "Scenario7": OppositeVehicleRunningRedLightDynamic,
-        "Scenario8": OppositeVehicleRunningRedLightDynamic,
-        "Scenario9": OppositeVehicleRunningRedLightDynamic,
-        "Scenario10": OppositeVehicleRunningRedLightDynamic,
+        "Scenario3": OtherLeadingVehicleDynamic,
+        "Scenario4": OtherLeadingVehicleDynamic,
+        "Scenario5": OtherLeadingVehicleDynamic,
+        "Scenario6": OtherLeadingVehicleDynamic,
+        "Scenario7": OtherLeadingVehicleDynamic,
+        "Scenario8": OtherLeadingVehicleDynamic,
+        "Scenario9": OtherLeadingVehicleDynamic,
+        "Scenario10": OtherLeadingVehicleDynamic,
+    },
+    'carla_challenge': {
+        "Scenario3": scenario_07_carla_challenge,
+        "Scenario4": scenario_07_carla_challenge,
+        "Scenario5": scenario_07_carla_challenge,
+        "Scenario6": scenario_07_carla_challenge,
+        "Scenario7": scenario_07_carla_challenge,
+        "Scenario8": scenario_07_carla_challenge,
+        "Scenario9": scenario_07_carla_challenge,
+        "Scenario10": scenario_07_carla_challenge,
+    },
+    'lc': {
+        "Scenario3": scenario_07_lc,
+        "Scenario4": scenario_07_lc,
+        "Scenario5": scenario_07_lc,
+        "Scenario6": scenario_07_lc,
+        "Scenario7": scenario_07_lc,
+        "Scenario8": scenario_07_lc,
+        "Scenario9": scenario_07_lc,
+        "Scenario10": scenario_07_lc,
     },
 }
 

@@ -16,7 +16,7 @@ from planning.safe_rl.util.logger import EpochLogger, setup_logger_kwargs
 from planning.safe_rl.util.run_util import load_config, find_config_dir, find_model_path, setup_eval_configs
 from planning.safe_rl.util.torch_util import export_device_env_variable, seed_torch
 from planning.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
-from planning.env_wrapper import carla_env
+from planning.env_wrapper_2 import carla_env
 
 from gym_carla.envs.render import BirdeyeRender
 from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -43,7 +43,7 @@ class MyThread(threading.Thread):
         print("thread done", self.threadId)
 
 
-class CarlaRunner:
+class CarlaRunner2:
     '''
     Main entry that coodrinate learner and worker
     '''
@@ -313,36 +313,27 @@ class CarlaRunner:
             world = self.init_world(town)
             print("###### init world completed #######")
             config_lists = self.map_town_config[town]
-            thread_list = []
-            i = 0
-            # thread1 = MyThread(i, epochs, sleep, render, config_lists[0], world, self.eval)
-            # thread2 = MyThread(i, epochs, sleep, render, config_lists[2], world, self.eval)
-            # thread_list.append(thread1)
-            # thread_list.append(thread2)
 
             chosen_config = [0]
-            # for config in config_lists:
-            for i in range(len(config_lists)):
+
+            env_list = []
+
+            for i in chosen_config:
+                # initialize env
                 config = config_lists[i]
-                if i not in chosen_config:
-                    continue
-                thread = MyThread(i, epochs, sleep, render, config, world, self.eval)
-                # self.eval(epochs=epochs, sleep=sleep, render=render, config=config, world=world)
-                thread_list.append(thread)
+                env = carla_env(self.obs_type, self.port, self.traffic_port, world=world)
 
-            for cur_thread in thread_list:
-                cur_thread.start()
 
-            for cur_thread in thread_list:
-                cur_thread.join()
+            # iteratively run all configs
+            # each config has a separate env
+            # tick the world after all the controls applied
 
-            print("all threads are done")
 
-            self._init_renderer(len(thread_list))
+            # for config in config_lists:
+            # for i in range(len(config_lists)):
+            #     config = config_lists[i]
 
-            print("init render complete")
 
-            self.render_display(thread_list, world)
             # # get all egos
             # thread_egos = []
             # for cur_thread in thread_list:

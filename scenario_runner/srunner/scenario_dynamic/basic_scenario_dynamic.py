@@ -17,7 +17,8 @@ from scenario_runner.srunner.scenario_manager.timer import TimeOut
 from scenario_runner.srunner.scenario_manager.weather_sim import WeatherBehavior
 # from scenario_runner.srunner.scenario_manager.scenarioatomics.atomic_behaviors import UpdateAllActorControls
 
-
+class SpawnOtherActorError(Exception):
+    pass
 
 class BasicScenarioDynamic(object):
     """

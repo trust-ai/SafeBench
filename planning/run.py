@@ -2,7 +2,9 @@ import os.path as osp
 
 import json
 
-from planning.carla_runner import CarlaRunner
+from planning.carla_runner import CarlaRunner as CarlaRunner
+from planning.carla_runner_2 import CarlaRunner2 as CarlaRunner2
+
 from planning.safe_rl.util.run_util import load_config
 
 from scenario_runner.srunner.tools.route_parser import RouteParser
@@ -29,20 +31,29 @@ def gen_data_dir_name(config: dict):
 
 
 def get_scenario_configs():
-    data_file = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/data/standard.json'
+    """
+    data file should also come from args
+    """
+    data_file = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/data/dev.json'
     print('Using data file:', data_file)
     route_configurations = []
     route_file_formatter = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/route/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
     scenario_file_formatter = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/route/scenarios/scenario_%02d.json'
 
+    """
+    scenario_id, method, route_id, risk_level
+    """
     with open(data_file, 'r') as f:
         data_full = json.loads(f.read())
         data_full = [item for item in data_full if item["scenario_id"] == 5]
+        data_full = [item for item in data_full if item["method"] == 'lc']
 
     print('loading {} data'.format(len(data_full)))
 
     map_town_config = {}
+
     for item in data_full:
+        print(item)
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
         scenario_file = scenario_file_formatter % item['scenario_id']
         parsed_configs = RouteParser.parse_routes_file(route_file, scenario_file)
@@ -104,8 +115,9 @@ if __name__ == '__main__':
 
     config["map_town_config"] = map_town_config
 
-    runner = CarlaRunner(**config)
+    # runner = CarlaRunner(**config)
 
+    runner = CarlaRunner2(**config)
     # runner = SafetyGymRunner(**config)
 
 

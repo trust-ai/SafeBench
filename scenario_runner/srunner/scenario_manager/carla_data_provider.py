@@ -365,15 +365,18 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
             param['light'].set_yellow_time(param['yellow_time'])
 
     @staticmethod
-    def get_next_traffic_light(actor, use_cached_location=True):
+    def get_next_traffic_light(actor, use_cached_location=True, use_transform=False):
         """
         returns the next relevant traffic light for the provided actor
         """
 
-        if not use_cached_location:
-            location = actor.get_transform().location
+        if use_transform:
+            location = actor.location
         else:
-            location = CarlaDataProvider.get_location(actor)
+            if not use_cached_location:
+                location = actor.get_transform().location
+            else:
+                location = CarlaDataProvider.get_location(actor)
 
         waypoint = CarlaDataProvider.get_map().get_waypoint(location)
         # Create list of all waypoints until next intersection

@@ -35,11 +35,14 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         Setup all relevant parameters and create scenario
         and instantiate scenario manager
         """
-
+        # parameters = [self.actor_speed, self.trigger_distance_threshold]
+        # parameters = [10, 35]
         self.parameters = config.parameters
 
         # Timeout of scenario in seconds
         self.timeout = timeout
+
+        print(self.parameters)
 
         self.actor_speed = self.parameters[0]
 
@@ -65,6 +68,7 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         self._actor_distance = 110
         self.ego_max_driven_distance = 150
 
+
     def _create_behavior(self):
         pass
 
@@ -73,7 +77,6 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         """
         Custom initialization
         """
-        print("here =====================")
         config = self.config
         self._other_actor_transform = config.other_actors[0].transform
         first_vehicle_transform = carla.Transform(
@@ -87,7 +90,6 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
                                                           self.actor_type_list)
         self.reference_actor = self.other_actors[0]
-
 
         # other vehicle's traffic light
         traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
@@ -105,6 +107,9 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         if self.trigger:
             for i in range(len(self.other_actors)):
                 self.scenario_operation.go_straight(self.actor_speed, i)
+
+    def _create_behavior(self):
+        pass
 
     def check_stop_condition(self):
         """
@@ -130,12 +135,13 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
         """
             Setup all relevant parameters and create scenario
         """
+        # parameters = [self._target_vel, self.trigger_distance_threshold]
+        # parameters = [12.0, 45]
         self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
         self._target_vel = self.parameters[0]
         self.timeout = timeout
-
         # self._brake_value = 0.5
         # self._ego_distance = 110
         self._actor_distance = 100
@@ -214,6 +220,8 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
         """
             Setup all relevant parameters and create scenario
         """
+        # parameters = [self._target_vel, self.trigger_distance_threshold]
+        # parameters = [12, 35]
         self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
@@ -298,6 +306,8 @@ class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
+        # parameters = [self.actor_speed, self.trigger_distance_threshold]
+        # parameters = [10, 35]
         self.parameters = config.parameters
         # Timeout of scenario in seconds
         self.timeout = timeout
