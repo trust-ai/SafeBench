@@ -290,12 +290,12 @@ class CarlaRunner2:
 
         return world
 
-    def _init_renderer(self, num_threads):
+    def _init_renderer(self, num_envs):
         """Initialize the birdeye view renderer.
     """
         pygame.init()
         self.display = pygame.display.set_mode(
-            (self.display_size * 3, self.display_size * num_threads),
+            (self.display_size * 3, self.display_size * num_envs),
             pygame.HWSURFACE | pygame.DOUBLEBUF)
 
         pixels_per_meter = self.display_size / self.obs_range
@@ -317,63 +317,71 @@ class CarlaRunner2:
             chosen_config = [0]
 
             env_list = []
+            obs_list = []
 
             for i in chosen_config:
                 # initialize env
                 config = config_lists[i]
                 env = carla_env(self.obs_type, self.port, self.traffic_port, world=world)
+                env_list.append(env)
+                env.init_world()
+                kwargs = {"config": config}
+                raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
+                obs_list.append([raw_obs, ep_reward, ep_len, ep_cost])
 
+                if render:
+                    env.render()
 
-            # iteratively run all configs
-            # each config has a separate env
-            # tick the world after all the controls applied
+            #TODO: make sure quiting for loop when all scenarios are finished
+            for i in range(self.timeout_steps):
+                for j in range(len(env_list)):
+                    cur_env = env_list[j]
 
+                    if not cur_env.is_running:
+                        continue
 
-            # for config in config_lists:
-            # for i in range(len(config_lists)):
-            #     config = config_lists[i]
+                    cur_obs = obs_list[j]
 
+                    raw_obs, ep_len, ep_reward, ep_cost, done = self.eval(cur_env, cur_obs[0], cur_obs[1], cur_obs[2], cur_obs[3])
 
-            # # get all egos
-            # thread_egos = []
-            # for cur_thread in thread_list:
-            #     birdeye_render = BirdeyeRender(world, self.birdeye_params)
-            #     birdeye_render.set_hero(cur_thread.ego, cur_thread.ego.id)
-            #
-            #     # get all the information
-            #     self.birdeye_render.vehicle_polygons = self.vehicle_polygons
-            #     self.birdeye_render.walker_polygons = self.walker_polygons
-            #     self.birdeye_render.waypoints = self.waypoints
+                    if done:
+                        cur_env.is_running = False
+                        continue
 
-            # print("exiting town: ", town)
+                    obs_list[j] = [raw_obs, ep_len, ep_reward, ep_cost]
+                # tick the world
+                # Note: moving tick out will make ticking blocked
+                world.tick()
 
-            # time.sleep(100)
+            # display
+            self._init_renderer(len(env_list))
+            self.render_display(env_list, world)
 
-    def render_display(self, thread_list, world):
+    def render_display(self, env_list, world):
         print("in render display")
         # print(len(thread_list[0].render_result))
         birdeye_render_list = []
 
         max_len = 0
 
-        for cur_thread in thread_list:
+        for cur_env in env_list:
             birdeye_render = BirdeyeRender(world, self.birdeye_params)
-            birdeye_render.set_hero(cur_thread.ego, cur_thread.ego.id)
+            birdeye_render.set_hero(cur_env.ego, cur_env.ego.id)
             birdeye_render_list.append(birdeye_render)
 
-            print(len(cur_thread.render_result))
+            print(len(cur_env.render_result))
 
-            max_len = max(len(cur_thread.render_result), max_len)
+            max_len = max(len(cur_env.render_result), max_len)
 
         # print(self.timeout_steps)
 
         for i in range(max_len):
-            for j in range(len(thread_list)):
-                if i >= len(thread_list[j].render_result):
+            for j in range(len(env_list)):
+                if i >= len(env_list[j].render_result):
                     continue
                 # if j != 0:
                 #     continue
-                cur_render_result = thread_list[j].render_result[i]
+                cur_render_result = env_list[j].render_result[i]
                 cur_birdeye_render = birdeye_render_list[j]
 
                 cur_birdeye_render.vehicle_polygons = cur_render_result[0]
@@ -388,58 +396,78 @@ class CarlaRunner2:
                 pygame.display.flip()
             time.sleep(0.1)
 
-
-
-    def eval(self, config, world, epochs=10, sleep=0.01, render=True):
-        # build town and config mapping map
-        # for town in self.map_town_config:
-        #     total_steps = 0
-        #     # load world here
-        #     # self.env.init_world(town)
-        #     print("###### init world completed #######")
-        total_steps = 0
-        env = carla_env(self.obs_type, self.port, self.traffic_port, world=world)
-        env.init_world()
-        # config_lists = self.map_town_config[town]
-        # for epoch in range(epochs):
-        # every epoch, different config
-        # config = config_lists[epoch]
-        kwargs = {"config": config}
-        raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
-        ego = env.ego
+    def eval(self, env, raw_obs, ep_reward, ep_len, ep_cost, render=True, sleep=0.01):
+        if self.obs_type > 1:
+            obs = self.policy.process_img(raw_obs)
+        else:
+            obs = raw_obs
+        res = self.policy.act(obs, deterministic=True)
+        action = res[0]
+        raw_obs_next, reward, done, info = env.step(action)
         if render:
             env.render()
-        for i in range(self.timeout_steps):
-            # check if current scenario is running out
-            if not env.is_running:
-                return ego, env.render_result
-            if self.obs_type > 1:
-                obs = self.policy.process_img(raw_obs)
-            else:
-                obs = raw_obs
-            res = self.policy.act(obs, deterministic=True)
-            action = res[0]
-            raw_obs_next, reward, done, info = env.step(action)
-            if render:
-                env.render()
-            time.sleep(sleep)
 
-            if done:
-                break
+        time.sleep(sleep)
 
-            if "cost" in info:
-                ep_cost += info["cost"]
+        if "cost" in info:
+            ep_cost += info["cost"]
 
-            ep_reward += reward
-            ep_len += 1
-            total_steps += 1
-            raw_obs = raw_obs_next
+        ep_reward += reward
+        ep_len += 1
+        raw_obs = raw_obs_next
 
-        self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="eval")
+        return raw_obs, ep_reward, ep_len, ep_cost, done
 
-        # Log info about epoch
-        # self._log_metrics(epoch, total_steps)
-        return ego, env.render_result
+    # def eval(self, config, world, epochs=10, sleep=0.01, render=True):
+    #     # build town and config mapping map
+    #     # for town in self.map_town_config:
+    #     #     total_steps = 0
+    #     #     # load world here
+    #     #     # self.env.init_world(town)
+    #     #     print("###### init world completed #######")
+    #     total_steps = 0
+    #     env = carla_env(self.obs_type, self.port, self.traffic_port, world=world)
+    #     env.init_world()
+    #     # config_lists = self.map_town_config[town]
+    #     # for epoch in range(epochs):
+    #     # every epoch, different config
+    #     # config = config_lists[epoch]
+    #     kwargs = {"config": config}
+    #     raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
+    #     ego = env.ego
+    #     if render:
+    #         env.render()
+    #     for i in range(self.timeout_steps):
+    #         # check if current scenario is running out
+    #         if not env.is_running:
+    #             return ego, env.render_result
+    #         if self.obs_type > 1:
+    #             obs = self.policy.process_img(raw_obs)
+    #         else:
+    #             obs = raw_obs
+    #         res = self.policy.act(obs, deterministic=True)
+    #         action = res[0]
+    #         raw_obs_next, reward, done, info = env.step(action)
+    #         if render:
+    #             env.render()
+    #         time.sleep(sleep)
+    #
+    #         if done:
+    #             break
+    #
+    #         if "cost" in info:
+    #             ep_cost += info["cost"]
+    #
+    #         ep_reward += reward
+    #         ep_len += 1
+    #         total_steps += 1
+    #         raw_obs = raw_obs_next
+    #
+    #     self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="eval")
+    #
+    #     # Log info about epoch
+    #     # self._log_metrics(epoch, total_steps)
+    #     return ego, env.render_result
 
     def _log_metrics(self, epoch, total_steps, time=None, verbose=True):
         # self.logger.log_tabular('CostLimit', self.cost_limit)

@@ -583,6 +583,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
                 print('stop due to max steps')
 
         for scenario in self.list_scenarios:
+            print(running_status['driven_distance'])
             if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
                 stop = True
                 print('stop due to max driven distance')

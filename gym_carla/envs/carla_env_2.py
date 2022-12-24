@@ -476,7 +476,8 @@ class CarlaEnv2(gym.Env):
                                    steer=float(-steer),
                                    brake=float(brake))
         self.ego.apply_control(act)
-        self.world.tick()
+        #NOTE: modify for new structure
+        # self.world.tick()
 
         # Append actors polygon list
         vehicle_poly_dict = self._get_actor_polygons('vehicle.*')
