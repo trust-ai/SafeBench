@@ -320,7 +320,7 @@ class CarlaRunner:
             # thread_list.append(thread1)
             # thread_list.append(thread2)
 
-            chosen_config = [0]
+            chosen_config = [0, 2]
             # for config in config_lists:
             for i in range(len(config_lists)):
                 config = config_lists[i]

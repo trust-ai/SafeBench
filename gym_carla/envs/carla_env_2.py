@@ -24,7 +24,7 @@ from gym_carla.envs.route_planner import RoutePlanner
 from gym_carla.envs.misc import *
 
 from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from scenario_runner.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
+from scenario_runner.srunner.scenario_dynamic.route_scenario_dynamic_2 import RouteScenarioDynamic
 from scenario_runner.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
 
 
@@ -284,8 +284,8 @@ class CarlaEnv2(gym.Env):
         self._init_renderer()
         # print('Finish initializing renderer')
 
-    def load_scenario(self, config):
-        self.scenario = RouteScenarioDynamic(world=self.world, config=config, timeout=800)
+    def load_scenario(self, config, ego_id):
+        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=ego_id,timeout=800)
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)
@@ -294,6 +294,7 @@ class CarlaEnv2(gym.Env):
     #TODO: get config,
     def reset(self, **kwargs):
         config = kwargs['config']
+        ego_id = kwargs['ego_id']
         # TODO: load scenario, spawn ego actors
         # Clear sensor objects
         if self.collision_sensor is not None:
@@ -315,7 +316,7 @@ class CarlaEnv2(gym.Env):
         # print("###### world init completed #######")
 
         # then load base route scenario, same time, load ego vehicle
-        self.load_scenario(config)
+        self.load_scenario(config, ego_id)
         print("##### route scenario loading completed #####")
 
 

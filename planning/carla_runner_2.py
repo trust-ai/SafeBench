@@ -884,7 +884,7 @@ class CarlaRunner2:
             print("###### init world completed #######")
             config_lists = self.map_town_config[town]
 
-            chosen_config = [0]
+            chosen_config = [0, 2]
 
             env_list = []
             obs_list = []
@@ -895,7 +895,7 @@ class CarlaRunner2:
                 env = carla_env(self.obs_type, self.port, self.traffic_port, world=world)
                 env_list.append(env)
                 env.init_world()
-                kwargs = {"config": config}
+                kwargs = {"config": config, "ego_id": i}
                 raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
                 obs_list.append([raw_obs, ep_reward, ep_len, ep_cost])
 
@@ -911,10 +911,12 @@ class CarlaRunner2:
                     cur_action = self.get_action(cur_raw_obs)
                     actions_list.append(cur_action)
 
-                self.update_env(env_list=env_list, obs_list=obs_list, actions_list=actions_list, world=world)
+                print("here1 ==========================")
+                self.update_env_2(env_list=env_list, obs_list=obs_list, actions_list=actions_list, world=world)
                 # world.tick()
                 time.sleep(sleep)
 
+            print("here2 ===============================")
             # display
             self._init_renderer(len(env_list))
             self.render_display(env_list, world)
@@ -967,6 +969,38 @@ class CarlaRunner2:
         action = res[0]
 
         return action
+
+    def update_env_2(self, env_list, obs_list, actions_list, world, render=True):
+        reward = [0] * len(env_list)
+        cost = [0] * len(env_list)
+        info = [None] * len(env_list)
+        o = [None] * len(env_list)
+        for frame_skip in range(FRAME_SKIP):
+            for j in range(len(env_list)):
+                env = env_list[j]
+                re_o, re_reward, re_done, re_info, re_cost = env.step(actions_list[j], reward[j], cost[j])
+                if re_done:
+                    env.is_running = False
+                    continue
+                reward[j] = re_reward
+                cost[j] = re_cost
+                info[j] = re_info
+                o[j] = re_o
+
+            world.tick()
+
+        for k in range(len(env_list)):
+            if render:
+                env_list[k].render()
+            ep_reward = obs_list[j][1]
+            ep_len = obs_list[j][2]
+            ep_cost = obs_list[j][3]
+            if "cost" in info[j]:
+                ep_cost += info[j]["cost"]
+            ep_reward += reward[j]
+            ep_len += 1
+            obs_list[j] = [o[j], ep_reward, ep_len, ep_cost]
+
 
     def update_env(self, env_list, obs_list, actions_list, world, render=True):
         reward = 0
