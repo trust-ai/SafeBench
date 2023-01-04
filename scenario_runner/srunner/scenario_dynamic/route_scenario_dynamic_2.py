@@ -202,6 +202,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
         ego_vehicle = self._update_ego_vehicle()
 
+
         self.list_scenarios = self._build_scenario_instances(world,
                                                              ego_vehicle,
                                                              self.sampled_scenarios_definitions,
@@ -368,17 +369,23 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         elevate_transform = self.route[0][0]
         # elevate_transform.location.z += 0.5
 
+        print(" =================================== elevate transform")
+        print(elevate_transform)
         success = False
+        # NOTE: request actor has bug
         while not success:
+            print(success)
             try:
                 role_name = 'ego_vehicle'+str(self.ego_id)
                 print(role_name)
                 ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.lincoln.mkz2017',
                                                                   elevate_transform,
-                                                                  rolename='ego_vehicle'+str(self.ego_id))
+                                                                  rolename='ego_vehicle'+str(self.ego_id),
+                                                                  tick=False)
                 success = True
             except RuntimeError:
                 elevate_transform.location.z += 0.1
+
 
         # Collision sensor
         collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
@@ -404,6 +411,8 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         self.lidar_sensor = self.world.spawn_actor(lidar_bp, lidar_trans, attach_to=ego_vehicle)
         self.camera_sensor = self.world.spawn_actor(camera_bp, camera_trans, attach_to=ego_vehicle)
 
+        print("========= ego vehicle: ")
+        print(ego_vehicle)
         return ego_vehicle
 
     def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions,

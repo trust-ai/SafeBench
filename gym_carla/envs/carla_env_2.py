@@ -286,6 +286,7 @@ class CarlaEnv2(gym.Env):
 
     def load_scenario(self, config, ego_id):
         self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=ego_id,timeout=800)
+        print("=========== scenario load succeed ================")
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)

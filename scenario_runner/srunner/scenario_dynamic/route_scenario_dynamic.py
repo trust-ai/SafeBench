@@ -367,6 +367,9 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         elevate_transform = self.route[0][0]
         # elevate_transform.location.z += 0.5
 
+        print(" ==================  elevate transform")
+        print(elevate_transform)
+
         success = False
         while not success:
             try:
