@@ -285,6 +285,9 @@ class CarlaRunner2:
 
 
         world = self.client.load_world(town)
+        settings = world.get_settings()
+        settings.synchronous_mode = True
+        world.apply_settings(settings)
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(world)
         CarlaDataProvider.set_traffic_manager_port(int(self.traffic_port))

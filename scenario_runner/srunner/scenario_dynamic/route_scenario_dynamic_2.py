@@ -373,6 +373,8 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         print(elevate_transform)
         success = False
         # NOTE: request actor has bug
+        print("============ carla data provider sync mode")
+        print(CarlaDataProvider.is_sync_mode())
         while not success:
             print(success)
             try:
@@ -381,7 +383,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
                 ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.lincoln.mkz2017',
                                                                   elevate_transform,
                                                                   rolename='ego_vehicle'+str(self.ego_id),
-                                                                  tick=False)
+                                                                  )
                 success = True
             except RuntimeError:
                 elevate_transform.location.z += 0.1

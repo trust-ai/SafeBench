@@ -578,8 +578,11 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         else:
             CarlaDataProvider._world.wait_for_tick()
 
+        print(" ============= actor in carla data provider")
+        print(actor)
         CarlaDataProvider._carla_actor_pool[actor.id] = actor
         CarlaDataProvider.register_actor(actor)
+
         return actor
 
     @staticmethod
