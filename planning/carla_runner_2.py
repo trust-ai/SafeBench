@@ -314,6 +314,7 @@ class CarlaRunner2:
             print("###### init world completed #######")
             config_lists = self.map_town_config[town]
 
+            #TODO: chosen config comes from outer parameter
             chosen_config = [0, 2]
 
             env_list = []
@@ -358,16 +359,12 @@ class CarlaRunner2:
             birdeye_render.set_hero(cur_env.ego, cur_env.ego.id)
             birdeye_render_list.append(birdeye_render)
 
-            print(len(cur_env.render_result))
-
             max_len = max(len(cur_env.render_result), max_len)
 
         for i in range(max_len):
             for j in range(len(env_list)):
                 if i >= len(env_list[j].render_result):
                     continue
-                # if j != 0:
-                #     continue
                 cur_render_result = env_list[j].render_result[i]
                 cur_birdeye_render = birdeye_render_list[j]
 
