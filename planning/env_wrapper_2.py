@@ -45,10 +45,6 @@ class EnvWrapper(gym.Wrapper):
         self.ego = self._env.ego
         return self._preprocess_obs(obs)
 
-    # def reset(self, config):
-    #     # obs = super().reset(config)
-    #     obs = self._env.reset(config)
-    #     return self._preprocess_obs(obs)
     def step(self, action, reward, cost):
         o, r, d, info = super().step(action)
         self.is_running = self._env.is_running
@@ -65,31 +61,6 @@ class EnvWrapper(gym.Wrapper):
         self.render_result = self._env.render_result
 
         return o, reward, done, info, cost
-
-    # def step(self, action):
-    #     action = self._postprocess_action(action)
-    #     reward = 0
-    #     cost = 0
-    #     done = False
-    #     # self._env.world.tick()
-    #     # NOTE: it's here blocked ticking
-    #     for i in range(self.frame_skip):
-    #         o, r, d, info = super().step(action)
-    #
-    #         self.is_running = self._env.is_running
-    #         if d:
-    #             done = True
-    #         r, info = self._preprocess_reward(r, info)
-    #         o = self._preprocess_obs(o)
-    #         reward += r
-    #         if "cost" in info:
-    #             cost += info["cost"]
-    #     if "cost" in info:
-    #         info["cost"] = cost
-    #
-    #     self.render_result = self._env.render_result
-    #
-    #     return o, reward, done, info
 
     def _build_obs_space(self, obs_type):
         self.obs_type = obs_type

@@ -96,7 +96,6 @@ class CarlaRunner2:
         export_device_env_variable(device, id=device_id)
 
         self.map_town_config = kwarg['map_town_config']
-        print(self.map_town_config)
 
         self.episode_rerun_num = episode_rerun_num
         self.sample_episode_num = sample_episode_num
@@ -135,8 +134,6 @@ class CarlaRunner2:
         else:
             self.cost_limit = 1e3
 
-        # Fred 2022.12.3
-        # init client
         self.client = carla.Client('localhost', port)
         self.client.set_timeout(10.0)
         self.trafficManager = self.client.get_trafficmanager(traffic_port)
@@ -281,9 +278,7 @@ class CarlaRunner2:
 
 
     def init_world(self, town):
-        # before init world, clear all things
-
-
+        # TODO: before init world, clear all things
         world = self.client.load_world(town)
         settings = world.get_settings()
         settings.synchronous_mode = True
@@ -313,7 +308,7 @@ class CarlaRunner2:
         }
         # birdeye_render = BirdeyeRender(world, birdeye_params)
 
-    def run_eval(self, epochs=10, sleep=0.01, render=True):
+    def run_eval(self, sleep=0.01, render=True):
         for town in self.map_town_config:
             world = self.init_world(town)
             print("###### init world completed #######")
@@ -346,8 +341,7 @@ class CarlaRunner2:
                     cur_action = self.get_action(cur_raw_obs)
                     actions_list.append(cur_action)
 
-                self.update_env_2(env_list=env_list, obs_list=obs_list, actions_list=actions_list, world=world)
-                # world.tick()
+                self.update_env(env_list=env_list, obs_list=obs_list, actions_list=actions_list, world=world)
                 time.sleep(sleep)
             # display
             self._init_renderer(len(env_list))
@@ -355,7 +349,6 @@ class CarlaRunner2:
 
     def render_display(self, env_list, world):
         print("in render display")
-        # print(len(thread_list[0].render_result))
         birdeye_render_list = []
 
         max_len = 0
@@ -369,8 +362,6 @@ class CarlaRunner2:
 
             max_len = max(len(cur_env.render_result), max_len)
 
-        # print(self.timeout_steps)
-
         for i in range(max_len):
             for j in range(len(env_list)):
                 if i >= len(env_list[j].render_result):
@@ -383,8 +374,6 @@ class CarlaRunner2:
                 cur_birdeye_render.vehicle_polygons = cur_render_result[0]
                 cur_birdeye_render.walker_polygons = cur_render_result[1]
                 cur_birdeye_render.waypoints = cur_render_result[2]
-
-                # cur_birdeye_render.render(self.display, cur_render_result[3])
 
                 self.display.blit(cur_render_result[4], (0, j * self.display_size))
                 self.display.blit(cur_render_result[5], (self.display_size, j * self.display_size))
@@ -402,7 +391,7 @@ class CarlaRunner2:
 
         return action
 
-    def update_env_2(self, env_list, obs_list, actions_list, world, render=True):
+    def update_env(self, env_list, obs_list, actions_list, world, render=True):
         reward = [0] * len(env_list)
         cost = [0] * len(env_list)
         info = [None] * len(env_list)
@@ -432,113 +421,6 @@ class CarlaRunner2:
             ep_reward += reward[j]
             ep_len += 1
             obs_list[j] = [o[j], ep_reward, ep_len, ep_cost]
-
-
-    def update_env(self, env_list, obs_list, actions_list, world, render=True):
-        reward = 0
-        cost = 0
-        info = None
-        o = None
-        for frame_skip in range(FRAME_SKIP):
-            env = env_list[0]
-            re_o, re_reward, re_done, re_info, re_cost = env.step(actions_list[0], reward, cost)
-            if re_done:
-                env.is_running = False
-                break
-            reward = re_reward
-            cost = re_cost
-            info = re_info
-            o = re_o
-
-            world.tick()
-
-        if render:
-            env_list[0].render()
-        # after all the frame_skip, update global things
-        ep_reward = obs_list[0][1]
-        ep_len = obs_list[0][2]
-        ep_cost = obs_list[0][3]
-        if "cost" in info:
-            ep_cost += info["cost"]
-        ep_reward += reward
-        ep_len += 1
-        obs_list[0] = [o, ep_reward, ep_len, ep_cost]
-
-
-    def eval(self, env, raw_obs, ep_reward, ep_len, ep_cost, world, render=True, sleep=0.01):
-        if self.obs_type > 1:
-            obs = self.policy.process_img(raw_obs)
-        else:
-            obs = raw_obs
-        res = self.policy.act(obs, deterministic=True)
-        action = res[0]
-        raw_obs_next, reward, done, info = env.step(action)
-
-        # world.tick()
-        if render:
-            env.render()
-
-        time.sleep(sleep)
-
-        if "cost" in info:
-            ep_cost += info["cost"]
-
-        ep_reward += reward
-        ep_len += 1
-        raw_obs = raw_obs_next
-
-        return raw_obs, ep_reward, ep_len, ep_cost, done
-
-    # def eval(self, config, world, epochs=10, sleep=0.01, render=True):
-    #     # build town and config mapping map
-    #     # for town in self.map_town_config:
-    #     #     total_steps = 0
-    #     #     # load world here
-    #     #     # self.env.init_world(town)
-    #     #     print("###### init world completed #######")
-    #     total_steps = 0
-    #     env = carla_env(self.obs_type, self.port, self.traffic_port, world=world)
-    #     env.init_world()
-    #     # config_lists = self.map_town_config[town]
-    #     # for epoch in range(epochs):
-    #     # every epoch, different config
-    #     # config = config_lists[epoch]
-    #     kwargs = {"config": config}
-    #     raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
-    #     ego = env.ego
-    #     if render:
-    #         env.render()
-    #     for i in range(self.timeout_steps):
-    #         # check if current scenario is running out
-    #         if not env.is_running:
-    #             return ego, env.render_result
-    #         if self.obs_type > 1:
-    #             obs = self.policy.process_img(raw_obs)
-    #         else:
-    #             obs = raw_obs
-    #         res = self.policy.act(obs, deterministic=True)
-    #         action = res[0]
-    #         raw_obs_next, reward, done, info = env.step(action)
-    #         if render:
-    #             env.render()
-    #         time.sleep(sleep)
-    #
-    #         if done:
-    #             break
-    #
-    #         if "cost" in info:
-    #             ep_cost += info["cost"]
-    #
-    #         ep_reward += reward
-    #         ep_len += 1
-    #         total_steps += 1
-    #         raw_obs = raw_obs_next
-    #
-    #     self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="eval")
-    #
-    #     # Log info about epoch
-    #     # self._log_metrics(epoch, total_steps)
-    #     return ego, env.render_result
 
     def _log_metrics(self, epoch, total_steps, time=None, verbose=True):
         # self.logger.log_tabular('CostLimit', self.cost_limit)
