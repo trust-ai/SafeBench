@@ -372,9 +372,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         print(" =================================== elevate transform")
         print(elevate_transform)
         success = False
-        # NOTE: request actor has bug
-        print("============ carla data provider sync mode")
-        print(CarlaDataProvider.is_sync_mode())
         while not success:
             print(success)
             try:

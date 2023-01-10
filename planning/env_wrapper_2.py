@@ -39,6 +39,9 @@ class EnvWrapper(gym.Wrapper):
     def init_world(self):
         self._env.init_world()
 
+    def clear_up(self):
+        self._env.clear_up()
+
     def reset(self, **kwargs):
         obs = super().reset(**kwargs)
 

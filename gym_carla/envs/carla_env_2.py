@@ -202,22 +202,12 @@ class CarlaEnv2(gym.Env):
         self.scenario_manager.load_scenario(self.scenario)
         self.scenario_manager._init_scenarios()
 
-    #TODO: get config,
     def reset(self, **kwargs):
         config = kwargs['config']
         ego_id = kwargs['ego_id']
-        # TODO: load scenario, spawn ego actors
-        # Clear sensor objects
-        if self.collision_sensor is not None:
-            self._stop_sensor()
-        # Delete sensors, vehicles and walkers
 
-        self._clear_all_actors([
-            'sensor.other.collision', 'sensor.lidar.ray_cast',
-            'sensor.camera.rgb', 'vehicle.*', 'controller.ai.walker',
-            'walker.*'
-        ])
 
+        print("######## start loading scenario")
         self.load_scenario(config, ego_id)
         print("##### route scenario loading completed #####")
 
@@ -870,3 +860,14 @@ class CarlaEnv2(gym.Env):
                     if actor.type_id == 'controller.ai.walker':
                         actor.stop()
                     actor.destroy()
+
+    def clear_up(self):
+        #Clear sensor objects
+        if self.collision_sensor is not None:
+            self._stop_sensor()
+        #Delete sensors, vehicles and walkers
+        self._clear_all_actors([
+            'sensor.other.collision', 'sensor.lidar.ray_cast',
+            'sensor.camera.rgb', 'vehicle.*', 'controller.ai.walker',
+            'walker.*'
+        ])

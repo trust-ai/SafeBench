@@ -30,25 +30,31 @@ def gen_data_dir_name(config: dict):
     return name
 
 
-def get_scenario_configs():
+def get_scenario_configs(scenario_id, method):
     """
     data file should also come from args
     """
-    #TODO: sys get path
-    data_file = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/data/dev.json'
+    file_upper_path = osp.abspath('./')
+    data_file = file_upper_path + '/scenario_data/data/'
+    if method == 'benign':
+        data_file += 'benign.json'
+    elif method == 'standard':
+        data_file += 'standard.json'
+    else:
+        data_file += 'dev.json'
+
     print('Using data file:', data_file)
     route_configurations = []
-    route_file_formatter = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/route/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
-    scenario_file_formatter = '/home/shuaiwa2/Platform_gymcarla_2/safe-av-red-team/scenario_data/route/scenarios/scenario_%02d.json'
+    route_file_formatter = file_upper_path + '/scenario_data/route/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
+    scenario_file_formatter = file_upper_path + '/scenario_data/route/scenarios/scenario_%02d.json'
 
     """
     scenario_id, method, route_id, risk_level
     """
     with open(data_file, 'r') as f:
         data_full = json.loads(f.read())
-        #TODO: remove hardcoded
-        data_full = [item for item in data_full if item["scenario_id"] == 5]
-        data_full = [item for item in data_full if item["method"] == 'lc']
+        data_full = [item for item in data_full if item["scenario_id"] == scenario_id]
+        data_full = [item for item in data_full if item["method"] == method]
 
     print('loading {} data'.format(len(data_full)))
     map_town_config = {}
@@ -96,6 +102,11 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=2000)
     parser.add_argument('--traffic_port', type=int, default=2000)
 
+    parser.add_argument('--scenario_id', type=int, default=5)
+    parser.add_argument('--method', type=str, default='lc')
+    parser.add_argument('--running_mode', type=str, default='serial')
+    parser.add_argument('--scenario_num', type=int, default=3)
+
     #TODO: add scenario_id and method arguments, running mode argument -- parallel or serial, running scenario num
 
     args = parser.parse_args()
@@ -111,20 +122,20 @@ if __name__ == '__main__':
     config["port"] = args.port
     config["traffic_port"] = args.traffic_port
 
-    route_configurations, map_town_config = get_scenario_configs()
+    route_configurations, map_town_config = get_scenario_configs(scenario_id=args.scenario_id, method=args.method)
     print("##### Route parsing done #####")
 
     config["map_town_config"] = map_town_config
 
     # TODO: separate paralle and serial
-    # runner = CarlaRunner(**config)
-
-    runner = CarlaRunner2(**config)
-    # runner = SafetyGymRunner(**config)
+    if args.running_mode == "serial":
+        runner = CarlaRunner2(**config)
+    else:
+        runner = CarlaRunner(**config)
 
 
     if args.mode == "train":
         runner.train()
     else:
         # runner.eval(render=False, sleep=0)
-        runner.run_eval(render=False, sleep=0)
+        runner.run_eval(scenario_num=args.scenario_num, render=False, sleep=0)

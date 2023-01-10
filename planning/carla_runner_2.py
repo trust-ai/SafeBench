@@ -308,14 +308,16 @@ class CarlaRunner2:
         }
         # birdeye_render = BirdeyeRender(world, birdeye_params)
 
-    def run_eval(self, sleep=0.01, render=True):
+    def run_eval(self, scenario_num, sleep=0.01, render=True):
         for town in self.map_town_config:
             world = self.init_world(town)
             print("###### init world completed #######")
             config_lists = self.map_town_config[town]
 
-            #TODO: chosen config comes from outer parameter
-            chosen_config = [0, 2]
+            #TODO: here just selct top scenario_num scenarios, conflict issue didn't solve
+            chosen_config = [0, 1, 3]
+            # for i in range(scenario_num):
+            #     chosen_config.append(i)
 
             env_list = []
             obs_list = []
@@ -330,23 +332,30 @@ class CarlaRunner2:
                 raw_obs, ep_reward, ep_len, ep_cost = env.reset(**kwargs), 0, 0, 0
                 obs_list.append([raw_obs, ep_reward, ep_len, ep_cost])
 
+                #NOTE: no use
                 if render:
                     env.render()
 
-            #TODO: make sure quiting for loop when all scenarios are finished
+            finished_env = set()
             for i in range(self.timeout_steps):
                 # first get all the actions
+                if len(finished_env) == scenario_num:
+                    print("All scenarios are done")
+                    break
                 actions_list = []
                 for k in range(len(env_list)):
                     cur_raw_obs = obs_list[k][0]
                     cur_action = self.get_action(cur_raw_obs)
                     actions_list.append(cur_action)
-
-                self.update_env(env_list=env_list, obs_list=obs_list, actions_list=actions_list, world=world)
+                self.update_env(env_list=env_list, obs_list=obs_list, actions_list=actions_list, world=world, finished_env=finished_env)
                 time.sleep(sleep)
+
             # display
             self._init_renderer(len(env_list))
             self.render_display(env_list, world)
+
+            for env in env_list:
+                env.clear_up()
 
     def render_display(self, env_list, world):
         print("in render display")
@@ -388,7 +397,7 @@ class CarlaRunner2:
 
         return action
 
-    def update_env(self, env_list, obs_list, actions_list, world, render=True):
+    def update_env(self, env_list, obs_list, actions_list, world, finished_env, render=True):
         reward = [0] * len(env_list)
         cost = [0] * len(env_list)
         info = [None] * len(env_list)
@@ -396,6 +405,10 @@ class CarlaRunner2:
         for frame_skip in range(FRAME_SKIP):
             for j in range(len(env_list)):
                 env = env_list[j]
+                if not env.is_running and env not in finished_env:
+                    finished_env.add(env)
+                if env in finished_env:
+                    continue
                 re_o, re_reward, re_done, re_info, re_cost = env.step(actions_list[j], reward[j], cost[j])
                 if re_done:
                     env.is_running = False
@@ -408,16 +421,18 @@ class CarlaRunner2:
             world.tick()
 
         for k in range(len(env_list)):
+            if env_list[k] in finished_env:
+                continue
             if render:
                 env_list[k].render()
-            ep_reward = obs_list[j][1]
-            ep_len = obs_list[j][2]
-            ep_cost = obs_list[j][3]
-            if "cost" in info[j]:
-                ep_cost += info[j]["cost"]
-            ep_reward += reward[j]
+            ep_reward = obs_list[k][1]
+            ep_len = obs_list[k][2]
+            ep_cost = obs_list[k][3]
+            if "cost" in info[k]:
+                ep_cost += info[k]["cost"]
+            ep_reward += reward[k]
             ep_len += 1
-            obs_list[j] = [o[j], ep_reward, ep_len, ep_cost]
+            obs_list[k] = [o[k], ep_reward, ep_len, ep_cost]
 
     def _log_metrics(self, epoch, total_steps, time=None, verbose=True):
         # self.logger.log_tabular('CostLimit', self.cost_limit)
