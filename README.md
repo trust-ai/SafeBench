@@ -43,7 +43,13 @@ $ DISPLAY= ./CarlaUE4.sh -prefernvidia -opengl -carla-port=2000
 ```
 $ python planning/run.py -p sac -o 0 -m eval -s 0 --port 2000 --traffic_port 8000 -d {directory of model for ego vehicles}
 ```
-See details of ```test.py``` about how to use the CARLA gym wrapper.
+3. Parameters for the running settings
+```
+--scenario_id: choose from 1 - 8
+--method: now only support "standard"
+--running_mode: choose from "serial" and "parallel", for now please first use serial
+--scenario_num: amount of scenarios you want to run simultanwously
+```
 
 Note that if you are running on a remote server via ssh, you have to first create a virtual screen and specify the DISPLAY number:
 ```

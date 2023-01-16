@@ -15,8 +15,6 @@ CFG = edict(
 class EnvWrapper(gym.Wrapper):
     def __init__(self, env, cfg):
         super().__init__(env)
-
-        print("in envwrapper 2")
         self.cfg = cfg
         self._env = env
 

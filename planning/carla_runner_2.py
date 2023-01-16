@@ -315,9 +315,9 @@ class CarlaRunner2:
             config_lists = self.map_town_config[town]
 
             #TODO: here just selct top scenario_num scenarios, conflict issue didn't solve
-            chosen_config = [0, 1, 3]
-            # for i in range(scenario_num):
-            #     chosen_config.append(i)
+            chosen_config = []
+            for i in range(scenario_num):
+                chosen_config.append(i)
 
             env_list = []
             obs_list = []
@@ -353,9 +353,9 @@ class CarlaRunner2:
             # display
             self._init_renderer(len(env_list))
             self.render_display(env_list, world)
-
-            for env in env_list:
-                env.clear_up()
+            #
+            # for env in env_list:
+            #     env.clear_up()
 
     def render_display(self, env_list, world):
         print("in render display")

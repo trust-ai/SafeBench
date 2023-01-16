@@ -103,11 +103,10 @@ if __name__ == '__main__':
     parser.add_argument('--traffic_port', type=int, default=2000)
 
     parser.add_argument('--scenario_id', type=int, default=5)
-    parser.add_argument('--method', type=str, default='lc')
+    parser.add_argument('--method', type=str, default='standard')
     parser.add_argument('--running_mode', type=str, default='serial')
     parser.add_argument('--scenario_num', type=int, default=3)
 
-    #TODO: add scenario_id and method arguments, running mode argument -- parallel or serial, running scenario num
 
     args = parser.parse_args()
     args_dict = vars(args)
@@ -127,7 +126,6 @@ if __name__ == '__main__':
 
     config["map_town_config"] = map_town_config
 
-    # TODO: separate paralle and serial
     if args.running_mode == "serial":
         runner = CarlaRunner2(**config)
     else:

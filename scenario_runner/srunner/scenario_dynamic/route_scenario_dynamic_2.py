@@ -48,24 +48,24 @@ from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_d
 from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurnDynamic
 from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRouteDynamic
 
-# lc
+# # lc
 # from srunner.scenario_dynamic.LC.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_lc
 # from srunner.scenario_dynamic.LC.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_lc
 # from srunner.scenario_dynamic.LC.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_lc
 # from srunner.scenario_dynamic.LC.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_lc
-from scenario_runner.srunner.scenario_dynamic.LC.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_lc
+# from scenario_runner.srunner.scenario_dynamic.LC.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_lc
 # from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_lc
 # from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_lc
 # from srunner.scenario_dynamic.LC.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_lc
-
-# carla_challenge
-
-# from scenario_runner.srunner.scenario_dynamic.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
+#
+# # carla_challenge
+#
+# # from scenario_runner.srunner.scenario_dynamic.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
 # from srunner.scenario_dynamic.carla_challenge.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_carla_challenge
-from scenario_runner.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_carla_challenge
+# from scenario_runner.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_carla_challenge
@@ -75,35 +75,35 @@ SECONDS_GIVEN_PER_METERS = 1
 
 NUMBER_CLASS_TRANSLATION = {
     "standard": {
-        "Scenario3": OtherLeadingVehicleDynamic,
-        "Scenario4": OtherLeadingVehicleDynamic,
+        "Scenario3": DynamicObjectCrossingDynamic,
+        "Scenario4": VehicleTurningRouteDynamic,
         "Scenario5": OtherLeadingVehicleDynamic,
-        "Scenario6": OtherLeadingVehicleDynamic,
-        "Scenario7": OtherLeadingVehicleDynamic,
-        "Scenario8": OtherLeadingVehicleDynamic,
-        "Scenario9": OtherLeadingVehicleDynamic,
-        "Scenario10": OtherLeadingVehicleDynamic,
+        "Scenario6": ManeuverOppositeDirectionDynamic,
+        "Scenario7": OppositeVehicleRunningRedLightDynamic,
+        "Scenario8": SignalizedJunctionLeftTurnDynamic,
+        "Scenario9": SignalizedJunctionRightTurnDynamic,
+        "Scenario10": NoSignalJunctionCrossingRouteDynamic,
     },
-    'carla_challenge': {
-        "Scenario3": scenario_07_carla_challenge,
-        "Scenario4": scenario_07_carla_challenge,
-        "Scenario5": scenario_07_carla_challenge,
-        "Scenario6": scenario_07_carla_challenge,
-        "Scenario7": scenario_07_carla_challenge,
-        "Scenario8": scenario_07_carla_challenge,
-        "Scenario9": scenario_07_carla_challenge,
-        "Scenario10": scenario_07_carla_challenge,
-    },
-    'lc': {
-        "Scenario3": scenario_07_lc,
-        "Scenario4": scenario_07_lc,
-        "Scenario5": scenario_07_lc,
-        "Scenario6": scenario_07_lc,
-        "Scenario7": scenario_07_lc,
-        "Scenario8": scenario_07_lc,
-        "Scenario9": scenario_07_lc,
-        "Scenario10": scenario_07_lc,
-    },
+    # 'carla_challenge': {
+    #     "Scenario3": scenario_03_carla_challenge,
+    #     "Scenario4": scenario_04_carla_challenge,
+    #     "Scenario5": scenario_05_carla_challenge,
+    #     "Scenario6": scenario_06_carla_challenge,
+    #     "Scenario7": scenario_07_carla_challenge,
+    #     "Scenario8": scenario_08_carla_challenge,
+    #     "Scenario9": scenario_09_carla_challenge,
+    #     "Scenario10": scenario_10_carla_challenge,
+    # },
+    # 'lc': {
+    #     "Scenario3": scenario_03_lc,
+    #     "Scenario4": scenario_04_lc,
+    #     "Scenario5": scenario_05_lc,
+    #     "Scenario6": scenario_06_lc,
+    #     "Scenario7": scenario_07_lc,
+    #     "Scenario8": scenario_08_lc,
+    #     "Scenario9": scenario_09_lc,
+    #     "Scenario10": scenario_10_lc,
+    # },
 }
 
 
@@ -369,8 +369,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         elevate_transform = self.route[0][0]
         # elevate_transform.location.z += 0.5
 
-        print(" =================================== elevate transform")
-        print(elevate_transform)
         success = False
         while not success:
             print(success)
@@ -410,8 +408,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         self.lidar_sensor = self.world.spawn_actor(lidar_bp, lidar_trans, attach_to=ego_vehicle)
         self.camera_sensor = self.world.spawn_actor(camera_bp, camera_trans, attach_to=ego_vehicle)
 
-        print("========= ego vehicle: ")
-        print(ego_vehicle)
         return ego_vehicle
 
     def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions,
