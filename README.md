@@ -48,7 +48,7 @@ $ python planning/run.py -p sac -o 0 -m eval -s 0 --port 2000 --traffic_port 800
 --scenario_id: choose from 1 - 8
 --method: now only support "standard"
 --running_mode: choose from "serial" and "parallel", for now please first use serial
---scenario_num: amount of scenarios you want to run simultanwously
+--scenario_num: amount of scenarios you want to run simultaneously
 ```
 
 Note that if you are running on a remote server via ssh, you have to first create a virtual screen and specify the DISPLAY number:
