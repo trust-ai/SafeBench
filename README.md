@@ -3,8 +3,8 @@
 ## Installation
 1. Setup conda environment
 ```
-$ conda create -n env_name python=3.7
-$ conda activate env_name
+$ conda create -n safebench python=3.7
+$ conda activate safebench
 ```
 
 2. Clone this git repo in an appropriate folder
