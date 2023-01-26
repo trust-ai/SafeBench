@@ -1,16 +1,13 @@
-from curses import raw
 import time
 from copy import deepcopy
 import os.path as osp
-import gym
-import gym_carla
 
-import carla
-
-import torch
 from tqdm import tqdm
+import carla
+import pygame
+import torch
 
-from planning.safe_rl.policy import DDPG, PPO, SAC, TD3, PPOLagrangian, SACLagrangian, DDPGLagrangian, TD3Lagrangian
+from planning.safe_rl.policy import DDPG, PPO, SAC, TD3
 from planning.safe_rl.policy.bev_policy import PPO_BEV, DDPG_BEV, SAC_BEV, TD3_BEV
 from planning.safe_rl.util.logger import EpochLogger, setup_logger_kwargs
 from planning.safe_rl.util.run_util import load_config, find_config_dir, find_model_path, setup_eval_configs
@@ -21,28 +18,8 @@ from planning.env_wrapper_2 import carla_env
 from gym_carla.envs.render import BirdeyeRender
 from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 
-import pygame
 
-import threading
-
-FRAME_SKIP=4
-
-class MyThread(threading.Thread):
-    def __init__(self, threadId, epochs, sleep, render, config, world, function):
-        threading.Thread.__init__(self)
-        self.threadId = threadId
-        self.config = config
-        self.function = function
-        self.epochs = epochs
-        self.sleep = sleep
-        self.render = render
-        self.world = world
-    def run(self):
-        print("thread started, ", self.threadId)
-        cur_ego, cur_render_result = self.function(config=self.config, world=self.world, epochs=self.epochs, sleep=self.sleep, render=self.render)
-        self.ego = cur_ego
-        self.render_result = cur_render_result
-        print("thread done", self.threadId)
+FRAME_SKIP = 4
 
 
 class CarlaRunner2:
@@ -119,10 +96,8 @@ class CarlaRunner2:
                 load_dir)
             self._eval_mode_init(model_path, policy, timeout_steps, policy_config)
         else:
-            self._train_mode_init(seed, exp_name, policy, timeout_steps, data_dir,
-                                  **kwarg)
-            self.batch_size = self.worker_config[
-                "batch_size"] if "batch_size" in self.worker_config else None
+            self._train_mode_init(seed, exp_name, policy, timeout_steps, data_dir, **kwarg)
+            self.batch_size = self.worker_config["batch_size"] if "batch_size" in self.worker_config else None
 
         self.epochs = epochs
         self.save_freq = save_freq
@@ -144,9 +119,7 @@ class CarlaRunner2:
         self.obs_range = 32
         self.d_behind = 12
 
-
-    def _train_mode_init(self, seed, exp_name, policy, timeout_steps, data_dir,
-                         **kwarg):
+    def _train_mode_init(self, seed, exp_name, policy, timeout_steps, data_dir, **kwarg):
 
         self.timeout_steps = self.env._max_episode_steps if timeout_steps == -1 else timeout_steps
         config = locals()
@@ -273,9 +246,7 @@ class CarlaRunner2:
             if (epoch % self.save_freq == 0) or (epoch == self.epochs - 1):
                 self.logger.save_state({'env': None}, epoch)
             # Log info about epoch
-            self.data_dict = self._log_metrics(epoch, total_steps,
-                                               time.time() - start_time, self.verbose)
-
+            self.data_dict = self._log_metrics(epoch, total_steps, time.time() - start_time, self.verbose)
 
     def init_world(self, town):
         # TODO: before init world, clear all things

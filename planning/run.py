@@ -1,18 +1,22 @@
 import os.path as osp
 
 import json
+import yaml
 
 from planning.carla_runner import CarlaRunner as CarlaRunner
 from planning.carla_runner_2 import CarlaRunner2 as CarlaRunner2
-
-from planning.safe_rl.util.run_util import load_config
-
 from scenario_runner.srunner.tools.route_parser import RouteParser
+
 
 CONFIG_DIR = osp.join(osp.dirname(osp.realpath(__file__)), "config")
 
 EXP_NAME_KEYS = {"epochs": "epoch", "obs_type": "obs_type"}
 DATA_DIR_KEYS = {"cost_limit": "cost"}
+
+
+def load_config(config_path="default_config.yaml") -> dict:
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
 
 def gen_exp_name(config: dict, suffix=None):
@@ -84,6 +88,7 @@ def get_scenario_configs(scenario_id, method):
 
     return route_configurations, map_town_config
 
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -104,9 +109,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--scenario_id', type=int, default=5)
     parser.add_argument('--method', type=str, default='standard')
-    parser.add_argument('--running_mode', type=str, default='serial')
     parser.add_argument('--scenario_num', type=int, default=3)
-
 
     args = parser.parse_args()
     args_dict = vars(args)
@@ -125,12 +128,7 @@ if __name__ == '__main__':
     print("##### Route parsing done #####")
 
     config["map_town_config"] = map_town_config
-
-    if args.running_mode == "serial":
-        runner = CarlaRunner2(**config)
-    else:
-        runner = CarlaRunner(**config)
-
+    runner = CarlaRunner2(**config)
 
     if args.mode == "train":
         runner.train()

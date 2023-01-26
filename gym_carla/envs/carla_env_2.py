@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2019: Jianyu Chen (jianyuchen@berkeley.edu)
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
 from __future__ import division
 
 import copy
@@ -57,15 +50,13 @@ class CarlaEnv2(gym.Env):
 
         # Destination
         if params['task_mode'] == 'roundabout':
-            self.dests = [[4.46, -61.46, 0], [-49.53, -2.89, 0],
-                          [-6.48, 55.47, 0], [35.96, 3.33, 0]]
+            self.dests = [[4.46, -61.46, 0], [-49.53, -2.89, 0], [-6.48, 55.47, 0], [35.96, 3.33, 0]]
         else:
             self.dests = None
 
         # action and observation spaces
         self.discrete = params['discrete']
-        self.discrete_act = [params['discrete_acc'],
-                             params['discrete_steer']]  # acc, steer
+        self.discrete_act = [params['discrete_acc'], params['discrete_steer']]  # acc, steer
         self.n_acc = len(self.discrete_act[0])
         self.n_steer = len(self.discrete_act[1])
         if self.discrete:
@@ -168,16 +159,13 @@ class CarlaEnv2(gym.Env):
         # Lidar sensor
         self.lidar_data = None
         self.lidar_height = 2.1
-        self.lidar_trans = carla.Transform(
-            carla.Location(x=0.0, z=self.lidar_height))
-        self.lidar_bp = self.world.get_blueprint_library().find(
-            'sensor.lidar.ray_cast')
+        self.lidar_trans = carla.Transform(carla.Location(x=0.0, z=self.lidar_height))
+        self.lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
         self.lidar_bp.set_attribute('channels', '32')
         self.lidar_bp.set_attribute('range', '5000')
 
         # Camera sensor
-        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3),
-                                   dtype=np.uint8)
+        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8)
         self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
         self.camera_bp = self.world.get_blueprint_library().find(
             'sensor.camera.rgb')

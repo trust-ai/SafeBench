@@ -3,6 +3,7 @@ import gym
 import numpy as np
 from easydict import EasyDict as edict
 
+
 CFG = edict(
     ACC_MAX=3,
     STEERING_MAX=0.3,
@@ -70,25 +71,19 @@ class EnvWrapper(gym.Wrapper):
             obs_dim = 4
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
-            self.observation_space = gym.spaces.Box(-obs_lim,
-                                                    obs_lim,
-                                                    dtype=np.dtype)
+            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim, dtype=np.dtype)
         elif self.obs_type == 1:
             # 11 state space
             obs_dim = 11
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
-            self.observation_space = gym.spaces.Box(-obs_lim,
-                                                    obs_lim,
-                                                    dtype=np.dtype)
+            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim, dtype=np.dtype)
         elif self.obs_type == 2 or self.obs_type == 3:
             # 4 state space + bev
             obs_dim = 256  # TODO: Tune here
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
-            self.observation_space = gym.spaces.Box(-obs_lim,
-                                                    obs_lim,
-                                                    dtype=np.dtype)
+            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim, dtype=np.dtype)
         else:
             raise NotImplementedError
 
