@@ -49,7 +49,7 @@ $ DISPLAY= ./CarlaUE4.sh -prefernvidia -opengl -carla-port=2000
 
 2. Run the platform with specific parameters:
 ```
-$ python planning/run.py -p sac -o 0 -m eval -s 0 --port 2000 --traffic_port 8000 -d {directory of model for ego vehicles}
+$ python scripts/run.py -p sac -o 0 -m eval -s 0 --port 2000 --traffic_port 8000 -d {directory of model for ego vehicles}
 ```
 3. Parameters for the running settings
 ```
