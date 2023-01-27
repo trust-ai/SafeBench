@@ -11,10 +11,10 @@ vehicle traveling in the opposite direction.
 """
 import carla
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from scenario_runner.srunner.tools.scenario_helper import get_waypoint_in_distance
-from scenario_runner.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
-from scenario_runner.srunner.tools.scenario_operation import ScenarioOperation
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.tools.scenario_helper import get_waypoint_in_distance
+from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
+from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 
 
 class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):

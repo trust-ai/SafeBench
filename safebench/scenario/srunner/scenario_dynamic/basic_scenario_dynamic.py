@@ -12,9 +12,9 @@ import py_trees
 
 import carla
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from scenario_runner.srunner.scenario_manager.timer import TimeOut
-from scenario_runner.srunner.scenario_manager.weather_sim import WeatherBehavior
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_manager.timer import TimeOut
+from safebench.scenario.srunner.scenario_manager.weather_sim import WeatherBehavior
 # from scenario_runner.srunner.scenario_manager.scenarioatomics.atomic_behaviors import UpdateAllActorControls
 
 class SpawnOtherActorError(Exception):

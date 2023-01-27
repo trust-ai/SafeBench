@@ -19,13 +19,13 @@ from gym import spaces
 from gym.utils import seeding
 import carla
 
-from gym_carla.envs.render import BirdeyeRender
-from gym_carla.envs.route_planner import RoutePlanner
-from gym_carla.envs.misc import *
+from safebench.gym_carla.envs.render import BirdeyeRender
+from safebench.gym_carla.envs.route_planner import RoutePlanner
+from safebench.gym_carla.envs.misc import *
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from scenario_runner.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
-from scenario_runner.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
+from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
 
 
 class CarlaEnv(gym.Env):

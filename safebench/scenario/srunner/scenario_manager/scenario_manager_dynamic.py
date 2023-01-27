@@ -12,12 +12,12 @@ import carla
 
 import py_trees
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 # from scenario_runner.srunner.scenariomanager.result_writer import ResultOutputProvider
-from scenario_runner.srunner.scenario_manager.timer import GameTime
+from safebench.scenario.srunner.scenario_manager.timer import GameTime
 # from scenario_runner.srunner.scenariomanager.watchdog import Watchdog
 # from srunner.AdditionTools.scenario_utils import calculate_distance_transforms
-from scenario_runner.srunner.tools.scenario_utils import calculate_distance_locations
+from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_locations
 
 # # distance threshold for trigerring small scenarios in route
 # distance_threshold = 15

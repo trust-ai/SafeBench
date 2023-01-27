@@ -19,7 +19,7 @@ import carla
 from agents.tools.misc import vector
 from agents.navigation.local_planner import RoadOption
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 
 
 def get_distance_along_route(route, target_location):

@@ -18,7 +18,7 @@ import carla
 # from tools.carla_common.transforms import carla_transform_to_ros_pose
 # from scenario_runner.srunner.tools.carla_common.transforms import carla_transform_to_ros_pose
 from agents.navigation.local_planner import RoadOption
-from scenario_runner.srunner.scenarioconfigs.route_scenario_configuration import RouteScenarioConfiguration
+from safebench.scenario.srunner.scenarioconfigs.route_scenario_configuration import RouteScenarioConfiguration
 
 # TODO  check this threshold, it could be a bit larger but not so large that we cluster scenarios.
 TRIGGER_THRESHOLD = 2.0  # Threshold to say if a trigger position is new or repeated, works for matching positions

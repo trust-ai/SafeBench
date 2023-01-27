@@ -11,13 +11,13 @@ from __future__ import print_function
 import math
 import carla
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from scenario_runner.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic, SpawnOtherActorError
-from scenario_runner.srunner.tools.scenario_helper import generate_target_waypoint, generate_target_waypoint_in_route
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic, SpawnOtherActorError
+from safebench.scenario.srunner.tools.scenario_helper import generate_target_waypoint, generate_target_waypoint_in_route
 
-from scenario_runner.srunner.tools.scenario_operation import ScenarioOperation
-from scenario_runner.srunner.tools.scenario_utils import calculate_distance_transforms
-from scenario_runner.srunner.tools.scenario_utils import calculate_distance_locations
+from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
+from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
+from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_locations
 
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):

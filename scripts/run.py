@@ -3,12 +3,11 @@ import os.path as osp
 import json
 import yaml
 
-from safebench.carla_runner.util.run_util import load_config
-from planning.carla_runner_2 import CarlaRunner2 as CarlaRunner2
-from scenario_runner.srunner.tools.route_parser import RouteParser
+from safebench.util.run_util import load_config
+from safebench.carla_runner_2 import CarlaRunner2 as CarlaRunner2
+from safebench.scenario.srunner.tools.route_parser import RouteParser
 
-
-CONFIG_DIR = osp.join(osp.dirname(osp.realpath(__file__)), "config")
+UPPER_DIR = osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__))))
 
 EXP_NAME_KEYS = {"epochs": "epoch", "obs_type": "obs_type"}
 DATA_DIR_KEYS = {"cost_limit": "cost"}
@@ -33,8 +32,7 @@ def get_scenario_configs(scenario_id, method):
     """
     data file should also come from args
     """
-    file_upper_path = osp.abspath('./')
-    data_file = file_upper_path + '/scenario_data/data/'
+    data_file = osp.join(UPPER_DIR, 'safebench/scenario/scenario_data/data/')
     if method == 'benign':
         data_file += 'benign.json'
     elif method == 'standard':
@@ -44,8 +42,8 @@ def get_scenario_configs(scenario_id, method):
 
     print('Using data file:', data_file)
     route_configurations = []
-    route_file_formatter = file_upper_path + '/scenario_data/route/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
-    scenario_file_formatter = file_upper_path + '/scenario_data/route/scenarios/scenario_%02d.json'
+    route_file_formatter = UPPER_DIR + '/safebench/scenario/scenario_data/route/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
+    scenario_file_formatter = UPPER_DIR + '/safebench/scenario/scenario_data/route/scenarios/scenario_%02d.json'
 
     """
     scenario_id, method, route_id, risk_level
@@ -109,7 +107,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     args_dict = vars(args)
 
-    config_path = osp.join(CONFIG_DIR, "config_carla.yaml")
+    # config_path = osp.join(CONFIG_DIR, "config_carla.yaml")
+    config_path = osp.join(UPPER_DIR, "safebench/agent/config/config_carla.yaml")
     config = load_config(config_path)
     config.update(args_dict)
 

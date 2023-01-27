@@ -7,15 +7,19 @@ import carla
 import pygame
 import torch
 
-from planning.util.logger import EpochLogger, setup_logger_kwargs
+from safebench.util.logger import EpochLogger, setup_logger_kwargs
 
-from planning.util.torch_util import export_device_env_variable, seed_torch
-from planning.util.run_util import setup_eval_configs, find_config_dir, find_model_path
+from safebench.util.torch_util import export_device_env_variable, seed_torch
+from safebench.util.run_util import setup_eval_configs, find_config_dir, find_model_path
 
-from planning.env_wrapper_2 import carla_env
+from safebench.agent.safe_rl.policy import DDPG, PPO, SAC, TD3
+from safebench.agent.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
+from safebench.agent.safe_rl.policy.bev_policy import PPO_BEV, DDPG_BEV, SAC_BEV, TD3_BEV
 
-from gym_carla.envs.render import BirdeyeRender
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.gym_carla.env_wrapper_2 import carla_env
+
+from safebench.gym_carla.envs.render import BirdeyeRender
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 
 
 FRAME_SKIP = 4
@@ -26,7 +30,24 @@ class CarlaRunner2(object):
     """
         Main body to coordinate agents and scenarios.
     """
-    
+    POLICY_LIB = {
+        "ppo": (PPO, True, OnPolicyWorker),
+        # "ppo_lag": (PPOLagrangian, True, OnPolicyWorker),
+        "sac": (SAC, False, OffPolicyWorker),
+        # "sac_lag": (SACLagrangian, False, OffPolicyWorker),
+        "td3": (TD3, False, OffPolicyWorker),
+        # "td3_lag": (TD3Lagrangian, False, OffPolicyWorker),
+        "ddpg": (DDPG, False, OffPolicyWorker),
+        # "ddpg_lag": (DDPGLagrangian, False, OffPolicyWorker),
+    }
+
+    BEV_POLICY_LIB = {
+        "ppo": (PPO_BEV, True, OnPolicyWorker),
+        "sac": (SAC_BEV, False, OffPolicyWorker),
+        "td3": (TD3_BEV, False, OffPolicyWorker),
+        "ddpg": (DDPG_BEV, False, OffPolicyWorker),
+    }
+
     def __init__(
         self,
         sample_episode_num=50,
@@ -169,7 +190,8 @@ class CarlaRunner2(object):
             policy_cls, self.on_policy, worker_cls = self.BEV_POLICY_LIB[policy.lower()]
         self.policy = policy_cls(self.env, self.logger, **policy_config)
 
-        self.policy.load_model(model_path)
+        #TODO: load model here
+        # self.policy.load_model(model_path)
 
     def train_one_epoch_off_policy(self, epoch):
         epoch_steps = 0

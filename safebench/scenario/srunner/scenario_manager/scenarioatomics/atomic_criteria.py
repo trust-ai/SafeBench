@@ -22,9 +22,9 @@ import shapely
 
 import carla
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from scenario_runner.srunner.scenario_manager.timer import GameTime
-from scenario_runner.srunner.scenario_manager.traffic_events import TrafficEvent, TrafficEventType
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_manager.timer import GameTime
+from safebench.scenario.srunner.scenario_manager.traffic_events import TrafficEvent, TrafficEventType
 
 
 class Status(Enum):

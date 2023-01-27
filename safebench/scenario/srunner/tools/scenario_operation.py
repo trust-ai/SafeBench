@@ -4,9 +4,9 @@ import math
 
 import carla
 
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from scenario_runner.srunner.tools.ActorController import VehiclePIDController
-from scenario_runner.srunner.tools.scenario_utils import calculate_distance_locations
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.tools.ActorController import VehiclePIDController
+from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_locations
 
 Pi = 3.1415927
 

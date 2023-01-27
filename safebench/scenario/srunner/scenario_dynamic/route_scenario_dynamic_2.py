@@ -17,7 +17,7 @@ import carla
 
 from agents.navigation.local_planner import RoadOption
 
-from scenario_runner.srunner.scenario_manager.scenarioatomics.atomic_criteria import (Status,
+from safebench.scenario.srunner.scenario_manager.scenarioatomics.atomic_criteria import (Status,
                                                                      CollisionTest,
                                                                      DrivenDistanceTest,
                                                                      AverageVelocityTest,
@@ -28,25 +28,25 @@ from scenario_runner.srunner.scenario_manager.scenarioatomics.atomic_criteria im
                                                                      RunningRedLightTest,
                                                                      RunningStopTest,
                                                                      ActorSpeedAboveThresholdTest)
-from scenario_runner.srunner.scenario_manager.timer import GameTime
-from scenario_runner.srunner.scenarioconfigs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
+from safebench.scenario.srunner.scenario_manager.timer import GameTime
+from safebench.scenario.srunner.scenarioconfigs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
 # pylint: enable=line-too-long
-from scenario_runner.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 # from scenario_runner.srunner.scenario_manager.scenarioatomics.atomic_behaviors import Idle, ScenarioTriggerer
-from scenario_runner.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
-from scenario_runner.srunner.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
-from scenario_runner.srunner.tools.route_manipulation import interpolate_trajectory
+from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
+from safebench.scenario.srunner.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
+from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
 
 
 # standard
-from scenario_runner.srunner.scenario_dynamic.standard.object_crash_vehicle_dynamic import DynamicObjectCrossingDynamic
-from scenario_runner.srunner.scenario_dynamic.standard.object_crash_intersection_dynamic import VehicleTurningRouteDynamic
-from scenario_runner.srunner.scenario_dynamic.standard.other_leading_vehicle_dynamic import OtherLeadingVehicleDynamic
-from scenario_runner.srunner.scenario_dynamic.standard.maneuver_opposite_direction_dynamic import ManeuverOppositeDirectionDynamic
-from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
-from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionLeftTurnDynamic
-from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurnDynamic
-from scenario_runner.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRouteDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.object_crash_vehicle_dynamic import DynamicObjectCrossingDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.object_crash_intersection_dynamic import VehicleTurningRouteDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.other_leading_vehicle_dynamic import OtherLeadingVehicleDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.maneuver_opposite_direction_dynamic import ManeuverOppositeDirectionDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionLeftTurnDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurnDynamic
+from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRouteDynamic
 
 # # lc
 # from srunner.scenario_dynamic.LC.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_lc
