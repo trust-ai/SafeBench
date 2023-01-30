@@ -10,3 +10,4 @@ easydict
 matplotlib
 torch
 torchvision
+py_trees==2.1.6

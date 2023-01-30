@@ -16,7 +16,7 @@ from safebench.agent.safe_rl.policy import DDPG, PPO, SAC, TD3
 from safebench.agent.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
 from safebench.agent.safe_rl.policy.bev_policy import PPO_BEV, DDPG_BEV, SAC_BEV, TD3_BEV
 
-from safebench.gym_carla.env_wrapper_2 import carla_env
+from safebench.gym_carla.env_wrapper import carla_env
 
 from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -26,7 +26,7 @@ FRAME_SKIP = 4
 
 
 # TODO: too many details about agents, we should build a base class of agents and use unified APIs in this file. 
-class CarlaRunner2(object):
+class CarlaRunner(object):
     """
         Main body to coordinate agents and scenarios.
     """
@@ -375,6 +375,7 @@ class CarlaRunner2(object):
                     finished_env.add(env)
                 if env in finished_env:
                     continue
+                #TODO: seperate step to step_before and step_after
                 re_o, re_reward, re_done, re_info, re_cost = env.step(actions_list[j], reward[j], cost[j])
                 if re_done:
                     env.is_running = False

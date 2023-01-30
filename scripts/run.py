@@ -4,7 +4,7 @@ import json
 import yaml
 
 from safebench.util.run_util import load_config
-from safebench.carla_runner_2 import CarlaRunner2 as CarlaRunner2
+from safebench.carla_runner import CarlaRunner
 from safebench.scenario.srunner.tools.route_parser import RouteParser
 
 UPPER_DIR = osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__))))
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     print("##### Route parsing done #####")
 
     config["map_town_config"] = map_town_config
-    runner = CarlaRunner2(**config)
+    runner = CarlaRunner(**config)
 
     # TODO: three modes, train agent (fix scenario), train scenario (fix agent), evaluate (fix all things)
     if args.mode == "train":

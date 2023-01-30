@@ -608,10 +608,10 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         We need this method for background
         We keep pytrees just for background
         """
-        behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ONE)
+        behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SuccessOnOne)
 
         subbehavior = py_trees.composites.Parallel(name="Behavior",
-                                                   policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
+                                                   policy=py_trees.common.ParallelPolicy.SuccessOnAll)
 
         # subbehavior.add_child(Idle())  # The behaviours cannot make the route scenario stop
         behavior.add_child(subbehavior)
