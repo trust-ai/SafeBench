@@ -65,7 +65,7 @@ class CarlaRunner(object):
         pygame.init()
         self.display = pygame.display.set_mode(
             (self.display_size * 3, self.display_size * num_envs),
-            pygame.HWSURFACE | pygame.DOUBLEBUF
+            pygame.HWSURFACE | pygame.DOUBLEBUF,
         )
 
         pixels_per_meter = self.display_size / self.obs_range

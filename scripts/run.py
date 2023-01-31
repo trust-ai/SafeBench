@@ -3,7 +3,7 @@ import os.path as osp
 import torch 
 
 from safebench.util.run_util import load_config
-from safebench.util.torch_util import seed_torch, export_device_env_variable
+from safebench.util.torch_util import seed_torch, set_torch_variable_env
 from safebench.carla_runner import CarlaRunner
 from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
 
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
     parser.add_argument('--port', type=int, default=2000)
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
-    parser.add_argument('--num_scenario', type=int, default=1)
+    parser.add_argument('--num_scenario', type=int, default=5)
     args = parser.parse_args()
     args_dict = vars(args)
 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     ROOT_DIR = osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__))))
 
     # set some device parameters
-    export_device_env_variable(args.device)
+    set_torch_variable_env(args.device)
     torch.set_num_threads(args.threads)
     seed_torch(args.seed)
 

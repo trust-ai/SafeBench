@@ -6,10 +6,6 @@ import random
 import scipy.signal
 import torch
 
-# ******************************************************
-# ******************************************************
-# ******************** math utils **********************
-
 
 def combined_shape(length, shape=None):
     if shape is None:
@@ -30,9 +26,6 @@ def discount_cumsum(x, discount):
     return scipy.signal.lfilter([1], [1, float(-discount)], x[::-1], axis=0)[::-1]
 
 
-# ******************************************************
-# ******************************************************
-# ******************** torch utils *********************
 def seed_torch(seed=1029):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -45,7 +38,7 @@ def seed_torch(seed=1029):
     torch.backends.cudnn.deterministic = True
 
 
-def export_device_env_variable(device):
+def set_torch_variable_env(device):
     device = device.lower()
     use_cpu = device == 'cpu'
     use_gpu = device.split(':')[0] == 'cuda'
@@ -64,9 +57,7 @@ def get_torch_device():
     try:
         return torch.device(device_name)
     except:
-        raise ValueError(
-            f"'MODEL_DEVICE' env variable has not been specified or is not specified correctly, please export this env variable first! Current 'MODEL_DEVICE' env variable is {device_name}"
-        )
+        raise ValueError("'MODEL_DEVICE' env variable has not been specified. Current 'MODEL_DEVICE' env variable is {device_name}")
 
 
 def get_device_name():
