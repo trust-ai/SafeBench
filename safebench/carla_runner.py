@@ -9,7 +9,6 @@ from safebench.gym_carla.env_wrapper import carla_env
 from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 
-
 class CarlaRunner(object):
     """ Main body to coordinate agents and scenarios. """
     def __init__(self, agent_config, scenario_config):
@@ -84,6 +83,7 @@ class CarlaRunner(object):
             # create and reset scenarios
             env_list = []
             obs_list = []
+            pygame.init()
             for i in range(self.num_scenario):
                 config = config_lists[i]
                 env = carla_env(self.obs_type, world=world)
@@ -157,25 +157,32 @@ class CarlaRunner(object):
         cost = [0] * len(env_list)
         info = [None] * len(env_list)
         o = [None] * len(env_list)
-        for frame_skip in range(FRAME_SKIP):
+        for frame_skip in range(self.frame_skip):
             for j in range(len(env_list)):
                 env = env_list[j]
                 if not env.is_running and env not in finished_env:
                     finished_env.add(env)
                 if env in finished_env:
                     continue
-                #TODO: seperate step to step_before and step_after
-                re_o, re_reward, re_done, re_info, re_cost = env.step(actions_list[j], reward[j], cost[j])
-                if re_done:
-                    env.is_running = False
-                    continue
-                reward[j] = re_reward
-                cost[j] = re_cost
-                info[j] = re_info
-                o[j] = re_o
+                env.apply_actions(actions_list[j])
 
             # tick all scenarios
             world.tick()
+
+            for p in range(len(env_list)):
+                env = env_list[p]
+                if not env.is_running and env not in finished_env:
+                    finished_env.add(env)
+                if env in finished_env:
+                    continue
+                re_o, re_reward, re_done, re_info, re_cost = env.step(reward[p], cost[p])
+                if re_done:
+                    env.is_running = False
+                    continue
+                reward[p] = re_reward
+                cost[p] = re_cost
+                info[p] = re_info
+                o[p] = re_o
 
         # deal with the rendering results
         for k in range(len(env_list)):

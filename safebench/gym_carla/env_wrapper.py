@@ -47,8 +47,11 @@ class EnvWrapper(gym.Wrapper):
         self.ego = self._env.ego
         return self._preprocess_obs(obs)
 
-    def step(self, action, reward, cost):
-        o, r, d, info = super().step(action)
+    def apply_actions(self, ego_action):
+        self._env.apply_actions(ego_action=ego_action)
+
+    def step(self, reward, cost):
+        o, r, d, info = self._env.get_infos()
         self.is_running = self._env.is_running
         done = False
         if d:

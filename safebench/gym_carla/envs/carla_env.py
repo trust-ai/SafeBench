@@ -215,18 +215,18 @@ class CarlaEnv(gym.Env):
         # TODO: load scenario policy model
         pass
 
-    def step(self, action):
+    def apply_actions(self, ego_action):
         # TODO: get update
         self.scenario_manager._get_update()
         self.is_running = self.scenario_manager._running
 
         # Calculate acceleration and steering
         if self.discrete:
-            acc = self.discrete_act[0][action // self.n_steer]
-            steer = self.discrete_act[1][action % self.n_steer]
+            acc = self.discrete_act[0][ego_action // self.n_steer]
+            steer = self.discrete_act[1][ego_action % self.n_steer]
         else:
-            acc = action[0]
-            steer = action[1]
+            acc = ego_action[0]
+            steer = ego_action[1]
 
         # Convert acceleration to throttle and brake
         if acc > 0:
@@ -235,15 +235,13 @@ class CarlaEnv(gym.Env):
         else:
             throttle = 0
             brake = np.clip(-acc / 8, 0, 1)
-        
-        #vehicleList = self.world.get_actors().filter('vehicle.*')
+
+        # vehicleList = self.world.get_actors().filter('vehicle.*')
         # Apply control
         act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
         self.ego.apply_control(act)
 
-        #NOTE: modify for new structure
-        # self.world.tick()
-
+    def get_infos(self):
         # Append actors polygon list
         vehicle_poly_dict = self._get_actor_polygons('vehicle.*')
         self.vehicle_polygons.append(vehicle_poly_dict)
@@ -314,7 +312,8 @@ class CarlaEnv(gym.Env):
 
     def _init_renderer(self):
         """ Initialize the birdeye view renderer. """
-        pygame.init()
+        #TODO: move pygame init out of env
+        # pygame.init()
         self.display = pygame.display.set_mode((self.display_size * 3, self.display_size), pygame.HWSURFACE | pygame.DOUBLEBUF)
 
         pixels_per_meter = self.display_size / self.obs_range
