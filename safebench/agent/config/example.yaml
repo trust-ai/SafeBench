@@ -1,0 +1,8 @@
+agent_name: 'dummy'
+model_path: ''
+results_folder_path: ''
+policy_type: ''
+obs_type: 0
+batch_size: 1
+epoch: 10
+save_freq: 1

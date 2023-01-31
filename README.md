@@ -2,7 +2,7 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-01-25 22:18:16
+ * @LastEditTime: 2023-01-30 21:33:17
  * @Description: 
 -->
 
@@ -40,21 +40,9 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
 $ ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 ```
-You can use ```Alt+F1``` to get back your mouse control.
+Currently, Carla does not support headless running well. Please check the official document of Carla if you want to run Carla in the headless mode.
 
-Or you can run Carla with non-display mode by:
+2. Run the platform:
 ```
-$ DISPLAY= ./CarlaUE4.sh -prefernvidia -opengl -carla-port=2000
-```
-
-2. Run the platform with specific parameters:
-```
-$ python scripts/run.py -p sac -o 0 -m eval -s 0 --port 2000 --traffic_port 8000 -d {directory of model for ego vehicles}
-```
-3. Parameters for the running settings
-```
---scenario_id: choose from 1 - 8
---method: now only support "standard"
---running_mode: choose from "serial" and "parallel", for now please first use serial
---scenario_num: amount of scenarios you want to run simultaneously
+$ python scripts/run.py
 ```

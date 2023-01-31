@@ -42,7 +42,7 @@ class RoutePlanner():
 
     self._waypoints_queue = deque(maxlen=600)
     self._current_waypoint = self._map.get_waypoint(self._vehicle.get_location())
-    self._waypoints_queue.append( (self._current_waypoint.next(self._sampling_radius)[0], RoadOption.LANEFOLLOW))
+    self._waypoints_queue.append((self._current_waypoint.next(self._sampling_radius)[0], RoadOption.LANEFOLLOW))
     self._target_road_option = RoadOption.LANEFOLLOW
 
     self._last_traffic_light = None

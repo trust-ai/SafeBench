@@ -185,7 +185,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         along which several smaller scenarios are triggered
     """
 
-    def __init__(self, world, config, ego_id,debug_mode=False, criteria_enable=True, timeout=300):
+    def __init__(self, world, config, ego_id, debug_mode=False, criteria_enable=True, timeout=300):
         """
         Setup all relevant parameters and create scenarios along route
         """
@@ -202,24 +202,25 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
         ego_vehicle = self._update_ego_vehicle()
 
+        self.list_scenarios = self._build_scenario_instances(
+            world,
+            ego_vehicle,
+            self.sampled_scenarios_definitions,
+            scenarios_per_tick=5,
+            timeout=self.timeout,
+            debug_mode=debug_mode,
+            weather=config.weather
+        )
 
-        self.list_scenarios = self._build_scenario_instances(world,
-                                                             ego_vehicle,
-                                                             self.sampled_scenarios_definitions,
-                                                             scenarios_per_tick=5,
-                                                             timeout=self.timeout,
-                                                             debug_mode=debug_mode,
-                                                             weather=config.weather)
-
-        # print("list_scenarios: ", self.list_scenarios)
-
-        super(RouteScenarioDynamic, self).__init__(name=config.name,
-                                                   ego_vehicles=[ego_vehicle],
-                                                   config=config,
-                                                   world=world,
-                                                   debug_mode=False,
-                                                   terminate_on_failure=False,
-                                                   criteria_enable=criteria_enable)
+        super(RouteScenarioDynamic, self).__init__(
+            name=config.name,
+            ego_vehicles=[ego_vehicle],
+            config=config,
+            world=world,
+            debug_mode=False,
+            terminate_on_failure=False,
+            criteria_enable=criteria_enable
+        )
 
         self.criteria = self._create_criteria()
 
@@ -367,23 +368,22 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         """
         # move ego to correct position
         elevate_transform = self.route[0][0]
-        # elevate_transform.location.z += 0.5
 
+        # gradually increase the height of ego vehicle
         success = False
         while not success:
-            print(success)
             try:
                 role_name = 'ego_vehicle'+str(self.ego_id)
-                print(role_name)
-                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.lincoln.mkz2017',
-                                                                  elevate_transform,
-                                                                  rolename='ego_vehicle'+str(self.ego_id),
-                                                                  )
+                ego_vehicle = CarlaDataProvider.request_new_actor(
+                    'vehicle.tesla.model3', 
+                    elevate_transform, 
+                    rolename='ego_vehicle'+str(self.ego_id),
+                )
                 success = True
             except RuntimeError:
                 elevate_transform.location.z += 0.1
 
-
+    
         # Collision sensor
         collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
 
@@ -410,8 +410,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
         return ego_vehicle
 
-    def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions,
-                                  scenarios_per_tick=5, timeout=300, debug_mode=False, weather=None):
+    def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions, scenarios_per_tick=5, timeout=300, debug_mode=False, weather=None):
         """
         Based on the parsed route and possible scenarios, build all the scenario classes.
         """
@@ -419,12 +418,13 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
         if debug_mode:
             for scenario in scenario_definitions:
-                loc = carla.Location(scenario['trigger_position']['x'],
-                                     scenario['trigger_position']['y'],
-                                     scenario['trigger_position']['z']) + carla.Location(z=2.0)
+                loc = carla.Location(
+                    scenario['trigger_position']['x'],
+                    scenario['trigger_position']['y'],
+                    scenario['trigger_position']['z']
+                ) + carla.Location(z=2.0)
                 world.debug.draw_point(loc, size=0.3, color=carla.Color(255, 0, 0), life_time=100000)
-                world.debug.draw_string(loc, str(scenario['name']), draw_shadow=False,
-                                        color=carla.Color(0, 0, 255), life_time=100000, persistent_lines=True)
+                world.debug.draw_string(loc, str(scenario['name']), draw_shadow=False, color=carla.Color(0, 0, 255), life_time=100000, persistent_lines=True)
 
         for scenario_number, definition in enumerate(scenario_definitions):
             # Get the class possibilities for this scenario number

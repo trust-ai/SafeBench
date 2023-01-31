@@ -1,4 +1,3 @@
-from math import cos
 import gym
 import numpy as np
 from easydict import EasyDict as edict
@@ -36,8 +35,8 @@ class EnvWrapper(gym.Wrapper):
 
         self.render_result = []
 
-    def init_world(self):
-        self._env.init_world()
+    def create_ego_object(self):
+        self._env.create_ego_object()
 
     def clear_up(self):
         self._env.clear_up()
@@ -122,7 +121,6 @@ params = {
     'number_of_walkers': 0,
     'display_size': 256,  # screen size of bird-eye render
     'max_past_step': 1,  # the number of past steps to draw
-    'dt': 0.1,  # time interval between two frames
     'discrete': False,  # whether to use discrete control space
     'discrete_acc': [-3.0, 0.0, 3.0],  # discrete value of accelerations
     'discrete_steer': [-0.2, 0.0, 0.2],  # discrete value of steering angles
@@ -148,6 +146,6 @@ params = {
 }
 
 
-def carla_env(obs_type, port, traffic_port, world=None):
+def carla_env(obs_type, world=None):
     CFG.OBS_TYPE = obs_type
-    return EnvWrapper(gym.make('carla-v1', port=port, traffic_port=traffic_port, params=params, world=world), cfg=CFG)
+    return EnvWrapper(gym.make('carla-v0', params=params, world=world), cfg=CFG)

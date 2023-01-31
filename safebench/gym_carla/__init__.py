@@ -4,8 +4,3 @@ register(
     id='carla-v0',
     entry_point='safebench.gym_carla.envs:CarlaEnv',
 )
-
-register(
-    id='carla-v1',
-    entry_point='safebench.gym_carla.envs:CarlaEnv2',
-)

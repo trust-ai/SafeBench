@@ -1,60 +1,42 @@
 import os.path as osp
 
 import json
-import yaml
+import torch 
 
 from safebench.util.run_util import load_config
+from safebench.util.torch_util import seed_torch, export_device_env_variable
 from safebench.carla_runner import CarlaRunner
 from safebench.scenario.srunner.tools.route_parser import RouteParser
 
-UPPER_DIR = osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__))))
-
-EXP_NAME_KEYS = {"epochs": "epoch", "obs_type": "obs_type"}
-DATA_DIR_KEYS = {"cost_limit": "cost"}
+ROOT_DIR = osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__))))
 
 
-def gen_exp_name(config: dict, suffix=None):
-    suffix = "" if suffix is None else "_" + suffix
-    name = config["policy"]
-    for k in EXP_NAME_KEYS:
-        name += '_' + EXP_NAME_KEYS[k] + '_' + str(config[k])
-    return name + suffix
-
-
-def gen_data_dir_name(config: dict):
-    name = "carla"
-    for k in DATA_DIR_KEYS:
-        name += '_' + DATA_DIR_KEYS[k] + '_' + str(config[k])
-    return name
-
-
-def get_scenario_configs(scenario_id, method):
+# TODO: move to util folder
+def scenario_parse(config):
     """
     data file should also come from args
     """
-    data_file = osp.join(UPPER_DIR, 'safebench/scenario/scenario_data/data/')
-    if method == 'benign':
-        data_file += 'benign.json'
-    elif method == 'standard':
-        data_file += 'standard.json'
+    data_file = osp.join(ROOT_DIR, config['data_path'])
+    if config['method'] == 'benign':
+        data_file += '/benign.json'
+    elif config['method'] == 'standard':
+        data_file += '/standard.json'
     else:
-        data_file += 'dev.json'
+        data_file += '/dev.json'
 
     print('Using data file:', data_file)
-    route_configurations = []
-    route_file_formatter = UPPER_DIR + '/safebench/scenario/scenario_data/route/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
-    scenario_file_formatter = UPPER_DIR + '/safebench/scenario/scenario_data/route/scenarios/scenario_%02d.json'
-
-    """
-    scenario_id, method, route_id, risk_level
-    """
+    route_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
+    scenario_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenarios/scenario_%02d.json'
+    
+    # scenario_id, method, route_id, risk_level
     with open(data_file, 'r') as f:
         data_full = json.loads(f.read())
-        data_full = [item for item in data_full if item["scenario_id"] == scenario_id]
-        data_full = [item for item in data_full if item["method"] == method]
+        data_full = [item for item in data_full if item["scenario_id"] == config['scenario_id']]
+        data_full = [item for item in data_full if item["method"] == config['method']]
 
     print('loading {} data'.format(len(data_full)))
     map_town_config = {}
+    route_configurations = []
     for item in data_full:
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
         scenario_file = scenario_file_formatter % item['scenario_id']
@@ -79,54 +61,44 @@ def get_scenario_configs(scenario_id, method):
             cur_config_list = [config]
             map_town_config[cur_town] = cur_config_list
 
+    print("######## Route parsing done ########")
     return route_configurations, map_town_config
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--policy', '-p', type=str, default='ppo')
-    parser.add_argument('--pretrain_dir', '-pre', type=str, default=None)
-    parser.add_argument('--load_dir', '-d', type=str, default=None)
-    parser.add_argument('--mode', '-m', type=str, default='train')
+    parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
+    parser.add_argument('--threads', type=int, default=4)
+    parser.add_argument('--render', type=bool, default=False)
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument('--device', type=str, default="gpu")
-    parser.add_argument('--exp_name', type=str, default=None)
-    parser.add_argument('--epochs', type=int, default=1200)
-    parser.add_argument('--suffix', '--id', type=str, default=None)
-    ### Added for continue training when training process is interrupted
-    parser.add_argument('--continue_from_epoch', '-c', type=int, default=0)
-    parser.add_argument('--obs_type', '-o', type=int, default=0)
+    parser.add_argument('--device_id', type=int, default=0)
+    parser.add_argument('--continue_agent_training', '-cat', type=bool, default=False)
+    parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
     parser.add_argument('--port', type=int, default=2000)
-    parser.add_argument('--traffic_port', type=int, default=2000)
-
-    parser.add_argument('--scenario_id', type=int, default=5)
-    parser.add_argument('--method', type=str, default='standard')
-    parser.add_argument('--scenario_num', type=int, default=3)
+    parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
+    parser.add_argument('--num_scenario', type=int, default=1)
 
     args = parser.parse_args()
     args_dict = vars(args)
 
-    # config_path = osp.join(CONFIG_DIR, "config_carla.yaml")
-    config_path = osp.join(UPPER_DIR, "safebench/agent/config/config_carla.yaml")
-    config = load_config(config_path)
-    config.update(args_dict)
+    # set some device parameters
+    export_device_env_variable(args.device, id=args.device_id)
+    torch.set_num_threads(args.threads)
+    seed_torch(args.seed)
 
-    config["exp_name"] = gen_exp_name(config, args.suffix)
-    config["data_dir"] = gen_data_dir_name(config)
+    # load agent config
+    agent_config_path = osp.join(ROOT_DIR, "safebench/agent/config/example.yaml")
+    agent_config = load_config(agent_config_path)
 
-    config["port"] = args.port
-    config["traffic_port"] = args.traffic_port
+    # load scenario config
+    scenario_config_path = osp.join(ROOT_DIR, "safebench/scenario/config/example.yaml")
+    scenario_config = load_config(scenario_config_path)
+    route_configurations, map_town_config = scenario_parse(scenario_config)
+    scenario_config.update(args_dict)
+    scenario_config["map_town_config"] = map_town_config
 
-    route_configurations, map_town_config = get_scenario_configs(scenario_id=args.scenario_id, method=args.method)
-    print("##### Route parsing done #####")
-
-    config["map_town_config"] = map_town_config
-    runner = CarlaRunner(**config)
-
-    # TODO: three modes, train agent (fix scenario), train scenario (fix agent), evaluate (fix all things)
-    if args.mode == "train":
-        runner.train()
-    else:
-        # runner.eval(render=False, sleep=0)
-        runner.run_eval(scenario_num=args.scenario_num, render=False, sleep=0)
+    # main entry with a selected mode
+    runner = CarlaRunner(agent_config, scenario_config)
+    runner.run()

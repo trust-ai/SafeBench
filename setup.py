@@ -8,7 +8,7 @@ Description:
 
 from setuptools import setup, find_packages
 
-setup(name='Safebench',
+setup(name='safebench',
       packages=["safebench"],
       include_package_data=True,
       version='1.0.0',

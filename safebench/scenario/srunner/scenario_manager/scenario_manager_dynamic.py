@@ -24,27 +24,24 @@ from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_l
 
 
 class ScenarioManagerDynamic(object):
-
     """
-    Dynamic version scenario manager class. This class holds all functionality
-    required to initialize, trigger, update and stop a scenario.
+        Dynamic version scenario manager class. This class holds all functionality
+        required to initialize, trigger, update and stop a scenario.
 
-    The user must not modify this class.
+        The user must not modify this class.
 
-    To use the ScenarioManager:
-    1. Create an object via manager = ScenarioManager()
-    2. Load a scenario via manager.load_scenario()
-    3. Trigger the execution of the scenario manager.run_scenario()
-       This function is designed to explicitly control init, trigger, update and stop
-       of the scenario
-    4. Trigger a result evaluation with manager.analyze_scenario()
-    5. If needed, cleanup with manager.stop_scenario()
+        To use the ScenarioManager:
+        1. Create an object via manager = ScenarioManager()
+        2. Load a scenario via manager.load_scenario()
+        3. Trigger the execution of the scenario manager.run_scenario()
+           This function is designed to explicitly control init, trigger, update and stop of the scenario
+        4. Trigger a result evaluation with manager.analyze_scenario()
+        5. If needed, cleanup with manager.stop_scenario()
     """
 
     def __init__(self, debug_mode=False, sync_mode=False, timeout=2.0):
         """
-        Setups up the parameters, which will be filled at load_scenario()
-
+            Setups up the parameters, which will be filled at load_scenario()
         """
         self.scenario = None
         self.scenario_tree = None
@@ -144,7 +141,6 @@ class ScenarioManagerDynamic(object):
         # for i in ego_vehicle_route:
         #     print(i)
 
-        """First spawn all actors on the map"""
         print("ego vehicle in scenario manager: ", self.ego_vehicles)
         self._init_scenarios()
 
@@ -185,7 +181,6 @@ class ScenarioManagerDynamic(object):
         # return self.running_record
 
     def _init_scenarios(self):
-        print("in init scenarios")
         # spawn background actors
         self.scenario_class.initialize_actors()
         # spawn actors for each scenario

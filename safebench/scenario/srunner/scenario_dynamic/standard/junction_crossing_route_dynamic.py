@@ -41,12 +41,14 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
 
         self.actor_speed = 10
 
-        super(OppositeVehicleRunningRedLightDynamic, self).__init__("OppositeVehicleRunningRedLightDynamic",
-                                                             ego_vehicles,
-                                                             config,
-                                                             world,
-                                                             debug_mode,
-                                                             criteria_enable=criteria_enable)
+        super(OppositeVehicleRunningRedLightDynamic, self).__init__(
+            "OppositeVehicleRunningRedLightDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
 
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
 
@@ -66,12 +68,11 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
     def _create_behavior(self):
         pass
 
-
     def initialize_actors(self):
         """
         Custom initialization
         """
-        print("here =====================")
+
         config = self.config
         self._other_actor_transform = config.other_actors[0].transform
         first_vehicle_transform = carla.Transform(
@@ -82,10 +83,8 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
 
         self.other_actor_transform.append(first_vehicle_transform)
         self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
-
 
         # other vehicle's traffic light
         traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
