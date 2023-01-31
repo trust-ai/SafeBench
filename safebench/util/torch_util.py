@@ -22,15 +22,10 @@ def discount_cumsum(x, discount):
     magic from rllab for computing discounted cumulative sums of vectors.
 
     input: 
-        numpy 1d vector x, 
-        [x0, 
-         x1, 
-         x2]
+        numpy 1d vector x, [x0,  x1, x2]
 
     output:
-        [x0 + discount * x1 + discount^2 * x2,  
-         x1 + discount * x2,
-         x2]
+        [x0 + discount * x1 + discount^2 * x2, x1 + discount * x2, x2]
     """
     return scipy.signal.lfilter([1], [1, float(-discount)], x[::-1], axis=0)[::-1]
 
@@ -50,19 +45,15 @@ def seed_torch(seed=1029):
     torch.backends.cudnn.deterministic = True
 
 
-def export_device_env_variable(device: str, id=0):
-    r'''
-    Export a local env variable to specify the device for all tensors.
-    Only call this function once in the beginning of a job script.
-
-    @param device: should be "gpu" or "cpu"
-    @param id: gpu id
-    '''
-    if device.lower() == "gpu":
-        if torch.cuda.is_available():
-            os.environ["MODEL_DEVICE"] = 'cuda:' + str(id)
-            return True
-    os.environ["MODEL_DEVICE"] = 'cpu'
+def export_device_env_variable(device):
+    device = device.lower()
+    use_cpu = device == 'cpu'
+    use_gpu = device.split(':')[0] == 'cuda'
+    assert use_cpu or use_gpu, 'device must be either cpu or cuda:\{gpu_id\}'
+    if not torch.cuda.is_available():
+        os.environ["MODEL_DEVICE"] = 'cpu'
+    else:
+        os.environ["MODEL_DEVICE"] = device
 
 
 def get_torch_device():

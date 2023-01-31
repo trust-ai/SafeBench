@@ -10,15 +10,8 @@ from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 
 
-FRAME_SKIP = 4
-
-
-# TODO: too many details about agents, we should build a base class of agents and use unified APIs in this file. 
 class CarlaRunner(object):
-    """
-        Main body to coordinate agents and scenarios.
-    """
-
+    """ Main body to coordinate agents and scenarios. """
     def __init__(self, agent_config, scenario_config):
         self.mode = scenario_config['mode'].lower()
         self.num_scenario = scenario_config['num_scenario']
@@ -28,6 +21,8 @@ class CarlaRunner(object):
 
         self.continue_agent_training = scenario_config['continue_agent_training']
         self.continue_scenario_training = scenario_config['continue_scenario_training']
+
+        self.frame_skip = scenario_config['frame_skip']
 
         # apply settings to carla
         self.client = carla.Client('localhost', scenario_config['port'])
@@ -179,8 +174,10 @@ class CarlaRunner(object):
                 info[j] = re_info
                 o[j] = re_o
 
+            # tick all scenarios
             world.tick()
 
+        # deal with the rendering results
         for k in range(len(env_list)):
             if env_list[k] in finished_env:
                 continue

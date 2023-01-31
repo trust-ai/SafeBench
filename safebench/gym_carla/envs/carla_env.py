@@ -19,7 +19,7 @@ from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import
 
 
 class CarlaEnv(gym.Env):
-    """An OpenAI gym wrapper for CARLA simulator."""
+    """ An OpenAI-gym style interface for CARLA simulator. """
     def __init__(self, params, world=None):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
@@ -44,12 +44,6 @@ class CarlaEnv(gym.Env):
         else:
             self.pixor = False
 
-        # Destination
-        if params['task_mode'] == 'roundabout':
-            self.dests = [[4.46, -61.46, 0], [-49.53, -2.89, 0], [-6.48, 55.47, 0], [35.96, 3.33, 0]]
-        else:
-            self.dests = None
-
         # action and observation spaces
         self.discrete = params['discrete']
         self.discrete_act = [params['discrete_acc'], params['discrete_steer']]  # acc, steer
@@ -61,7 +55,8 @@ class CarlaEnv(gym.Env):
             self.action_space = spaces.Box(
                 np.array([params['continuous_accel_range'][0], params['continuous_steer_range'][0]]),
                 np.array([params['continuous_accel_range'][1], params['continuous_steer_range'][1]]),
-                dtype=np.float32)  # acc, steer
+                dtype=np.float32
+            )  # acc, steer
         observation_space_dict = {
             'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
             'lidar': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
@@ -132,11 +127,8 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-        start = time.time()
         # init render
         self._init_renderer()
-        end = time.time()
-        print(end - start)
 
     def load_scenario(self, config, ego_id):
         self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=ego_id,timeout=800)
@@ -301,27 +293,22 @@ class CarlaEnv(gym.Env):
         pass
 
     def _create_vehicle_bluepprint(self,actor_filter, color=None, number_of_wheels=[4]):
-        """
-            Create the blueprint for a specific actor type.
+        """ Create the blueprint for a specific actor type.
 
             Args:
-            actor_filter: a string indicating the actor type, e.g, 'vehicle.lincoln*'.
+                actor_filter: a string indicating the actor type, e.g, 'vehicle.lincoln*'.
 
             Returns:
-            bp: the blueprint object of carla.
+                bp: the blueprint object of carla.
         """
         blueprints = self.world.get_blueprint_library().filter(actor_filter)
         blueprint_library = []
         for nw in number_of_wheels:
-            blueprint_library = blueprint_library + [
-                x for x in blueprints
-                if int(x.get_attribute('number_of_wheels')) == nw
-            ]
+            blueprint_library = blueprint_library + [x for x in blueprints if int(x.get_attribute('number_of_wheels')) == nw]
         bp = random.choice(blueprint_library)
         if bp.has_attribute('color'):
             if not color:
-                color = random.choice(
-                    bp.get_attribute('color').recommended_values)
+                color = random.choice(bp.get_attribute('color').recommended_values)
             bp.set_attribute('color', color)
         return bp
 
@@ -340,14 +327,13 @@ class CarlaEnv(gym.Env):
         self.birdeye_render = BirdeyeRender(self.world, birdeye_params)
 
     def _get_actor_polygons(self, filt):
-        """
-            Get the bounding box polygon of actors.
+        """ Get the bounding box polygon of actors.
 
             Args:
-            filt: the filter indicating what type of actors we'll look at.
+                filt: the filter indicating what type of actors we'll look at.
 
             Returns:
-            actor_poly_dict: a dictionary containing the bounding boxes of specific actors.
+                actor_poly_dict: a dictionary containing the bounding boxes of specific actors.
         """
         actor_poly_dict = {}
         for actor in self.world.get_actors().filter(filt):
@@ -361,20 +347,16 @@ class CarlaEnv(gym.Env):
             l = bb.extent.x
             w = bb.extent.y
             # Get bounding box polygon in the actor's local coordinate
-            poly_local = np.array([[l, w], [l, -w], [-l, -w],
-                                   [-l, w]]).transpose()
+            poly_local = np.array([[l, w], [l, -w], [-l, -w], [-l, w]]).transpose()
             # Get rotation matrix to transform to global coordinate
-            R = np.array([[np.cos(yaw), -np.sin(yaw)],
-                          [np.sin(yaw), np.cos(yaw)]])
+            R = np.array([[np.cos(yaw), -np.sin(yaw)], [np.sin(yaw), np.cos(yaw)]])
             # Get global bounding box polygon
-            poly = np.matmul(R, poly_local).transpose() + np.repeat(
-                [[x, y]], 4, axis=0)
+            poly = np.matmul(R, poly_local).transpose() + np.repeat([[x, y]], 4, axis=0)
             actor_poly_dict[actor.id] = poly
         return actor_poly_dict
 
     def _get_actor_info(self, filt):
-        """
-            Get the info of actors.
+        """ Get the info of actors.
 
             Args:
                 filt: the filter indicating what type of actors we'll look at.
@@ -390,14 +372,13 @@ class CarlaEnv(gym.Env):
         for actor in self.world.get_actors().filter(filt):
             actor_trajectory_dict[actor.id] = actor.get_transform()
             actor_acceleration_dict[actor.id] = actor.get_acceleration()
-            actor_angular_velocity_dict[
-                actor.id] = actor.get_angular_velocity()
+            actor_angular_velocity_dict[actor.id] = actor.get_angular_velocity()
             actor_velocity_dict[actor.id] = actor.get_velocity()
 
         return actor_trajectory_dict, actor_acceleration_dict, actor_angular_velocity_dict, actor_velocity_dict
 
     def _get_obs(self):
-        """Get the observations."""
+        """ Get the observations. """
         # Birdeye rendering
         self.birdeye_render.vehicle_polygons = self.vehicle_polygons
         self.birdeye_render.walker_polygons = self.walker_polygons
@@ -473,13 +454,10 @@ class CarlaEnv(gym.Env):
 
         ## Display camera image
         camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
-
         camera_surface = rgb_to_display_surface(camera, self.display_size)
 
         # self.camera_list.append(camera_surface)
         self.display.blit(camera_surface, (self.display_size * 2, 0))
-
-        # self.render_result["birdeye_render_vehicle_polygons"] = self.
 
         # Display on pygame
         # TODO: Solve pygame display problem
@@ -509,8 +487,7 @@ class CarlaEnv(gym.Env):
             # Get the 6-dim geom parametrization in PIXOR, here we use pixel coordinate
             for actor in self.world.get_actors().filter('vehicle.*'):
                 x, y, yaw, l, w = get_info(actor)
-                x_local, y_local, yaw_local = get_local_pose(
-                    (x, y, yaw), (ego_x, ego_y, ego_yaw))
+                x_local, y_local, yaw_local = get_local_pose((x, y, yaw), (ego_x, ego_y, ego_yaw))
                 if actor.id != self.ego.id:
                     if abs(y_local) < self.obs_range / 2 + 1 and x_local < self.obs_range - self.d_behind + 1 and x_local > -self.d_behind - 1:
                         x_pixel, y_pixel, yaw_pixel, l_pixel, w_pixel = get_pixel_info(
@@ -523,9 +500,7 @@ class CarlaEnv(gym.Env):
                         sin_t = np.sin(yaw_pixel)
                         logw = np.log(w_pixel)
                         logl = np.log(l_pixel)
-                        pixels = get_pixels_inside_vehicle(
-                            pixel_info=(x_pixel, y_pixel, yaw_pixel, l_pixel, w_pixel),
-                            pixel_grid=self.pixel_grid)
+                        pixels = get_pixels_inside_vehicle(pixel_info=(x_pixel, y_pixel, yaw_pixel, l_pixel, w_pixel), pixel_grid=self.pixel_grid)
                         for pixel in pixels:
                             vh_clas[pixel[0], pixel[1]] = 1
                             dx = x_pixel - pixel[0]
@@ -537,11 +512,7 @@ class CarlaEnv(gym.Env):
             vh_regr = np.flip(vh_regr, axis=0)
 
             # Pixor state, [x, y, cos(yaw), sin(yaw), speed]
-            pixor_state = [
-                ego_x, ego_y,
-                np.cos(ego_yaw),
-                np.sin(ego_yaw), speed
-            ]
+            pixor_state = [ego_x, ego_y, np.cos(ego_yaw), np.sin(ego_yaw), speed]
 
         forward_vector = self.ego.get_transform().get_forward_vector()
         node_forward = self.current_waypoint.transform.get_forward_vector()
@@ -564,20 +535,16 @@ class CarlaEnv(gym.Env):
 
         if self.pixor:
             obs.update({
-                'roadmap':
-                roadmap.astype(np.uint8),
-                'vh_clas':
-                np.expand_dims(vh_clas, -1).astype(np.float32),
-                'vh_regr':
-                vh_regr.astype(np.float32),
-                'pixor_state':
-                pixor_state,
+                'roadmap': roadmap.astype(np.uint8),
+                'vh_clas': np.expand_dims(vh_clas, -1).astype(np.float32),
+                'vh_regr': vh_regr.astype(np.float32),
+                'pixor_state': pixor_state,
             })
 
         return obs
 
     def _get_reward(self):
-        """Calculate the step reward."""
+        """ Calculate the step reward. """
         # reward for speed tracking
         v = self.ego.get_velocity()
 
@@ -619,28 +586,13 @@ class CarlaEnv(gym.Env):
         return r_collision
 
     def _terminal(self):
-        """Calculate whether to terminate the current episode."""
-        # Get ego state
-        ego_x, ego_y = get_pos(self.ego)
+        """ Calculate whether to terminate the current episode. """
         terminate = False
-        # If collides
-        # if len(self.collision_hist) > 0:
-        #     terminate = True
 
         # If reach maximum timestep
         if self.time_step > self.max_time_episode:
             terminate = True
 
-        # If at destination
-        if self.dests is not None:  # If at destination
-            for dest in self.dests:
-                if np.sqrt((ego_x - dest[0])**2 + (ego_y - dest[1])**2) < 4:
-                    terminate = True
-
-        # # If out of lane
-        # dis, _ = get_lane_dis(self.waypoints, ego_x, ego_y)
-        # if abs(dis) > self.out_lane_thres:
-        #     terminate = True
         return terminate
 
     def _stop_sensor(self):
@@ -649,7 +601,7 @@ class CarlaEnv(gym.Env):
         self.camera_sensor.stop()
 
     def _clear_all_actors(self, actor_filters):
-        """Clear specific actors."""
+        """ Clear specific actors. """
         for actor_filter in actor_filters:
             for actor in self.world.get_actors().filter(actor_filter):
                 if actor.is_alive:
@@ -661,9 +613,13 @@ class CarlaEnv(gym.Env):
         #Clear sensor objects
         if self.collision_sensor is not None:
             self._stop_sensor()
+        
         #Delete sensors, vehicles and walkers
         self._clear_all_actors([
-            'sensor.other.collision', 'sensor.lidar.ray_cast',
-            'sensor.camera.rgb', 'vehicle.*', 'controller.ai.walker',
+            'sensor.other.collision', 
+            'sensor.lidar.ray_cast',
+            'sensor.camera.rgb', 
+            'vehicle.*', 
+            'controller.ai.walker',
             'walker.*'
         ])
