@@ -9,11 +9,13 @@ from safebench.gym_carla.env_wrapper import carla_env
 from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 
+
 class CarlaRunner(object):
     """ Main body to coordinate agents and scenarios. """
     def __init__(self, agent_config, scenario_config):
         self.mode = scenario_config['mode'].lower()
         self.num_scenario = scenario_config['num_scenario']
+        self.num_episode = scenario_config['num_episode']
         self.map_town_config = scenario_config['map_town_config']
         self.obs_type = agent_config['obs_type'] # the observation type is determined by the ego agent
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
@@ -26,6 +28,7 @@ class CarlaRunner(object):
         # apply settings to carla
         self.client = carla.Client('localhost', scenario_config['port'])
         self.client.set_timeout(10.0)
+        self.world = None
 
         # for visualization
         self.display_size = 256
@@ -46,23 +49,20 @@ class CarlaRunner(object):
             self.agent.set_mode('train')
 
     def _init_world(self, town):
+        print("######## initializeing carla world ########")
         # TODO: before init world, clear all things
-        world = self.client.load_world(town)
-        settings = world.get_settings()
+        self.world = self.client.load_world(town)
+        settings = self.world.get_settings()
         settings.synchronous_mode = True
         settings.fixed_delta_seconds = self.fixed_delta_seconds
-        world.apply_settings(settings)
+        self.world.apply_settings(settings)
         CarlaDataProvider.set_client(self.client)
-        CarlaDataProvider.set_world(world)
-        world.set_weather(carla.WeatherParameters.ClearNoon)
-
-        print("######## init world completed ########")
-        return world
+        CarlaDataProvider.set_world(self.world)
+        self.world.set_weather(carla.WeatherParameters.ClearNoon)
 
     def _init_renderer(self, num_envs):
-        """ Initialize the birdeye view renderer. """
-        #pygame.init()
-        pygame.display.init()
+        print("######## initializeing pygame birdeye renderer ########")
+        pygame.init()
         # TODO: hide the window if does not want to pop up it
         flag = pygame.HWSURFACE | pygame.DOUBLEBUF # | pygame.HIDDEN
         self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
@@ -75,62 +75,68 @@ class CarlaRunner(object):
             'pixels_ahead_vehicle': pixels_ahead_vehicle
         }
 
+        # initialize the render for genrating observation and visualization
+        self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params)
+
     def run(self):
         for town in self.map_town_config.keys():
-            world = self._init_world(town)
+            # initialize town
+            self._init_world(town)
+            # initialize the renderer
+            self._init_renderer(self.num_scenario)
             config_lists = self.map_town_config[town]
 
             # create and reset scenarios
             env_list = []
-            obs_list = []
-            pygame.init()
-            for i in range(self.num_scenario):
-                config = config_lists[i]
-                env = carla_env(self.obs_type, world=world)
+            for s_i in range(self.num_scenario):
+                config = config_lists[s_i]
+                env = carla_env(self.obs_type, birdeye_render=self.birdeye_render, display=self.display, world=self.world)
                 env.create_ego_object()
-                raw_obs, ep_reward, ep_len, ep_cost = env.reset(config=config, ego_id=i), 0, 0, 0
                 env_list.append(env)
-                obs_list.append(raw_obs)
-
                 # load model for scenarios 
                 if self.mode in ['eval', 'train_agent'] or self.continue_scenario_training:
                     env.load_model()
 
-            finished_env = set()
-            while True: 
-                if len(finished_env) == self.num_scenario:
-                    print("All scenarios are completed. Prepare for exiting")
-                    break
-                
-                # get action from ego agent (assume using one batch)
-                actions_list = self.agent.get_action(obs_list)
+            for e_i in range(self.num_episode):
+                obs_list = []
+                reward_list = []
+                # reset envs
+                for s_i in range(self.num_scenario):
+                    raw_obs, ep_reward, ep_len, ep_cost = env_list[s_i].reset(config=config, env_id=s_i), 0, 0, 0
+                    obs_list.append(raw_obs)
+                    reward_list.append(ep_reward)
 
-                # TODO: move render function to here
+                # start the loop
+                finished_env = set()
+                while True: 
+                    if len(finished_env) == self.num_scenario:
+                        print("All scenarios are completed. Prepare for exiting")
+                        break
+                    
+                    # get action from ego agent (assume using one batch)
+                    actions_list = self.agent.get_action(obs_list)
 
-                # apply action to env and get obs
-                self._update_env(env_list=env_list, obs_list=obs_list, actions_list=actions_list, world=world, finished_env=finished_env)
+                    # apply action to env and get obs
+                    self._update_env(env_list=env_list, obs_list=obs_list, actions_list=actions_list, finished_env=finished_env)
 
-                # train or test
-                if self.mode == 'train_agent':
-                    self.agent.add_buffer(obs_list, actions_list)
-                    self.agent.train_model()
-                    self.agent.save_model()
-                elif self.mode == 'train_scenario':
-                    for k in range(len(env_list)):
-                        env_list[k].add_buffer(obs_list, actions_list)
-                        env_list[k].train_model()
-                        env_list[k].save_model()
+                    # train or test
+                    if self.mode == 'train_agent':
+                        self.agent.add_buffer(obs_list, actions_list)
+                        self.agent.train_model()
+                        self.agent.save_model()
+                    elif self.mode == 'train_scenario':
+                        for k in range(len(env_list)):
+                            env_list[k].add_buffer(obs_list, actions_list)
+                            env_list[k].train_model()
+                            env_list[k].save_model()
 
-            # TODO: move this display function in the middle of episode
-            self._init_renderer(len(env_list))
-            self._render_display(env_list, world)
-
-    def _render_display(self, env_list, world):
+    def _render_display(self, env_list):
         birdeye_render_list = []
 
+        # TODO: creating BirdeyeRender will take too much time
         max_len = 0
         for cur_env in env_list:
-            birdeye_render = BirdeyeRender(world, self.birdeye_params)
+            birdeye_render = BirdeyeRender(self.world, self.birdeye_params)
             birdeye_render.set_hero(cur_env.ego, cur_env.ego.id)
             birdeye_render_list.append(birdeye_render)
             max_len = max(len(cur_env.render_result), max_len)
@@ -152,7 +158,7 @@ class CarlaRunner(object):
                 pygame.display.flip()
             time.sleep(0.1)
 
-    def _update_env(self, env_list, obs_list, actions_list, world, finished_env, render=True):
+    def _update_env(self, env_list, obs_list, actions_list, finished_env, render=True):
         reward = [0] * len(env_list)
         cost = [0] * len(env_list)
         info = [None] * len(env_list)
@@ -167,7 +173,7 @@ class CarlaRunner(object):
                 env.apply_actions(actions_list[j])
 
             # tick all scenarios
-            world.tick()
+            self.world.tick()
 
             for p in range(len(env_list)):
                 env = env_list[p]

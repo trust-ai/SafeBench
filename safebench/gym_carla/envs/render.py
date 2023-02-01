@@ -13,6 +13,8 @@ import carla
 import math
 import pygame
 import weakref
+import time
+
 
 # Colors
 COLOR_BUTTER_0 = pygame.Color(252, 233, 79)
@@ -84,6 +86,7 @@ class Util(object):
 
 class MapImage(object):
     def __init__(self, carla_world, carla_map, pixels_per_meter):
+        print('######## drawing the map of the entire town ########')
         self._pixels_per_meter = pixels_per_meter
         self.scale = 1.0
 
@@ -378,39 +381,40 @@ class BirdeyeRender(object):
         self.simulation_time = 0
         self.server_clock = pygame.time.Clock()
 
-        # World data
+        # world data
         self.world = world
         self.town_map = self.world.get_map()
         self.actors_with_transforms = []
 
-        # Hero actor
+        # hero actor
         self.hero_actor = None
         self.hero_id = None
         self.hero_transform = None
 
-        # The actors and map information
+        # the actors and map information
         self.vehicle_polygons = []
         self.walker_polygons = []
         self.waypoints = None
         self.red_light = False
 
-        # Create Surfaces
+        # create surface of the entire map, this take a long time
         self.map_image = MapImage(
             carla_world=self.world,
             carla_map=self.town_map,
             pixels_per_meter=self.params['pixels_per_meter']
         )
-
         self.original_surface_size = min(self.params['screen_size'][0], self.params['screen_size'][1])
         self.surface_size = self.map_image.big_map_surface.get_width()
 
-        # Render Actors
+        # render actors
         self.actors_surface = pygame.Surface((self.map_image.surface.get_width(), self.map_image.surface.get_height()))
         self.actors_surface.set_colorkey(COLOR_BLACK)
 
+        # render waypoints
         self.waypoints_surface = pygame.Surface((self.map_image.surface.get_width(), self.map_image.surface.get_height()))
         self.waypoints_surface.set_colorkey(COLOR_BLACK)
-        
+
+        # render hero
         scaled_original_size = self.original_surface_size * (1.0 / 0.62)
         self.hero_surface = pygame.Surface((scaled_original_size, scaled_original_size)).convert()
 
@@ -465,7 +469,7 @@ class BirdeyeRender(object):
         return (vehicles, walkers)
 
     def _render_hist_actors(self, surface, actor_polygons, actor_type, world_to_pixel, num):
-        lp=len(actor_polygons)
+        lp = len(actor_polygons)
         color = COLOR_SKY_BLUE_0
 
         for i in range(max(0,lp-num),lp):
@@ -491,11 +495,9 @@ class BirdeyeRender(object):
 
     def render_waypoints(self, surface, waypoints, world_to_pixel):
         if self.red_light:
-            # purple
-            color = pygame.Color(math.floor(0.5*255), 0, math.floor(0.5*255))
+            color = pygame.Color(math.floor(0.5*255), 0, math.floor(0.5*255)) # purple
         else:
-            # blue
-            color = pygame.Color(0,0,255)
+            color = pygame.Color(0,0,255) # blue
         corners = []
         for p in waypoints:
             corners.append(carla.Location(x=p[0],y=p[1]))

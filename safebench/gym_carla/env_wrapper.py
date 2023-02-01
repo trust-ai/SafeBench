@@ -33,8 +33,6 @@ class EnvWrapper(gym.Wrapper):
         act_lim = np.ones((act_dim), dtype=np.float32)
         self.action_space = gym.spaces.Box(-act_lim, act_lim, dtype=np.float32)
 
-        self.render_result = []
-
     def create_ego_object(self):
         self._env.create_ego_object()
 
@@ -63,7 +61,6 @@ class EnvWrapper(gym.Wrapper):
             cost += info["cost"]
         if "cost" in info:
             info["cost"] = cost
-        self.render_result = self._env.render_result
 
         return o, reward, done, info, cost
 
@@ -74,19 +71,19 @@ class EnvWrapper(gym.Wrapper):
             obs_dim = 4
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
-            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim, dtype=np.dtype)
+            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)
         elif self.obs_type == 1:
             # 11 state space
             obs_dim = 11
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
-            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim, dtype=np.dtype)
+            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)
         elif self.obs_type == 2 or self.obs_type == 3:
             # 4 state space + bev
             obs_dim = 256  # TODO: Tune here
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
-            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim, dtype=np.dtype)
+            self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)
         else:
             raise NotImplementedError
 
@@ -149,6 +146,6 @@ params = {
 }
 
 
-def carla_env(obs_type, world=None):
+def carla_env(obs_type, birdeye_render=None, display=None, world=None):
     CFG.OBS_TYPE = obs_type
-    return EnvWrapper(gym.make('carla-v0', params=params, world=world), cfg=CFG)
+    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world), cfg=CFG)

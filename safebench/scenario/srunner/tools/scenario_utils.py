@@ -1,3 +1,10 @@
+'''
+Author: Wenhao Ding
+Email: wenhaod@andrew.cmu.edu
+Date: 2023-01-30 22:30:39
+LastEditTime: 2023-02-01 14:41:47
+Description: 
+'''
 import math
 import os.path as osp
 import json
@@ -20,6 +27,8 @@ def scenario_parse(ROOT_DIR, config):
     """
     data file should also come from args
     """
+    print("######## parsing scenario route and data ########")
+
     data_file = osp.join(ROOT_DIR, config['data_path'])
     if config['method'] == 'benign':
         data_file += '/benign.json'
@@ -65,6 +74,5 @@ def scenario_parse(ROOT_DIR, config):
             cur_config_list = [config]
             map_town_config[cur_town] = cur_config_list
 
-    print("######## Route parsing done ########")
     return route_configurations, map_town_config
 

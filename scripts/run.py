@@ -21,7 +21,8 @@ if __name__ == '__main__':
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
     parser.add_argument('--port', type=int, default=2000)
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
-    parser.add_argument('--num_scenario', type=int, default=3)
+    parser.add_argument('--num_scenario', type=int, default=5, help='how many scenarios we will run parallelly')
+    parser.add_argument('--num_episode', type=int, default=1, help='how many times one scenario will be repeated')
     args = parser.parse_args()
     args_dict = vars(args)
 

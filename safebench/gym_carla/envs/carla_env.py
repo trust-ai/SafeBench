@@ -10,7 +10,6 @@ from gym import spaces
 from gym.utils import seeding
 import carla
 
-from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.gym_carla.envs.route_planner import RoutePlanner
 from safebench.gym_carla.envs.misc import *
 
@@ -20,7 +19,7 @@ from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import
 
 class CarlaEnv(gym.Env):
     """ An OpenAI-gym style interface for CARLA simulator. """
-    def __init__(self, params, world=None):
+    def __init__(self, params, birdeye_render=None, display=None, world=None):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
         self.max_past_step = params['max_past_step']
@@ -74,6 +73,8 @@ class CarlaEnv(gym.Env):
 
         assert world is not None, "the world passed into CarlaEnv is None"
         self.world = world
+        self.birdeye_render = birdeye_render
+        self.display = display
         self.SpawnActor = carla.command.SpawnActor
         self.SetAutopilot = carla.command.SetAutopilot
         self.SetVehicleLightState = carla.command.SetVehicleLightState
@@ -82,6 +83,8 @@ class CarlaEnv(gym.Env):
         # Record the time of total steps and resetting steps
         self.reset_step = 0
         self.total_step = 0
+        self.is_running = True
+        self.env_id = None
 
         # Get pixel grid points
         if self.pixor:
@@ -97,10 +100,6 @@ class CarlaEnv(gym.Env):
         """for scenario runner"""
         self.scenario = None
         self.scenario_manager = None
-
-        """for exiting"""
-        self.is_running = True
-        self.render_result = []
 
     def create_ego_object(self):
         # Collision sensor
@@ -127,21 +126,18 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-        # init render
-        self._init_renderer()
-
-    def load_scenario(self, config, ego_id):
-        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=ego_id,timeout=800)
+    def load_scenario(self, config, env_id):
+        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id, timeout=800)
         print("######## scenario load succeed ########")
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)
         self.scenario_manager._init_scenarios()
 
-    def reset(self, config, ego_id):
-        print("######## start loading scenario ########")
-        self.load_scenario(config, ego_id)
-        print("######## route scenario loading completed ########")
+    def reset(self, config, env_id):
+        print("######## loading scenario ########")
+        self.load_scenario(config, env_id)
+        self.env_id = env_id
 
         # Get actors polygon list (for visualization)
         self.vehicle_polygons = []
@@ -198,9 +194,6 @@ class CarlaEnv(gym.Env):
 
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
-
-        # Set ego information for render
-        self.birdeye_render.set_hero(self.ego, self.ego.id)
 
         # TODO: applying setting can tick the world and get data from sensros
         # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
@@ -310,21 +303,6 @@ class CarlaEnv(gym.Env):
             bp.set_attribute('color', color)
         return bp
 
-    def _init_renderer(self):
-        """ Initialize the birdeye view renderer. """
-        #TODO: move pygame init out of env, use the display in the carla runner
-        # pygame.init()
-        self.display = pygame.display.set_mode((self.display_size * 3, self.display_size), pygame.HWSURFACE | pygame.DOUBLEBUF)
-
-        pixels_per_meter = self.display_size / self.obs_range
-        pixels_ahead_vehicle = (self.obs_range / 2 - self.d_behind) * pixels_per_meter
-        birdeye_params = {
-            'screen_size': [self.display_size, self.display_size],
-            'pixels_per_meter': pixels_per_meter,
-            'pixels_ahead_vehicle': pixels_ahead_vehicle
-        }
-        self.birdeye_render = BirdeyeRender(self.world, birdeye_params)
-
     def _get_actor_polygons(self, filt):
         """ Get the bounding box polygon of actors.
 
@@ -378,7 +356,8 @@ class CarlaEnv(gym.Env):
 
     def _get_obs(self):
         """ Get the observations. """
-        # Birdeye rendering
+        # Set ego information for render
+        self.birdeye_render.set_hero(self.ego, self.ego.id)
         self.birdeye_render.vehicle_polygons = self.vehicle_polygons
         self.birdeye_render.walker_polygons = self.walker_polygons
         self.birdeye_render.waypoints = self.waypoints
@@ -409,10 +388,6 @@ class CarlaEnv(gym.Env):
                     if abs(birdeye[i, j, 0] - 255) < 20 and abs(birdeye[i, j, 1] - 0) < 20 and abs(birdeye[i, j, 0] - 255) < 20:
                         roadmap[i, j, :] = birdeye[i, j, :]
 
-        # Display birdeye image
-        birdeye_surface = rgb_to_display_surface(birdeye, self.display_size)
-        self.display.blit(birdeye_surface, (0, 0))
-
         # get Lidar image
         point_cloud = np.copy(np.frombuffer(self.lidar_data.raw_data, dtype=np.dtype('f4')))
         point_cloud = np.reshape(point_cloud, (int(point_cloud.shape[0] / 4), 4))
@@ -442,19 +417,19 @@ class CarlaEnv(gym.Env):
         lidar = np.rot90(lidar, 1)
         lidar = lidar * 255
 
-        # Display lidar image
+        # display birdeye image
+        birdeye_surface = rgb_to_display_surface(birdeye, self.display_size)
+        self.display.blit(birdeye_surface, (0, self.env_id*self.display_size))
+        # display lidar image
         lidar_surface = rgb_to_display_surface(lidar, self.display_size)
-        self.display.blit(lidar_surface, (self.display_size, 0))
-
-        ## Display camera image
+        self.display.blit(lidar_surface, (self.display_size, self.env_id*self.display_size))
+        # display camera image
         camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
         camera_surface = rgb_to_display_surface(camera, self.display_size)
-        self.display.blit(camera_surface, (self.display_size*2, 0))
+        self.display.blit(camera_surface, (self.display_size*2, self.env_id*self.display_size))
 
-        # Display on pygame
-        # TODO: Solve pygame display problem (why ?)
-        cur_render_tuple = (self.vehicle_polygons, self.walker_polygons, self.waypoints, birdeye_render_types, birdeye_surface, lidar_surface, camera_surface)
-        self.render_result.append(cur_render_tuple)
+        # show image on window
+        pygame.display.flip()
 
         # State observation
         ego_trans = self.ego.get_transform()
@@ -462,7 +437,8 @@ class CarlaEnv(gym.Env):
         ego_y = ego_trans.location.y
         ego_yaw = ego_trans.rotation.yaw / 180 * np.pi
         lateral_dis, w = get_preview_lane_dis(self.waypoints, ego_x, ego_y)
-        delta_yaw = np.arcsin(np.cross(w, np.array(np.array([np.cos(ego_yaw), np.sin(ego_yaw)]))))
+        yaw = np.array([np.cos(ego_yaw), np.sin(ego_yaw)])
+        delta_yaw = np.arcsin(np.cross(w, yaw))
 
         v = self.ego.get_velocity()
         speed = np.sqrt(v.x**2 + v.y**2)
@@ -506,9 +482,9 @@ class CarlaEnv(gym.Env):
             # Pixor state, [x, y, cos(yaw), sin(yaw), speed]
             pixor_state = [ego_x, ego_y, np.cos(ego_yaw), np.sin(ego_yaw), speed]
 
-        forward_vector = self.ego.get_transform().get_forward_vector()
-        node_forward = self.current_waypoint.transform.get_forward_vector()
-        target_forward = self.target_waypoint.transform.get_forward_vector()
+        #forward_vector = self.ego.get_transform().get_forward_vector()
+        #node_forward = self.current_waypoint.transform.get_forward_vector()
+        #target_forward = self.target_waypoint.transform.get_forward_vector()
 
         obs = {
             'camera': camera.astype(np.uint8),
