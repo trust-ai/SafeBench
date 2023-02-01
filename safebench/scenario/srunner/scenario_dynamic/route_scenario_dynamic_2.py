@@ -377,36 +377,11 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
                 ego_vehicle = CarlaDataProvider.request_new_actor(
                     'vehicle.tesla.model3', 
                     elevate_transform, 
-                    rolename='ego_vehicle'+str(self.ego_id),
+                    rolename=role_name,
                 )
                 success = True
             except RuntimeError:
                 elevate_transform.location.z += 0.1
-
-    
-        # Collision sensor
-        collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
-
-        # Lidar sensor
-        lidar_height = 2.1
-        lidar_trans = carla.Transform(carla.Location(x=0.0, z=lidar_height))
-        lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        lidar_bp.set_attribute('channels', '32')
-        lidar_bp.set_attribute('range', '5000')
-
-        # Camera sensor
-        camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
-        camera_bp = self.world.get_blueprint_library().find('sensor.camera.rgb')
-        # Modify the attributes of the blueprint to set image resolution and field of view.
-        camera_bp.set_attribute('image_size_x', '800')
-        camera_bp.set_attribute('image_size_y', '600')
-        camera_bp.set_attribute('fov', '90')
-        # Set the time in seconds between sensor captures
-        camera_bp.set_attribute('sensor_tick', '0.05')
-
-        self.collision_sensor = self.world.spawn_actor(collision_bp, carla.Transform(), attach_to=ego_vehicle)
-        self.lidar_sensor = self.world.spawn_actor(lidar_bp, lidar_trans, attach_to=ego_vehicle)
-        self.camera_sensor = self.world.spawn_actor(camera_bp, camera_trans, attach_to=ego_vehicle)
 
         return ego_vehicle
 
