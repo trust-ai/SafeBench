@@ -61,11 +61,11 @@ class CarlaRunner(object):
 
     def _init_renderer(self, num_envs):
         """ Initialize the birdeye view renderer. """
-        pygame.init()
-        self.display = pygame.display.set_mode(
-            (self.display_size * 3, self.display_size * num_envs),
-            pygame.HWSURFACE | pygame.DOUBLEBUF,
-        )
+        #pygame.init()
+        pygame.display.init()
+        # TODO: hide the window if does not want to pop up it
+        flag = pygame.HWSURFACE | pygame.DOUBLEBUF # | pygame.HIDDEN
+        self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
 
         pixels_per_meter = self.display_size / self.obs_range
         pixels_ahead_vehicle = (self.obs_range / 2 - self.d_behind) * pixels_per_meter

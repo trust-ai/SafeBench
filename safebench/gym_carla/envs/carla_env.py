@@ -312,7 +312,7 @@ class CarlaEnv(gym.Env):
 
     def _init_renderer(self):
         """ Initialize the birdeye view renderer. """
-        #TODO: move pygame init out of env
+        #TODO: move pygame init out of env, use the display in the carla runner
         # pygame.init()
         self.display = pygame.display.set_mode((self.display_size * 3, self.display_size), pygame.HWSURFACE | pygame.DOUBLEBUF)
 
@@ -383,12 +383,13 @@ class CarlaEnv(gym.Env):
         self.birdeye_render.walker_polygons = self.walker_polygons
         self.birdeye_render.waypoints = self.waypoints
 
-        # birdeye view with roadmap and actors
+        # render all things in the display
         birdeye_render_types = ['roadmap', 'actors']
         if self.display_route:
             birdeye_render_types.append('waypoints')
-
         self.birdeye_render.render(self.display, birdeye_render_types)
+
+        # get birdeye surface for roadmap and agents
         birdeye = pygame.surfarray.array3d(self.display)
         birdeye = birdeye[0:self.display_size, :, :]
         birdeye = display_to_rgb(birdeye, self.obs_size)
@@ -410,11 +411,9 @@ class CarlaEnv(gym.Env):
 
         # Display birdeye image
         birdeye_surface = rgb_to_display_surface(birdeye, self.display_size)
-
-        # self.birdeye_list.append(birdeye_surface)
         self.display.blit(birdeye_surface, (0, 0))
 
-        ## Lidar image generation
+        # get Lidar image
         point_cloud = np.copy(np.frombuffer(self.lidar_data.raw_data, dtype=np.dtype('f4')))
         point_cloud = np.reshape(point_cloud, (int(point_cloud.shape[0] / 4), 4))
         x = point_cloud[:, 0:1]
@@ -422,9 +421,7 @@ class CarlaEnv(gym.Env):
         z = point_cloud[:, 2:3]
         intensity = point_cloud[:, 3:4]
         point_cloud = np.concatenate([y, -x, z], axis=1)
-
-        # Separate the 3D space to bins for point cloud, x and y is set according to self.lidar_bin,
-        # and z is set to be two bins.
+        # Separate the 3D space to bins for point cloud, x and y is set according to self.lidar_bin, and z is set to be two bins.
         y_bins = np.arange(-(self.obs_range - self.d_behind), self.d_behind + self.lidar_bin, self.lidar_bin)
         x_bins = np.arange(-self.obs_range / 2, self.obs_range / 2 + self.lidar_bin, self.lidar_bin)
         z_bins = [-self.lidar_height - 1, -self.lidar_height + 0.25, 1]
@@ -439,7 +436,6 @@ class CarlaEnv(gym.Env):
             wayptimg = birdeye[:, :, 0] < 0  # Equal to a zero matrix
         wayptimg = np.expand_dims(wayptimg, axis=2)
         wayptimg = np.fliplr(np.rot90(wayptimg, 3))
-
         # Get the final lidar image
         lidar = np.concatenate((lidar, wayptimg), axis=2)
         lidar = np.flip(lidar, axis=1)
@@ -448,19 +444,15 @@ class CarlaEnv(gym.Env):
 
         # Display lidar image
         lidar_surface = rgb_to_display_surface(lidar, self.display_size)
-        # self.lidar_list.append(lidar_surface)
         self.display.blit(lidar_surface, (self.display_size, 0))
 
         ## Display camera image
         camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
         camera_surface = rgb_to_display_surface(camera, self.display_size)
-
-        # self.camera_list.append(camera_surface)
-        self.display.blit(camera_surface, (self.display_size * 2, 0))
+        self.display.blit(camera_surface, (self.display_size*2, 0))
 
         # Display on pygame
-        # TODO: Solve pygame display problem
-        # pygame.display.flip()
+        # TODO: Solve pygame display problem (why ?)
         cur_render_tuple = (self.vehicle_polygons, self.walker_polygons, self.waypoints, birdeye_render_types, birdeye_surface, lidar_surface, camera_surface)
         self.render_result.append(cur_render_tuple)
 
@@ -471,6 +463,7 @@ class CarlaEnv(gym.Env):
         ego_yaw = ego_trans.rotation.yaw / 180 * np.pi
         lateral_dis, w = get_preview_lane_dis(self.waypoints, ego_x, ego_y)
         delta_yaw = np.arcsin(np.cross(w, np.array(np.array([np.cos(ego_yaw), np.sin(ego_yaw)]))))
+
         v = self.ego.get_velocity()
         speed = np.sqrt(v.x**2 + v.y**2)
         acc = self.ego.get_acceleration()
