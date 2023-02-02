@@ -89,7 +89,6 @@ class CarlaRunner(object):
             # create and reset scenarios
             env_list = []
             for s_i in range(self.num_scenario):
-                config = config_lists[s_i]
                 env = carla_env(self.obs_type, birdeye_render=self.birdeye_render, display=self.display, world=self.world)
                 env.create_ego_object()
                 env_list.append(env)
@@ -101,6 +100,7 @@ class CarlaRunner(object):
                 # reset envs
                 onestep_info_list = []
                 for s_i in range(self.num_scenario):
+                    config = config_lists[s_i]
                     obs = env_list[s_i].reset(config=config, env_id=s_i)
                     onestep_info_list.append([obs, 0, 0])
                 info_list = [onestep_info_list]
@@ -113,7 +113,7 @@ class CarlaRunner(object):
                         break
                     
                     # get action from ego agent (assume using one batch)
-                    actions_list = self.agent.get_action(info_list)
+                    actions_list = self.agent.get_action(info_list[-1])
 
                     # apply action to env and get obs
                     onestep_info_list = self._run_one_step(env_list=env_list, actions_list=actions_list, finished_env=finished_env)
