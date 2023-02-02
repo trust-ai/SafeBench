@@ -7,8 +7,6 @@ It must not be modified and is for reference only!
 
 from __future__ import print_function
 import time
-import carla
-import py_trees
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_manager.timer import GameTime
@@ -24,7 +22,6 @@ class ScenarioManagerDynamic(object):
             To use the ScenarioManager:
             1. Create an object via manager = ScenarioManager()
             2. Load a scenario via manager.load_scenario()
-            3. Trigger the execution of the scenario manager.run_scenario() This function is designed to explicitly control init, trigger, update and stop of the scenario
             4. Trigger a result evaluation with manager.analyze_scenario()
             5. If needed, cleanup with manager.stop_scenario()
     """
@@ -76,9 +73,6 @@ class ScenarioManagerDynamic(object):
         self.triggered_scenario = set()
 
     def run_scenario(self):
-        """
-        Trigger the start of the scenario and wait for it to finish/fail
-        """
         print("ScenarioManager: Running scenario {}".format(self.scenario_tree.name))
         self.start_system_time = time.time()
 
@@ -93,9 +87,6 @@ class ScenarioManagerDynamic(object):
             self.scenario_list[i].initialize_actors()
 
     def stop_scenario(self):
-        """
-        This function is used by the overall signal handler to terminate the scenario execution
-        """
         self._running = False
 
     def update_running_status(self):
