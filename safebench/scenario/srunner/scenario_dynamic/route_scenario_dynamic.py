@@ -12,22 +12,23 @@ import xml.etree.ElementTree as ET
 from numpy import random
 
 import py_trees
-
 import carla
 
 from agents.navigation.local_planner import RoadOption
 
-from safebench.scenario.srunner.scenario_manager.scenarioatomics.atomic_criteria import (Status,
-                                                                     CollisionTest,
-                                                                     DrivenDistanceTest,
-                                                                     AverageVelocityTest,
-                                                                     OffRoadTest,
-                                                                     KeepLaneTest,
-                                                                     InRouteTest,
-                                                                     RouteCompletionTest,
-                                                                     RunningRedLightTest,
-                                                                     RunningStopTest,
-                                                                     ActorSpeedAboveThresholdTest)
+from safebench.scenario.srunner.scenario_manager.scenarioatomics.atomic_criteria import (
+    Status,
+    CollisionTest,
+    DrivenDistanceTest,
+    AverageVelocityTest,
+    OffRoadTest,
+    KeepLaneTest,
+    InRouteTest,
+    RouteCompletionTest,
+    RunningRedLightTest,
+    RunningStopTest,
+    ActorSpeedAboveThresholdTest
+)
 from safebench.scenario.srunner.scenario_manager.timer import GameTime
 from safebench.scenario.srunner.scenarioconfigs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
 # pylint: enable=line-too-long
@@ -36,7 +37,6 @@ from safebench.scenario.srunner.scenario_manager.carla_data_provider import Carl
 from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
 from safebench.scenario.srunner.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
-
 
 # standard
 from safebench.scenario.srunner.scenario_dynamic.standard.object_crash_vehicle_dynamic import DynamicObjectCrossingDynamic
@@ -48,7 +48,7 @@ from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_rout
 from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurnDynamic
 from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRouteDynamic
 
-# lc
+# # lc
 # from srunner.scenario_dynamic.LC.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_lc
 # from srunner.scenario_dynamic.LC.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_lc
 # from srunner.scenario_dynamic.LC.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_lc
@@ -57,10 +57,10 @@ from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_rout
 # from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_lc
 # from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_lc
 # from srunner.scenario_dynamic.LC.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_lc
-
-# carla_challenge
-
-# from scenario_runner.srunner.scenario_dynamic.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
+#
+# # carla_challenge
+#
+# # from scenario_runner.srunner.scenario_dynamic.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
 # from srunner.scenario_dynamic.carla_challenge.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_carla_challenge
 # from srunner.scenario_dynamic.carla_challenge.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_carla_challenge
@@ -75,34 +75,34 @@ SECONDS_GIVEN_PER_METERS = 1
 
 NUMBER_CLASS_TRANSLATION = {
     "standard": {
-        "Scenario3": OtherLeadingVehicleDynamic,
-        "Scenario4": OtherLeadingVehicleDynamic,
+        "Scenario3": DynamicObjectCrossingDynamic,
+        "Scenario4": VehicleTurningRouteDynamic,
         "Scenario5": OtherLeadingVehicleDynamic,
-        "Scenario6": OtherLeadingVehicleDynamic,
-        "Scenario7": OtherLeadingVehicleDynamic,
-        "Scenario8": OtherLeadingVehicleDynamic,
-        "Scenario9": OtherLeadingVehicleDynamic,
-        "Scenario10": OtherLeadingVehicleDynamic,
+        "Scenario6": ManeuverOppositeDirectionDynamic,
+        "Scenario7": OppositeVehicleRunningRedLightDynamic,
+        "Scenario8": SignalizedJunctionLeftTurnDynamic,
+        "Scenario9": SignalizedJunctionRightTurnDynamic,
+        "Scenario10": NoSignalJunctionCrossingRouteDynamic,
     },
     # 'carla_challenge': {
-    #     "Scenario3": scenario_07_carla_challenge,
-    #     "Scenario4": scenario_07_carla_challenge,
-    #     "Scenario5": scenario_07_carla_challenge,
-    #     "Scenario6": scenario_07_carla_challenge,
+    #     "Scenario3": scenario_03_carla_challenge,
+    #     "Scenario4": scenario_04_carla_challenge,
+    #     "Scenario5": scenario_05_carla_challenge,
+    #     "Scenario6": scenario_06_carla_challenge,
     #     "Scenario7": scenario_07_carla_challenge,
-    #     "Scenario8": scenario_07_carla_challenge,
-    #     "Scenario9": scenario_07_carla_challenge,
-    #     "Scenario10": scenario_07_carla_challenge,
+    #     "Scenario8": scenario_08_carla_challenge,
+    #     "Scenario9": scenario_09_carla_challenge,
+    #     "Scenario10": scenario_10_carla_challenge,
     # },
     # 'lc': {
-    #     "Scenario3": scenario_07_lc,
-    #     "Scenario4": scenario_07_lc,
-    #     "Scenario5": scenario_07_lc,
-    #     "Scenario6": scenario_07_lc,
+    #     "Scenario3": scenario_03_lc,
+    #     "Scenario4": scenario_04_lc,
+    #     "Scenario5": scenario_05_lc,
+    #     "Scenario6": scenario_06_lc,
     #     "Scenario7": scenario_07_lc,
-    #     "Scenario8": scenario_07_lc,
-    #     "Scenario9": scenario_07_lc,
-    #     "Scenario10": scenario_07_lc,
+    #     "Scenario8": scenario_08_lc,
+    #     "Scenario9": scenario_09_lc,
+    #     "Scenario10": scenario_10_lc,
     # },
 }
 
@@ -111,9 +111,10 @@ def convert_json_to_transform(actor_dict):
     """
     Convert a JSON string to a CARLA transform
     """
-    return carla.Transform(location=carla.Location(x=float(actor_dict['x']), y=float(actor_dict['y']),
-                                                   z=float(actor_dict['z'])),
-                           rotation=carla.Rotation(roll=0.0, pitch=0.0, yaw=float(actor_dict['yaw'])))
+    return carla.Transform(
+        location=carla.Location(x=float(actor_dict['x']), y=float(actor_dict['y']), z=float(actor_dict['z'])),
+        rotation=carla.Rotation(roll=0.0, pitch=0.0, yaw=float(actor_dict['yaw']))
+    )
 
 
 def convert_json_to_actor(actor_dict):
@@ -157,11 +158,9 @@ def compare_scenarios(scenario_choice, existent_scenario):
                 position_vec += scenario['other_actors']['front']
             if 'right' in scenario['other_actors']:
                 position_vec += scenario['other_actors']['right']
-
         return position_vec
 
     # put the positions of the scenario choice into a vec of positions to be able to compare
-
     choice_vec = transform_to_pos_vec(scenario_choice)
     existent_vec = transform_to_pos_vec(existent_scenario)
     for pos_choice in choice_vec:
@@ -175,7 +174,6 @@ def compare_scenarios(scenario_choice, existent_scenario):
             dist_angle = math.sqrt(dyaw * dyaw)
             if dist_position < TRIGGER_THRESHOLD and dist_angle < TRIGGER_ANGLE_THRESHOLD:
                 return True
-
     return False
 
 
@@ -185,43 +183,44 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         along which several smaller scenarios are triggered
     """
 
-    def __init__(self, world, config, debug_mode=False, criteria_enable=True, timeout=300):
+    def __init__(self, world, config, ego_id, criteria_enable=True):
         """
         Setup all relevant parameters and create scenarios along route
         """
-
         self.world = world
         self.config = config
         self.route = None
+        self.ego_id = ego_id
         self.sampled_scenarios_definitions = None
 
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
 
-        self._update_route(world, config, debug_mode)
+        self._update_route(world, config)
 
         ego_vehicle = self._update_ego_vehicle()
 
-        self.list_scenarios = self._build_scenario_instances(world,
-                                                             ego_vehicle,
-                                                             self.sampled_scenarios_definitions,
-                                                             scenarios_per_tick=5,
-                                                             timeout=self.timeout,
-                                                             debug_mode=debug_mode,
-                                                             weather=config.weather)
+        self.list_scenarios = self._build_scenario_instances(
+            world,
+            ego_vehicle,
+            self.sampled_scenarios_definitions,
+            scenarios_per_tick=5,
+            timeout=self.timeout,
+            weather=config.weather
+        )
 
-        # print("list_scenarios: ", self.list_scenarios)
-
-        super(RouteScenarioDynamic, self).__init__(name=config.name,
-                                                   ego_vehicles=[ego_vehicle],
-                                                   config=config,
-                                                   world=world,
-                                                   debug_mode=False,
-                                                   terminate_on_failure=False,
-                                                   criteria_enable=criteria_enable)
+        super(RouteScenarioDynamic, self).__init__(
+            name=config.name,
+            ego_vehicles=[ego_vehicle],
+            config=config,
+            world=world,
+            debug_mode=False,
+            terminate_on_failure=False,
+            criteria_enable=criteria_enable
+        )
 
         self.criteria = self._create_criteria()
 
-    def _update_route(self, world, config, debug_mode, timeout=None):
+    def _update_route(self, world, config, timeout=None):
         """
         Update the input route, i.e. refine waypoint list, and extract possible scenario locations
 
@@ -248,8 +247,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         else:
             gps_route, route = interpolate_trajectory(world, config.trajectory)
 
-        potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route,
-                                                                                         world_annotations)
+        potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
         print('matched_triggers', mt)
         print('scenarios', potential_scenarios_definitions)
 
@@ -257,7 +255,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         self.route_length = len(route)
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
         CarlaDataProvider.set_scenario_config(config)
-        print('ego route updated!')
 
         if config.agent is not None:
             config.agent.set_global_plan(gps_route, self.route)
@@ -267,10 +264,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
         # Timeout of scenario in seconds
         self.timeout = self._estimate_route_timeout() if timeout is None else timeout
-
-        # Print route in debug mode
-        if debug_mode:
-            self._draw_waypoints(world, self.route, vertical_shift=1.0, persistency=50000.0)
 
     def _scenario_sampling(self, potential_scenarios_definitions, random_seed=0):
         """
@@ -316,7 +309,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         Estimate the duration of the route
         """
         route_length = 0.0  # in meters
-
         min_length = 100.0
 
         if len(self.route) == 1:
@@ -330,98 +322,30 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
-    def _draw_waypoints(self, world, waypoints, vertical_shift, persistency=-1):
-        """
-        Draw a list of waypoints at a certain height given in vertical_shift.
-        """
-        for w in waypoints:
-            wp = w[0].location + carla.Location(z=vertical_shift)
-
-            size = 0.2
-            if w[1] == RoadOption.LEFT:  # Yellow
-                color = carla.Color(255, 255, 0)
-            elif w[1] == RoadOption.RIGHT:  # Cyan
-                color = carla.Color(0, 255, 255)
-            elif w[1] == RoadOption.CHANGELANELEFT:  # Orange
-                color = carla.Color(255, 64, 0)
-            elif w[1] == RoadOption.CHANGELANERIGHT:  # Dark Cyan
-                color = carla.Color(0, 64, 255)
-            elif w[1] == RoadOption.STRAIGHT:  # Gray
-                color = carla.Color(128, 128, 128)
-            else:  # LANEFOLLOW
-                color = carla.Color(0, 255, 0)  # Green
-                size = 0.1
-
-            world.debug.draw_point(wp, size=size, color=color, life_time=persistency)
-
-        world.debug.draw_point(waypoints[0][0].location + carla.Location(z=vertical_shift), size=0.2,
-                               color=carla.Color(0, 0, 255), life_time=persistency)
-        world.debug.draw_point(waypoints[-1][0].location + carla.Location(z=vertical_shift), size=0.2,
-                               color=carla.Color(255, 0, 0), life_time=persistency)
-
     def _update_ego_vehicle(self):
         """
         Set/Update the start position of the ego_vehicle
         """
         # move ego to correct position
         elevate_transform = self.route[0][0]
-        # elevate_transform.location.z += 0.5
 
-        print(" ==================  elevate transform")
-        print(elevate_transform)
-
+        # gradually increase the height of ego vehicle
         success = False
         while not success:
             try:
-                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.lincoln.mkz2017',
-                                                                  elevate_transform,
-                                                                  rolename='ego_vehicle')
+                role_name = 'ego_vehicle'+str(self.ego_id)
+                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
                 success = True
             except RuntimeError:
                 elevate_transform.location.z += 0.1
 
-        # Collision sensor
-        collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
-
-        # Lidar sensor
-        lidar_height = 2.1
-        lidar_trans = carla.Transform(carla.Location(x=0.0, z=lidar_height))
-        lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        lidar_bp.set_attribute('channels', '32')
-        lidar_bp.set_attribute('range', '5000')
-
-        # Camera sensor
-        camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
-        camera_bp = self.world.get_blueprint_library().find('sensor.camera.rgb')
-        # Modify the attributes of the blueprint to set image resolution and field of view.
-        camera_bp.set_attribute('image_size_x', '800')
-        camera_bp.set_attribute('image_size_y', '600')
-        camera_bp.set_attribute('fov', '90')
-        # Set the time in seconds between sensor captures
-        camera_bp.set_attribute('sensor_tick', '0.05')
-
-        self.collision_sensor = self.world.spawn_actor(collision_bp, carla.Transform(), attach_to=ego_vehicle)
-        self.lidar_sensor = self.world.spawn_actor(lidar_bp, lidar_trans, attach_to=ego_vehicle)
-        self.camera_sensor = self.world.spawn_actor(camera_bp, camera_trans, attach_to=ego_vehicle)
-
         return ego_vehicle
 
-    def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions,
-                                  scenarios_per_tick=5, timeout=300, debug_mode=False, weather=None):
+    def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions, scenarios_per_tick=5, timeout=300, weather=None):
         """
         Based on the parsed route and possible scenarios, build all the scenario classes.
         """
         scenario_instance_vec = []
-
-        if debug_mode:
-            for scenario in scenario_definitions:
-                loc = carla.Location(scenario['trigger_position']['x'],
-                                     scenario['trigger_position']['y'],
-                                     scenario['trigger_position']['z']) + carla.Location(z=2.0)
-                world.debug.draw_point(loc, size=0.3, color=carla.Color(255, 0, 0), life_time=100000)
-                world.debug.draw_string(loc, str(scenario['name']), draw_shadow=False,
-                                        color=carla.Color(0, 0, 255), life_time=100000, persistent_lines=True)
-
         for scenario_number, definition in enumerate(scenario_definitions):
             # Get the class possibilities for this scenario number
             scenario_class = NUMBER_CLASS_TRANSLATION[self.config.scenario_generation_method][definition['name']]
@@ -443,15 +367,12 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             if weather is not None:
                 scenario_configuration.weather = weather
 
-            scenario_configuration.ego_vehicles = [ActorConfigurationData('vehicle.lincoln.mkz2017',
-                                                                          ego_vehicle.get_transform(),
-                                                                          'ego_vehicle')]
+            scenario_configuration.ego_vehicles = [ActorConfigurationData('vehicle.tesla.model3', ego_vehicle.get_transform(), 'ego_vehicle')]
             route_var_name = "ScenarioRouteNumber{}".format(scenario_number)
             scenario_configuration.route_var_name = route_var_name
 
             try:
-                scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration,
-                                                   criteria_enable=False, timeout=timeout)
+                scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration, criteria_enable=False, timeout=timeout)
                 # Do a tick every once in a while to avoid spawning everything at the same time
                 if scenario_number % scenarios_per_tick == 0:
                     if CarlaDataProvider.is_sync_mode():
@@ -521,12 +442,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         else:
             amount = 0
 
-        new_actors = CarlaDataProvider.request_new_batch_actors('vehicle.*',
-                                                                amount,
-                                                                carla.Transform(),
-                                                                autopilot=True,
-                                                                random_location=True,
-                                                                rolename='background')
+        new_actors = CarlaDataProvider.request_new_batch_actors('vehicle.*', amount, carla.Transform(), autopilot=True, random_location=True, rolename='background')
 
         if new_actors is None:
             raise Exception("Error: Unable to add the background activity, all spawn points were occupied")
@@ -545,25 +461,22 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         pass
 
     def get_running_status(self, running_record):
-        running_status = {'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicles[0]),
-                          'ego_acceleration_x': self.ego_vehicles[0].get_acceleration().x,
-                          'ego_acceleration_y': self.ego_vehicles[0].get_acceleration().y,
-                          'ego_acceleration_z': self.ego_vehicles[0].get_acceleration().z,
-                          'ego_x': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.x,
-                          'ego_y': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.y,
-                          'ego_z': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.z,
-                          'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.roll,
-                          'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.pitch,
-                          'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.yaw,
-                          'current_game_time': GameTime.get_time()}
+        running_status = {
+            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicles[0]),
+            'ego_acceleration_x': self.ego_vehicles[0].get_acceleration().x,
+            'ego_acceleration_y': self.ego_vehicles[0].get_acceleration().y,
+            'ego_acceleration_z': self.ego_vehicles[0].get_acceleration().z,
+            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.x,
+            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.y,
+            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.z,
+            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.roll,
+            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.pitch,
+            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.yaw,
+            'current_game_time': GameTime.get_time()
+        }
 
         for criterion_name, criterion in self.criteria.items():
             running_status[criterion_name] = criterion.update()
-
-        # print("running status: ", running_status)
-
-        # print(running_status['ego_velocity'])
-        # print(running_status['route_complete'])
 
         stop = False
         if running_status['collision'] == Status.FAILURE:
@@ -604,24 +517,19 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         We need this method for background
         We keep pytrees just for background
         """
-        behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ONE)
-
-        subbehavior = py_trees.composites.Parallel(name="Behavior",
-                                                   policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
+        behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SuccessOnOne)
+        subbehavior = py_trees.composites.Parallel(name="Behavior", policy=py_trees.common.ParallelPolicy.SuccessOnAll)
 
         # subbehavior.add_child(Idle())  # The behaviours cannot make the route scenario stop
         behavior.add_child(subbehavior)
-
         return behavior
 
     def _create_criteria(self):
         criteria = {}
         route = convert_transform_to_location(self.route)
 
-        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicles[0], distance_success=1e4,
-                                                         distance_acceptable=1e4, optional=True)
-        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicles[0], avg_velocity_success=1e4,
-                                                           avg_velocity_acceptable=1e4, optional=True)
+        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicles[0], distance_success=1e4, distance_acceptable=1e4, optional=True)
+        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicles[0], avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
         criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicles[0], optional=True)
         criteria['off_road'] = OffRoadTest(actor=self.ego_vehicles[0], optional=True)
         criteria['collision'] = CollisionTest(actor=self.ego_vehicles[0], terminate_on_failure=True)
@@ -629,12 +537,13 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicles[0])
         if self.route_length > 1:  # only check when evaluating
             criteria['distance_to_route'] = InRouteTest(self.ego_vehicles[0], route=route, offroad_max=30)
-            criteria['speed_above_threshold'] = ActorSpeedAboveThresholdTest(actor=self.ego_vehicles[0],
-                                                                             speed_threshold=0.1,
-                                                                             below_threshold_max_time=10,
-                                                                             terminate_on_failure=True)
+            criteria['speed_above_threshold'] = ActorSpeedAboveThresholdTest(
+                actor=self.ego_vehicles[0],
+                speed_threshold=0.1,
+                below_threshold_max_time=10,
+                terminate_on_failure=True
+            )
             criteria['route_complete'] = RouteCompletionTest(self.ego_vehicles[0], route=route)
-
         return criteria
 
     def __del__(self):
@@ -646,4 +555,3 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         for scenario in self.list_scenarios:
             scenario.remove_all_actors()
         self.remove_all_actors()
-

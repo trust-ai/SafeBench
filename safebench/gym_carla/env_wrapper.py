@@ -9,10 +9,6 @@ class EnvWrapper(gym.Wrapper):
         self._env = env
 
         self.is_running = True
-        self.spec.max_episode_steps = config['max_episode_length']
-        env._max_episode_steps = config['max_episode_length']
-        self._max_episode_steps = env._max_episode_steps
-
         self.acc_max = config['acc_max']
         self.steering_max = config['steering_max']
         self.obs_type = config['obs_type']
@@ -103,17 +99,13 @@ params = {
     'discrete_steer': [-0.2, 0.0, 0.2],  # discrete value of steering angles
     'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
     'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-    'town': 'Town03',  # which town to simulate
-    'task_mode':
-    'random',  # mode of the task, [random, roundabout (only for Town03)]
-    'max_time_episode': 1000,  # maximum timesteps per episode
+    'max_episode_step': 1000,  # maximum timesteps per episode
     'max_waypt': 12,  # maximum number of waypoints
     'obs_range': 32,  # observation range (meter)
     'lidar_bin': 0.125,  # bin size of lidar sensor (meter)
     'd_behind': 12,  # distance behind the ego vehicle (meter)
     'out_lane_thres': 4,  # threshold for out of lane (meter)
     'desired_speed': 8,  # desired speed (m/s)
-    'max_ego_spawn_times': 200,  # maximum times to spawn ego vehicle
     'display_route': True,  # whether to render the desired route
     'pixor_size': 64,  # size of the pixor labels
     'pixor': False,  # whether to output PIXOR observation
@@ -124,6 +116,5 @@ def carla_env(obs_type, birdeye_render=None, display=None, world=None):
         'acc_max': 3,
         'steering_max': 0.3,
         'obs_type': obs_type,
-        'max_episode_length': 1000,
     }
     return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world), config=config)

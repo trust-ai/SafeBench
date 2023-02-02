@@ -4,9 +4,7 @@ scikit-image
 tqdm
 joblib
 pyyaml
-tensorboardX
 cpprb
-easydict
 matplotlib
 torch
 torchvision

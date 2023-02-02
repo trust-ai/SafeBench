@@ -11,9 +11,18 @@ from gym.utils import seeding
 import carla
 
 from safebench.gym_carla.envs.route_planner import RoutePlanner
-from safebench.gym_carla.envs.misc import *
-
-from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic_2 import RouteScenarioDynamic
+from safebench.gym_carla.envs.misc import (
+    display_to_rgb, 
+    rgb_to_display_surface, 
+    get_lane_dis, 
+    get_pos, 
+    get_info,
+    get_local_pose,
+    get_preview_lane_dis,
+    get_pixels_inside_vehicle,
+    get_pixel_info,
+)
+from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
 from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
 
 
@@ -23,8 +32,7 @@ class CarlaEnv(gym.Env):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
         self.max_past_step = params['max_past_step']
-        self.task_mode = params['task_mode']
-        self.max_time_episode = params['max_time_episode']
+        self.max_episode_step = params['max_episode_step']
         self.max_waypt = params['max_waypt']
         self.obs_range = params['obs_range']
         self.lidar_bin = params['lidar_bin']
@@ -32,7 +40,6 @@ class CarlaEnv(gym.Env):
         self.obs_size = int(self.obs_range / self.lidar_bin)
         self.out_lane_thres = params['out_lane_thres']
         self.desired_speed = params['desired_speed']
-        self.max_ego_spawn_times = params['max_ego_spawn_times']
         self.display_route = params['display_route']
 
         if 'pixor' in params.keys():
@@ -125,8 +132,7 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def load_scenario(self, config, env_id):
-        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id, timeout=800)
-        print("######## scenario load succeed ########")
+        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)
@@ -138,23 +144,15 @@ class CarlaEnv(gym.Env):
         self.env_id = env_id
 
         # Get actors polygon list (for visualization)
-        self.vehicle_polygons = []
-        vehicle_poly_dict = self._get_actor_polygons('vehicle.*')
-        self.vehicle_polygons.append(vehicle_poly_dict)
-        self.walker_polygons = []
-        walker_poly_dict = self._get_actor_polygons('walker.*')
-        self.walker_polygons.append(walker_poly_dict)
+        self.vehicle_polygons = [self._get_actor_polygons('vehicle.*')]
+        self.walker_polygons = [self._get_actor_polygons('walker.*')]
 
         # Get actors info list
-        self.vehicle_trajectories = []
-        self.vehicle_accelerations = []
-        self.vehicle_angular_velocities = []
-        self.vehicle_velocities = []
         vehicle_info_dict_list = self._get_actor_info('vehicle.*')
-        self.vehicle_trajectories.append(vehicle_info_dict_list[0])
-        self.vehicle_accelerations.append(vehicle_info_dict_list[1])
-        self.vehicle_angular_velocities.append(vehicle_info_dict_list[2])
-        self.vehicle_velocities.append(vehicle_info_dict_list[3])
+        self.vehicle_trajectories = [vehicle_info_dict_list[0]]
+        self.vehicle_accelerations = [vehicle_info_dict_list[1]]
+        self.vehicle_angular_velocities = [vehicle_info_dict_list[2]]
+        self.vehicle_velocities = [vehicle_info_dict_list[3]]
 
         # Add collision sensor
         self.collision_sensor = self.world.spawn_actor(self.collision_bp, carla.Transform(), attach_to=self.ego)
@@ -190,6 +188,7 @@ class CarlaEnv(gym.Env):
         self.time_step = 0
         self.reset_step += 1
 
+        # TODO: check the target point of this planner
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
 
@@ -208,7 +207,7 @@ class CarlaEnv(gym.Env):
 
     def step_before_tick(self, ego_action):
         # TODO: input an action into the scenario
-        self.scenario_manager._get_update()
+        self.scenario_manager.get_update()
         self.is_running = self.scenario_manager._running
 
         # Calculate acceleration and steering
@@ -227,7 +226,6 @@ class CarlaEnv(gym.Env):
             throttle = 0
             brake = np.clip(-acc / 8, 0, 1)
 
-        # vehicleList = self.world.get_actors().filter('vehicle.*')
         # Apply control
         act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
         self.ego.apply_control(act)
@@ -553,7 +551,7 @@ class CarlaEnv(gym.Env):
         terminate = False
 
         # If reach maximum timestep
-        if self.time_step > self.max_time_episode:
+        if self.time_step > self.max_episode_step:
             terminate = True
 
         return terminate
