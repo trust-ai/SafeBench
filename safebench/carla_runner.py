@@ -98,13 +98,12 @@ class CarlaRunner(object):
                     env.load_model()
 
             for e_i in range(self.num_episode):
-                obs_list = []
-                reward_list = []
                 # reset envs
+                onestep_info_list = []
                 for s_i in range(self.num_scenario):
-                    raw_obs, ep_reward, ep_len, ep_cost = env_list[s_i].reset(config=config, env_id=s_i), 0, 0, 0
-                    obs_list.append(raw_obs)
-                    reward_list.append(ep_reward)
+                    obs = env_list[s_i].reset(config=config, env_id=s_i)
+                    onestep_info_list.append([obs, 0, 0])
+                info_list = [onestep_info_list]
 
                 # start the loop
                 finished_env = set()
@@ -114,93 +113,45 @@ class CarlaRunner(object):
                         break
                     
                     # get action from ego agent (assume using one batch)
-                    actions_list = self.agent.get_action(obs_list)
+                    actions_list = self.agent.get_action(info_list)
 
                     # apply action to env and get obs
-                    self._update_env(env_list=env_list, obs_list=obs_list, actions_list=actions_list, finished_env=finished_env)
+                    onestep_info_list = self._run_one_step(env_list=env_list, actions_list=actions_list, finished_env=finished_env)
+                    info_list.append(onestep_info_list)
 
                     # train or test
                     if self.mode == 'train_agent':
-                        self.agent.add_buffer(obs_list, actions_list)
+                        self.agent.add_buffer(info_list, actions_list)
                         self.agent.train_model()
                         self.agent.save_model()
                     elif self.mode == 'train_scenario':
                         for k in range(len(env_list)):
-                            env_list[k].add_buffer(obs_list, actions_list)
+                            env_list[k].add_buffer(info_list, actions_list)
                             env_list[k].train_model()
                             env_list[k].save_model()
 
-    def _render_display(self, env_list):
-        birdeye_render_list = []
-
-        # TODO: creating BirdeyeRender will take too much time
-        max_len = 0
-        for cur_env in env_list:
-            birdeye_render = BirdeyeRender(self.world, self.birdeye_params)
-            birdeye_render.set_hero(cur_env.ego, cur_env.ego.id)
-            birdeye_render_list.append(birdeye_render)
-            max_len = max(len(cur_env.render_result), max_len)
-
-        for i in range(max_len):
+    def _run_one_step(self, env_list, actions_list, finished_env):
+        for _ in range(self.frame_skip):
+            # apply action
             for j in range(len(env_list)):
-                if i >= len(env_list[j].render_result):
-                    continue
-                cur_render_result = env_list[j].render_result[i]
-                cur_birdeye_render = birdeye_render_list[j]
-
-                cur_birdeye_render.vehicle_polygons = cur_render_result[0]
-                cur_birdeye_render.walker_polygons = cur_render_result[1]
-                cur_birdeye_render.waypoints = cur_render_result[2]
-
-                self.display.blit(cur_render_result[4], (0, j * self.display_size))
-                self.display.blit(cur_render_result[5], (self.display_size, j * self.display_size))
-                self.display.blit(cur_render_result[6], (self.display_size * 2, j * self.display_size))
-                pygame.display.flip()
-            time.sleep(0.1)
-
-    def _update_env(self, env_list, obs_list, actions_list, finished_env, render=True):
-        reward = [0] * len(env_list)
-        cost = [0] * len(env_list)
-        info = [None] * len(env_list)
-        o = [None] * len(env_list)
-        for frame_skip in range(self.frame_skip):
-            for j in range(len(env_list)):
-                env = env_list[j]
-                if not env.is_running and env not in finished_env:
-                    finished_env.add(env)
-                if env in finished_env:
-                    continue
-                env.apply_actions(actions_list[j])
+                env_list[j].step_before_tick(actions_list[j])
 
             # tick all scenarios
             self.world.tick()
 
-            for p in range(len(env_list)):
-                env = env_list[p]
-                if not env.is_running and env not in finished_env:
-                    finished_env.add(env)
-                if env in finished_env:
-                    continue
-                re_o, re_reward, re_done, re_info, re_cost = env.step(reward[p], cost[p])
-                if re_done:
-                    env.is_running = False
-                    continue
-                reward[p] = re_reward
-                cost[p] = re_cost
-                info[p] = re_info
-                o[p] = re_o
-
-        # deal with the rendering results
-        for k in range(len(env_list)):
-            if env_list[k] in finished_env:
-                continue
-            if render:
-                env_list[k].render()
-            ep_reward = obs_list[k][1]
-            ep_len = obs_list[k][2]
-            ep_cost = obs_list[k][3]
-            if "cost" in info[k]:
-                ep_cost += info[k]["cost"]
-            ep_reward += reward[k]
-            ep_len += 1
-            obs_list[k] = [o[k], ep_reward, ep_len, ep_cost]
+        # collect new observation of one frame
+        onestep_info_list = []
+        for e_i in range(len(env_list)):
+            env = env_list[e_i]
+            obs, reward, done, info = env.step_after_tick()
+            
+            # check wether env is done
+            if done:
+                env.is_running = False
+            if not env.is_running and env not in finished_env:
+                finished_env.add(env)
+            
+            # update infomation
+            cost = info['cost'] if 'cost' in info.keys() else 0
+            onestep_info_list.append([obs, reward, cost])
+        return onestep_info_list

@@ -1,32 +1,22 @@
 import gym
 import numpy as np
-from easydict import EasyDict as edict
-
-
-CFG = edict(
-    ACC_MAX=3,
-    STEERING_MAX=0.3,
-    OBS_TYPE=0,
-    MAX_EPISODE_LEN=300,
-    #NOTE: change here
-    FRAME_SKIP=1,
-)
 
 
 class EnvWrapper(gym.Wrapper):
-    def __init__(self, env, cfg):
+    def __init__(self, env, config):
         super().__init__(env)
-        self.cfg = cfg
+        self.config = config
         self._env = env
 
         self.is_running = True
-        # self.spec.id = "GymCarla"
-        self.spec.max_episode_steps = cfg.MAX_EPISODE_LEN
-        env._max_episode_steps = cfg.MAX_EPISODE_LEN
+        self.spec.max_episode_steps = config['max_episode_length']
+        env._max_episode_steps = config['max_episode_length']
         self._max_episode_steps = env._max_episode_steps
-        self.frame_skip = cfg.FRAME_SKIP
 
-        self._build_obs_space(cfg.OBS_TYPE)
+        self.acc_max = config['acc_max']
+        self.steering_max = config['steering_max']
+        self.obs_type = config['obs_type']
+        self._build_obs_space()
 
         # build action space, assume the obs range from -1 to 1
         act_dim = 2
@@ -41,31 +31,19 @@ class EnvWrapper(gym.Wrapper):
 
     def reset(self, **kwargs):
         obs = super().reset(**kwargs)
-
-        self.ego = self._env.ego
         return self._preprocess_obs(obs)
 
-    def apply_actions(self, ego_action):
-        self._env.apply_actions(ego_action=ego_action)
+    def step_before_tick(self, ego_action):
+        self._env.step_before_tick(ego_action=ego_action)
 
-    def step(self, reward, cost):
-        o, r, d, info = self._env.get_infos()
+    def step_after_tick(self):
+        obs, reward, done, info = self._env.step_after_tick()
         self.is_running = self._env.is_running
-        done = False
-        if d:
-            done = True
-        r, info = self._preprocess_reward(r, info)
-        o = self._preprocess_obs(o)
-        reward += r
-        if "cost" in info:
-            cost += info["cost"]
-        if "cost" in info:
-            info["cost"] = cost
+        reward, info = self._preprocess_reward(reward, info)
+        obs = self._preprocess_obs(obs)
+        return obs, reward, done, info
 
-        return o, reward, done, info, cost
-
-    def _build_obs_space(self, obs_type):
-        self.obs_type = obs_type
+    def _build_obs_space(self):
         if self.obs_type == 0:
             # 4 state space
             obs_dim = 4
@@ -93,10 +71,11 @@ class EnvWrapper(gym.Wrapper):
         elif self.obs_type == 1:
             new_obs = np.array([
                 obs['state'][0], obs['state'][1], obs['state'][2], obs['state'][3],
-                obs['command'], obs['forward_vector'][0], obs['forward_vector'][1],
+                obs['command'], 
+                obs['forward_vector'][0], obs['forward_vector'][1],
                 obs['node_forward'][0], obs['node_forward'][1],
-                obs['target_forward'][0], obs['target_forward'][1]]
-            )
+                obs['target_forward'][0], obs['target_forward'][1]
+            ])
             return new_obs
         elif self.obs_type == 2:
             return {"img": obs['birdeye'], "states": obs['state'][:4].astype(np.float64)}
@@ -110,15 +89,13 @@ class EnvWrapper(gym.Wrapper):
 
     def _postprocess_action(self, action):
         # normalize and clip the action
-        action = action * np.array([self.cfg.ACC_MAX, self.cfg.STEERING_MAX])
-        action[0] = max(min(self.cfg.ACC_MAX, action[0]), -self.cfg.ACC_MAX)
-        action[1] = max(min(self.cfg.STEERING_MAX, action[1]), -self.cfg.STEERING_MAX)
+        action = action * np.array([self.acc_max, self.steering_max])
+        action[0] = max(min(self.acc_max, action[0]), -self.acc_max)
+        action[1] = max(min(self.steering_max, action[1]), -self.steering_max)
         return action
 
 
 params = {
-    'number_of_vehicles': 100,
-    'number_of_walkers': 0,
     'display_size': 256,  # screen size of bird-eye render
     'max_past_step': 1,  # the number of past steps to draw
     'discrete': False,  # whether to use discrete control space
@@ -126,9 +103,6 @@ params = {
     'discrete_steer': [-0.2, 0.0, 0.2],  # discrete value of steering angles
     'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
     'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-    'ego_vehicle_filter':
-    'vehicle.lincoln*',  # filter for defining ego vehicle
-    # 'port': 3030,  # connection port
     'town': 'Town03',  # which town to simulate
     'task_mode':
     'random',  # mode of the task, [random, roundabout (only for Town03)]
@@ -145,7 +119,11 @@ params = {
     'pixor': False,  # whether to output PIXOR observation
 }
 
-
 def carla_env(obs_type, birdeye_render=None, display=None, world=None):
-    CFG.OBS_TYPE = obs_type
-    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world), cfg=CFG)
+    config = {
+        'acc_max': 3,
+        'steering_max': 0.3,
+        'obs_type': obs_type,
+        'max_episode_length': 1000,
+    }
+    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world), config=config)

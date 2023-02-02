@@ -23,8 +23,6 @@ class CarlaEnv(gym.Env):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
         self.max_past_step = params['max_past_step']
-        self.number_of_vehicles = params['number_of_vehicles']
-        self.number_of_walkers = params['number_of_walkers']
         self.task_mode = params['task_mode']
         self.max_time_episode = params['max_time_episode']
         self.max_waypt = params['max_waypt']
@@ -208,8 +206,8 @@ class CarlaEnv(gym.Env):
         # TODO: load scenario policy model
         pass
 
-    def apply_actions(self, ego_action):
-        # TODO: get update
+    def step_before_tick(self, ego_action):
+        # TODO: input an action into the scenario
         self.scenario_manager._get_update()
         self.is_running = self.scenario_manager._running
 
@@ -234,7 +232,7 @@ class CarlaEnv(gym.Env):
         act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
         self.ego.apply_control(act)
 
-    def get_infos(self):
+    def step_after_tick(self):
         # Append actors polygon list
         vehicle_poly_dict = self._get_actor_polygons('vehicle.*')
         self.vehicle_polygons.append(vehicle_poly_dict)
@@ -279,9 +277,6 @@ class CarlaEnv(gym.Env):
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
-
-    def render(self, mode):
-        pass
 
     def _create_vehicle_bluepprint(self,actor_filter, color=None, number_of_wheels=[4]):
         """ Create the blueprint for a specific actor type.
