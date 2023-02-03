@@ -483,7 +483,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             stop = True
             print('stop due to collision')
         if self.route_length > 1:  # only check when evaluating
-            print(running_status['route_complete'])
+            #print(running_status['route_complete'])
             if running_status['route_complete'] == 100:
                 stop = True
                 print('stop due to route completion')

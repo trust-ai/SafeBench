@@ -72,7 +72,7 @@ class CarlaRunner(object):
         self.birdeye_params = {
             'screen_size': [self.display_size, self.display_size],
             'pixels_per_meter': pixels_per_meter,
-            'pixels_ahead_vehicle': pixels_ahead_vehicle
+            'pixels_ahead_vehicle': pixels_ahead_vehicle,
         }
 
         # initialize the render for genrating observation and visualization
@@ -101,7 +101,7 @@ class CarlaRunner(object):
                 onestep_info_list = []
                 for s_i in range(self.num_scenario):
                     config = config_lists[s_i]
-                    obs = env_list[s_i].reset(config=config, env_id=s_i)
+                    obs = env_list[s_i].reset(config=config, env_id=s_i, num_scenario=self.num_scenario)
                     onestep_info_list.append([obs, 0, 0])
                 info_list = [onestep_info_list]
 
@@ -118,6 +118,9 @@ class CarlaRunner(object):
                     # apply action to env and get obs
                     onestep_info_list = self._run_one_step(env_list=env_list, actions_list=actions_list, finished_env=finished_env)
                     info_list.append(onestep_info_list)
+
+                    # render
+                    #self._update_render()
 
                     # train or test
                     if self.mode == 'train_agent':

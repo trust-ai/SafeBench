@@ -4,6 +4,7 @@ import pygame
 import random
 import time
 from skimage.transform import resize
+import matplotlib.pyplot as plt
 
 import gym
 from gym import spaces
@@ -22,6 +23,7 @@ from safebench.gym_carla.envs.misc import (
     get_pixels_inside_vehicle,
     get_pixel_info,
 )
+from safebench.gym_carla.envs.render import COLOR_BLACK
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
 from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
 
@@ -138,10 +140,11 @@ class CarlaEnv(gym.Env):
         self.scenario_manager.load_scenario(self.scenario)
         self.scenario_manager._init_scenarios()
 
-    def reset(self, config, env_id):
+    def reset(self, config, env_id, num_scenario):
         print("######## loading scenario ########")
         self.load_scenario(config, env_id)
         self.env_id = env_id
+        self.num_scenario = num_scenario
 
         # Get actors polygon list (for visualization)
         self.vehicle_polygons = [self._get_actor_polygons('vehicle.*')]
@@ -297,14 +300,6 @@ class CarlaEnv(gym.Env):
         return bp
 
     def _get_actor_polygons(self, filt):
-        """ Get the bounding box polygon of actors.
-
-            Args:
-                filt: the filter indicating what type of actors we'll look at.
-
-            Returns:
-                actor_poly_dict: a dictionary containing the bounding boxes of specific actors.
-        """
         actor_poly_dict = {}
         for actor in self.world.get_actors().filter(filt):
             # Get x, y and yaw of the actor
@@ -326,14 +321,6 @@ class CarlaEnv(gym.Env):
         return actor_poly_dict
 
     def _get_actor_info(self, filt):
-        """ Get the info of actors.
-
-            Args:
-                filt: the filter indicating what type of actors we'll look at.
-
-            Returns:
-                actor_acceleration_dict: a dictionary containing the accelerations of specific actors.
-        """
         actor_trajectory_dict = {}
         actor_acceleration_dict = {}
         actor_angular_velocity_dict = {}
@@ -349,21 +336,21 @@ class CarlaEnv(gym.Env):
 
     def _get_obs(self):
         """ Get the observations. """
-        # Set ego information for render
+        # set ego information for birdeye_render
         self.birdeye_render.set_hero(self.ego, self.ego.id)
         self.birdeye_render.vehicle_polygons = self.vehicle_polygons
         self.birdeye_render.walker_polygons = self.walker_polygons
         self.birdeye_render.waypoints = self.waypoints
 
-        # render all things in the display
+        # render birdeye image with the birdeye_render
         birdeye_render_types = ['roadmap', 'actors']
         if self.display_route:
             birdeye_render_types.append('waypoints')
-        self.birdeye_render.render(self.display, birdeye_render_types)
-
-        # get birdeye surface for roadmap and agents
-        birdeye = pygame.surfarray.array3d(self.display)
-        birdeye = birdeye[0:self.display_size, :, :]
+        birdeye_surface = self.birdeye_render.render(birdeye_render_types)
+        birdeye_surface = pygame.surfarray.array3d(birdeye_surface)
+        center = (int(birdeye_surface.shape[0]/2), int(birdeye_surface.shape[1]/2))
+        width = height = int(self.display_size/2)
+        birdeye = birdeye_surface[center[0]-width:center[0]+width, center[1]-height:center[1]+height]
         birdeye = display_to_rgb(birdeye, self.obs_size)
 
         # Roadmap
@@ -371,7 +358,7 @@ class CarlaEnv(gym.Env):
             roadmap_render_types = ['roadmap']
             if self.display_route:
                 roadmap_render_types.append('waypoints')
-            self.birdeye_render.render(self.display, roadmap_render_types)
+            self.birdeye_render.render(roadmap_render_types)
             roadmap = pygame.surfarray.array3d(self.display)
             roadmap = roadmap[0:self.display_size, :, :]
             roadmap = display_to_rgb(roadmap, self.obs_size)
@@ -397,11 +384,12 @@ class CarlaEnv(gym.Env):
         lidar, _ = np.histogramdd(point_cloud, bins=(x_bins, y_bins, z_bins))
         lidar[:, :, 0] = np.array(lidar[:, :, 0] > 0, dtype=np.uint8)
         lidar[:, :, 1] = np.array(lidar[:, :, 1] > 0, dtype=np.uint8)
-        # Add the waypoints to lidar image
-        if self.display_route:
-            wayptimg = (birdeye[:, :, 0] <= 10) * (birdeye[:, :, 1] <= 10) * (birdeye[:, :, 2] >= 240)
-        else:
-            wayptimg = birdeye[:, :, 0] < 0  # Equal to a zero matrix
+        # Add the waypoints to lidar image (according to the color of routes)
+        # if self.display_route:
+        #     wayptimg = (birdeye[:, :, 0] <= 10) * (birdeye[:, :, 1] <= 10) * (birdeye[:, :, 2] >= 240)
+        # else:
+        #     wayptimg = birdeye[:, :, 0] < 0  # Equal to a zero matrix
+        wayptimg = birdeye[:, :, 0] < 0  # Equal to a zero matrix
         wayptimg = np.expand_dims(wayptimg, axis=2)
         wayptimg = np.fliplr(np.rot90(wayptimg, 3))
         # Get the final lidar image
