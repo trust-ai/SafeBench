@@ -390,6 +390,7 @@ class BirdeyeRender(object):
         self.hero_actor = None
         self.hero_id = None
         self.hero_transform = None
+        self.heros_in_all_envs = []
 
         # the actors and map information
         self.vehicle_polygons = []
@@ -427,6 +428,7 @@ class BirdeyeRender(object):
     def set_hero(self, hero_actor, hero_id):
         self.hero_actor = hero_actor
         self.hero_id = hero_id
+        self.heros_in_all_envs.append(hero_id)
 
     def tick(self, clock):
         actors = self.world.get_actors()
@@ -474,14 +476,13 @@ class BirdeyeRender(object):
 
         for i in range(max(0,lp-num), lp):
             for ID, poly in actor_polygons[i].items():
-                print(self.hero_id, ID)
                 corners = []
                 for p in poly:
                     corners.append(carla.Location(x=p[0], y=p[1]))
                 corners.append(carla.Location(x=poly[0][0], y=poly[0][1]))
                 corners = [world_to_pixel(p) for p in corners]
                 color_value = max(0.8 - 0.8/lp*(i+1), 0)
-                if ID == self.hero_id:
+                if ID == self.hero_id or ID in self.heros_in_all_envs:
                     color = pygame.Color(255, math.floor(color_value*255), math.floor(color_value*255)) # red
                 else:
                     if actor_type == 'vehicle':
