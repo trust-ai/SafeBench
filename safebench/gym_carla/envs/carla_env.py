@@ -228,7 +228,9 @@ class CarlaEnv(gym.Env):
         else:
             throttle = 0
             brake = np.clip(-acc / 8, 0, 1)
-
+        #NOTE: here is temporary control signal for debugging routes
+        throttle=0.2
+        steer=0
         # Apply control
         act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
         self.ego.apply_control(act)
