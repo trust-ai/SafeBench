@@ -1,0 +1,12 @@
+{
+    "available_scenarios": [
+        {
+            "Town_Safebench": [
+                {
+                    "available_event_configurations": [],
+                    "scenario_type": "Scenario5"
+                }
+            ]
+        }
+    ]
+}

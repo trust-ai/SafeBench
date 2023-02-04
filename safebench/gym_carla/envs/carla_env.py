@@ -25,6 +25,8 @@ from safebench.gym_carla.envs.misc import (
 )
 from safebench.gym_carla.envs.render import COLOR_BLACK
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
+from safebench.scenario.srunner.scenario_dynamic.object_detection_dynamic import ObjectDetectionDynamic
+
 from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
 
 
@@ -123,7 +125,7 @@ class CarlaEnv(gym.Env):
         self.lidar_bp.set_attribute('range', '3000')
 
         # Camera sensor
-        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8)
+        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8) # TODO: Haohong
         self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
         self.camera_bp = self.world.get_blueprint_library().find('sensor.camera.rgb')
         # Modify the attributes of the blueprint to set image resolution and field of view.
@@ -134,7 +136,8 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def load_scenario(self, config, env_id):
-        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
+        self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ego_id=env_id) # TODO: Haohong
+        # self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)
@@ -194,10 +197,10 @@ class CarlaEnv(gym.Env):
         # TODO: check the target point of this planner
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
-
+        
         # TODO: applying setting can tick the world and get data from sensros
         # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
-        #self.world.tick()
+        # self.world.tick()
         self.settings = self.world.get_settings()
         self.world.apply_settings(self.settings)
 
@@ -211,8 +214,15 @@ class CarlaEnv(gym.Env):
     def step_before_tick(self, ego_action):
         # TODO: input an action into the scenario
         self.scenario_manager.get_update()
-        self.is_running = self.scenario_manager._running
+        if isinstance(ego_action, dict):
+            world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
+            fov = self.camera_bp.get_attribute('fov').as_float()
+            image_w, image_h = 3000., 3000.
+            self.scenario_manager.evaluate(ego_action, world_2_camera, image_w, image_h, fov)
+            ego_action = ego_action['ego_action']
 
+        self.is_running = self.scenario_manager._running
+        
         # Calculate acceleration and steering
         if self.discrete:
             acc = self.discrete_act[0][ego_action // self.n_steer]
