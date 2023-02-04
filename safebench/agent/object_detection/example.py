@@ -98,7 +98,7 @@ class ObjectDetection(object):
         image = np.array(255*image, np.uint8)
         # return image
         batch_size = len(obs)
-        
+
         return [{'ego_action': np.array([1.0, 0.0]), 'od_result': pred} for _ in range(batch_size)]
 
     def load_model(self):
