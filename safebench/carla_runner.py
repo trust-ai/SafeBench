@@ -85,7 +85,7 @@ class CarlaRunner(object):
             # initialize the renderer
             self._init_renderer(self.num_scenario)
             config_lists = self.map_town_config[town]
-
+            print('config list: ', config_lists)
             # create and reset scenarios
             env_list = []
             for s_i in range(self.num_scenario):
