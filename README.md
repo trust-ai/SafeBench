@@ -2,7 +2,7 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-01-30 21:33:17
+ * @LastEditTime: 2023-02-02 19:43:30
  * @Description: 
 -->
 
@@ -26,7 +26,7 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
-4. Download [CARLA_0.9.13](https://github.com/carla-simulator/carla/releases), extract it to some folder, and add CARLA to ```PYTHONPATH``` environment variable. You can add the following environment variables to your `~/.bashrc`:
+4. Download [CARLA_0.9.13](https://github.com/carla-simulator/carla/releases), extract it to your folder, and add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
 ```
 export CARLA_ROOT=/path/to/your/carla 
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg
@@ -42,7 +42,7 @@ $ ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 ```
 Currently, Carla does not support headless running well. Please check the official document of Carla if you want to run Carla in the headless mode.
 
-2. Run the platform:
+2. Run the platform with default configurations:
 ```
 $ python scripts/run.py
 ```

@@ -1,6 +1,3 @@
-import time
-
-import numpy as np
 import carla
 import pygame
 
@@ -118,9 +115,6 @@ class CarlaRunner(object):
                     # apply action to env and get obs
                     onestep_info_list = self._run_one_step(env_list=env_list, actions_list=actions_list, finished_env=finished_env)
                     info_list.append(onestep_info_list)
-
-                    # render
-                    #self._update_render()
 
                     # train or test
                     if self.mode == 'train_agent':

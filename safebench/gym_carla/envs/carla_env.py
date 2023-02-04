@@ -2,9 +2,7 @@ import copy
 import numpy as np
 import pygame
 import random
-import time
 from skimage.transform import resize
-import matplotlib.pyplot as plt
 
 import gym
 from gym import spaces
