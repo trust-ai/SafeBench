@@ -1,0 +1,8 @@
+agent_name: 'object_detection'
+model_path: ''
+results_folder_path: ''
+policy_type: ''
+obs_type: 3
+batch_size: 1
+epoch: 10
+save_freq: 1
