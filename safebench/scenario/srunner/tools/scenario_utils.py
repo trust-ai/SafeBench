@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-01 14:41:47
+LastEditTime: 2023-02-04 16:53:01
 Description: 
 '''
 import math
@@ -29,14 +29,7 @@ def scenario_parse(ROOT_DIR, config):
     """
     print("######## parsing scenario route and data ########")
 
-    data_file = osp.join(ROOT_DIR, config['data_path'])
-    if config['method'] == 'benign':
-        data_file += '/benign.json'
-    elif config['method'] == 'standard':
-        data_file += '/standard.json'
-    else:
-        data_file += '/dev.json'
-
+    data_file = osp.join(ROOT_DIR, config['data_path'], config['method']+'.json')
     print('Using data file:', data_file)
     route_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
     scenario_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenarios/scenario_%02d.json'

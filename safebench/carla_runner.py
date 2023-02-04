@@ -82,8 +82,10 @@ class CarlaRunner(object):
             # initialize the renderer
             self._init_renderer(self.num_scenario)
             config_lists = self.map_town_config[town]
-            print('config list: ', config_lists)
+            assert len(config_lists) >= self.num_scenario, "number of config is less than num_scenario ({} < {})".format(len(config_lists), self.num_scenario)
+
             # create and reset scenarios
+            # TODO: currently, we only support sequentially load config
             env_list = []
             for s_i in range(self.num_scenario):
                 env = carla_env(self.obs_type, birdeye_render=self.birdeye_render, display=self.display, world=self.world)

@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
     parser.add_argument('--port', type=int, default=2000)
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
-    parser.add_argument('--num_scenario', type=int, default=4, help='num of scenarios we run in one episode')
+    parser.add_argument('--num_scenario', type=int, default=1, help='num of scenarios we run in one episode')
     parser.add_argument('--num_episode', type=int, default=1, help='number of episode')
     args = parser.parse_args()
     args_dict = vars(args)
@@ -35,11 +35,11 @@ if __name__ == '__main__':
     seed_torch(args.seed)
 
     # load agent config
-    agent_config_path = osp.join(ROOT_DIR, "safebench/agent/config/example.yaml")
+    agent_config_path = osp.join(ROOT_DIR, "safebench/agent/config/object_detection.yaml")
     agent_config = load_config(agent_config_path)
 
     # load scenario config
-    scenario_config_path = osp.join(ROOT_DIR, "safebench/scenario/config/example.yaml")
+    scenario_config_path = osp.join(ROOT_DIR, "safebench/scenario/config/object_detection.yaml")
     scenario_config = load_config(scenario_config_path)
     route_configurations, map_town_config = scenario_parse(ROOT_DIR, scenario_config)
     scenario_config.update(args_dict)

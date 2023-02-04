@@ -1,4 +1,4 @@
-method: 'od' # benign, standard, dev
+method: 'od' # benign, standard, dev, od
 scenario_id: 1
 data_path: 'safebench/scenario/scenario_data/data'
 route_path: /safebench/scenario/scenario_data/route_od

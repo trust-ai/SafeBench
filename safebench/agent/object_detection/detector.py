@@ -1,32 +1,16 @@
-from symbol import pass_stmt
-
-
-import numpy as np
-
-
-class DummyEgo(object):
-    """ This is just an example for testing """
-    def __init__(self, config):
-        self.action_dim = config['action_dim']
-        self.model_path = config['model_path']
-        self.mode = 'train'
-
-    def get_action(self, obs):
-        # the input should be formed into a batch, the return action should also be a batch
-        batch_size = len(obs)
-        return np.random.randn(batch_size, self.action_dim)
-
-    def load_model(self):
-        pass
-
-    def set_mode(self, mode):
-        self.mode = mode
-
+'''
+Author: Haohong Lin
+Email: haohongl@andrew.cmu.edu
+Date: 2023-02-04 16:30:08
+LastEditTime: 2023-02-04 17:03:43
+Description: 
+'''
 
 import os
 import sys
 from pathlib import Path
 
+import numpy as np
 import torch
 
 FILE = Path(__file__).resolve()
@@ -36,12 +20,10 @@ if str(ROOT) not in sys.path:
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from models.common import DetectMultiBackend
-from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
-from utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
-from utils.plots import Annotator, colors, save_one_box
-from utils.torch_utils import select_device, time_sync
-import numpy as np
+from utils.general import (
+    check_img_size, check_imshow, check_requirements, colorstr, cv2,
+    increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
+
 
 DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yaml', \
         imgsz=(1024, 1024), 
@@ -64,8 +46,7 @@ class ObjectDetection(object):
 
         stride, self.names, self.pt = self.model.stride, self.model.names, self.model.pt
         self.annotator = None 
-        
-        imgsz = check_img_size(DEFAULT_CONFIG['imgsz'], s=stride)  # check image size
+        #imgsz = check_img_size(DEFAULT_CONFIG['imgsz'], s=stride)  # check image size
     
     def get_action(self, obs):
         print(len(obs), len(obs[0]), type(obs), type(obs[0]))
@@ -91,7 +72,7 @@ class ObjectDetection(object):
         #         c = int(cls)
         #         label = str(self.model.names[c]) + ' {:.2f}'.format(conf)
         #         self.annotator.box_label(xyxy, label, color=colors(c, True)) 
-                # print(xyxy, conf)
+        # print(xyxy, conf)
         image = image.permute(0, 2, 3, 1).detach().cpu().numpy()[0]
         # print(image.shape)
         image = cv2.resize(image, (3000, 3000), interpolation=cv2.INTER_LINEAR)
