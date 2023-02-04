@@ -2,7 +2,7 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-02-02 19:43:30
+ * @LastEditTime: 2023-02-04 17:32:25
  * @Description: 
 -->
 
@@ -28,7 +28,7 @@ $ pip install -e .
 
 4. Download [CARLA_0.9.13](https://github.com/carla-simulator/carla/releases), extract it to your folder, and add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
 ```
-export CARLA_ROOT=/path/to/your/carla 
+export CARLA_ROOT={path/to/your/carla}
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
@@ -36,13 +36,14 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
 
 ## Usage
-1. Enter the CARLA root folder and launch the CARLA server by:
+1. Enter the CARLA root folder, launch the CARLA server and run our platform with
 ```
+$ cd {path/to/your/carla}
 $ ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
-```
-Currently, Carla does not support headless running well. Please check the official document of Carla if you want to run Carla in the headless mode.
-
-2. Run the platform with default configurations:
-```
 $ python scripts/run.py
+```
+If you want to run Carla with headless mode, please use the following commands:
+```
+$ ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
+$ SDL_VIDEODRIVER="dummy" python scripts/run.py
 ```
