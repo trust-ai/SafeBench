@@ -94,7 +94,7 @@ class ScenarioManagerDynamic(object):
         self.running_record.append(record)
         if stop:
             self._running = False
-
+    
     def get_update(self):
         CarlaDataProvider.on_carla_tick()
         for spawned_scenario in self.scenario_list:
@@ -116,3 +116,10 @@ class ScenarioManagerDynamic(object):
             running_scenario.update_behavior()
 
         self.update_running_status()
+
+    def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov):
+        bbox_pred = ego_action['od_result']
+        self.scenario_class.get_bbox(world_2_camera, image_w, image_h, fov)
+        bbox_label = self.scenario_class.ground_truth_bbox
+        print(bbox_pred, bbox_label)
+        print('evaluate finished') # TODO
