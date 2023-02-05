@@ -16,6 +16,7 @@ class CarlaRunner(object):
         self.map_town_config = scenario_config['map_town_config']
         self.obs_type = agent_config['obs_type'] # the observation type is determined by the ego agent
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
+        self.ROOT_DIR = scenario_config['ROOT_DIR']
 
         self.continue_agent_training = scenario_config['continue_agent_training']
         self.continue_scenario_training = scenario_config['continue_scenario_training']
@@ -88,7 +89,7 @@ class CarlaRunner(object):
             # TODO: currently, we only support sequentially load config
             env_list = []
             for s_i in range(self.num_scenario):
-                env = carla_env(self.obs_type, birdeye_render=self.birdeye_render, display=self.display, world=self.world)
+                env = carla_env(self.obs_type, birdeye_render=self.birdeye_render, display=self.display, world=self.world, ROOT_DIR=self.ROOT_DIR)
                 env.create_ego_object()
                 env_list.append(env)
                 # load model for scenarios 
@@ -100,7 +101,7 @@ class CarlaRunner(object):
                 onestep_info_list = []
                 for s_i in range(self.num_scenario):
                     config = config_lists[s_i]
-                    obs = env_list[s_i].reset(config=config, env_id=s_i, num_scenario=self.num_scenario)
+                    obs = env_list[s_i].reset(config=config, env_id=s_i)
                     onestep_info_list.append([obs, 0, 0])
                 info_list = [onestep_info_list]
 

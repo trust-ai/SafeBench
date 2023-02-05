@@ -23,11 +23,11 @@ if __name__ == '__main__':
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
     parser.add_argument('--num_scenario', type=int, default=1, help='num of scenarios we run in one episode')
     parser.add_argument('--num_episode', type=int, default=1, help='number of episode')
+    parser.add_argument('--agent_cfg', type=str, default='object_detection.yaml')
+    parser.add_argument('--scenario_cfg', type=str, default='object_detection.yaml')
+    parser.add_argument('--ROOT_DIR', type=str, default=osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__)))))
     args = parser.parse_args()
     args_dict = vars(args)
-
-    # get the root dir of the package
-    ROOT_DIR = osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__))))
 
     # set some device parameters
     set_torch_variable_env(args.device)
@@ -35,13 +35,13 @@ if __name__ == '__main__':
     seed_torch(args.seed)
 
     # load agent config
-    agent_config_path = osp.join(ROOT_DIR, "safebench/agent/config/object_detection.yaml")
+    agent_config_path = osp.join(args.ROOT_DIR, 'safebench/agent/config', args.agent_cfg)
     agent_config = load_config(agent_config_path)
 
     # load scenario config
-    scenario_config_path = osp.join(ROOT_DIR, "safebench/scenario/config/object_detection.yaml")
+    scenario_config_path = osp.join(args.ROOT_DIR, 'safebench/scenario/config', args.scenario_cfg)
     scenario_config = load_config(scenario_config_path)
-    route_configurations, map_town_config = scenario_parse(ROOT_DIR, scenario_config)
+    route_configurations, map_town_config = scenario_parse(args.ROOT_DIR, scenario_config)
     scenario_config.update(args_dict)
     scenario_config["map_town_config"] = map_town_config
 

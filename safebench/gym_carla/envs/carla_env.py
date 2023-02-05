@@ -30,7 +30,7 @@ from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import
 
 class CarlaEnv(gym.Env):
     """ An OpenAI-gym style interface for CARLA simulator. """
-    def __init__(self, params, birdeye_render=None, display=None, world=None):
+    def __init__(self, params, birdeye_render=None, display=None, world=None, ROOT_DIR=None):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
         self.max_past_step = params['max_past_step']
@@ -43,6 +43,7 @@ class CarlaEnv(gym.Env):
         self.out_lane_thres = params['out_lane_thres']
         self.desired_speed = params['desired_speed']
         self.display_route = params['display_route']
+        self.ROOT_DIR = ROOT_DIR
 
         if 'pixor' in params.keys():
             self.pixor = params['pixor']
@@ -134,18 +135,17 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def load_scenario(self, config, env_id):
-        self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ego_id=env_id) # TODO: Haohong
-        # self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
+        #self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) # TODO: Haohong
+        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)
         self.scenario_manager._init_scenarios()
 
-    def reset(self, config, env_id, num_scenario):
+    def reset(self, config, env_id):
         print("######## loading scenario ########")
         self.load_scenario(config, env_id)
         self.env_id = env_id
-        self.num_scenario = num_scenario
 
         # Get actors polygon list (for visualization)
         self.vehicle_polygons = [self._get_actor_polygons('vehicle.*')]

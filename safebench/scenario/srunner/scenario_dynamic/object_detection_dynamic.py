@@ -6,13 +6,10 @@ from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import B
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import *
 
-from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
-from typing import Callable, Optional, Union, List, Dict, AnyStr
-
 import numpy as np
 import os
 import cv2
-import re
+
 
 def build_projection_matrix(w, h, fov):
     focal = w / (2.0 * np.tan(fov * np.pi / 360.0))
@@ -22,14 +19,14 @@ def build_projection_matrix(w, h, fov):
     K[1, 2] = h / 2.0
     return K
 
-DEFAULT_FOLDER = '/home/wenhao/7_carla/from_github_lhh/SafeBench_v2/safebench/scenario/scenario_data/input/'
+
 class ObjectDetectionDynamic(RouteScenarioDynamic):
     """
     This class creates scenario where ego vehicle 
     is required to conduct pass-by testing.
     """
 
-    def __init__(self, world, config, ego_id, criteria_enable=True):
+    def __init__(self, world, config, ego_id, ROOT_DIR, criteria_enable=True):
         '''
         self.world = world
         self.config = config
@@ -52,8 +49,10 @@ class ObjectDetectionDynamic(RouteScenarioDynamic):
             weather=config.weather
         )
         '''
+
+        TEMPLATE_DIR = os.path.join(ROOT_DIR, 'safebench/scenario/scenario_data/template_od')
         self.object_dict = dict(stopsign=['BP_Stop_2'], car=['SM_JeepWranglerRubicon_6', 'SM_Tesla_11'])
-        self.image_path_list = [os.path.join(DEFAULT_FOLDER, k)+'.jpg' for k in self.object_dict.keys()]
+        self.image_path_list = [os.path.join(TEMPLATE_DIR, k)+'.jpg' for k in self.object_dict.keys()]
 
         self.image_list = [cv2.imread(image_file) for image_file in self.image_path_list]
         self.image_list = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in self.image_list]
@@ -61,24 +60,18 @@ class ObjectDetectionDynamic(RouteScenarioDynamic):
         self.bbox_ground_truth = {}
         self.ground_truth_bbox = {}
 
-        super(ObjectDetectionDynamic, self).__init__(
-            world, config, ego_id, criteria_enable
-        )
-        
-
-        
+        super(ObjectDetectionDynamic, self).__init__(world, config, ego_id, criteria_enable)
 
     def _initialize_environment(self, world): # TODO: image from dict or parameter?
-        
         settings = world.get_settings()
         settings.synchronous_mode = True
         settings.fixed_delta_seconds = 0.05
         world.apply_settings(settings)
         for obj_key, image in zip(self.object_dict.keys(), self.image_list):
-            resized = cv2.resize(image, (1024,1024), interpolation = cv2.INTER_AREA)
+            resized = cv2.resize(image, (1024,1024), interpolation=cv2.INTER_AREA)
             resized = np.rot90(resized,k=1)
             resized = cv2.flip(resized,1)
-            height=1024
+            height = 1024
             texture = carla.TextureColor(height,height)
             for x in range(1024):
                 for y in range(1024):

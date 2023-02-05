@@ -2,7 +2,7 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-02-04 17:32:25
+ * @LastEditTime: 2023-02-04 17:43:12
  * @Description: 
 -->
 
@@ -40,10 +40,10 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
 $ cd {path/to/your/carla}
 $ ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
-$ python scripts/run.py
+$ python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
 ```
 If you want to run Carla with headless mode, please use the following commands:
 ```
 $ ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
-$ SDL_VIDEODRIVER="dummy" python scripts/run.py
+$ SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
 ```

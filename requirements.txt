@@ -2,10 +2,13 @@ gym==0.23.1
 pygame
 scikit-image
 tqdm
-joblib
 pyyaml
-cpprb
 matplotlib
 torch
 torchvision
 py_trees==2.1.6
+opencv-python
+pandas
+seaborn
+shapely
+ephem

@@ -111,10 +111,10 @@ params = {
     'pixor': False,  # whether to output PIXOR observation
 }
 
-def carla_env(obs_type, birdeye_render=None, display=None, world=None):
+def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None):
     config = {
         'acc_max': 3,
         'steering_max': 0.3,
         'obs_type': obs_type,
     }
-    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world), config=config)
+    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=ROOT_DIR), config=config)
