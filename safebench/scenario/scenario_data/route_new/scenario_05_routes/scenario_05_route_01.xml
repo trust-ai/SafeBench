@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+   <route id="0" town="town_4intersection_2lane">
+      <weather
+         cloudiness="0"
+         precipitation="0"
+         precipitation_deposits="0"
+         wind_intensity="0"
+         sun_azimuth_angle="0"
+         sun_altitude_angle="70"
+         fog_density="0"
+         fog_distance="0"
+         wetness="0"
+      />
+      <waypoint pitch="0.0" roll="0.0" x="201.75" y="30.5" yaw="270.0" z="0.3" />
+      <waypoint pitch="0.0" roll="0.0" x="201.75" y="50.29" yaw="270.0" z="0.3" />
+<!--      <waypoint pitch="0.0" roll="0.0" x="198.075" y="1.092188" yaw="221.95" z="0.1524" />-->
+      <waypoint pitch="0.0" roll="0.0" x="180.5" y="-1.75" yaw="180.0" z="0.3" />
+<!--      <waypoint pitch="0.0" roll="0.0" x="150.5" y="-1.75" yaw="180.0" z="0.0" />-->
+<!--      <waypoint pitch="0.0" roll="0.0" x="250.5" y="-1.75" yaw="180.0" z="0.3" />-->
+<!--      <waypoint pitch="0.0" roll="0.0" x="20.5" y="-1.75" yaw="180.0" z="0.0" />-->
+   </route>
+</routes>
