@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
-"""
-Vehicle Maneuvering In Opposite Direction:
-Vehicle is passing another vehicle in a rural area, in daylight, under clear
-weather conditions, at a non-junction and encroaches into another
-vehicle traveling in the opposite direction.
-"""
 import carla
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -30,16 +19,13 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
         Setup all relevant parameters and create scenario
         obstacle_type -> flag to select type of leading obstacle. Values: vehicle, barrier
         """
-        # parameters = [self._first_vehicle_location, self._second_vehicle_location， self._opposite_speed, self.trigger_distance_threshold]
-        # parameters = [50, 30, 8, 45]
-        self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
-        self._first_vehicle_location = self.parameters[0]
-        self._second_vehicle_location = self._first_vehicle_location + self.parameters[1]
+        self._first_vehicle_location = 50
+        self._second_vehicle_location = self._first_vehicle_location + 30
         # self._ego_vehicle_drive_distance = self._second_vehicle_location * 2
         # self._start_distance = self._first_vehicle_location * 0.9
-        self._opposite_speed = self.parameters[2]   # m/s
+        self._opposite_speed = 8   # m/s
         # self._source_gap = 40   # m
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         # self._source_transform = None
@@ -71,7 +57,7 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
         # self.actor_type_list.append('vehicle.nissan.patrol')
 
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[3]
+        self.trigger_distance_threshold = 0
         self.ego_max_driven_distance = 200
 
 
@@ -95,13 +81,11 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
                                                           self.actor_type_list)
 
         self.reference_actor = self.other_actors[0]
+        self.other_actors[0].set_autopilot()
+        self.other_actors[1].set_autopilot()
 
     def update_behavior(self):
-        """
-        first actor run in low speed
-        second actor run in normal speed from oncoming route
-        """
-        self.scenario_operation.go_straight(self._opposite_speed, 1)
+        pass
 
 
 

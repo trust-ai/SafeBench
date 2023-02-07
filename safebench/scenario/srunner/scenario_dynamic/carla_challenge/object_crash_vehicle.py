@@ -12,12 +12,12 @@ from __future__ import print_function
 import math
 import carla
 
-from srunner.AdditionTools.scenario_operation import ScenarioOperation
-from srunner.AdditionTools.scenario_utils import calculate_distance_transforms
-from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
-from srunner.scenariomanager.timer import TimeOut
-from srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
-from srunner.tools.scenario_helper import get_location_in_distance_from_wp
+from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
+from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_manager.timer import TimeOut
+from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
+from safebench.scenario.srunner.tools.scenario_helper import get_location_in_distance_from_wp
 
 
 class DynamicObjectCrossingDynamic(BasicScenarioDynamic):

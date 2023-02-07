@@ -1,20 +1,3 @@
-#!/usr/bin/env python
-
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
-"""
-Other Leading Vehicle scenario:
-
-The scenario realizes a common driving behavior, in which the
-user-controlled ego vehicle follows a leading car driving down
-a given road. At some point the leading car has to decelerate.
-The ego vehicle has to react accordingly by changing lane to avoid a
-collision and follow the leading car in other lane. The scenario ends
-either via a timeout, or if the ego vehicle drives some distance.
-"""
-
 import carla
 
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
@@ -39,27 +22,22 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
-        # parameters = [self._first_vehicle_location, self._second_vehicle_location, self._first_vehicle_speed,
-        #               self._second_vehicle_speed, self.dece_distance, self.dece_target_speed,
-        #               self.trigger_distance_threshold]
-        # parameters = [35, 1, 15, 15, 20, 3, 30]
-        self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
-        self._first_vehicle_location = self.parameters[0]
-        self._second_vehicle_location = self._first_vehicle_location + self.parameters[1]
-        # self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
-        self._first_vehicle_speed = self.parameters[2]
-        self._second_vehicle_speed = self.parameters[3]
+        self._first_vehicle_location = 35
+        self._second_vehicle_location = self._first_vehicle_location + 1
+        self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
+        self._first_vehicle_speed = 12
+        self._second_vehicle_speed = 12
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
-        # self._other_actor_max_brake = 1.0
+        self._other_actor_max_brake = 1.0
         self._first_actor_transform = None
         self._second_actor_transform = None
         # Timeout of scenario in seconds
         self.timeout = timeout
 
-        self.dece_distance = self.parameters[4]
-        self.dece_target_speed = self.parameters[5]
+        self.dece_distance = 5
+        self.dece_target_speed = 2  # 3 will be safe
 
         self.need_decelerate = False
 
@@ -73,7 +51,7 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.actor_type_list.append('vehicle.nissan.patrol')
         self.actor_type_list.append('vehicle.audi.tt')
-        self.trigger_distance_threshold = self.parameters[6]
+        self.trigger_distance_threshold = 0
         self.other_actor_speed = []
         self.other_actor_speed.append(self._first_vehicle_speed)
         self.other_actor_speed.append(self._second_vehicle_speed)
@@ -98,26 +76,11 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         # self.second_vehicle_transform = carla.Transform(second_vehicle_waypoint.transform.location,
         #                                                second_vehicle_waypoint.transform.rotation)
 
-    def update_behavior(self):
-        """
-        Just make two vehicles move forward with specific speed
-        At specific point, vehicle in front of ego will decelerate
-        other_actors[0] is the vehicle before the ego
-        """
-        # cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.ego_vehicles[0]),
-        #                                              CarlaDataProvider.get_transform(self.other_actors[1]))
-        cur_distance = calculate_distance_transforms(self.other_actor_transform[0],
-                                                     CarlaDataProvider.get_transform(self.other_actors[0]))
+        self.other_actors[0].set_autopilot()
+        self.other_actors[1].set_autopilot()
 
-        if cur_distance > self.dece_distance:
-            self.need_decelerate = True
-        for i in range(len(self.other_actors)):
-            if i == 0 and self.need_decelerate:
-                # print("start to decelerate")
-                # print("cur actor speed: ", CarlaDataProvider.get_velocity(self.other_actors[i]))
-                self.scenario_operation.go_straight(self.dece_target_speed, i)
-            else:
-                self.scenario_operation.go_straight(self.other_actor_speed[i], i)
+    def update_behavior(self):
+        pass
 
 
     def _create_behavior(self):

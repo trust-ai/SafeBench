@@ -85,6 +85,7 @@ class ScenarioManagerDynamic(object):
         # spawn actors for each scenario
         for i in range(len(self.scenario_list)):
             self.scenario_list[i].initialize_actors()
+            self.scenario_class.other_actors += self.scenario_list[i].other_actors
 
     def stop_scenario(self):
         self._running = False

@@ -5,18 +5,18 @@ import numpy as np
 
 import carla
 
-from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
-from srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic, SpawnOtherActorError
-from srunner.tools.scenario_helper import (generate_target_waypoint,
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic, SpawnOtherActorError
+from safebench.scenario.srunner.tools.scenario_helper import (generate_target_waypoint,
                                            generate_target_waypoint_in_route,
                                            get_crossing_point,
                                            get_junction_topology)
 
-from srunner.AdditionTools.scenario_operation import ScenarioOperation
-from srunner.AdditionTools.scenario_utils import calculate_distance_transforms
-from srunner.AdditionTools.scenario_utils import calculate_distance_locations
+from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
+from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
+from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_locations
 
-from srunner.scenario_dynamic.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.srunner.scenario_dynamic.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):
     """

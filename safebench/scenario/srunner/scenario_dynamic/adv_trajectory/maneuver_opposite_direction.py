@@ -1,15 +1,5 @@
-#!/usr/bin/env python
-
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
-"""
-Vehicle Maneuvering In Opposite Direction:
-Vehicle is passing another vehicle in a rural area, in daylight, under clear
-weather conditions, at a non-junction and encroaches into another
-vehicle traveling in the opposite direction.
-"""
 import carla
+import json
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.tools.scenario_helper import get_waypoint_in_distance
@@ -30,16 +20,13 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
         Setup all relevant parameters and create scenario
         obstacle_type -> flag to select type of leading obstacle. Values: vehicle, barrier
         """
-        # parameters = [self._first_vehicle_location, self._second_vehicle_location， self._opposite_speed, self.trigger_distance_threshold]
-        # parameters = [50, 30, 8, 45]
-        self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
-        self._first_vehicle_location = self.parameters[0]
-        self._second_vehicle_location = self._first_vehicle_location + self.parameters[1]
+        self._first_vehicle_location = 50
+        self._second_vehicle_location = self._first_vehicle_location + 20
         # self._ego_vehicle_drive_distance = self._second_vehicle_location * 2
         # self._start_distance = self._first_vehicle_location * 0.9
-        self._opposite_speed = self.parameters[2]   # m/s
+        self._opposite_speed = 30   # m/s
         # self._source_gap = 40   # m
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         # self._source_transform = None
@@ -71,8 +58,17 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
         # self.actor_type_list.append('vehicle.nissan.patrol')
 
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[3]
+        self.trigger_distance_threshold = 45
         self.ego_max_driven_distance = 200
+
+        self.step = 0
+        with open(config.parameters, 'r') as f:
+            parameters = json.load(f)
+        self.control_seq = [(control * 2 - 1) * 2 for control in parameters]
+        self.total_steps = len(self.control_seq)
+        self.actor_transform_list = []
+        self.perturbed_actor_transform_list = []
+        self.running_distance = 50
 
 
     def initialize_actors(self):
@@ -96,14 +92,37 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
 
         self.reference_actor = self.other_actors[0]
 
+        forward_vector = self.other_actor_transform[1].rotation.get_forward_vector() * self.running_distance
+        right_vector = self.other_actor_transform[1].rotation.get_right_vector()
+        self.other_actor_final_transform = carla.Transform(
+            self.other_actor_transform[1].location,
+            self.other_actor_transform[1].rotation)
+        self.other_actor_final_transform.location += forward_vector
+        for i in range(self.total_steps):
+            self.actor_transform_list.append(carla.Transform(
+                carla.Location(self.other_actor_transform[1].location + forward_vector * i / self.total_steps),
+                self.other_actor_transform[1].rotation))
+        for i in range(self.total_steps):
+            self.perturbed_actor_transform_list.append(carla.Transform(
+                carla.Location(self.actor_transform_list[i].location + right_vector * self.control_seq[i]),
+                self.other_actor_transform[1].rotation))
+
+        # print('other_actor_transform')
+        # for i in self.other_actor_transform:
+        #     print(i)
+        # print('perturbed_actor_transform_list')
+        # for i in self.perturbed_actor_transform_list:
+        #     print(i)
+
     def update_behavior(self):
         """
         first actor run in low speed
         second actor run in normal speed from oncoming route
         """
-        self.scenario_operation.go_straight(self._opposite_speed, 1)
-
-
+        # print(self.step)
+        target_transform = self.perturbed_actor_transform_list[self.step if self.step < self.total_steps else -1]
+        self.step += 1  # <= 50 steps
+        self.scenario_operation.drive_to_target_followlane(1, target_transform, self._opposite_speed)
 
     def _create_behavior(self):
         pass

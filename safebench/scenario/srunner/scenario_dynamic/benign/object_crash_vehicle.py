@@ -1,26 +1,13 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-
-Object crash without prior vehicle action scenario:
-The scenario realizes the user controlled ego vehicle
-moving along the road and encountering a cyclist ahead.
-"""
-
 from __future__ import print_function
 
 import math
-import numpy as np
 import carla
 
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.srunner.scenario_manager.timer import TimeOut
 from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
 from safebench.scenario.srunner.tools.scenario_helper import get_location_in_distance_from_wp
-
-from safebench.scenario.srunner.scenario_dynamic.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 
 class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
@@ -39,28 +26,6 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
-        self.agent = REINFORCE(config=config.parameters)
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
-        target_speed = 0.4
-
-        route = []
-        for point in self._ego_route:
-            route.append([point[0].x, point[0].y])
-        route = np.array(route)
-        index = np.linspace(1, len(route) - 1, 30).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
-        route_norm = route_norm.astype('float32')
-
-        actions = self.agent.deterministic_action(route_norm)
-
-        self.actions = self.convert_actions(actions)
-
-        print(actions)
-        print(self.actions)
-
         self._wmap = CarlaDataProvider.get_map()
 
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
@@ -92,25 +57,10 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
                                                     debug_mode,
                                                     criteria_enable=criteria_enable)
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.trigger_distance_threshold = 20
-        self.actor_type_list.append('walker.*')
+        self.trigger_distance_threshold = 0
+        self.actor_type_list.append('vehicle.diamondback.century')
         self.actor_type_list.append('static.prop.vendingmachine')
         self.ego_max_driven_distance = 150
-
-    def convert_actions(self, actions):
-        yaw_scale = 60
-        yaw_mean = 0
-
-        d_min = 15
-        d_max = 50
-        d_scale = (d_max - d_min) / 2
-        dist_mean = (d_max + d_min)/2
-
-        y = constraint(actions[0], -1, 1) / 2 + 0.5
-        yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
-
-        return [y, yaw, dist]
 
     def _calculate_base_transform(self, _start_distance, waypoint):
 
@@ -147,7 +97,7 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         y_cycle = transform.location.y
         x_static = x_ego + shift * (x_cycle - x_ego)
         y_static = y_ego + shift * (y_cycle - y_ego)
-        spawn_point_wp = self.ego_vehicles[0].get_world().get_map().get_waypoint(transform.location)
+        spawn_point_wp = self.world.get_map().get_waypoint(transform.location)
 
         #Note: if need to change tranform for blocker, here
         self.transform2 = carla.Transform(carla.Location(x_static, y_static,
@@ -160,7 +110,6 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         Set a blocker that blocks ego's view on the walker
         Request a walker walk through the street when ego come
         """
-        y, yaw, self.trigger_distance_threshold = self.actions  # [0, 1], [-60, 60], [15, 50]
         # cyclist transform
         _start_distance = 45
         # We start by getting and waypoint in the closest sidewalk.
@@ -184,19 +133,8 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         while True:  # We keep trying to spawn avoiding props
 
             try:
+                # Note: if need to change transform for walker, here
                 self.transform, orientation_yaw = self._calculate_base_transform(_start_distance, waypoint)
-                forward_vector = self.transform.rotation.get_forward_vector() * y * self._reference_waypoint.lane_width
-                self.transform.location += forward_vector
-                yaw = self.transform.rotation.yaw + yaw
-                if yaw < 0:
-                    yaw += 360
-                if yaw > 360:
-                    yaw -= 360
-                self.transform = carla.Transform(
-                    self.transform.location,
-                    carla.Rotation(self.transform.rotation.pitch, yaw,
-                                   self.transform.rotation.roll))
-                orientation_yaw = yaw
 
                 self._spawn_blocker(self.transform, orientation_yaw)
 
@@ -228,16 +166,12 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
 
         self.reference_actor = self.other_actors[0]
+        self.other_actors[0].set_autopilot()
 
 
 
     def update_behavior(self):
-        """
-        the walker starts crossing the road
-        """
-        # print("walker v: ", CarlaDataProvider.get_velocity(self.other_actors[0]))
-        # self.scenario_operation.go_straight(self._other_actor_target_velocity, 0, throttle_value=5.0)
-        self.scenario_operation.walker_go_straight(self._other_actor_target_velocity, 0)
+        pass
 
     def check_stop_condition(self):
         """
