@@ -2,6 +2,68 @@ import gym
 import numpy as np
 
 
+class VectorWrapper():
+    """ The interface to control a list of environments"""
+    def __init__(self, agent_config, scenario_config, world, birdeye_render, display):
+        self.world = world
+        self.num_scenario = scenario_config['num_scenario']
+        self.finished_env = [False] * self.num_scenario
+        self.ROOT_DIR = scenario_config['ROOT_DIR']
+        self.frame_skip = scenario_config['frame_skip']
+        self.obs_type = agent_config['obs_type']   # the observation type is determined by the ego agent
+
+        self.env_list = []
+        for _ in range(self.num_scenario):
+            env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR)
+            env.create_ego_object()
+            self.env_list.append(env)
+
+    def load_model(self):
+        for e_i in range(self.num_scenario):
+            self.env_list[e_i].load_model()
+
+    def reset(self, config_lists):
+        all_obs = []
+        for s_i in range(self.num_scenario):
+            config = config_lists[s_i]
+            obs = self.env_list[s_i].reset(config=config, env_id=s_i)
+            all_obs.append(obs)
+        return all_obs
+
+    def step(self, ego_actions):
+        """
+            ego_actions: [num_alive_scenario, action_dim]
+        """
+        for _ in range(self.frame_skip):
+            # apply action
+            for e_i in range(len(self.env_list)):
+                if not self.finished_env[e_i]:
+                    self.env_list[e_i].step_before_tick(ego_actions[e_i])
+            # tick all scenarios
+            self.world.tick()
+
+        # collect new observation of one frame
+        all_obs = []
+        all_reward = []
+        all_done = []
+        all_info = []
+        for e_i in range(len(self.env_list)):
+            if not self.finished_env[e_i]:
+                obs, reward, done, info = self.env_list[e_i].step_after_tick()
+            
+            # check wether env is done
+            if done:
+                self.env_list[e_i].is_running = False
+                self.finished_env[e_i] = True
+
+            # update infomation
+            all_obs.append(obs)
+            all_reward.append(reward)
+            all_done.append(done)
+            all_info.append(info)
+        return all_obs, all_reward, all_done, all_info
+
+
 class EnvWrapper(gym.Wrapper):
     def __init__(self, env, config):
         super().__init__(env)

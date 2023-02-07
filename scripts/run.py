@@ -1,3 +1,11 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-06 17:01:03
+Description: 
+'''
+
 import os.path as osp
 
 import torch 
@@ -13,7 +21,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
     parser.add_argument('--threads', type=int, default=4)
-    parser.add_argument('--render', type=bool, default=False)
+    parser.add_argument('--render', type=bool, default=True)
     parser.add_argument('--frame_skip', '-fs', type=int, default=4, help='skip of frame in each step')
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument('--device', type=str, default='cuda:0')

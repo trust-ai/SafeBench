@@ -157,16 +157,13 @@ class Runner:
         epoch_steps = 0
         range_instance = tqdm(
             range(self.sample_episode_num),
-            desc='Collecting trajectories') if self.verbose else range(
-                self.sample_episode_num)
+            desc='Collecting trajectories') if self.verbose else range(self.sample_episode_num)
         for i in range_instance:
             steps = self.worker.work()
             epoch_steps += steps
 
         train_steps = self.episode_rerun_num * epoch_steps // self.batch_size
-        range_instance = tqdm(
-            range(train_steps), desc='training {}/{}'.format(
-                epoch + 1, self.epochs)) if self.verbose else range(train_steps)
+        range_instance = tqdm(range(train_steps), desc='training {}/{}'.format(epoch + 1, self.epochs)) if self.verbose else range(train_steps)
         for i in range_instance:
             data = self.worker.get_sample()
             self.policy.learn_on_batch(data)
@@ -203,8 +200,7 @@ class Runner:
             if (epoch % self.save_freq == 0) or (epoch == self.epochs - 1):
                 self.logger.save_state({'env': self.env}, None)
             # Log info about epoch
-            self.data_dict = self._log_metrics(epoch, total_steps,
-                                               time.time() - start_time, self.verbose)
+            self.data_dict = self._log_metrics(epoch, total_steps, time.time() - start_time, self.verbose)
 
     def eval(self, epochs=10, sleep=0.01, render=True):
         total_steps = 0

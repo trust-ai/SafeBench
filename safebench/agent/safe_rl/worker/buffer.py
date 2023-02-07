@@ -18,10 +18,8 @@ class OnPolicyBuffer:
         self.clear()
 
     def clear(self):
-        self.obs_buf = np.zeros(combined_shape(self.max_size, self.obs_dim),
-                                dtype=np.float32)
-        self.act_buf = np.zeros(combined_shape(self.max_size, self.act_dim),
-                                dtype=np.float32)
+        self.obs_buf = np.zeros(combined_shape(self.max_size, self.obs_dim), dtype=np.float32)
+        self.act_buf = np.zeros(combined_shape(self.max_size, self.act_dim), dtype=np.float32)
         self.adv_buf = np.zeros(self.max_size, dtype=np.float32)
         self.rew_buf = np.zeros(self.max_size, dtype=np.float32)
         self.ret_buf = np.zeros(self.max_size, dtype=np.float32)
@@ -81,8 +79,7 @@ class OnPolicyBuffer:
 
         # the next two lines implement GAE-Lambda advantage calculation
         cost_deltas = cost_rews[:-1] + self.gamma * cost_vals[1:] - cost_vals[:-1]
-        self.cost_adv_buf[path_slice] = discount_cumsum(cost_deltas,
-                                                        self.gamma * self.lam)
+        self.cost_adv_buf[path_slice] = discount_cumsum(cost_deltas, self.gamma * self.lam)
 
         # the next line computes rewards-to-go, to be targets for the value function
         self.cost_ret_buf[path_slice] = discount_cumsum(cost_rews, self.gamma)[:-1]

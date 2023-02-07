@@ -7,8 +7,7 @@ from safebench.agent.safe_rl.policy import LagrangianPIDController
 from safebench.agent.safe_rl.policy.model.mlp_ac import (MLPCategoricalActor, MLPGaussianActor,
                                          mlp)
 from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.agent.safe_rl.util.torch_util import (count_vars, get_device_name, to_device,
-                                     to_ndarray, to_tensor)
+from safebench.agent.safe_rl.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
 

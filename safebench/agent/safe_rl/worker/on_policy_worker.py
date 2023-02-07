@@ -33,8 +33,7 @@ class OnPolicyWorker:
         if "Safe" in env.spec.id:
             self.SAFE_RL_ENV = True
 
-        self.buffer = OnPolicyBuffer(obs_dim, act_dim, self.interact_steps + 1, gamma,
-                                     lam)
+        self.buffer = OnPolicyBuffer(obs_dim, act_dim, self.interact_steps + 1, gamma, lam)
 
     def work(self):
         '''
