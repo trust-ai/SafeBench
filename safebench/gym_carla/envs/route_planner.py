@@ -30,7 +30,7 @@ class RoadOption(Enum):
 
 
 class RoutePlanner():
-    def __init__(self, vehicle, buffer_size):
+    def __init__(self, vehicle, buffer_size, init_waypoints):
         self._vehicle = vehicle
         self._world = self._vehicle.get_world()
         self._map = self._world.get_map()
@@ -44,7 +44,17 @@ class RoutePlanner():
 
         self._waypoints_queue = deque(maxlen=600)
         self._current_waypoint = self._map.get_waypoint(self._vehicle.get_location())
-        self._waypoints_queue.append((self._current_waypoint.next(self._sampling_radius)[0], RoadOption.LANEFOLLOW))
+
+        if len(init_waypoints) == 0:
+            self._waypoints_queue.append((self._current_waypoint.next(self._sampling_radius)[0], RoadOption.LANEFOLLOW))
+        else:
+            for i, waypoint in enumerate(init_waypoints):
+                if i == 0:
+                    self._waypoints_queue.append((waypoint, compute_connection(self._current_waypoint, waypoint)))
+                else:
+                    self._waypoints_queue.append((waypoint, compute_connection(init_waypoints[i - 1], waypoint)))
+
+
         self._target_road_option = RoadOption.LANEFOLLOW
 
         self._last_traffic_light = None
@@ -55,7 +65,6 @@ class RoutePlanner():
     def _compute_next_waypoints(self, k=1):
         """
         Add new waypoints to the trajectory queue.
-
         :param k: how many waypoints to compute
         :return:
         """
@@ -78,7 +87,7 @@ class RoutePlanner():
 
                 road_option = road_options_list[1]
                 # road_option = random.choice(road_options_list)
-                
+
                 next_waypoint = next_waypoints[road_options_list.index(
                     road_option)]
 
@@ -94,7 +103,6 @@ class RoutePlanner():
         """
         Execute one step of local planning which involves running the longitudinal and lateral PID controllers to
         follow the waypoints trajectory.
-
         :param debug: boolean flag to activate waypoints debugging
         :return:
         """
@@ -104,17 +112,18 @@ class RoutePlanner():
             self._compute_next_waypoints(k=100)
 
         #     Buffering the waypoints
-        while len(self._waypoint_buffer)<self._buffer_size:
+        while len(self._waypoint_buffer) < self._buffer_size:
             if self._waypoints_queue:
                 self._waypoint_buffer.append(
                     self._waypoints_queue.popleft())
             else:
                 break
 
-        waypoints=[]
+        waypoints = []
 
         for i, (waypoint, _) in enumerate(self._waypoint_buffer):
-            waypoints.append([waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.rotation.yaw])
+            waypoints.append(
+                [waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.rotation.yaw])
 
         # current vehicle waypoint
         self._current_waypoint = self._map.get_waypoint(self._vehicle.get_location())
@@ -157,11 +166,9 @@ class RoutePlanner():
         into account the road and lane the target vehicle is on and run a
         geometry test to check if the target vehicle is under a certain distance
         in front of our ego vehicle.
-
         WARNING: This method is an approximation that could fail for very large
          vehicles, which center is actually on a different lane but their
          extension falls within the ego vehicle lane.
-
         :param vehicle_list: list of potential obstacle to check
         :return: a tuple given by (bool_flag, vehicle), where
                  - bool_flag is True if there is a vehicle ahead blocking us
@@ -180,7 +187,7 @@ class RoutePlanner():
             # if the object is not in our lane it's not an obstacle
             target_vehicle_waypoint = self._map.get_waypoint(target_vehicle.get_location())
             if target_vehicle_waypoint.road_id != ego_vehicle_waypoint.road_id or \
-                            target_vehicle_waypoint.lane_id != ego_vehicle_waypoint.lane_id:
+                    target_vehicle_waypoint.lane_id != ego_vehicle_waypoint.lane_id:
                 continue
 
             loc = target_vehicle.get_location()
@@ -194,7 +201,6 @@ class RoutePlanner():
     def _is_light_red_us_style(self, lights_list):
         """
         This method is specialized to check US style traffic lights.
-
         :param lights_list: list containing TrafficLight objects
         :return: a tuple given by (bool_flag, traffic_light), where
                  - bool_flag is True if there is a traffic light in RED
@@ -218,8 +224,8 @@ class RoutePlanner():
                 for traffic_light in lights_list:
                     loc = traffic_light.get_location()
                     magnitude, angle = compute_magnitude_angle(loc,
-                                                                 ego_vehicle_location,
-                                                                 self._vehicle.get_transform().rotation.yaw)
+                                                               ego_vehicle_location,
+                                                               self._vehicle.get_transform().rotation.yaw)
                     if magnitude < 80.0 and angle < min(25.0, min_angle):
                         sel_magnitude = magnitude
                         sel_traffic_light = traffic_light
@@ -236,11 +242,11 @@ class RoutePlanner():
 
         return False
 
+
 def retrieve_options(list_waypoints, current_waypoint):
     """
     Compute the type of connection between the current active waypoint and the multiple waypoints present in
     list_waypoints. The result is encoded as a list of RoadOption enums.
-
     :param list_waypoints: list with the possible target waypoints in case of multiple options
     :param current_waypoint: current active waypoint
     :return: list of RoadOption enums representing the type of connection from the active waypoint to each
@@ -262,7 +268,6 @@ def compute_connection(current_waypoint, next_waypoint):
     """
     Compute the type of topological connection between an active waypoint (current_waypoint) and a target waypoint
     (next_waypoint).
-
     :param current_waypoint: active waypoint
     :param next_waypoint: target waypoint
     :return: the type of topological connection encoded as a RoadOption enum:

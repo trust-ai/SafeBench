@@ -1,0 +1,93 @@
+{
+  "available_scenarios": [
+    {
+      "town_4intersection_2lane": [
+        {
+          "available_event_configurations": [
+            {
+              "other_actors": {
+                "left": [
+                  {
+                    "pitch": "0.0",
+                    "x": "-1.75",
+                    "y": "-20",
+                    "yaw": "90.0",
+                    "z": "1.0"
+                  }
+                ]
+              },
+              "transform": {
+                "pitch": "0",
+                "x": 1.75,
+                "y": 40.0,
+                "yaw": 270.0,
+                "z": 0.30
+              }
+            },
+            {
+              "other_actors": {
+                "left": [
+                  {
+                    "pitch": "0.0",
+                    "x": "198.25",
+                    "y": "-20",
+                    "yaw": "90.0",
+                    "z": "1.0"
+                  }
+                ]
+              },
+              "transform": {
+                "pitch": "0",
+                "x": 201.75,
+                "y": 40.0,
+                "yaw": 270.0,
+                "z": 0.30
+              }
+            },
+            {
+              "other_actors": {
+                "left": [
+                  {
+                    "pitch": "0.0",
+                    "x": "-1.75",
+                    "y": "180",
+                    "yaw": "90.0",
+                    "z": "1.0"
+                  }
+                ]
+              },
+              "transform": {
+                "pitch": "0",
+                "x": 1.75,
+                "y": 240.0,
+                "yaw": 270.0,
+                "z": 0.30
+              }
+            },
+            {
+              "other_actors": {
+                "left": [
+                  {
+                    "pitch": "0.0",
+                    "x": "198.25",
+                    "y": "180",
+                    "yaw": "90.0",
+                    "z": "1.0"
+                  }
+                ]
+              },
+              "transform": {
+                "pitch": "0",
+                "x": 201.75,
+                "y": 240.0,
+                "yaw": 270.0,
+                "z": 0.30
+              }
+            }
+          ],
+          "scenario_type": "Scenario7"
+        }
+      ]
+    }
+  ]
+}
