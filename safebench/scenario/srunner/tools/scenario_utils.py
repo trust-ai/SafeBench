@@ -44,6 +44,7 @@ def scenario_parse(ROOT_DIR, config):
     map_town_config = {}
     route_configurations = []
     for item in data_full:
+        print(item['route_id'])
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
         scenario_file = scenario_file_formatter % item['scenario_id']
         parsed_configs = RouteParser.parse_routes_file(route_file, scenario_file)

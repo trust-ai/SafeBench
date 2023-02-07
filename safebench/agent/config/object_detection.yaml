@@ -6,3 +6,4 @@ obs_type: 3
 batch_size: 1
 epoch: 10
 save_freq: 1
+max_buffer_size: 1
