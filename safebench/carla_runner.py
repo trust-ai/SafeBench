@@ -1,9 +1,18 @@
+'''
+@Author: 
+@Email: 
+@Date: 2020-06-19 11:45:14
+LastEditTime: 2023-02-06 20:40:00
+@Description: 
+'''
+
 import copy
 
 import numpy as np
 import carla
 import pygame
 
+from safebench.buffer import Buffer
 from safebench.agent import AGENT_LIST
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
@@ -51,7 +60,7 @@ class CarlaRunner(object):
             self.agent.set_mode('train')
         
         # save data during interaction
-        self.buffer = None
+        self.buffer = Buffer(agent_config, scenario_config)
 
     def _init_world(self, town):
         print("######## initializeing carla world ########")
@@ -114,16 +123,15 @@ class CarlaRunner(object):
                     obss_next, rewards, dones, infos = env.step(ego_actions=ego_actions)
 
                     # save to buffer
-                    #self.agent.add_buffer(obs=obss, act=ego_actions, rew=rewards, obs2=obss_next, done=dones)
-                    #self.env.add_buffer(obs=obss, act=ego_actions, rew=rewards, obs2=obss_next, done=dones)
+                    self.buffer.add(obss, ego_actions, rewards, dones, infos)
                     obss = copy.deepcopy(obss_next)
 
                     # for different modes
                     if self.mode == 'train_agent':
-                        self.agent.train_model()
+                        self.agent.train_model(self.buffer)
                         self.agent.save_model()
                     elif self.mode == 'train_scenario':
-                        env.train_model()
+                        env.train_model(self.buffer)
                         env.save_model()
-                
+
                 print('[{}/{}] Finish one episode'.format(e_i, self.num_episode))

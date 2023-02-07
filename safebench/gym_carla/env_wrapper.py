@@ -22,13 +22,18 @@ class VectorWrapper():
         for e_i in range(self.num_scenario):
             self.env_list[e_i].load_model()
 
+    def obs_post_process(self, obs_list):
+        # assume all variables are array
+        obs_list = np.array(obs_list)
+        return obs_list
+
     def reset(self, config_lists):
-        all_obs = []
+        obs_list = []
         for s_i in range(self.num_scenario):
             config = config_lists[s_i]
             obs = self.env_list[s_i].reset(config=config, env_id=s_i)
-            all_obs.append(obs)
-        return all_obs
+            obs_list.append(obs)
+        return self.obs_post_process(obs_list)
 
     def step(self, ego_actions):
         """
@@ -43,10 +48,10 @@ class VectorWrapper():
             self.world.tick()
 
         # collect new observation of one frame
-        all_obs = []
-        all_reward = []
-        all_done = []
-        all_info = []
+        obs_list = []
+        reward_list = []
+        done_list = []
+        info_list = []
         for e_i in range(len(self.env_list)):
             if not self.finished_env[e_i]:
                 obs, reward, done, info = self.env_list[e_i].step_after_tick()
@@ -57,11 +62,15 @@ class VectorWrapper():
                 self.finished_env[e_i] = True
 
             # update infomation
-            all_obs.append(obs)
-            all_reward.append(reward)
-            all_done.append(done)
-            all_info.append(info)
-        return all_obs, all_reward, all_done, all_info
+            obs_list.append(obs)
+            reward_list.append(reward)
+            done_list.append(done)
+            info_list.append(info)
+        
+        rewards = np.array(reward_list)
+        dones = np.array(done_list)
+        infos = np.array(info_list)
+        return self.obs_post_process(obs_list), rewards, dones, infos
 
 
 class EnvWrapper(gym.Wrapper):

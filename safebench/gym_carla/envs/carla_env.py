@@ -135,7 +135,8 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def load_scenario(self, config, env_id):
-        #self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) # TODO: Haohong
+        # TODO: add a parameter to scenario manager to select different scenarios
+        #self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
         self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
@@ -192,10 +193,10 @@ class CarlaEnv(gym.Env):
         self.time_step = 0
         self.reset_step += 1
 
-        # TODO: check the target point of this planner
+        # TODO: this planner is wrong since it does not follow the given route
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
-        
+
         # TODO: applying setting can tick the world and get data from sensros
         # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
         # self.world.tick()
