@@ -118,8 +118,9 @@ class ScenarioManagerDynamic(object):
         self.update_running_status()
 
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov):
-        bbox_pred = ego_action['od_result']
-        self.scenario_class.get_bbox(world_2_camera, image_w, image_h, fov)
-        bbox_label = self.scenario_class.ground_truth_bbox
-        print(bbox_pred, bbox_label)
-        print('evaluate finished') # TODO
+        pass
+        # bbox_pred = ego_action['od_result']
+        # self.scenario_class.get_bbox(world_2_camera, image_w, image_h, fov)
+        # bbox_label = self.scenario_class.ground_truth_bbox
+        # print(bbox_pred, bbox_label)
+        # print('evaluate finished') # TODO

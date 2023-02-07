@@ -27,6 +27,8 @@ from safebench.scenario.srunner.scenario_dynamic.object_detection_dynamic import
 
 from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
 
+from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
+
 
 class CarlaEnv(gym.Env):
     """ An OpenAI-gym style interface for CARLA simulator. """
@@ -147,6 +149,11 @@ class CarlaEnv(gym.Env):
         self.load_scenario(config, env_id)
         self.env_id = env_id
 
+        # change view point
+        location = carla.Location(x=100, y=100, z=300)
+        spectator = self.world.get_spectator()
+        spectator.set_transform(carla.Transform(location, carla.Rotation(yaw=270.0, pitch=-90.0)))
+
         # Get actors polygon list (for visualization)
         self.vehicle_polygons = [self._get_actor_polygons('vehicle.*')]
         self.walker_polygons = [self._get_actor_polygons('walker.*')]
@@ -192,8 +199,22 @@ class CarlaEnv(gym.Env):
         self.time_step = 0
         self.reset_step += 1
 
+        # interp waypoints as init waypoints
+        m = self.world.get_map()
+        origin_waypoints_loc = []
+        for loc in config.trajectory:
+            origin_waypoints_loc.append(loc)
+
+        _, route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
+
+        # TODO: efficiency can be improved since we transform waypoints to location, and back to waypoints
+        init_waypoints = []
+        for node in route:
+            loc = node[0].location
+            init_waypoints.append(m.get_waypoint(loc, project_to_road=True, lane_type=carla.LaneType.Driving))
+
         # TODO: check the target point of this planner
-        self.routeplanner = RoutePlanner(self.ego, self.max_waypt)
+        self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
         
         # TODO: applying setting can tick the world and get data from sensros

@@ -49,6 +49,7 @@ class CarlaRunner(object):
     def _init_world(self, town):
         print("######## initializeing carla world ########")
         # TODO: before init world, clear all things
+
         self.world = self.client.load_world(town)
         settings = self.world.get_settings()
         settings.synchronous_mode = True

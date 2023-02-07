@@ -1,6 +1,6 @@
 method: 'standard' # benign, standard, dev
 scenario_id: 5
-data_path: 'safebench/scenario/scenario_data/data_shiqi'
-route_path: /safebench/scenario/scenario_data/route_shiqi
+data_path: 'safebench/scenario/scenario_data/data_new'
+route_path: /safebench/scenario/scenario_data/route_new
 ego_action_dim: 2
 ego_state_dim: 4

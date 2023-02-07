@@ -54,9 +54,9 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
 
         if self._traffic_light is None:
             print("No traffic light for the given location of the ego vehicle found")
-
-        self._traffic_light.set_state(carla.TrafficLightState.Green)
-        self._traffic_light.set_green_time(self.timeout)
+        else:
+            self._traffic_light.set_state(carla.TrafficLightState.Green)
+            self._traffic_light.set_green_time(self.timeout)
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
@@ -91,9 +91,9 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
 
         if traffic_light_other is None:
             print("No traffic light for the given location of the other vehicle found")
-
-        traffic_light_other.set_state(carla.TrafficLightState.Red)
-        traffic_light_other.set_red_time(self.timeout)
+        else:
+            traffic_light_other.set_state(carla.TrafficLightState.Red)
+            traffic_light_other.set_red_time(self.timeout)
 
     def update_behavior(self):
         cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
