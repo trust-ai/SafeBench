@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
 """
 Other Leading Vehicle scenario:
 
@@ -16,6 +10,7 @@ either via a timeout, or if the ego vehicle drives some distance.
 """
 
 import carla
+import json
 
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
@@ -39,27 +34,22 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
-        # parameters = [self._first_vehicle_location, self._second_vehicle_location, self._first_vehicle_speed,
-        #               self._second_vehicle_speed, self.dece_distance, self.dece_target_speed,
-        #               self.trigger_distance_threshold]
-        # parameters = [35, 1, 15, 15, 20, 3, 30]
-        self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
-        self._first_vehicle_location = self.parameters[0]
-        self._second_vehicle_location = self._first_vehicle_location + self.parameters[1]
-        # self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
-        self._first_vehicle_speed = self.parameters[2]
-        self._second_vehicle_speed = self.parameters[3]
+        self._first_vehicle_location = 35
+        self._second_vehicle_location = self._first_vehicle_location + 1
+        self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
+        self._first_vehicle_speed = 12
+        self._second_vehicle_speed = 12
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
-        # self._other_actor_max_brake = 1.0
+        self._other_actor_max_brake = 1.0
         self._first_actor_transform = None
         self._second_actor_transform = None
         # Timeout of scenario in seconds
         self.timeout = timeout
 
-        self.dece_distance = self.parameters[4]
-        self.dece_target_speed = self.parameters[5]
+        self.dece_distance = 5
+        self.dece_target_speed = 2  # 3 will be safe
 
         self.need_decelerate = False
 
@@ -73,11 +63,18 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.actor_type_list.append('vehicle.nissan.patrol')
         self.actor_type_list.append('vehicle.audi.tt')
-        self.trigger_distance_threshold = self.parameters[6]
+        self.trigger_distance_threshold = 35
         self.other_actor_speed = []
         self.other_actor_speed.append(self._first_vehicle_speed)
         self.other_actor_speed.append(self._second_vehicle_speed)
         self.ego_max_driven_distance = 200
+
+        self.step = 0
+        with open(config.parameters, 'r') as f:
+            parameters = json.load(f)
+        self.control_seq = parameters
+        # print(self.control_seq)
+        self._other_actor_max_velocity = self.dece_target_speed * 2
 
     def initialize_actors(self):
         first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
@@ -113,9 +110,11 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
             self.need_decelerate = True
         for i in range(len(self.other_actors)):
             if i == 0 and self.need_decelerate:
-                # print("start to decelerate")
-                # print("cur actor speed: ", CarlaDataProvider.get_velocity(self.other_actors[i]))
-                self.scenario_operation.go_straight(self.dece_target_speed, i)
+                current_velocity = self.control_seq[self.step if self.step < len(self.control_seq) else -1] * self._other_actor_max_velocity
+                self.step += 1
+                self.scenario_operation.go_straight(current_velocity, i)
+                # print(self.step, current_velocity, CarlaDataProvider.get_velocity(self.other_actors[i]))
+                # print(self.other_actors[i].get_velocity())
             else:
                 self.scenario_operation.go_straight(self.other_actor_speed[i], i)
 

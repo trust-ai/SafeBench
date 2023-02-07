@@ -13,12 +13,12 @@ vehicle traveling in the opposite direction.
 import carla
 import numpy as np
 
-from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
-from srunner.tools.scenario_helper import get_waypoint_in_distance
-from srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
-from srunner.AdditionTools.scenario_operation import ScenarioOperation
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.tools.scenario_helper import get_waypoint_in_distance
+from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
+from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 
-from srunner.scenario_dynamic.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.srunner.scenario_dynamic.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 
 class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):

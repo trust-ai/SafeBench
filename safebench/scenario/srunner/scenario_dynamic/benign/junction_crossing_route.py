@@ -1,20 +1,7 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2018-2020 Intel Corporation
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
-"""
-@Author: Shuai Wang
-@e-mail: ws199807@outlook.com
-All intersection related scenarios that are part of a route.
-"""
-
 from __future__ import print_function
 import carla
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
-from safebench.scenario.srunner.scenariomanager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
 from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
 
@@ -35,14 +22,11 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         Setup all relevant parameters and create scenario
         and instantiate scenario manager
         """
-        # parameters = [self.actor_speed, self.trigger_distance_threshold]
-        # parameters = [10, 35]
-        self.parameters = config.parameters
 
         # Timeout of scenario in seconds
         self.timeout = timeout
 
-        self.actor_speed = self.parameters[0]
+        self.actor_speed = 10
 
         super(OppositeVehicleRunningRedLightDynamic, self).__init__("OppositeVehicleRunningRedLightDynamic",
                                                              ego_vehicles,
@@ -51,17 +35,9 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
                                                              debug_mode,
                                                              criteria_enable=criteria_enable)
 
-        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
-
-        if self._traffic_light is None:
-            print("No traffic light for the given location of the ego vehicle found")
-
-        self._traffic_light.set_state(carla.TrafficLightState.Green)
-        self._traffic_light.set_green_time(self.timeout)
-
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[1]
+        self.trigger_distance_threshold = 0
         self.trigger = False
         self._actor_distance = 110
         self.ego_max_driven_distance = 150
@@ -84,23 +60,10 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
                                                           self.actor_type_list)
         self.reference_actor = self.other_actors[0]
-
-        # other vehicle's traffic light
-        traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
-
-        if traffic_light_other is None:
-            print("No traffic light for the given location of the other vehicle found")
-
-        traffic_light_other.set_state(carla.TrafficLightState.Red)
-        traffic_light_other.set_red_time(self.timeout)
+        self.other_actors[0].set_autopilot()
 
     def update_behavior(self):
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
-        if cur_ego_speed and cur_ego_speed > 0.5:
-            self.trigger = True
-        if self.trigger:
-            for i in range(len(self.other_actors)):
-                self.scenario_operation.go_straight(self.actor_speed, i)
+        pass
 
     def _create_behavior(self):
         pass
@@ -129,34 +92,23 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
         """
             Setup all relevant parameters and create scenario
         """
-        # parameters = [self._target_vel, self.trigger_distance_threshold]
-        # parameters = [12.0, 45]
-        self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
-        self._target_vel = self.parameters[0]
+        self._target_vel = 12.0
         self.timeout = timeout
         # self._brake_value = 0.5
         # self._ego_distance = 110
         self._actor_distance = 100
-        self._traffic_light = None
         super(SignalizedJunctionLeftTurnDynamic, self).__init__("TurnLeftAtSignalizedJunctionDynamic",
                                                          ego_vehicles,
                                                          config,
                                                          world,
                                                          debug_mode,
                                                          criteria_enable=criteria_enable)
-        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
-        # traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0], True)
-        if self._traffic_light is None:
-            raise RuntimeError("No traffic light for the given location found")
-        self._traffic_light.set_state(carla.TrafficLightState.Green)
-        self._traffic_light.set_green_time(self.timeout)
-        # other vehicle's traffic light
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[1]
+        self.trigger_distance_threshold = 0
         self.ego_max_driven_distance = 150
 
     def initialize_actors(self):
@@ -174,19 +126,10 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
         self.actor_type_list.append("vehicle.audi.tt")
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
-
-        traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
-        if traffic_light_other is None:
-            raise RuntimeError("No traffic light for the given location found")
-        traffic_light_other.set_state(carla.TrafficLightState.Green)
-        traffic_light_other.set_green_time(self.timeout)
+        self.other_actors[0].set_autopilot()
 
     def update_behavior(self):
-        """
-        Actor just move forward with a specific speed
-        """
-        for i in range(len(self.other_actors)):
-            self.scenario_operation.go_straight(self._target_vel, i)
+        pass
 
     def _create_behavior(self):
         pass
@@ -214,34 +157,23 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
         """
             Setup all relevant parameters and create scenario
         """
-        # parameters = [self._target_vel, self.trigger_distance_threshold]
-        # parameters = [12, 35]
-        self.parameters = config.parameters
         self._world = world
         self._map = CarlaDataProvider.get_map()
-        self._target_vel = self.parameters[0]
+        self._target_vel = 12
         self.timeout = timeout
         # self._brake_value = 0.5
         # self._ego_distance = 110
         self._actor_distance = 100
-        self._traffic_light = None
         super(SignalizedJunctionRightTurnDynamic, self).__init__("TurnRightAtSignalizedJunctionDynamic",
                                                          ego_vehicles,
                                                          config,
                                                          world,
                                                          debug_mode,
                                                          criteria_enable=criteria_enable)
-        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
-        # traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0], True)
-        if self._traffic_light is None:
-            raise RuntimeError("No traffic light for the given location found")
-        self._traffic_light.set_state(carla.TrafficLightState.Red)
-        self._traffic_light.set_green_time(self.timeout)
-        # other vehicle's traffic light
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[1]
+        self.trigger_distance_threshold = 0
         self.trigger = False
         self.ego_max_driven_distance = 150
 
@@ -259,23 +191,10 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
         self.actor_type_list.append("vehicle.audi.tt")
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
-
-        traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
-        if traffic_light_other is None:
-            raise RuntimeError("No traffic light for the given location found")
-        traffic_light_other.set_state(carla.TrafficLightState.Green)
-        traffic_light_other.set_green_time(self.timeout)
+        self.other_actors[0].set_autopilot()
 
     def update_behavior(self):
-        """
-        Actor just move forward with a specific speed
-        """
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
-        if cur_ego_speed and cur_ego_speed > 0.5:
-            self.trigger = True
-        if self.trigger:
-            for i in range(len(self.other_actors)):
-                self.scenario_operation.go_straight(self._target_vel, i)
+        pass
 
     def _create_behavior(self):
         pass
@@ -300,13 +219,10 @@ class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
-        # parameters = [self.actor_speed, self.trigger_distance_threshold]
-        # parameters = [10, 35]
-        self.parameters = config.parameters
         # Timeout of scenario in seconds
         self.timeout = timeout
 
-        self.actor_speed = self.parameters[0]
+        self.actor_speed = 10
 
         super(NoSignalJunctionCrossingRouteDynamic, self).__init__("NoSignalJunctionCrossing",
                                                        ego_vehicles,
@@ -316,7 +232,7 @@ class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
                                                        criteria_enable=criteria_enable)
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[1]
+        self.trigger_distance_threshold = 0
         self.trigger = False
 
         self._actor_distance = 110
@@ -336,14 +252,10 @@ class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
                                                           self.actor_type_list)
         self.reference_actor = self.other_actors[0]
+        self.other_actors[0].set_autopilot()
 
     def update_behavior(self):
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
-        if cur_ego_speed and cur_ego_speed > 0.5:
-            self.trigger = True
-        if self.trigger:
-            for i in range(len(self.other_actors)):
-                self.scenario_operation.go_straight(self.actor_speed, i)
+        pass
 
     def _create_behavior(self):
         pass

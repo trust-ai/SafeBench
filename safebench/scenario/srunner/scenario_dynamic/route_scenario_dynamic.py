@@ -48,27 +48,55 @@ from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_rout
 from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurnDynamic
 from safebench.scenario.srunner.scenario_dynamic.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRouteDynamic
 
-# # lc
-# from srunner.scenario_dynamic.LC.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_lc
-# from srunner.scenario_dynamic.LC.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_lc
-# from srunner.scenario_dynamic.LC.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_lc
-# from srunner.scenario_dynamic.LC.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_lc
-# from scenario_runner.srunner.scenario_dynamic.LC.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_lc
-# from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_lc
-# from srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_lc
-# from srunner.scenario_dynamic.LC.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_lc
-#
-# # carla_challenge
-#
-# # from scenario_runner.srunner.scenario_dynamic.junction_crossing_route_dynamic import OppositeVehicleRunningRedLightDynamic
-# from srunner.scenario_dynamic.carla_challenge.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_carla_challenge
-# from srunner.scenario_dynamic.carla_challenge.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_carla_challenge
-# from srunner.scenario_dynamic.carla_challenge.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_carla_challenge
-# from srunner.scenario_dynamic.carla_challenge.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_carla_challenge
-# from scenario_runner.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_carla_challenge
-# from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_carla_challenge
-# from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_carla_challenge
-# from srunner.scenario_dynamic.carla_challenge.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_carla_challenge
+# Benign
+from safebench.scenario.srunner.scenario_dynamic.benign.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_benign
+from safebench.scenario.srunner.scenario_dynamic.benign.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_benign
+from safebench.scenario.srunner.scenario_dynamic.benign.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_benign
+from safebench.scenario.srunner.scenario_dynamic.benign.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_benign
+from safebench.scenario.srunner.scenario_dynamic.benign.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_benign
+from safebench.scenario.srunner.scenario_dynamic.benign.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_benign
+from safebench.scenario.srunner.scenario_dynamic.benign.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_benign
+from safebench.scenario.srunner.scenario_dynamic.benign.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_benign
+
+# Carla challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_carla_challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_carla_challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_carla_challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_carla_challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_carla_challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_carla_challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_carla_challenge
+from safebench.scenario.srunner.scenario_dynamic.carla_challenge.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_carla_challenge
+
+# LC
+from safebench.scenario.srunner.scenario_dynamic.LC.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_lc
+from safebench.scenario.srunner.scenario_dynamic.LC.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_lc
+from safebench.scenario.srunner.scenario_dynamic.LC.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_lc
+from safebench.scenario.srunner.scenario_dynamic.LC.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_lc
+from safebench.scenario.srunner.scenario_dynamic.LC.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_lc
+from safebench.scenario.srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_lc
+from safebench.scenario.srunner.scenario_dynamic.LC.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_lc
+from safebench.scenario.srunner.scenario_dynamic.LC.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_lc
+
+# AdvTraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_advtraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_advtraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_advtraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_advtraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_advtraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_advtraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_advtraj
+from safebench.scenario.srunner.scenario_dynamic.adv_trajectory.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_advtraj
+
+# AdvSim
+from safebench.scenario.srunner.scenario_dynamic.advsim.object_crash_vehicle import DynamicObjectCrossingDynamic as scenario_03_advsim
+from safebench.scenario.srunner.scenario_dynamic.advsim.object_crash_intersection import VehicleTurningRouteDynamic as scenario_04_advsim
+from safebench.scenario.srunner.scenario_dynamic.advsim.other_leading_vehicle import OtherLeadingVehicleDynamic as scenario_05_advsim
+from safebench.scenario.srunner.scenario_dynamic.advsim.maneuver_opposite_direction import ManeuverOppositeDirectionDynamic as scenario_06_advsim
+from safebench.scenario.srunner.scenario_dynamic.advsim.junction_crossing_route import OppositeVehicleRunningRedLightDynamic as scenario_07_advsim
+from safebench.scenario.srunner.scenario_dynamic.advsim.junction_crossing_route import SignalizedJunctionLeftTurnDynamic as scenario_08_advsim
+from safebench.scenario.srunner.scenario_dynamic.advsim.junction_crossing_route import SignalizedJunctionRightTurnDynamic as scenario_09_advsim
+from safebench.scenario.srunner.scenario_dynamic.advsim.junction_crossing_route import NoSignalJunctionCrossingRouteDynamic as scenario_10_advsim
 
 
 SECONDS_GIVEN_PER_METERS = 1
@@ -84,26 +112,56 @@ NUMBER_CLASS_TRANSLATION = {
         "Scenario9": SignalizedJunctionRightTurnDynamic,
         "Scenario10": NoSignalJunctionCrossingRouteDynamic,
     },
-    # 'carla_challenge': {
-    #     "Scenario3": scenario_03_carla_challenge,
-    #     "Scenario4": scenario_04_carla_challenge,
-    #     "Scenario5": scenario_05_carla_challenge,
-    #     "Scenario6": scenario_06_carla_challenge,
-    #     "Scenario7": scenario_07_carla_challenge,
-    #     "Scenario8": scenario_08_carla_challenge,
-    #     "Scenario9": scenario_09_carla_challenge,
-    #     "Scenario10": scenario_10_carla_challenge,
-    # },
-    # 'lc': {
-    #     "Scenario3": scenario_03_lc,
-    #     "Scenario4": scenario_04_lc,
-    #     "Scenario5": scenario_05_lc,
-    #     "Scenario6": scenario_06_lc,
-    #     "Scenario7": scenario_07_lc,
-    #     "Scenario8": scenario_08_lc,
-    #     "Scenario9": scenario_09_lc,
-    #     "Scenario10": scenario_10_lc,
-    # },
+    'benign': {
+        "Scenario3": scenario_03_benign,
+        "Scenario4": scenario_04_benign,
+        "Scenario5": scenario_05_benign,
+        "Scenario6": scenario_06_benign,
+        "Scenario7": scenario_07_benign,
+        "Scenario8": scenario_08_benign,
+        "Scenario9": scenario_09_benign,
+        "Scenario10": scenario_10_benign,
+    },
+    'carla_challenge': {
+        "Scenario3": scenario_03_carla_challenge,
+        "Scenario4": scenario_04_carla_challenge,
+        "Scenario5": scenario_05_carla_challenge,
+        "Scenario6": scenario_06_carla_challenge,
+        "Scenario7": scenario_07_carla_challenge,
+        "Scenario8": scenario_08_carla_challenge,
+        "Scenario9": scenario_09_carla_challenge,
+        "Scenario10": scenario_10_carla_challenge,
+    },
+    'lc': {
+        "Scenario3": scenario_03_lc,
+        "Scenario4": scenario_04_lc,
+        "Scenario5": scenario_05_lc,
+        "Scenario6": scenario_06_lc,
+        "Scenario7": scenario_07_lc,
+        "Scenario8": scenario_08_lc,
+        "Scenario9": scenario_09_lc,
+        "Scenario10": scenario_10_lc,
+    },
+    'advtraj': {
+        "Scenario3": scenario_03_advtraj,
+        "Scenario4": scenario_04_advtraj,
+        "Scenario5": scenario_05_advtraj,
+        "Scenario6": scenario_06_advtraj,
+        "Scenario7": scenario_07_advtraj,
+        "Scenario8": scenario_08_advtraj,
+        "Scenario9": scenario_09_advtraj,
+        "Scenario10": scenario_10_advtraj,
+    },
+    'advsim': {
+        "Scenario3": scenario_03_advsim,
+        "Scenario4": scenario_04_advsim,
+        "Scenario5": scenario_05_advsim,
+        "Scenario6": scenario_06_advsim,
+        "Scenario7": scenario_07_advsim,
+        "Scenario8": scenario_08_advsim,
+        "Scenario9": scenario_09_advsim,
+        "Scenario10": scenario_10_advsim,
+    },
 }
 
 
@@ -217,6 +275,8 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             terminate_on_failure=False,
             criteria_enable=criteria_enable
         )
+        self.ego_idx = 0
+        self.other_idx = 1 if config.scenario_id in [3, 4] else 0
 
         self.criteria = self._create_criteria()
 
@@ -462,16 +522,26 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def get_running_status(self, running_record):
         running_status = {
-            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicles[0]),
-            'ego_acceleration_x': self.ego_vehicles[0].get_acceleration().x,
-            'ego_acceleration_y': self.ego_vehicles[0].get_acceleration().y,
-            'ego_acceleration_z': self.ego_vehicles[0].get_acceleration().z,
-            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.x,
-            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.y,
-            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.z,
-            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.roll,
-            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.pitch,
-            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.yaw,
+            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicles[self.ego_idx]),
+            'ego_acceleration_x': self.ego_vehicles[self.ego_idx].get_acceleration().x,
+            'ego_acceleration_y': self.ego_vehicles[self.ego_idx].get_acceleration().y,
+            'ego_acceleration_z': self.ego_vehicles[self.ego_idx].get_acceleration().z,
+            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).location.x,
+            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).location.y,
+            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).location.z,
+            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.roll,
+            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.pitch,
+            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.yaw,
+            'adv_velocity': CarlaDataProvider.get_velocity(self.other_actors[self.other_idx]),
+            'adv_acceleration_x': self.other_actors[self.other_idx].get_acceleration().x,
+            'adv_acceleration_y': self.other_actors[self.other_idx].get_acceleration().y,
+            'adv_acceleration_z': self.other_actors[self.other_idx].get_acceleration().z,
+            'adv_x': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).location.x,
+            'adv_y': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).location.y,
+            'adv_z': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).location.z,
+            'adv_roll': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).rotation.roll,
+            'adv_pitch': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).rotation.pitch,
+            'adv_yaw': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).rotation.yaw,
             'current_game_time': GameTime.get_time()
         }
 
@@ -528,22 +598,22 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         criteria = {}
         route = convert_transform_to_location(self.route)
 
-        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicles[0], distance_success=1e4, distance_acceptable=1e4, optional=True)
-        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicles[0], avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
-        criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicles[0], optional=True)
-        criteria['off_road'] = OffRoadTest(actor=self.ego_vehicles[0], optional=True)
-        criteria['collision'] = CollisionTest(actor=self.ego_vehicles[0], terminate_on_failure=True)
-        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicles[0])
-        criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicles[0])
+        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicles[self.ego_idx], distance_success=1e4, distance_acceptable=1e4, optional=True)
+        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicles[self.ego_idx], avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
+        criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicles[self.ego_idx], optional=True)
+        criteria['off_road'] = OffRoadTest(actor=self.ego_vehicles[self.ego_idx], optional=True)
+        criteria['collision'] = CollisionTest(actor=self.ego_vehicles[self.ego_idx], terminate_on_failure=True)
+        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicles[self.ego_idx])
+        criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicles[self.ego_idx])
         if self.route_length > 1:  # only check when evaluating
-            criteria['distance_to_route'] = InRouteTest(self.ego_vehicles[0], route=route, offroad_max=30)
+            criteria['distance_to_route'] = InRouteTest(self.ego_vehicles[self.ego_idx], route=route, offroad_max=30)
             criteria['speed_above_threshold'] = ActorSpeedAboveThresholdTest(
-                actor=self.ego_vehicles[0],
+                actor=self.ego_vehicles[self.ego_idx],
                 speed_threshold=0.1,
                 below_threshold_max_time=10,
                 terminate_on_failure=True
             )
-            criteria['route_complete'] = RouteCompletionTest(self.ego_vehicles[0], route=route)
+            criteria['route_complete'] = RouteCompletionTest(self.ego_vehicles[self.ego_idx], route=route)
         return criteria
 
     def __del__(self):

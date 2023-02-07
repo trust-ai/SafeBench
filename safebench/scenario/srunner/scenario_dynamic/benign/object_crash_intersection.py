@@ -1,11 +1,3 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-Object crash with prior vehicle action scenario:
-The scenario realizes the user controlled ego vehicle
-moving along the road and encounters a cyclist ahead after taking a right or left turn.
-"""
-
 from __future__ import print_function
 
 import math
@@ -110,12 +102,9 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
-        # parameters = [self._other_actor_target_velocity, self.trigger_distance_threshold, start_distance]
-        # parameters = [10, 17, 8]
-        self.parameters = config.parameters
         self._wmap = CarlaDataProvider.get_map()
         self.timeout = timeout
-        self._other_actor_target_velocity = self.parameters[0]
+        self._other_actor_target_velocity = 10
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
         self._trigger_location = config.trigger_points[0].location
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
@@ -137,7 +126,7 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         self.actor_type_list.append('vehicle.diamondback.century')
 
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[1]
+        self.trigger_distance_threshold = 0
         self.ego_max_driven_distance = 180
 
     def initialize_actors(self):
@@ -147,7 +136,7 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         waypoint = generate_target_waypoint_in_route(self._reference_waypoint, self._ego_route)
 
         # Move a certain distance to the front
-        start_distance = self.parameters[2]
+        start_distance = 8
         waypoint = waypoint.next(start_distance)[0]
 
         # Get the last driving lane to the right
@@ -167,10 +156,10 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
 
         """Also need to specify reference actor"""
         self.reference_actor = self.other_actors[0]
+        self.other_actors[0].set_autopilot()
 
     def update_behavior(self):
-        for i in range(len(self.other_actors)):
-            self.scenario_operation.go_straight(self._other_actor_target_velocity, i)
+        pass
 
     def check_stop_condition(self):
         """

@@ -1,14 +1,7 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-Object crash with prior vehicle action scenario:
-The scenario realizes the user controlled ego vehicle
-moving along the road and encounters a cyclist ahead after taking a right or left turn.
-"""
-
 from __future__ import print_function
 
 import math
+import json
 import carla
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -110,12 +103,9 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
-        # parameters = [self._other_actor_target_velocity, self.trigger_distance_threshold, start_distance]
-        # parameters = [10, 17, 8]
-        self.parameters = config.parameters
         self._wmap = CarlaDataProvider.get_map()
         self.timeout = timeout
-        self._other_actor_target_velocity = self.parameters[0]
+        self._other_actor_target_velocity = 10
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
         self._trigger_location = config.trigger_points[0].location
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
@@ -137,8 +127,18 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         self.actor_type_list.append('vehicle.diamondback.century')
 
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[1]
+        self.trigger_distance_threshold = 17
         self.ego_max_driven_distance = 180
+
+        self.running_distance = 20
+        self.step = 0
+        with open(config.parameters, 'r') as f:
+            parameters = json.load(f)
+        self.control_seq = [control * 2 - 1 for control in parameters]
+        # self._other_actor_max_velocity = self._other_actor_target_velocity * 2
+        self.total_steps = len(self.control_seq)
+        self.actor_transform_list = []
+        self.perturbed_actor_transform_list = []
 
     def initialize_actors(self):
         """
@@ -147,7 +147,7 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         waypoint = generate_target_waypoint_in_route(self._reference_waypoint, self._ego_route)
 
         # Move a certain distance to the front
-        start_distance = self.parameters[2]
+        start_distance = 8
         waypoint = waypoint.next(start_distance)[0]
 
         # Get the last driving lane to the right
@@ -159,6 +159,25 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
 
         self.other_actor_transform.append(_other_actor_transform)
 
+        # forward_vector = self.other_actor_transform[0].rotation.get_forward_vector() * num_lanes * self._reference_waypoint.lane_width
+        forward_vector = self.other_actor_transform[0].rotation.get_forward_vector() * self.running_distance
+        right_vector = self.other_actor_transform[0].rotation.get_right_vector()
+        for i in range(self.total_steps):
+            self.actor_transform_list.append(carla.Transform(
+                carla.Location(self.other_actor_transform[0].location + forward_vector * i / self.total_steps),
+                self.other_actor_transform[0].rotation))
+        for i in range(self.total_steps):
+            self.perturbed_actor_transform_list.append(carla.Transform(
+                carla.Location(self.actor_transform_list[i].location + right_vector * self.control_seq[i]),
+                self.other_actor_transform[0].rotation))
+
+        # print('other_actor_transform')
+        # for i in self.other_actor_transform:
+        #     print(i)
+        # print('perturbed_actor_transform_list')
+        # for i in self.perturbed_actor_transform_list:
+        #     print(i)
+
         try:
             self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
                                                               self.actor_type_list)
@@ -169,8 +188,14 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         self.reference_actor = self.other_actors[0]
 
     def update_behavior(self):
+        # print(self.step)
+        # target_waypoint = CarlaDataProvider.get_map().get_waypoint(self.perturbed_actor_transform_list[self.step])
+        target_transform = self.perturbed_actor_transform_list[self.step if self.step < self.total_steps else -1]
+        self.step += 1  # <= 50 steps
         for i in range(len(self.other_actors)):
-            self.scenario_operation.go_straight(self._other_actor_target_velocity, i)
+            # print('input location', self.perturbed_actor_transform_list[self.step])
+            # print('input waypoint', target_waypoint)
+            self.scenario_operation.drive_to_target_followlane(i, target_transform, self._other_actor_target_velocity)
 
     def check_stop_condition(self):
         """

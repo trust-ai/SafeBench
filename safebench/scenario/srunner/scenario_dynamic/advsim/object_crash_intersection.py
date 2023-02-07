@@ -1,15 +1,8 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-Object crash with prior vehicle action scenario:
-The scenario realizes the user controlled ego vehicle
-moving along the road and encounters a cyclist ahead after taking a right or left turn.
-"""
-
 from __future__ import print_function
 
 import math
 import carla
+import json
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic, SpawnOtherActorError
@@ -110,12 +103,9 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         """
         Setup all relevant parameters and create scenario
         """
-        # parameters = [self._other_actor_target_velocity, self.trigger_distance_threshold, start_distance]
-        # parameters = [10, 17, 8]
-        self.parameters = config.parameters
         self._wmap = CarlaDataProvider.get_map()
         self.timeout = timeout
-        self._other_actor_target_velocity = self.parameters[0]
+        self._other_actor_target_velocity = 10
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
         self._trigger_location = config.trigger_points[0].location
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
@@ -137,8 +127,15 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         self.actor_type_list.append('vehicle.diamondback.century')
 
         self.reference_actor = None
-        self.trigger_distance_threshold = self.parameters[1]
+        self.trigger_distance_threshold = 17
         self.ego_max_driven_distance = 180
+
+        self.step = 0
+        with open(config.parameters, 'r') as f:
+            parameters = json.load(f)
+        self.control_seq = parameters
+        # print(self.control_seq)
+        self._other_actor_max_velocity = self._other_actor_target_velocity * 2
 
     def initialize_actors(self):
         """
@@ -147,7 +144,7 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         waypoint = generate_target_waypoint_in_route(self._reference_waypoint, self._ego_route)
 
         # Move a certain distance to the front
-        start_distance = self.parameters[2]
+        start_distance = 8
         waypoint = waypoint.next(start_distance)[0]
 
         # Get the last driving lane to the right
@@ -169,8 +166,12 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         self.reference_actor = self.other_actors[0]
 
     def update_behavior(self):
+        current_velocity = self.control_seq[self.step if self.step < len(self.control_seq) else -1] * self._other_actor_max_velocity
+        self.step += 1
         for i in range(len(self.other_actors)):
-            self.scenario_operation.go_straight(self._other_actor_target_velocity, i)
+            self.scenario_operation.go_straight(current_velocity, i)
+            # print(self.step, current_velocity)
+            # print(i, CarlaDataProvider.get_velocity(self.other_actors[i]), self.other_actors[i].get_velocity())
 
     def check_stop_condition(self):
         """
