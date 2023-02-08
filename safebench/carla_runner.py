@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-06-19 11:45:14
-LastEditTime: 2023-02-06 20:40:00
+LastEditTime: 2023-02-07 17:23:38
 @Description: 
 '''
 
@@ -65,7 +65,6 @@ class CarlaRunner(object):
     def _init_world(self, town):
         print("######## initializeing carla world ########")
         # TODO: before init world, clear all things
-
         self.world = self.client.load_world(town)
         settings = self.world.get_settings()
         settings.synchronous_mode = True
