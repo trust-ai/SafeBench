@@ -11,8 +11,6 @@
 
 from enum import Enum
 from collections import deque
-import random
-import numpy as np
 import carla
 
 from safebench.gym_carla.envs.misc import distance_vehicle, is_within_distance_ahead, compute_magnitude_angle
@@ -20,7 +18,7 @@ from safebench.gym_carla.envs.misc import distance_vehicle, is_within_distance_a
 
 class RoadOption(Enum):
     """
-    RoadOption represents the possible topological configurations when moving from a segment of lane to other.
+        RoadOption represents the possible topological configurations when moving from a segment of lane to other.
     """
     VOID = -1
     LEFT = 1
@@ -64,9 +62,9 @@ class RoutePlanner():
 
     def _compute_next_waypoints(self, k=1):
         """
-        Add new waypoints to the trajectory queue.
-        :param k: how many waypoints to compute
-        :return:
+            Add new waypoints to the trajectory queue.
+            :param k: how many waypoints to compute
+            :return:
         """
         # check we do not overflow the queue
         available_entries = self._waypoints_queue.maxlen - len(self._waypoints_queue)
@@ -101,10 +99,10 @@ class RoutePlanner():
 
     def _get_waypoints(self):
         """
-        Execute one step of local planning which involves running the longitudinal and lateral PID controllers to
-        follow the waypoints trajectory.
-        :param debug: boolean flag to activate waypoints debugging
-        :return:
+            Execute one step of local planning which involves running the longitudinal and lateral PID controllers to
+            follow the waypoints trajectory.
+            :param debug: boolean flag to activate waypoints debugging
+            :return:
         """
 
         # not enough waypoints in the horizon? => add more!
@@ -114,16 +112,14 @@ class RoutePlanner():
         #     Buffering the waypoints
         while len(self._waypoint_buffer) < self._buffer_size:
             if self._waypoints_queue:
-                self._waypoint_buffer.append(
-                    self._waypoints_queue.popleft())
+                self._waypoint_buffer.append(self._waypoints_queue.popleft())
             else:
                 break
 
         waypoints = []
 
         for i, (waypoint, _) in enumerate(self._waypoint_buffer):
-            waypoints.append(
-                [waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.rotation.yaw])
+            waypoints.append([waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.rotation.yaw])
 
         # current vehicle waypoint
         self._current_waypoint = self._map.get_waypoint(self._vehicle.get_location())
@@ -135,14 +131,12 @@ class RoutePlanner():
         max_index = -1
 
         for i, (waypoint, _) in enumerate(self._waypoint_buffer):
-            if distance_vehicle(
-                    waypoint, vehicle_transform) < self._min_distance:
+            if distance_vehicle(waypoint, vehicle_transform) < self._min_distance:
                 max_index = i
         if max_index >= 0:
             for i in range(max_index - 1):
                 self._waypoint_buffer.popleft()
         # TODO: waypoint location list?
-
         return waypoints, self._target_road_option, self._current_waypoint, self._target_waypoint
 
     def _get_hazard(self):
@@ -162,18 +156,15 @@ class RoutePlanner():
 
     def _is_vehicle_hazard(self, vehicle_list):
         """
-        Check if a given vehicle is an obstacle in our way. To this end we take
-        into account the road and lane the target vehicle is on and run a
-        geometry test to check if the target vehicle is under a certain distance
-        in front of our ego vehicle.
-        WARNING: This method is an approximation that could fail for very large
-         vehicles, which center is actually on a different lane but their
-         extension falls within the ego vehicle lane.
-        :param vehicle_list: list of potential obstacle to check
-        :return: a tuple given by (bool_flag, vehicle), where
-                 - bool_flag is True if there is a vehicle ahead blocking us
-                     and False otherwise
-                 - vehicle is the blocker object itself
+            Check if a given vehicle is an obstacle in our way. To this end we take
+            into account the road and lane the target vehicle is on and run a
+            geometry test to check if the target vehicle is under a certain distance
+            in front of our ego vehicle.
+            WARNING: This method is an approximation that could fail for very large vehicles, which center is actually on a different lane but their extension falls within the ego vehicle lane.
+            :param vehicle_list: list of potential obstacle to check
+            :return: a tuple given by (bool_flag, vehicle), where
+                - bool_flag is True if there is a vehicle ahead blocking us and False otherwise
+                - vehicle is the blocker object itself
         """
 
         ego_vehicle_location = self._vehicle.get_location()
@@ -186,27 +177,22 @@ class RoutePlanner():
 
             # if the object is not in our lane it's not an obstacle
             target_vehicle_waypoint = self._map.get_waypoint(target_vehicle.get_location())
-            if target_vehicle_waypoint.road_id != ego_vehicle_waypoint.road_id or \
-                    target_vehicle_waypoint.lane_id != ego_vehicle_waypoint.lane_id:
+            if target_vehicle_waypoint.road_id != ego_vehicle_waypoint.road_id or target_vehicle_waypoint.lane_id != ego_vehicle_waypoint.lane_id:
                 continue
 
             loc = target_vehicle.get_location()
-            if is_within_distance_ahead(loc, ego_vehicle_location,
-                                        self._vehicle.get_transform().rotation.yaw,
-                                        self._proximity_threshold):
+            if is_within_distance_ahead(loc, ego_vehicle_location, self._vehicle.get_transform().rotation.yaw, self._proximity_threshold):
                 return True
 
         return False
 
     def _is_light_red_us_style(self, lights_list):
         """
-        This method is specialized to check US style traffic lights.
-        :param lights_list: list containing TrafficLight objects
-        :return: a tuple given by (bool_flag, traffic_light), where
-                 - bool_flag is True if there is a traffic light in RED
-                     affecting us and False otherwise
-                 - traffic_light is the object itself or None if there is no
-                     red traffic light affecting us
+            This method is specialized to check US style traffic lights.
+            :param lights_list: list containing TrafficLight objects
+            :return: a tuple given by (bool_flag, traffic_light), where
+                - bool_flag is True if there is a traffic light in RED affecting us and False otherwise
+                - traffic_light is the object itself or None if there is no red traffic light affecting us
         """
         ego_vehicle_location = self._vehicle.get_location()
         ego_vehicle_waypoint = self._map.get_waypoint(ego_vehicle_location)
@@ -223,9 +209,7 @@ class RoutePlanner():
                 sel_traffic_light = None
                 for traffic_light in lights_list:
                     loc = traffic_light.get_location()
-                    magnitude, angle = compute_magnitude_angle(loc,
-                                                               ego_vehicle_location,
-                                                               self._vehicle.get_transform().rotation.yaw)
+                    magnitude, angle = compute_magnitude_angle(loc, ego_vehicle_location, self._vehicle.get_transform().rotation.yaw)
                     if magnitude < 80.0 and angle < min(25.0, min_angle):
                         sel_magnitude = magnitude
                         sel_traffic_light = traffic_light
@@ -245,12 +229,11 @@ class RoutePlanner():
 
 def retrieve_options(list_waypoints, current_waypoint):
     """
-    Compute the type of connection between the current active waypoint and the multiple waypoints present in
-    list_waypoints. The result is encoded as a list of RoadOption enums.
-    :param list_waypoints: list with the possible target waypoints in case of multiple options
-    :param current_waypoint: current active waypoint
-    :return: list of RoadOption enums representing the type of connection from the active waypoint to each
-             candidate in list_waypoints
+        Compute the type of connection between the current active waypoint and the multiple waypoints present in
+        list_waypoints. The result is encoded as a list of RoadOption enums.
+        :param list_waypoints: list with the possible target waypoints in case of multiple options
+        :param current_waypoint: current active waypoint
+        :return: list of RoadOption enums representing the type of connection from the active waypoint to each candidate in list_waypoints
     """
     options = []
     for next_waypoint in list_waypoints:
@@ -266,14 +249,14 @@ def retrieve_options(list_waypoints, current_waypoint):
 
 def compute_connection(current_waypoint, next_waypoint):
     """
-    Compute the type of topological connection between an active waypoint (current_waypoint) and a target waypoint
-    (next_waypoint).
-    :param current_waypoint: active waypoint
-    :param next_waypoint: target waypoint
-    :return: the type of topological connection encoded as a RoadOption enum:
-             RoadOption.STRAIGHT
-             RoadOption.LEFT
-             RoadOption.RIGHT
+        Compute the type of topological connection between an active waypoint (current_waypoint) and a target waypoint
+        (next_waypoint).
+        :param current_waypoint: active waypoint
+        :param next_waypoint: target waypoint
+        :return: the type of topological connection encoded as a RoadOption enum:
+            RoadOption.STRAIGHT
+            RoadOption.LEFT
+            RoadOption.RIGHT
     """
     n = next_waypoint.transform.rotation.yaw
     n = n % 360.0

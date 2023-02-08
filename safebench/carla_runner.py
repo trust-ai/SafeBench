@@ -2,7 +2,7 @@
 @Author:
 @Email:
 @Date: 2020-06-19 11:45:14
-LastEditTime: 2023-02-08 12:14:29
+LastEditTime: 2023-02-08 12:27:03
 @Description:
 '''
 
@@ -113,7 +113,7 @@ class CarlaRunner(object):
                 obss = env.reset(config_lists)
                 while True:
                     if np.sum(env.finished_env) == self.num_scenario:
-                        print("All scenarios are completed. Prepare for exiting")
+                        print("######## All scenarios are completed. Prepare for exiting ########")
                         break
 
                     # get action from ego agent (assume using one batch)

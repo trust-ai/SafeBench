@@ -2,7 +2,7 @@
 @Author: Wenhao Ding
 @Email: wenhaod@andrew.cmu.edu
 @Date: 2020-01-24 13:52:10
-@LastEditTime : 2020-01-24 14:13:37
+LastEditTime: 2023-02-08 12:26:26
 @Description: 
 '''
 
@@ -172,13 +172,13 @@ class HD_Autoregressive_Policy(nn.Module):
             normal_d = self.fc_action_d(state_sample_a_b_c)
             _, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
 
-        print('================================================== Test Action space ==================================================')
-        print('normal A: {} {}'.format(mu_a, sigma_a))
-        print('normal B: {} {}'.format(mu_b, sigma_b))
-        print('normal C: {} {}'.format(mu_c, sigma_c))
-        if self.standard_action:
-            print('normal D: {} {}'.format(mu_d, sigma_d))
-        print('======================================================================================================================')
+        #print('================================================== Test Action space ==================================================')
+        #print('normal A: {} {}'.format(mu_a, sigma_a))
+        #print('normal B: {} {}'.format(mu_b, sigma_b))
+        #print('normal C: {} {}'.format(mu_c, sigma_c))
+        #if self.standard_action:
+        #    print('normal D: {} {}'.format(mu_d, sigma_d))
+        #print('======================================================================================================================')
 
         # output the mean value to be the deterministic action
         if self.standard_action:

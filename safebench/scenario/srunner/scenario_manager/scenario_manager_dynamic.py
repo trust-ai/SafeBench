@@ -1,11 +1,11 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-This module provides the dynamic version ScenarioManager implementation.
-It must not be modified and is for reference only!
-"""
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-06 17:01:03
+Description: 
+'''
 
-from __future__ import print_function
 import time
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -32,18 +32,9 @@ class ScenarioManagerDynamic(object):
         self.scenario_class = None
         self.ego_vehicles = None
         self.other_actors = None
-
-        self._running = False
-        self._timestamp_last_run = 0.0
-        self.scenario_duration_system = 0.0
-        self.scenario_duration_game = 0.0
-        self.start_system_time = None
-        self.end_system_time = None
-
         self.scenario_list = None
         self.triggered_scenario = None
-
-        self.running_record = []
+        self._reset()
 
     def _reset(self):
         self._running = False
@@ -95,7 +86,7 @@ class ScenarioManagerDynamic(object):
         self.running_record.append(record)
         if stop:
             self._running = False
-    
+
     def get_update(self):
         CarlaDataProvider.on_carla_tick()
         for spawned_scenario in self.scenario_list:
