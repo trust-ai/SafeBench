@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-04 17:57:46
+LastEditTime: 2023-02-08 12:41:21
 Description: 
 '''
 import math
@@ -25,14 +25,12 @@ def calculate_distance_locations(location_1, location_2):
 
 def scenario_parse(ROOT_DIR, config):
     """
-    data file should also come from args
+        Data file should also come from args
     """
+    
     print("######## parsing scenario route and data ########")
-
     data_file = osp.join(ROOT_DIR, config['data_dir'], config['data'])
-    print('Using data file:', data_file)
-    # route_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
-    # scenario_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenarios/scenario_%02d.json'
+    print('######## Using data file:', data_file, '########')
     route_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenario_%02d_routes/scenario_%02d_route_%02d.xml')
     scenario_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenarios/scenario_%02d.json')
     

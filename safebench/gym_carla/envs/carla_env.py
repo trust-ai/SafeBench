@@ -24,14 +24,14 @@ from safebench.gym_carla.envs.misc import (
 from safebench.gym_carla.envs.render import COLOR_BLACK
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
 from safebench.scenario.srunner.scenario_dynamic.object_detection_dynamic import ObjectDetectionDynamic
-
 from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
-
 from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
 
 
 class CarlaEnv(gym.Env):
-    """ An OpenAI-gym style interface for CARLA simulator. """
+    """ 
+        An OpenAI-gym style interface for CARLA simulator. 
+    """
     def __init__(self, params, birdeye_render=None, display=None, world=None, ROOT_DIR=None):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
@@ -138,8 +138,8 @@ class CarlaEnv(gym.Env):
 
     def load_scenario(self, config, env_id):
         # TODO: add a parameter to scenario manager to select different scenarios
-        #self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
-        self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
+        self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
+        #self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)

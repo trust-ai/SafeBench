@@ -1,5 +1,7 @@
 data: 'od.json' # benign, standard, dev, od
-scenario_id: 1
+method: null
+scenario_id: null
+route_id: null
 data_dir: 'safebench/scenario/scenario_data/data'
 route_dir: 'safebench/scenario/scenario_data/route_od'
 ego_action_dim: 2
