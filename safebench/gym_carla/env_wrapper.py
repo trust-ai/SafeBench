@@ -27,11 +27,11 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, config_lists):
+    def reset(self, config_lists, scenario_type):
         obs_list = []
         for s_i in range(self.num_scenario):
             config = config_lists[s_i]
-            obs = self.env_list[s_i].reset(config=config, env_id=s_i)
+            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
             obs_list.append(obs)
         return self.obs_post_process(obs_list)
 

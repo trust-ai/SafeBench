@@ -2,7 +2,7 @@
 @Author:
 @Email:
 @Date: 2020-06-19 11:45:14
-LastEditTime: 2023-02-08 12:27:03
+LastEditTime: 2023-02-08 13:01:28
 @Description:
 '''
 
@@ -31,6 +31,7 @@ class CarlaRunner(object):
         self.num_episode = scenario_config['num_episode']
         self.map_town_config = scenario_config['map_town_config']
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
+        self.scenario_type = scenario_config['data']
 
         # continue training flag
         self.continue_agent_training = scenario_config['continue_agent_training']
@@ -110,7 +111,7 @@ class CarlaRunner(object):
 
             for e_i in range(self.num_episode):
                 # reset envs
-                obss = env.reset(config_lists)
+                obss = env.reset(config_lists, self.scenario_type)
                 while True:
                     if np.sum(env.finished_env) == self.num_scenario:
                         print("######## All scenarios are completed. Prepare for exiting ########")

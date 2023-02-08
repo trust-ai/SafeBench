@@ -282,11 +282,11 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def _update_route(self, world, config, timeout=None):
         """
-        Update the input route, i.e. refine waypoint list, and extract possible scenario locations
+            Update the input route, i.e. refine waypoint list, and extract possible scenario locations
 
-        Parameters:
-        - world: CARLA world
-        - config: Scenario configuration (RouteConfiguration)
+            Parameters:
+            - world: CARLA world
+            - config: Scenario configuration (RouteConfiguration)
         """
 
         # Transform the scenario file into a dictionary

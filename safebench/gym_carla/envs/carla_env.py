@@ -136,18 +136,24 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-    def load_scenario(self, config, env_id):
-        # TODO: add a parameter to scenario manager to select different scenarios
-        self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
-        #self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
+    def load_scenario(self, config, env_id, scenario_type):
+        scenario_type = scenario_type.split('.')[0]
+        if scenario_type in ['od']:
+            self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
+        elif scenario_type in ['dev', 'standard', 'benign']:
+            self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
+        else:
+            raise NotImplementedError('{} type of scenario is not implemented.'.format(scenario_type))
+
+        # init scenario and manager
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic()
         self.scenario_manager.load_scenario(self.scenario)
         self.scenario_manager._init_scenarios()
 
-    def reset(self, config, env_id):
+    def reset(self, config, env_id, scenario_type):
         print("######## loading scenario ########")
-        self.load_scenario(config, env_id)
+        self.load_scenario(config, env_id, scenario_type)
         self.env_id = env_id
 
         # change view point
