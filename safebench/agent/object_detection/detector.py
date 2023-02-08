@@ -50,7 +50,7 @@ class ObjectDetection(object):
     
     def get_action(self, obs):
         print(len(obs), len(obs[0]), type(obs), type(obs[0]))
-        image = obs[0][0]['img']
+        image = obs[0]['img']
         # print(image.shape)
         image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
         image = torch.from_numpy(image).float().permute(2, 0, 1).to(self.device)
@@ -80,7 +80,7 @@ class ObjectDetection(object):
         # return image
         batch_size = len(obs)
 
-        return [{'ego_action': np.array([1.0, 0.0]), 'od_result': pred} for _ in range(batch_size)]
+        return [{'ego_action': np.array([0.5, 0.0]), 'od_result': pred} for _ in range(batch_size)]
 
     def load_model(self):
         pass
