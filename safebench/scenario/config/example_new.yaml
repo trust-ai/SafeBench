@@ -1,6 +1,0 @@
-data: 'standard.json' # benign, standard, dev
-scenario_id: 5
-data_dir: 'safebench/scenario/scenario_data/data_new'
-route_dir: /safebench/scenario/scenario_data/route_new
-ego_action_dim: 2
-ego_state_dim: 4

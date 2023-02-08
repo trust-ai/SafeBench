@@ -1,8 +1,9 @@
-data: 'dev.json'
-data_dir: 'safebench/scenario/scenario_data/data'
+type_dir: 'safebench/scenario/config/scenario_type'
+type_name: 'dev.json'
 route_dir: 'safebench/scenario/scenario_data/route'
 method: null
 scenario_id: null
 route_id: null
+
 ego_action_dim: 2
 ego_state_dim: 4

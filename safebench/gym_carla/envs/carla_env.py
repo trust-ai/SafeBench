@@ -137,7 +137,7 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def load_scenario(self, config, env_id, scenario_type):
-        scenario_type = scenario_type.split('.')[0]
+        # create scenario accoridng to different types
         if scenario_type in ['od']:
             self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
         elif scenario_type in ['dev', 'standard', 'benign']:

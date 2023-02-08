@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-08 12:41:21
+LastEditTime: 2023-02-08 14:30:37
 Description: 
 '''
 import math
@@ -29,14 +29,15 @@ def scenario_parse(ROOT_DIR, config):
     """
     
     print("######## parsing scenario route and data ########")
-    data_file = osp.join(ROOT_DIR, config['data_dir'], config['data'])
-    print('######## Using data file:', data_file, '########')
+    list_of_scenario_config = osp.join(ROOT_DIR, config['type_dir'], config['type_name'])
+    print('######## Using data file:', list_of_scenario_config, '########')
     route_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenario_%02d_routes/scenario_%02d_route_%02d.xml')
     scenario_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenarios/scenario_%02d.json')
     
     # scenario_id, method, route_id, risk_level
-    with open(data_file, 'r') as f:
+    with open(list_of_scenario_config, 'r') as f:
         data_full = json.loads(f.read())
+        # filter the list if any parameter is specified
         if config['method'] is not None:
             print('selecting method:', config['method'])
             data_full = [item for item in data_full if item["method"] == config['method']]
