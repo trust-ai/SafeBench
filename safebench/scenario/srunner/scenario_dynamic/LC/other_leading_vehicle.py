@@ -21,7 +21,7 @@ import numpy as np
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.srunner.tools.scenario_helper import get_toolsaypoint_in_distance
+from safebench.scenario.srunner.tools.scenario_helper import get_waypoint_in_distance
 from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
 
 from safebench.scenario.srunner.scenario_dynamic.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
@@ -69,7 +69,7 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         # self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
         self._first_vehicle_speed = v1
         self._second_vehicle_speed = v2
-        self._reference_toolsaypoint = self._map.get_toolsaypoint(config.trigger_points[0].location)
+        self._reference_toolsaypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._first_actor_transform = None
         self._second_actor_transform = None
@@ -127,8 +127,8 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         return [x, y, yatools, dist]
 
     def initialize_actors(self):
-        first_vehicle_toolsaypoint, _ = get_toolsaypoint_in_distance(self._reference_toolsaypoint, self._first_vehicle_location)
-        second_vehicle_toolsaypoint, _ = get_toolsaypoint_in_distance(self._reference_toolsaypoint, self._second_vehicle_location)
+        first_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_toolsaypoint, self._first_vehicle_location)
+        second_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_toolsaypoint, self._second_vehicle_location)
         second_vehicle_toolsaypoint = second_vehicle_toolsaypoint.get_left_lane()
         first_vehicle_transform = carla.Transform(first_vehicle_toolsaypoint.transform.location,
                                                   first_vehicle_toolsaypoint.transform.rotation)

@@ -29,16 +29,25 @@ def scenario_parse(ROOT_DIR, config):
     """
     print("######## parsing scenario route and data ########")
 
-    data_file = osp.join(ROOT_DIR, config['data_path'], config['method']+'.json')
+    data_file = osp.join(ROOT_DIR, config['data_dir'], config['data'])
     print('Using data file:', data_file)
-    route_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
-    scenario_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenarios/scenario_%02d.json'
+    # route_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenario_%02d_routes/scenario_%02d_route_%02d.xml'
+    # scenario_file_formatter = ROOT_DIR + '/' + config['route_path'] + '/scenarios/scenario_%02d.json'
+    route_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenario_%02d_routes/scenario_%02d_route_%02d.xml')
+    scenario_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenarios/scenario_%02d.json')
     
     # scenario_id, method, route_id, risk_level
     with open(data_file, 'r') as f:
         data_full = json.loads(f.read())
-        data_full = [item for item in data_full if item["scenario_id"] == config['scenario_id']]
-        data_full = [item for item in data_full if item["method"] == config['method']]
+        if config['method'] is not None:
+            print('selecting method:', config['method'])
+            data_full = [item for item in data_full if item["method"] == config['method']]
+        if config['scenario_id'] is not None:
+            print('selecting scenario_id:', config['scenario_id'])
+            data_full = [item for item in data_full if item["scenario_id"] == config['scenario_id']]
+        if config['route_id'] is not None:
+            print('selecting route_id:', config['route_id'])
+            data_full = [item for item in data_full if item["route_id"] == config['route_id']]
 
     print('loading {} data'.format(len(data_full)))
     map_town_config = {}

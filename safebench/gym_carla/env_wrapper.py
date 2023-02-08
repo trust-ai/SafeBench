@@ -39,11 +39,11 @@ class VectorWrapper():
         """
             ego_actions: [num_alive_scenario, action_dim]
         """
+        # apply action
+        for e_i in range(len(self.env_list)):
+            if not self.finished_env[e_i]:
+                self.env_list[e_i].step_before_tick(ego_actions[e_i])
         for _ in range(self.frame_skip):
-            # apply action
-            for e_i in range(len(self.env_list)):
-                if not self.finished_env[e_i]:
-                    self.env_list[e_i].step_before_tick(ego_actions[e_i])
             # tick all scenarios
             self.world.tick()
 
