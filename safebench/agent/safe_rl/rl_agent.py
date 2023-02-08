@@ -29,7 +29,7 @@ class RLAgent():
     """
     def __init__(self, config):
         self.agent_name = config['agent_name']
-        self.action_dim = config['action_dim']
+        self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
         self.mode = 'train'
 
@@ -44,7 +44,7 @@ class RLAgent():
     def get_action(self, obs):
         # the input should be formed into a batch, the return action should also be a batch
         batch_size = len(obs)
-        return np.random.randn(batch_size, self.action_dim)
+        return np.random.randn(batch_size, self.ego_action_dim)
 
     def load_model(self):
         self.policy.load_model(self.model_path)
