@@ -1,3 +1,4 @@
+agent_type: 'rl'
 agent_name: 'sac'
 model_path: ''
 results_folder_path: ''

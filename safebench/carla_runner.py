@@ -52,7 +52,7 @@ class CarlaRunner(object):
         agent_config['ego_state_dim'] = scenario_config['ego_state_dim']
 
         # prepare ego agent
-        self.agent = AGENT_LIST[agent_config['agent_name']](agent_config)
+        self.agent = AGENT_LIST[agent_config['agent_type']](agent_config)
         if self.mode in ['eval', 'train_scenario'] or self.continue_agent_training:
             self.agent.load_model()
         if self.mode in ['eval', 'train_scenario']:
