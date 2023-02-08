@@ -26,7 +26,11 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
-4. Download [CARLA_0.9.13](https://github.com/carla-simulator/carla/releases), extract it to your folder, and add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
+4. Download [CARLA_0.9.13](https://github.com/carla-simulator/carla/releases), extract it to your folder.
+
+5. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
+
+6. Add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
 ```
 export CARLA_ROOT={path/to/your/carla}
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.7-linux-x86_64.egg

@@ -395,7 +395,10 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             try:
                 role_name = 'ego_vehicle'+str(self.ego_id)
                 ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
-                success = True
+                if ego_vehicle is not None:
+                    success = True
+                else:
+                    elevate_transform.location.z += 0.1
             except RuntimeError:
                 elevate_transform.location.z += 0.1
 

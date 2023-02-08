@@ -566,13 +566,13 @@ class CarlaEnv(gym.Env):
 
     def _terminal(self):
         """ Calculate whether to terminate the current episode. """
-        terminate = False
+        # terminate = False
+        #
+        # # If reach maximum timestep
+        # if self.time_step > self.max_episode_step:
+        #     terminate = True
 
-        # If reach maximum timestep
-        if self.time_step > self.max_episode_step:
-            terminate = True
-
-        return terminate
+        return not self.scenario_manager._running
 
     def _stop_sensor(self):
         self.collision_sensor.stop()

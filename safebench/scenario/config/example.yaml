@@ -1,6 +1,8 @@
-method: 'standard' # benign, standard, dev
-scenario_id: 5
-data_path: 'safebench/scenario/scenario_data/data'
-route_path: /safebench/scenario/scenario_data/route
+data: 'dev.json'
+data_dir: 'safebench/scenario/scenario_data/data'
+route_dir: 'safebench/scenario/scenario_data/route'
+method: null
+scenario_id: null
+route_id: null
 ego_action_dim: 2
 ego_state_dim: 4

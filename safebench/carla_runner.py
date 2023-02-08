@@ -1,9 +1,9 @@
 '''
-@Author: 
-@Email: 
+@Author:
+@Email:
 @Date: 2020-06-19 11:45:14
-LastEditTime: 2023-02-07 17:23:38
-@Description: 
+LastEditTime: 2023-02-08 12:14:29
+@Description:
 '''
 
 import copy
@@ -34,7 +34,7 @@ class CarlaRunner(object):
 
         # continue training flag
         self.continue_agent_training = scenario_config['continue_agent_training']
-        self.continue_scenario_training = scenario_config['continue_scenario_training']        
+        self.continue_scenario_training = scenario_config['continue_scenario_training']
 
         # apply settings to carla
         self.client = carla.Client('localhost', scenario_config['port'])
@@ -58,7 +58,7 @@ class CarlaRunner(object):
             self.agent.set_mode('eval')
         else:
             self.agent.set_mode('train')
-        
+
         # save data during interaction
         self.buffer = Buffer(agent_config, scenario_config)
 
@@ -77,7 +77,7 @@ class CarlaRunner(object):
     def _init_renderer(self, num_envs):
         print("######## initializeing pygame birdeye renderer ########")
         pygame.init()
-        flag = pygame.HWSURFACE | pygame.DOUBLEBUF 
+        flag = pygame.HWSURFACE | pygame.DOUBLEBUF
         if not self.render:
             flag = flag | pygame.HIDDEN
         self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
@@ -104,14 +104,14 @@ class CarlaRunner(object):
 
             # create scenarios within the vectorized wrapper
             env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display)
-            # load model for scenarios 
+            # load model for scenarios
             if self.mode in ['eval', 'train_agent'] or self.continue_scenario_training:
                 env.load_model()
 
             for e_i in range(self.num_episode):
                 # reset envs
                 obss = env.reset(config_lists)
-                while True: 
+                while True:
                     if np.sum(env.finished_env) == self.num_scenario:
                         print("All scenarios are completed. Prepare for exiting")
                         break
