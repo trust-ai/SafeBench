@@ -1,7 +1,7 @@
 {
   "available_scenarios": [
     {
-      "town_4intersection_2lane": [
+      "Town_Safebench": [
         {
           "available_event_configurations": [
             {
