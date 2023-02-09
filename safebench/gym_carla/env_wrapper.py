@@ -37,7 +37,7 @@ class VectorWrapper():
 
     def step(self, ego_actions):
         """
-            ego_actions: [num_alive_scenario, action_dim]
+            ego_actions: [num_alive_scenario, ego_action_dim]
         """
         # apply action
         for e_i in range(len(self.env_list)):

@@ -16,8 +16,8 @@ from safebench.util.torch_util import to_tensor
 # TODO: data from different scenarios should be stored seperately in one episode
 class Buffer:
     def __init__(self, agent_config, scenario_config):
-        self.obs_dim = agent_config['state_dim'] 
-        self.act_dim = agent_config['action_dim'] 
+        self.obs_dim = agent_config['ego_state_dim'] 
+        self.act_dim = agent_config['ego_action_dim'] 
         self.max_buffer_size = agent_config['max_buffer_size'] 
         self.num_scenario = scenario_config['num_scenario']
         self.clear()

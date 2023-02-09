@@ -48,11 +48,11 @@ class CarlaRunner(object):
         self.d_behind = 12
 
         # pass info from scenario to agent
-        agent_config['action_dim'] = scenario_config['ego_action_dim']
-        agent_config['state_dim'] = scenario_config['ego_state_dim']
+        agent_config['ego_action_dim'] = scenario_config['ego_action_dim']
+        agent_config['ego_state_dim'] = scenario_config['ego_state_dim']
 
         # prepare ego agent
-        self.agent = AGENT_LIST[agent_config['agent_name']](agent_config)
+        self.agent = AGENT_LIST[agent_config['agent_type']](agent_config)
         if self.mode in ['eval', 'train_scenario'] or self.continue_agent_training:
             self.agent.load_model()
         if self.mode in ['eval', 'train_scenario']:

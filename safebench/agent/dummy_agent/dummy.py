@@ -12,14 +12,14 @@ import numpy as np
 class DummyEgo(object):
     """ This is just an example for testing, whcih always goes straight. """
     def __init__(self, config):
-        self.action_dim = config['action_dim']
+        self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
         self.mode = 'train'
 
     def get_action(self, obs):
         # the input should be formed into a batch, the return action should also be a batch
         batch_size = len(obs)
-        action = np.random.randn(batch_size, self.action_dim)
+        action = np.random.randn(batch_size, self.ego_action_dim)
         action[:, 0] = 0.5
         action[:, 1] = 0
         return action

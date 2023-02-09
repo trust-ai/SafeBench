@@ -33,7 +33,7 @@ DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yam
 class ObjectDetection(object):
     def __init__(self, config, ) -> None:
 
-        self.action_dim = config['action_dim']
+        self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
         self.mode = 'train'
         self.imgsz = DEFAULT_CONFIG['imgsz']
