@@ -169,7 +169,7 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
                 stop = True
                 print('stop due to timeout')
                 break
-        print(running_status, stop)
+        
         return running_status, stop
 
     def _update_route(self, world, config, timeout=None):
