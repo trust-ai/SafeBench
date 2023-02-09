@@ -79,4 +79,4 @@ You can use the TurboVNC client on your local machine to connect to the virtual 
 ```
 /opt/TurboVNC/bin/vncviewer -via user@host localhost:n
 ```
-where `user@host` is your remote server.
+where `user@host` is your remote server, and n is the display port specified when you started the VNC server on the remote server ("8" in our example).
