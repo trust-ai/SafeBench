@@ -55,11 +55,10 @@ class VectorWrapper():
         for e_i in range(len(self.env_list)):
             if not self.finished_env[e_i]:
                 obs, reward, done, info = self.env_list[e_i].step_after_tick()
-            
-            # check wether env is done
-            if done:
-                self.env_list[e_i].is_running = False
-                self.finished_env[e_i] = True
+
+                # check wether env is done
+                if done:
+                    self.finished_env[e_i] = True
 
             # update infomation
             obs_list.append(obs)
