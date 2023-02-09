@@ -80,4 +80,4 @@ The port number that you need to use is computed as:
 ```
 PORT = 5900 + N
 ```
-where N is the display port specified when you started the VNC server on remote ("8" in our example).
+where N is the display port specified when you started the VNC server on the remote server ("8" in our example).
