@@ -1,4 +1,4 @@
-agent_name: 'dummy'
+agent_type: 'dummy'
 model_path: ''
 results_folder_path: ''
 policy_type: ''

@@ -37,7 +37,7 @@ class VectorWrapper():
 
     def step(self, ego_actions):
         """
-            ego_actions: [num_alive_scenario, action_dim]
+            ego_actions: [num_alive_scenario, ego_action_dim]
         """
         # apply action
         for e_i in range(len(self.env_list)):
@@ -172,7 +172,7 @@ params = {
     'max_episode_step': 1000,  # maximum timesteps per episode
     'max_waypt': 12,  # maximum number of waypoints
     'obs_range': 32,  # observation range (meter)
-    'lidar_bin': 0.125,  # bin size of lidar sensor (meter)
+    'lidar_bin': 0.25,  # bin size of lidar sensor (meter)
     'd_behind': 12,  # distance behind the ego vehicle (meter)
     'out_lane_thres': 4,  # threshold for out of lane (meter)
     'desired_speed': 8,  # desired speed (m/s)

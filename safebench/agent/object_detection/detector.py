@@ -33,7 +33,7 @@ DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yam
 class ObjectDetection(object):
     def __init__(self, config, ) -> None:
 
-        self.action_dim = config['action_dim']
+        self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
         self.mode = 'train'
         self.imgsz = DEFAULT_CONFIG['imgsz']
@@ -49,7 +49,7 @@ class ObjectDetection(object):
         #imgsz = check_img_size(DEFAULT_CONFIG['imgsz'], s=stride)  # check image size
     
     def get_action(self, obs):
-        print(len(obs), len(obs[0]), type(obs), type(obs[0]))
+        # print(len(obs), len(obs[0]), type(obs), type(obs[0]))
         image = obs[0]['img']
         # print(image.shape)
         image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)

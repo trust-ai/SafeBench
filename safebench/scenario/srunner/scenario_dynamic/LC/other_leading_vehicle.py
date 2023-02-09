@@ -69,7 +69,7 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         # self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
         self._first_vehicle_speed = v1
         self._second_vehicle_speed = v2
-        self._reference_toolsaypoint = self._map.get_waypoint(config.trigger_points[0].location)
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._first_actor_transform = None
         self._second_actor_transform = None
@@ -127,8 +127,8 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         return [x, y, yatools, dist]
 
     def initialize_actors(self):
-        first_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_toolsaypoint, self._first_vehicle_location)
-        second_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_toolsaypoint, self._second_vehicle_location)
+        first_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
+        second_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._second_vehicle_location)
         second_vehicle_toolsaypoint = second_vehicle_toolsaypoint.get_left_lane()
         first_vehicle_transform = carla.Transform(first_vehicle_toolsaypoint.transform.location,
                                                   first_vehicle_toolsaypoint.transform.rotation)
