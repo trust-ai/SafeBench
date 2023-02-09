@@ -49,7 +49,9 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
         )
 
         TEMPLATE_DIR = os.path.join(ROOT_DIR, 'safebench/scenario/scenario_data/template_od')
-        self.object_dict = dict(stopsign=['BP_Stop_2'], car=['SM_JeepWranglerRubicon_6', 'SM_Tesla_11'])
+        self.object_dict = dict(stopsign=list(filter(lambda k: 'BP_Stop' in k, world.get_names_of_all_objects())),\
+                        car=list(filter(lambda k: 'SM_Tesla' in k or 'SM_Jeep' in k, world.get_names_of_all_objects())),\
+                        ad=list(filter(lambda k: 'AD' in k, world.get_names_of_all_objects())))
         self.image_path_list = [os.path.join(TEMPLATE_DIR, k)+'.jpg' for k in self.object_dict.keys()]
 
         self.image_list = [cv2.imread(image_file) for image_file in self.image_path_list]
@@ -92,6 +94,7 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
                     texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
                     # texture.set(x, y, carla.Color(r,g,b,a))
             for o_name in self.object_dict[obj_key]:
+                # print(o_name)
                 world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
     
     
@@ -166,7 +169,7 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
                 stop = True
                 print('stop due to timeout')
                 break
-
+        print(running_status, stop)
         return running_status, stop
 
     def _update_route(self, world, config, timeout=None):
@@ -387,7 +390,7 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
     def _create_criteria(self):
         criteria = {}
         route = convert_transform_to_location(self.route)
-
+        
         criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicles[0], distance_success=1e4, distance_acceptable=1e4, optional=True)
         criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicles[0], avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
         criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicles[0], optional=True)

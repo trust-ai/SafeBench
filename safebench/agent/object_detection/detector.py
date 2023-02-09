@@ -49,7 +49,7 @@ class ObjectDetection(object):
         #imgsz = check_img_size(DEFAULT_CONFIG['imgsz'], s=stride)  # check image size
     
     def get_action(self, obs):
-        print(len(obs), len(obs[0]), type(obs), type(obs[0]))
+        # print(len(obs), len(obs[0]), type(obs), type(obs[0]))
         image = obs[0]['img']
         # print(image.shape)
         image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)

@@ -55,11 +55,11 @@ class VectorWrapper():
         for e_i in range(len(self.env_list)):
             if not self.finished_env[e_i]:
                 obs, reward, done, info = self.env_list[e_i].step_after_tick()
-            
+                if done:
+                    self.env_list[e_i].is_running = True
             # check wether env is done
-            if done:
-                self.env_list[e_i].is_running = False
-                self.finished_env[e_i] = True
+            # if done:
+                # self.finished_env[e_i] = True
 
             # update infomation
             obs_list.append(obs)
@@ -173,7 +173,7 @@ params = {
     'max_episode_step': 1000,  # maximum timesteps per episode
     'max_waypt': 12,  # maximum number of waypoints
     'obs_range': 32,  # observation range (meter)
-    'lidar_bin': 0.125,  # bin size of lidar sensor (meter)
+    'lidar_bin': 0.25,  # bin size of lidar sensor (meter)
     'd_behind': 12,  # distance behind the ego vehicle (meter)
     'out_lane_thres': 4,  # threshold for out of lane (meter)
     'desired_speed': 8,  # desired speed (m/s)

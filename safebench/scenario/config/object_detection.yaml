@@ -2,7 +2,7 @@ type_name: 'od.json'
 type_dir: 'safebench/scenario/config/scenario_type'
 route_dir: 'safebench/scenario/scenario_data/route_od'
 method: null
-scenario_id: null
+scenario_id: 1
 route_id: null
 
 ego_action_dim: 2
