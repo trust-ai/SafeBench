@@ -39,10 +39,13 @@ class VectorWrapper():
         """
             ego_actions: [num_alive_scenario, ego_action_dim]
         """
+
         # apply action
+        action_idx = 0 # action idx should match the env that is not finished
         for e_i in range(len(self.env_list)):
             if not self.finished_env[e_i]:
-                self.env_list[e_i].step_before_tick(ego_actions[e_i])
+                self.env_list[e_i].step_before_tick(ego_actions[action_idx])
+                action_idx += 1
         for _ in range(self.frame_skip):
             # tick all scenarios
             self.world.tick()
@@ -60,12 +63,11 @@ class VectorWrapper():
                 if done:
                     self.finished_env[e_i] = True
 
-            # update infomation
-            obs_list.append(obs)
-            reward_list.append(reward)
-            done_list.append(done)
-            info_list.append(info)
-        
+                # update infomation
+                obs_list.append(obs)
+                reward_list.append(reward)
+                done_list.append(done)
+                info_list.append(info)
         rewards = np.array(reward_list)
         dones = np.array(done_list)
         infos = np.array(info_list)
