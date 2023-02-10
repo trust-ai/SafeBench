@@ -8,6 +8,7 @@ Description:
 
 import numpy as np
 
+from safebench.util.run_util import setup_eval_configs
 from safebench.agent.safe_rl.policy import DDPG, PPO, SAC, TD3, PPOLagrangian, SACLagrangian, DDPGLagrangian, TD3Lagrangian
 
 
@@ -27,19 +28,20 @@ class RLAgent():
     """ 
         Works as an wrapper for all RL agents.
     """
-    def __init__(self, config):
-        self.agent_name = config['agent_name']
+    def __init__(self, config, logger):
+        self.policy_name = config['policy_name']
         self.ego_action_dim = config['ego_action_dim']
-        self.model_path = config['model_path']
-        self.mode = 'train'
+        self.mode = config['mode']
 
-        algo_config = config[self.agent_name]
-        self.policy = POLICY_LIST[self.agent_name](algo_config)
+        policy_config = config[self.policy_name]
+        self.policy = POLICY_LIST[self.policy_name](logger, policy_config)
+        self.load_model()
 
-        if algo_config['policy_type'] == 'on':
+        if policy_config['policy_type'] == 'on':
             self.train_model = self.train_one_epoch_on_policy
         else:
             self.train_model = self.train_one_epoch_off_policy
+
 
     def get_action(self, obs):
         # the input should be formed into a batch, the return action should also be a batch
@@ -47,10 +49,11 @@ class RLAgent():
         return np.random.randn(batch_size, self.ego_action_dim)
 
     def load_model(self):
-        self.policy.load_model(self.model_path)
-
-    def set_mode(self, mode):
-        self.mode = mode
+        if self.mode in ['eval', 'train_scenario']:
+            assert config['load_dir'] is not None, "Please specify load_dir!"
+        if config['load_dir'] is not None:
+            model_path, _, _, _ = setup_eval_configs(config['load_dir'], itr=config['load_iteration'])
+            self.policy.load_model(model_path)
 
     def train_one_epoch_off_policy(self, buffer, train_steps):
         for _ in range(train_steps):

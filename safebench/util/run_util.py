@@ -78,5 +78,4 @@ def setup_eval_configs(dir, itr=None):
     print("Model path: %s " % model_path)
     print("Loading config from %s " % config_path)
     configs = load_config(config_path)
-    return model_path, load_itr, configs["policy"], configs["timeout_steps"], configs[
-        configs["policy"]]
+    return model_path, load_itr, configs["policy"], configs["timeout_steps"], configs[configs["policy"]]
