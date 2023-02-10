@@ -69,7 +69,7 @@ First, launch CARLA with headless mode, and run our platform on a virtual displa
 ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
 
 # Run a remote VNC-Xserver. This will create a virtual display "8".
-/opt/TurboVNC/bin/vncserver :8
+/opt/TurboVNC/bin/vncserver :8 -noxstartup
 
 # Launch SafeBench on the virtual display
 DISPLAY=:8 python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
@@ -77,6 +77,11 @@ DISPLAY=:8 python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.y
 
 You can use the TurboVNC client on your local machine to connect to the virtual display.
 ```
+# Use the built-in SSH client of TurboVNC Viewer
 /opt/TurboVNC/bin/vncviewer -via user@host localhost:n
+
+# Or manually forward connections to the remote server
+ssh -L fp:localhost:5900+n user@host
+/opt/TurboVNC/bin/vncviewer localhost::fp
 ```
-where `user@host` is your remote server, and n is the display port specified when you started the VNC server on the remote server ("8" in our example).
+where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
