@@ -9,7 +9,7 @@ from safebench.agent.safe_rl.policy.model.mlp_ac import (MLPCategoricalActor, ML
                                          mlp)
 from safebench.agent.safe_rl.policy.model.encoder import Encoder
 from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.agent.safe_rl.util.torch_util import (count_vars, get_device_name, to_device,
+from safebench.util.torch_util import (count_vars, get_device_name, to_device,
                                      to_ndarray, to_tensor)
 
 

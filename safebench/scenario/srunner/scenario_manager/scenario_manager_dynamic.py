@@ -87,27 +87,30 @@ class ScenarioManagerDynamic(object):
         if stop:
             self._running = False
 
-    def get_update(self):
-        CarlaDataProvider.on_carla_tick()
-        for spawned_scenario in self.scenario_list:
-            ego_location = CarlaDataProvider.get_location(self.ego_vehicles[0])
-            cur_distance = None
-            reference_location = None
-            if spawned_scenario.reference_actor:
-                reference_location = CarlaDataProvider.get_location(spawned_scenario.reference_actor)
-            if reference_location:
-                cur_distance = calculate_distance_locations(ego_location, reference_location)
+    def get_update(self, timestamp):
+        if self._timestamp_last_run < timestamp.elapsed_seconds and self._running:
+            self._timestamp_last_run = timestamp.elapsed_seconds
+            GameTime.on_carla_tick(timestamp)
+            CarlaDataProvider.on_carla_tick()
+            for spawned_scenario in self.scenario_list:
+                ego_location = CarlaDataProvider.get_location(self.ego_vehicles[0])
+                cur_distance = None
+                reference_location = None
+                if spawned_scenario.reference_actor:
+                    reference_location = CarlaDataProvider.get_location(spawned_scenario.reference_actor)
+                if reference_location:
+                    cur_distance = calculate_distance_locations(ego_location, reference_location)
 
-            if cur_distance and cur_distance < spawned_scenario.trigger_distance_threshold:
-                if spawned_scenario not in self.triggered_scenario:
-                    print("Trigger scenario: " + spawned_scenario.name)
-                    self.triggered_scenario.add(spawned_scenario)
+                if cur_distance and cur_distance < spawned_scenario.trigger_distance_threshold:
+                    if spawned_scenario not in self.triggered_scenario:
+                        print("Trigger scenario: " + spawned_scenario.name)
+                        self.triggered_scenario.add(spawned_scenario)
 
-        for running_scenario in self.triggered_scenario.copy(): # why using copy?
-            #TODO: update behavior of agents in scenario
-            running_scenario.update_behavior()
+            for running_scenario in self.triggered_scenario.copy(): # why using copy?
+                #TODO: update behavior of agents in scenario
+                running_scenario.update_behavior()
 
-        self.update_running_status()
+            self.update_running_status()
 
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov):
         pass

@@ -7,25 +7,12 @@ import torch.nn as nn
 from safebench.agent.safe_rl.policy.base_policy import Policy
 from safebench.agent.safe_rl.policy.model.mlp_ac import SquashedGaussianMLPActor, EnsembleQCritic
 from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.agent.safe_rl.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
+from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
 
 class SAC(Policy):
-    def __init__(
-        self,
-        env: gym.Env,
-        logger: EpochLogger,
-        actor_lr=0.001,
-        critic_lr=0.001,
-        ac_model="mlp",
-        hidden_sizes=[64, 64],
-        alpha=0.2,
-        gamma=0.99,
-        polyak=0.995,
-        num_q=2,
-        **kwargs
-    ):
+    def __init__(self, config, logger):
         '''
         Args:
             @param env : The environment must satisfy the OpenAI Gym API.
@@ -41,27 +28,24 @@ class SAC(Policy):
         super().__init__()
 
         self.logger = logger
-        self.alpha = alpha
-        self.gamma = gamma
-        self.polyak = polyak
-        self.actor_lr = actor_lr
-        self.critic_lr = critic_lr
-        self.hidden_sizes = hidden_sizes
+        self.alpha = config['alpha']
+        self.gamma = config['gamma']
+        self.polyak = config['polyak']
+        self.actor_lr = config['actor_lr']
+        self.critic_lr = config['critic_lr']
+        self.hidden_sizes = config['hidden_sizes']
 
         ################ create actor critic model ###############
-        self.obs_dim = env.observation_space.shape[0]
-        self.act_dim = env.action_space.shape[0]
+        self.obs_dim = config['ego_state_dim']
+        self.act_dim = config['ego_action_dim']
         # Action limit for clamping: critically, assumes all dimensions share the same bound!
-        self.act_lim = env.action_space.high[0]
+        self.act_lim = config['ego_action_limit']
 
-        if ac_model.lower() == "mlp":
-            if isinstance(env.action_space, gym.spaces.Box):
-                actor = SquashedGaussianMLPActor(self.obs_dim, self.act_dim, hidden_sizes, nn.ReLU)
-            elif isinstance(env.action_space, gym.spaces.Discrete):
-                raise ValueError("Discrete action space does not support yet")
-            critic = EnsembleQCritic(self.obs_dim, self.act_dim, hidden_sizes, nn.ReLU, num_q=num_q)
+        if config['ac_model'].lower() == "mlp":
+            actor = SquashedGaussianMLPActor(self.obs_dim, self.act_dim, self.hidden_sizes, nn.ReLU)
+            critic = EnsembleQCritic(self.obs_dim, self.act_dim, self.hidden_sizes, nn.ReLU, num_q=config['num_q'])
         else:
-            raise ValueError(f"{ac_model} ac model does not support.")
+            raise ValueError(f"{config['ac_model']} ac model does not support.")
 
         # Set up optimizer and target q models
         self._ac_training_setup(actor, critic)
@@ -203,10 +187,14 @@ class SAC(Policy):
                 p_targ.data.add_((1 - self.polyak) * p.data)
 
     def save_model(self):
-        self.logger.setup_pytorch_saver((self.actor, self.critic))
+        self.logger.setup_pytorch_saver((self.actor.state_dict(), self.critic.state_dict()))
 
     def load_model(self, path):
-        actor, critic = torch.load(path)
-        self._ac_training_setup(actor, critic)
+        actor_state_dict, critic_state_dict = torch.load(path)
+        self.actor.load_state_dict(actor_state_dict)
+        self.actor.eval()
+        self.critic.load_state_dict(critic_state_dict)
+        self.critic.eval()
+        self._ac_training_setup(self.actor, self.critic)
         # Set up model saving
         self.save_model()

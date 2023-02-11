@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
-from safebench.agent.safe_rl.util.torch_util import to_device, to_tensor
+from safebench.util.torch_util import to_device, to_tensor
 
 
 # class Encoder(nn.Module):

@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import joblib
 
-from safebench.agent.safe_rl.util.torch_util import combined_shape, discount_cumsum, to_tensor
+from safebench.util.torch_util import combined_shape, discount_cumsum, to_tensor
 
 
 class OnPolicyBuffer:

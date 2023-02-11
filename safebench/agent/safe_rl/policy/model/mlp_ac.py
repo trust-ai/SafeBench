@@ -1,4 +1,4 @@
-from safebench.agent.safe_rl.util.torch_util import to_device, to_tensor
+from safebench.util.torch_util import to_device, to_tensor
 import numpy as np
 import torch
 import torch.nn as nn

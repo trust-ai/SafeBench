@@ -4,19 +4,23 @@ import numpy as np
 
 class VectorWrapper():
     """ The interface to control a list of environments"""
-    def __init__(self, agent_config, scenario_config, world, birdeye_render, display):
+    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, config_lists, scenario_type):
         self.world = world
         self.num_scenario = scenario_config['num_scenario']
         self.finished_env = [False] * self.num_scenario
         self.ROOT_DIR = scenario_config['ROOT_DIR']
         self.frame_skip = scenario_config['frame_skip']
         self.obs_type = agent_config['obs_type']   # the observation type is determined by the ego agent
+        self.config_lists = config_lists
+        self.scenario_type = scenario_type
 
         self.env_list = []
+        self.action_space_list = []
         for _ in range(self.num_scenario):
             env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR)
             env.create_ego_object()
             self.env_list.append(env)
+            self.action_space_list.append(env.action_space)
 
     def load_model(self):
         for e_i in range(self.num_scenario):
@@ -27,12 +31,17 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, config_lists, scenario_type):
+    def reset(self, config_lists=None, scenario_type=None):
+        if config_lists is None:
+            config_lists = self.config_lists
+        if scenario_type is None:
+            scenario_type = self.scenario_type
         obs_list = []
         for s_i in range(self.num_scenario):
             config = config_lists[s_i]
             obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
             obs_list.append(obs)
+        self.finished_env = [False] * self.num_scenario
         return self.obs_post_process(obs_list)
 
     def step(self, ego_actions):
@@ -44,7 +53,8 @@ class VectorWrapper():
         action_idx = 0 # action idx should match the env that is not finished
         for e_i in range(len(self.env_list)):
             if not self.finished_env[e_i]:
-                self.env_list[e_i].step_before_tick(ego_actions[action_idx])
+                processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
+                self.env_list[e_i].step_before_tick(processed_action)
                 action_idx += 1
         for _ in range(self.frame_skip):
             # tick all scenarios
@@ -72,6 +82,12 @@ class VectorWrapper():
         dones = np.array(done_list)
         infos = np.array(info_list)
         return self.obs_post_process(obs_list), rewards, dones, infos
+
+    def sample_action_space(self):
+        action = []
+        for action_space in self.action_space_list:
+            action.append(action_space.sample())
+        return np.array(action)
 
 
 class EnvWrapper(gym.Wrapper):

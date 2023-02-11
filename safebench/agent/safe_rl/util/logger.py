@@ -18,7 +18,7 @@ import numpy as np
 import torch
 import yaml
 from tensorboardX import SummaryWriter
-from .torch_util import to_device
+from safebench.util.torch_util import to_device
 
 # Determine if this is the main process so that some info could be printed
 IS_MAIN_PROC = True
@@ -285,8 +285,8 @@ class Logger:
                                 separators=(',', ':\t'),
                                 indent=4,
                                 sort_keys=True)
-            print(colorize('Saving config:\n', color='cyan', bold=True))
-            print(output)
+            # print(colorize('Saving config:\n', color='cyan', bold=True))
+            # print(output)
             with open(osp.join(self.output_dir, "config.json"), 'w') as out:
                 out.write(output)
 

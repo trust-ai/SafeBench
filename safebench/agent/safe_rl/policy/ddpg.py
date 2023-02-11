@@ -7,24 +7,13 @@ import torch.nn as nn
 from safebench.agent.safe_rl.policy.base_policy import Policy
 from safebench.agent.safe_rl.policy.model.mlp_ac import MLPActor, EnsembleQCritic
 from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.agent.safe_rl.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray,
+from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray,
                                      to_tensor)
 from torch.optim import Adam
 
 
 class DDPG(Policy):
-    def __init__(self,
-                 env: gym.Env,
-                 logger: EpochLogger,
-                 actor_lr=0.001,
-                 critic_lr=0.001,
-                 ac_model="mlp",
-                 hidden_sizes=[64, 64],
-                 act_noise=0.1,
-                 gamma=0.99,
-                 polyak=0.995,
-                 num_q=1,
-                 **kwargs) -> None:
+    def __init__(self, config, logger):
         r'''
         Twin Delayed Deep Deterministic Policy Gradient (TD3)
 
@@ -43,32 +32,28 @@ class DDPG(Policy):
         super().__init__()
 
         self.logger = logger
-        self.act_noise = act_noise
-        self.gamma = gamma
-        self.polyak = polyak
-        self.actor_lr = actor_lr
-        self.critic_lr = critic_lr
-        self.hidden_sizes = hidden_sizes
+        self.act_noise = config['act_noise']
+        self.gamma = config['gamma']
+        self.polyak = config['polyak']
+        self.actor_lr = config['actor_lr']
+        self.critic_lr = config['critic_lr']
+        self.hidden_sizes = config['hidden_sizes']
 
         ################ create actor critic model ###############
-        self.obs_dim = env.observation_space.shape[0]
-        self.act_dim = env.action_space.shape[0]
+        self.obs_dim = config['ego_state_dim']
+        self.act_dim = config['ego_action_dim']
         # Action limit for clamping: critically, assumes all dimensions share the same bound!
-        self.act_lim = env.action_space.high[0]
+        self.act_lim = config['ego_action_limit']
         '''
         Notice: The output action are normalized in the range [-1, 1], so please make sure your action space's high and low are suitable
         '''
         if ac_model.lower() == "mlp":
-            if isinstance(env.action_space, gym.spaces.Box):
-                actor = MLPActor(self.obs_dim, self.act_dim, hidden_sizes, nn.ReLU,
-                                 self.act_lim)
-            elif isinstance(env.action_space, gym.spaces.Discrete):
-                raise ValueError("Discrete action space does not support yet")
+            actor = MLPActor(self.obs_dim, self.act_dim, self.hidden_sizes, nn.ReLU, self.act_lim)
             critic = EnsembleQCritic(self.obs_dim,
                                      self.act_dim,
-                                     hidden_sizes,
+                                     self.hidden_sizes,
                                      nn.ReLU,
-                                     num_q=num_q)
+                                     num_q=config['num_q'])
         else:
             raise ValueError(f"{ac_model} ac model does not support.")
 

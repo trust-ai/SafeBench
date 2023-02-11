@@ -152,6 +152,7 @@ class CarlaEnv(gym.Env):
         self.scenario_manager._init_scenarios()
 
     def reset(self, config, env_id, scenario_type):
+        self.clear_up()
         print("######## loading scenario ########")
         self.load_scenario(config, env_id, scenario_type)
         self.env_id = env_id
@@ -239,7 +240,11 @@ class CarlaEnv(gym.Env):
 
     def step_before_tick(self, ego_action):
         # TODO: input an action into the scenario
-        self.scenario_manager.get_update()
+        if self.world:
+            snapshot = self.world.get_snapshot()
+            if snapshot:
+                timestamp = snapshot.timestamp
+        self.scenario_manager.get_update(timestamp)
         if isinstance(ego_action, dict):
             world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
             fov = self.camera_bp.get_attribute('fov').as_float()
@@ -604,7 +609,7 @@ class CarlaEnv(gym.Env):
             'sensor.other.collision', 
             'sensor.lidar.ray_cast',
             'sensor.camera.rgb', 
-            'vehicle.*', 
+            'vehicle.*',
             'controller.ai.walker',
             'walker.*'
         ])

@@ -19,6 +19,8 @@ from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument('--exp_name', type=str, default='exp')
+    parser.add_argument('--data_dir', type=str, default='output')
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
     parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--render', type=bool, default=True)

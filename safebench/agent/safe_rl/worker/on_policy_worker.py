@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from safebench.agent.safe_rl.policy.base_policy import Policy
 from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.agent.safe_rl.util.torch_util import to_tensor
+from safebench.util.torch_util import to_tensor
 from safebench.agent.safe_rl.worker.buffer import OnPolicyBuffer
 
 
@@ -11,29 +11,33 @@ class OnPolicyWorker:
     r'''
     Collect data based on the policy and env, and store the interaction data to data buffer.
     '''
-    def __init__(self,
-                 env: gym.Env,
-                 policy: Policy,
-                 logger: EpochLogger,
-                 interact_steps=2000,
-                 timeout_steps=200,
-                 gamma=0.99,
-                 lam=0.97,
-                 **kwargs) -> None:
-        self.env = env
-        self.policy = policy
+    def __init__(self, config, logger):
+        self.env = None
+        self.policy = None
         self.logger = logger
-        self.interact_steps = interact_steps
-        self.timeout_steps = timeout_steps
+        self.interact_steps = config['interact_steps']
+        self.timeout_steps = config['timeout_steps']
 
-        obs_dim = env.observation_space.shape[0]
-        act_dim = env.action_space.shape
-        self.obs_type = env.obs_type
+        obs_dim = config['ego_state_dim']
+        act_dim = config['ego_action_dim']
+        self.obs_type = config['obs_type']
 
-        if "Safe" in env.spec.id:
-            self.SAFE_RL_ENV = True
+        # if "Safe" in env.spec.id:
+        #     self.SAFE_RL_ENV = True
 
         self.buffer = OnPolicyBuffer(obs_dim, act_dim, self.interact_steps + 1, gamma, lam)
+
+    def set_environment(self, env, agent):
+        self.env = env
+        self.policy = agent
+
+    def train_one_epoch(self, epoch):
+        epoch_steps = 0
+        steps = self.work()
+        epoch_steps += steps
+        data = self.get_sample()
+        self.policy.learn_on_batch(data)
+        return epoch_steps
 
     def work(self):
         '''
@@ -57,11 +61,11 @@ class OnPolicyWorker:
             else:
                 cost_value = 0
 
-            if done and 'TimeLimit.truncated' in info:
-                done = False
-                timeout_env = True
-            else:
-                timeout_env = False
+            # if done and 'TimeLimit.truncated' in info:
+            #     done = False
+            #     timeout_env = True
+            # else:
+            #     timeout_env = False
 
             cost = info["cost"] if "cost" in info else 0
 
@@ -73,8 +77,9 @@ class OnPolicyWorker:
             ep_len += 1
             obs = obs_next
 
-            timeout = ep_len == self.timeout_steps - 1 or i == self.interact_steps - 1 or timeout_env and not done
-            terminal = done or timeout
+            # timeout = ep_len == self.timeout_steps - 1 or i == self.interact_steps - 1 or timeout_env and not done
+            # terminal = done or timeout
+            terminal = done
             if terminal:
                 # after each episode
                 if timeout:

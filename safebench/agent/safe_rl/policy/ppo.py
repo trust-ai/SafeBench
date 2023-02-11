@@ -7,24 +7,12 @@ from safebench.agent.safe_rl.policy import LagrangianPIDController
 from safebench.agent.safe_rl.policy.model.mlp_ac import (MLPCategoricalActor, MLPGaussianActor,
                                          mlp)
 from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.agent.safe_rl.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
+from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
 
 class PPO(Policy):
-    def __init__(self,
-                 env: gym.Env,
-                 logger: EpochLogger,
-                 actor_lr=0.0003,
-                 critic_lr=0.001,
-                 ac_model="mlp",
-                 hidden_sizes=[64, 64],
-                 clip_ratio=0.2,
-                 target_kl=0.01,
-                 train_actor_iters=80,
-                 train_critic_iters=80,
-                 gamma=0.97,
-                 **kwargs) -> None:
+    def __init__(self, config, logger):
         r'''
         Promximal Policy Optimization (PPO)
 
@@ -41,30 +29,26 @@ class PPO(Policy):
         super().__init__()
 
         self.logger = logger
-        self.clip_ratio = clip_ratio
-        self.target_kl = target_kl
-        self.train_actor_iters = train_actor_iters
-        self.train_critic_iters = train_critic_iters
-        self.actor_lr = actor_lr
-        self.critic_lr = critic_lr
-        self.gamma = gamma
-        self.hidden_sizes = hidden_sizes
+        self.clip_ratio = config['clip_ratio']
+        self.target_kl = config['target_kl']
+        self.train_actor_iters = config['train_actor_iters']
+        self.train_critic_iters = config['train_critic_iters']
+        self.actor_lr = config['actor_lr']
+        self.critic_lr = config['critic_lr']
+        self.gamma = config['gamma']
+        self.hidden_sizes = config['hidden_sizes']
 
         ################ create actor critic model ###############
-        self.obs_dim = env.observation_space.shape[0]
-        self.act_dim = env.action_space.shape[0]
+        self.obs_dim = config['ego_state_dim']
+        self.act_dim = config['ego_action_dim']
         # Action limit for clamping: critically, assumes all dimensions share the same bound!
-        self.act_lim = env.action_space.high[0]
+        self.act_lim = config['ego_action_limit']
 
         if ac_model.lower() == "mlp":
-            if isinstance(env.action_space, gym.spaces.Box):
-                actor = MLPGaussianActor(self.obs_dim, self.act_dim,
-                                         -self.act_lim, self.act_lim,
-                                         hidden_sizes, nn.ReLU)
-            elif isinstance(env.action_space, gym.spaces.Discrete):
-                actor = MLPCategoricalActor(self.obs_dim, env.action_space.n,
-                                            hidden_sizes, nn.ReLU)
-            critic = mlp([self.obs_dim] + list(hidden_sizes) + [1], nn.ReLU)
+            actor = MLPGaussianActor(self.obs_dim, self.act_dim,
+                                     -self.act_lim, self.act_lim,
+                                     self.hidden_sizes, nn.ReLU)
+            critic = mlp([self.obs_dim] + list(self.hidden_sizes) + [1], nn.ReLU)
         else:
             raise ValueError(f"{ac_model} ac model does not support.")
 
@@ -219,128 +203,3 @@ class PPO(Policy):
         self._ac_training_setup(actor, critic)
         # Set up model saving
         self.save_model()
-
-
-class PPOLagrangian(PPO):
-    def __init__(self,
-                 env: gym.Env,
-                 logger: EpochLogger,
-                 cost_limit=40,
-                 timeout_steps=200,
-                 KP=0,
-                 KI=0.1,
-                 KD=0,
-                 per_state=False,
-                 **kwargs) -> None:
-        r'''
-        Proximal Policy Optimization (PPO) with Lagrangian multiplier
-        '''
-        super().__init__(env, logger, **kwargs)
-
-        self.cost_limit = cost_limit
-        self.qc_thres = cost_limit * (1 - self.gamma**timeout_steps) / (
-            1 - self.gamma) / timeout_steps
-        print("Cost constraint: ", self.qc_thres)
-
-        self.controller = LagrangianPIDController(KP, KI, KD, self.cost_limit,
-                                                  per_state)
-
-        self.qc_critic = to_device(
-            mlp([self.obs_dim] + list(self.hidden_sizes) + [1], nn.ReLU))
-        self.qc_critic_optimizer = Adam(self.qc_critic.parameters(),
-                                        lr=self.critic_lr)
-
-    def learn_on_batch(self, data: dict):
-        super().learn_on_batch(data)
-        LossVQC, DeltaLossVQC = self._update_critic(self.qc_critic,
-                                                    data["obs"],
-                                                    data["cost_ret"],
-                                                    self.qc_critic_optimizer)
-        # Log safety critic update info
-        self.logger.store(LossVQC=LossVQC, DeltaLossVQC=DeltaLossVQC)
-
-    def post_epoch_process(self):
-        '''
-        do nothing.
-        '''
-        pass
-
-    def get_qc_v(self, obs):
-        obs = to_tensor(obs).reshape(1, -1)
-        with torch.no_grad():
-            v = self.critic_forward(self.qc_critic, obs)
-        return np.squeeze(to_ndarray(v))
-
-    def _update_actor(self, data):
-        '''
-        Update the actor network
-        '''
-        obs, act, adv, logp_old = data['obs'], data['act'], data['adv'], data[
-            'logp']
-
-        # detach is very important here!
-        # Otherwise the gradient will backprop through the multiplier.
-        cost_ret = data["cost_ret"]
-        cost_adv = data["cost_adv"]
-        ep_cost = data["ep_cost"]
-        multiplier = self.controller.control(ep_cost).detach()
-
-        def policy_loss():
-
-            pi, _, logp = self.actor_forward(obs, act)
-            ratio = torch.exp(logp - logp_old)
-            clip_adv = torch.clamp(ratio, 1 - self.clip_ratio,
-                                   1 + self.clip_ratio) * adv
-
-            # qc_penalty = (torch.clamp(ratio, 1 - self.clip_ratio, 1 + self.clip_ratio) *
-            #               cost_adv * multiplier).mean()
-
-            qc_penalty = (ratio * cost_adv * multiplier).mean()
-
-            loss_pi = -(torch.min(ratio * adv, clip_adv)).mean() + qc_penalty
-
-            loss_pi /= 1 + multiplier
-
-            # Useful extra info
-            approx_kl = (logp_old - logp).mean().item()
-
-            ent = pi.entropy().mean().item()
-            clipped = ratio.gt(1 + self.clip_ratio) | ratio.lt(1 -
-                                                               self.clip_ratio)
-            clipfrac = torch.as_tensor(clipped,
-                                       dtype=torch.float32).mean().item()
-            pi_info = dict(
-                KL=approx_kl,
-                Entropy=ent,
-                ClipFrac=clipfrac,
-                QcPenalty=to_ndarray(qc_penalty),
-            )
-
-            return loss_pi, pi_info
-
-        pi_l_old, pi_info_old = policy_loss()
-
-        # Train policy with multiple steps of gradient descent
-        for i in range(self.train_actor_iters):
-            self.actor_optimizer.zero_grad()
-            loss_pi, pi_info = policy_loss()
-            if i == 0 and pi_info['KL'] >= 1e-7:
-                print("**" * 20)
-                print("1st kl: ", pi_info['KL'])
-            if pi_info['KL'] > 1.5 * self.target_kl:
-                self.logger.log(
-                    'Early stopping at step %d due to reaching max kl.' % i)
-                break
-            loss_pi.backward()
-            self.actor_optimizer.step()
-
-        self.logger.store(StopIter=i,
-                          LossPi=to_ndarray(pi_l_old),
-                          ObservedCost=to_ndarray(ep_cost),
-                          CostLimit=self.cost_limit,
-                          Lagrangian=to_ndarray(multiplier),
-                          DeltaLossPi=(to_ndarray(loss_pi) -
-                                       to_ndarray(pi_l_old)),
-                          QcThres=self.qc_thres,
-                          QcRet=torch.mean(data["cost_ret"]).item(),
-                          **pi_info)
