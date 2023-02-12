@@ -1,14 +1,12 @@
-from __future__ import print_function
+import os
+
 import carla
-from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
+import numpy as np
+import cv2
+
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
-from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import *
-
-import numpy as np
-import os
-import cv2
 
 
 def build_projection_matrix(w, h, fov):
@@ -49,9 +47,11 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
         )
 
         TEMPLATE_DIR = os.path.join(ROOT_DIR, 'safebench/scenario/scenario_data/template_od')
-        self.object_dict = dict(stopsign=list(filter(lambda k: 'BP_Stop' in k, world.get_names_of_all_objects())),\
-                        car=list(filter(lambda k: 'SM_Tesla' in k or 'SM_Jeep' in k, world.get_names_of_all_objects())),\
-                        ad=list(filter(lambda k: 'AD' in k, world.get_names_of_all_objects())))
+        self.object_dict = dict(
+            stopsign=list(filter(lambda k: 'BP_Stop' in k, world.get_names_of_all_objects())),
+            car=list(filter(lambda k: 'SM_Tesla' in k or 'SM_Jeep' in k, world.get_names_of_all_objects())),
+            ad=list(filter(lambda k: 'AD' in k, world.get_names_of_all_objects()))
+        )
         self.image_path_list = [os.path.join(TEMPLATE_DIR, k)+'.jpg' for k in self.object_dict.keys()]
 
         self.image_list = [cv2.imread(image_file) for image_file in self.image_path_list]
@@ -59,7 +59,6 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
         
         self.bbox_ground_truth = {}
         self.ground_truth_bbox = {}
-
 
         super(ObjectDetectionDynamic, self).__init__(
             name=config.name,
@@ -71,7 +70,6 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
             criteria_enable=criteria_enable
         )
         self.criteria = self._create_criteria()
-
 
     def _initialize_environment(self, world): # TODO: image from dict or parameter?
         settings = world.get_settings()
@@ -97,30 +95,29 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
                 # print(o_name)
                 world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
     
-    
     def initialize_actors(self):
         return
-        def find_weather_presets():
-            rgx = re.compile('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)')
-            name = lambda x: ' '.join(m.group(0) for m in rgx.finditer(x))
-            presets = [x for x in dir(carla.WeatherParameters) if re.match('[A-Z].+', x)]
-            return [(getattr(carla.WeatherParameters, x), name(x)) for x in presets]
+        # def find_weather_presets():
+        #     rgx = re.compile('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)')
+        #     name = lambda x: ' '.join(m.group(0) for m in rgx.finditer(x))
+        #     presets = [x for x in dir(carla.WeatherParameters) if re.match('[A-Z].+', x)]
+        #     return [(getattr(carla.WeatherParameters, x), name(x)) for x in presets]
         
-        _weather_presets = find_weather_presets()
-        idx = 78 # 17
-        bp = self.world.get_blueprint_library().filter('tesla')[0]
-        bp.set_attribute('role_name', 'hero')
-        self.world.spawn_actor()
+        # _weather_presets = find_weather_presets()
+        # idx = 78 # 17
+        # bp = self.world.get_blueprint_library().filter('tesla')[0]
+        # bp.set_attribute('role_name', 'hero')
+        # self.world.spawn_actor()
 
-        self.ego_vehicles = self.world.spawn_actor(bp, self.world.get_map().get_spawn_points()[idx])
-        self.ego_vehicles.set_autopilot(True)
+        # self.ego_vehicles = self.world.spawn_actor(bp, self.world.get_map().get_spawn_points()[idx])
+        # self.ego_vehicles.set_autopilot(True)
 
-        # turn on the light
-        light_state = carla.VehicleLightState(carla.VehicleLightState.All)
-        for actor in self.world.get_actors():
-            if actor.type_id.startswith("vehicle"):
-                actor.set_light_state(light_state)
-    
+        # # turn on the light
+        # light_state = carla.VehicleLightState(carla.VehicleLightState.All)
+        # for actor in self.world.get_actors():
+        #     if actor.type_id.startswith("vehicle"):
+        #         actor.set_light_state(light_state)
+
     def get_running_status(self, running_record):
         running_status = {
             'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicles[0]),
@@ -373,7 +370,6 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
 
         return list_of_actors
 
-
     def _create_behavior(self):
         """
         Basic behavior do nothing, i.e. Idle
@@ -408,7 +404,6 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
             )
             criteria['route_complete'] = RouteCompletionTest(self.ego_vehicles[0], route=route)
         return criteria
-
 
     def get_bbox(self, world_2_camera, image_w, image_h, fov): 
         def get_image_point(loc, K, w2c):

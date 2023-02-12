@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-08 14:30:37
+LastEditTime: 2023-02-12 15:26:54
 Description: 
 '''
 import math
@@ -50,7 +50,6 @@ def scenario_parse(ROOT_DIR, config):
 
     print('loading {} data'.format(len(data_full)))
     map_town_config = {}
-    route_configurations = []
     for item in data_full:
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
         scenario_file = scenario_file_formatter % item['scenario_id']
@@ -63,7 +62,6 @@ def scenario_parse(ROOT_DIR, config):
         config.route_id = item['route_id']
         config.risk_level = item['risk_level']
         config.parameters = item['parameters']
-        route_configurations.append(config)
 
         # build town and config mapping map
         cur_town = config.town
@@ -75,5 +73,4 @@ def scenario_parse(ROOT_DIR, config):
             cur_config_list = [config]
             map_town_config[cur_town] = cur_config_list
 
-    return route_configurations, map_town_config
-
+    config['map_town_config'] = map_town_config

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-08 12:29:23
+LastEditTime: 2023-02-12 15:27:05
 Description: 
 '''
 
@@ -51,10 +51,9 @@ if __name__ == '__main__':
     # load scenario config
     scenario_config_path = osp.join(args.ROOT_DIR, 'safebench/scenario/config', args.scenario_cfg)
     scenario_config = load_config(scenario_config_path)
-    route_configurations, map_town_config = scenario_parse(args.ROOT_DIR, scenario_config)
-    scenario_config.update(args_dict)
-    scenario_config["map_town_config"] = map_town_config
+    scenario_parse(args.ROOT_DIR, scenario_config)
 
     # main entry with a selected mode
+    scenario_config.update(args_dict)
     runner = CarlaRunner(agent_config, scenario_config)
     runner.run()
