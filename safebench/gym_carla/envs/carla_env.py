@@ -64,6 +64,7 @@ class CarlaEnv(gym.Env):
         if self.discrete:
             self.action_space = spaces.Discrete(self.n_acc * self.n_steer)
         else:
+            # TODO: we assume the output of NN is -1 to 1
             self.action_space = spaces.Box(
                 np.array([params['continuous_accel_range'][0], params['continuous_steer_range'][0]]),
                 np.array([params['continuous_accel_range'][1], params['continuous_steer_range'][1]]),

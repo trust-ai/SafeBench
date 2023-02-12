@@ -111,13 +111,12 @@ class CarlaRunner:
 
                 # accumulate reward to corresponding scenario
                 reward_idx = 0
-                for s_i in range(self.num_scenario):
-                    if self.env.finished_env[s_i]:
-                        rewards_list[s_i].append(reward_idx)
-                        reward_idx += 1
-            
+                for s_i in infos:
+                    rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
+                    reward_idx += 1
+
             # calculate episode reward and print
-            print('[{}/{}] Episode reward for {} scenarios:'.format(e_i, self.num_episode, self.num_scenario))
+            print('[{}/{}] Episode reward for {} scenarios:'.format(e_i+1, self.num_episode, self.num_scenario))
             for s_i in rewards_list.keys():
                 print('\t Scenario', s_i, '-', np.sum(rewards_list[s_i]))
 
