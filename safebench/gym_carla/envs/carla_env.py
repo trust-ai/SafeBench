@@ -21,7 +21,6 @@ from safebench.gym_carla.envs.misc import (
     get_pixels_inside_vehicle,
     get_pixel_info,
 )
-from safebench.gym_carla.envs.render import COLOR_BLACK
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
 from safebench.scenario.srunner.scenario_dynamic.object_detection_dynamic import ObjectDetectionDynamic
 from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
@@ -461,7 +460,7 @@ class CarlaEnv(gym.Env):
         self.display.blit(camera_surface, (self.display_size*2, self.env_id*self.display_size))
 
         # show image on window
-        pygame.display.flip()
+        #pygame.display.flip()
 
         # State observation
         ego_trans = self.ego.get_transform()

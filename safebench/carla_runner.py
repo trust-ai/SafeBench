@@ -99,6 +99,7 @@ class CarlaRunner:
             obss = self.env.reset()
             rewards_list = {s_i: [] for s_i in range(self.num_scenario)}
             while True:
+                print(self.env.finished_env)
                 if np.sum(self.env.finished_env) == self.num_scenario:
                     print("######## All scenarios are completed. Prepare for exiting ########")
                     break

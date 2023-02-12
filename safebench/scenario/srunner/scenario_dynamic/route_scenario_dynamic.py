@@ -308,7 +308,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             gps_route, route = interpolate_trajectory(world, config.trajectory)
 
         potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
-        print('matched_triggers', mt)
         print('scenarios', potential_scenarios_definitions)
 
         self.route = route

@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-01-30 22:30:20
-LastEditTime: 2023-02-12 16:22:18
+LastEditTime: 2023-02-12 18:06:18
 Description: 
 '''
 
@@ -20,7 +20,7 @@ class DummyEgo(object):
         # the input should be formed into a batch, the return action should also be a batch
         batch_size = len(obs)
         action = np.random.randn(batch_size, self.ego_action_dim)
-        action[:, 0] = 0.5
+        action[:, 0] = 0.2
         action[:, 1] = 0
         return action
 

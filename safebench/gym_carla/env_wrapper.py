@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+import pygame
 
 
 class VectorWrapper():
@@ -13,6 +14,7 @@ class VectorWrapper():
         self.obs_type = agent_config['obs_type']   # the observation type is determined by the ego agent
         self.config_lists = config_lists
         self.scenario_type = scenario_type
+        self.render = scenario_config['render']
 
         self.env_list = []
         self.action_space_list = []
@@ -83,6 +85,11 @@ class VectorWrapper():
         rewards = np.array(reward_list)
         dones = np.array(done_list)
         infos = np.array(info_list)
+
+        # update pygame window
+        if self.render:
+            pygame.display.flip()
+
         return self.obs_post_process(obs_list), rewards, dones, infos
 
     def sample_action_space(self):

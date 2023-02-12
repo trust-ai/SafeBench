@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-12 16:48:01
+LastEditTime: 2023-02-12 17:57:25
 Description: 
 '''
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
     parser.add_argument('--port', type=int, default=2000)
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
-    parser.add_argument('--num_scenario', type=int, default=4, help='num of scenarios we run in one episode')
+    parser.add_argument('--num_scenario', type=int, default=2, help='num of scenarios we run in one episode')
     parser.add_argument('--num_episode', type=int, default=1, help='number of episode')
     parser.add_argument('--agent_cfg', type=str, default='object_detection.yaml')
     parser.add_argument('--scenario_cfg', type=str, default='object_detection.yaml')
