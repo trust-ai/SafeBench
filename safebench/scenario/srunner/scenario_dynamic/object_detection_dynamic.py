@@ -31,13 +31,9 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
         self.route = None
         self.ego_id = ego_id
         self.sampled_scenarios_definitions = None
-
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
-
         self._update_route(world, config)
-
         ego_vehicle = self._update_ego_vehicle()
-
         self.list_scenarios = self._build_scenario_instances(
             world,
             ego_vehicle,

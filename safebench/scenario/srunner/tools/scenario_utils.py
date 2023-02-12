@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-12 15:26:54
+LastEditTime: 2023-02-12 16:19:15
 Description: 
 '''
 import math
@@ -55,22 +55,22 @@ def scenario_parse(ROOT_DIR, config):
         scenario_file = scenario_file_formatter % item['scenario_id']
         parsed_configs = RouteParser.parse_routes_file(route_file, scenario_file)
         assert len(parsed_configs) == 1, item
-        config = parsed_configs[0]
-        config.data_id = item['data_id']
-        config.scenario_generation_method = item['method']
-        config.scenario_id = item['scenario_id']
-        config.route_id = item['route_id']
-        config.risk_level = item['risk_level']
-        config.parameters = item['parameters']
+        parsed_config = parsed_configs[0]
+        parsed_config.data_id = item['data_id']
+        parsed_config.scenario_generation_method = item['method']
+        parsed_config.scenario_id = item['scenario_id']
+        parsed_config.route_id = item['route_id']
+        parsed_config.risk_level = item['risk_level']
+        parsed_config.parameters = item['parameters']
 
         # build town and config mapping map
-        cur_town = config.town
+        cur_town = parsed_config.town
         if cur_town in map_town_config:
             cur_config_list = map_town_config[cur_town]
-            cur_config_list.append(config)
+            cur_config_list.append(parsed_config)
             map_town_config[cur_town] = cur_config_list
         else:
-            cur_config_list = [config]
+            cur_config_list = [parsed_config]
             map_town_config[cur_town] = cur_config_list
 
     config['map_town_config'] = map_town_config

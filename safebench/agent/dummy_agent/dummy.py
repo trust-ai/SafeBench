@@ -1,8 +1,8 @@
 '''
-Author: Wenhao Ding
-Email: wenhaod@andrew.cmu.edu
+Author: 
+Email: 
 Date: 2023-01-30 22:30:20
-LastEditTime: 2023-02-06 19:44:06
+LastEditTime: 2023-02-12 16:22:18
 Description: 
 '''
 
@@ -11,7 +11,7 @@ import numpy as np
 
 class DummyEgo(object):
     """ This is just an example for testing, whcih always goes straight. """
-    def __init__(self, config):
+    def __init__(self, config, logger):
         self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
         self.mode = 'train'

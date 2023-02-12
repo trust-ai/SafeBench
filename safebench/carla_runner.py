@@ -1,15 +1,15 @@
-import copy
-
 import numpy as np
 import carla
 import pygame
 
-from safebench.agent import AGENT_LIST
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
+
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.agent.safe_rl.agent_trainer import AgentTrainer
 from safebench.scenario.srunner.scenario_manager.scenario_trainer import ScenarioTrainer
+
+from safebench.agent import AGENT_LIST
+from safebench.agent.safe_rl.agent_trainer import AgentTrainer
 from safebench.agent.safe_rl.util.logger import EpochLogger, setup_logger_kwargs
 
 
@@ -64,7 +64,7 @@ class CarlaRunner:
 
     def _init_world(self, town):
         print("######## initializeing carla world ########")
-        # TODO: before init world, clear all things
+        self.clear()
         self.world = self.client.load_world(town)
         settings = self.world.get_settings()
         settings.synchronous_mode = True
@@ -97,7 +97,7 @@ class CarlaRunner:
         for e_i in range(self.num_episode):
             # reset envs
             obss = self.env.reset()
-            rewards_list = {e_i: [] for e_i in range(self.num_scenario)}
+            rewards_list = {s_i: [] for s_i in range(self.num_scenario)}
             while True:
                 if np.sum(self.env.finished_env) == self.num_scenario:
                     print("######## All scenarios are completed. Prepare for exiting ########")
@@ -111,15 +111,15 @@ class CarlaRunner:
 
                 # accumulate reward to corresponding scenario
                 reward_idx = 0
-                for e_i in self.num_scenario:
-                    if self.env.finished_env[e_i]:
-                        rewards_list[e_i].append(reward_idx)
+                for s_i in range(self.num_scenario):
+                    if self.env.finished_env[s_i]:
+                        rewards_list[s_i].append(reward_idx)
                         reward_idx += 1
             
             # calculate episode reward and print
             print('[{}/{}] Episode reward for {} scenarios:'.format(e_i, self.num_episode, self.num_scenario))
-            for e_i in rewards_list.keys():
-                print('\t Scenario', e_i, '-', np.sum(rewards_list[e_i]))
+            for s_i in rewards_list.keys():
+                print('\t Scenario', s_i, '-', np.sum(rewards_list[s_i]))
 
     def run(self):
         for town in self.map_town_config.keys():
@@ -140,3 +140,10 @@ class CarlaRunner:
                 self.trainer.train()
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")
+
+    def clear(self):
+        # TODO: before init world, clear all things
+        pass
+
+    def close(self):
+        self.clear()

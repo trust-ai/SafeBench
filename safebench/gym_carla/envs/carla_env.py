@@ -47,6 +47,9 @@ class CarlaEnv(gym.Env):
         self.display_route = params['display_route']
         self.ROOT_DIR = ROOT_DIR
 
+        self.acc_max = params['continuous_accel_range'][1]
+        self.steering_max = params['continuous_steer_range'][1]
+
         if 'pixor' in params.keys():
             self.pixor = params['pixor']
             self.pixor_size = params['pixor_size']
@@ -261,6 +264,12 @@ class CarlaEnv(gym.Env):
         else:
             acc = ego_action[0]
             steer = ego_action[1]
+
+        # normalize and clip the action
+        acc = acc * self.acc_max
+        steer = steer * self.steering_max
+        acc = max(min(self.acc_max, acc), -self.acc_max)
+        steer = max(min(self.steering_max, steer), -self.steering_max)
 
         # Convert acceleration to throttle and brake
         if acc > 0:

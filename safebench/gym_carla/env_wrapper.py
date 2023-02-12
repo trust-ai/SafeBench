@@ -56,8 +56,9 @@ class VectorWrapper():
                 processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
                 self.env_list[e_i].step_before_tick(processed_action)
                 action_idx += 1
+        
+        # tick all scenarios
         for _ in range(self.frame_skip):
-            # tick all scenarios
             self.world.tick()
 
         # collect new observation of one frame
@@ -91,15 +92,12 @@ class VectorWrapper():
 
 
 class EnvWrapper(gym.Wrapper):
-    def __init__(self, env, config):
+    def __init__(self, env, obs_type):
         super().__init__(env)
-        self.config = config
         self._env = env
 
         self.is_running = True
-        self.acc_max = config['acc_max']
-        self.steering_max = config['steering_max']
-        self.obs_type = config['obs_type']
+        self.obs_type = obs_type
         self._build_obs_space()
 
         # build action space, assume the obs range from -1 to 1
@@ -172,37 +170,29 @@ class EnvWrapper(gym.Wrapper):
         return reward, info
 
     def _postprocess_action(self, action):
-        # normalize and clip the action
-        action = action * np.array([self.acc_max, self.steering_max])
-        action[0] = max(min(self.acc_max, action[0]), -self.acc_max)
-        action[1] = max(min(self.steering_max, action[1]), -self.steering_max)
         return action
 
 
 params = {
-    'display_size': 256,  # screen size of bird-eye render
-    'max_past_step': 1,  # the number of past steps to draw
-    'discrete': False,  # whether to use discrete control space
-    'discrete_acc': [-3.0, 0.0, 3.0],  # discrete value of accelerations
-    'discrete_steer': [-0.2, 0.0, 0.2],  # discrete value of steering angles
+    'display_size': 256,                    # screen size of bird-eye render
+    'max_past_step': 1,                     # the number of past steps to draw
+    'discrete': False,                      # whether to use discrete control space
+    'discrete_acc': [-3.0, 0.0, 3.0],       # discrete value of accelerations
+    'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
     'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
     'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-    'max_episode_step': 1000,  # maximum timesteps per episode
-    'max_waypt': 12,  # maximum number of waypoints
-    'obs_range': 32,  # observation range (meter)
-    'lidar_bin': 0.25,  # bin size of lidar sensor (meter)
-    'd_behind': 12,  # distance behind the ego vehicle (meter)
-    'out_lane_thres': 4,  # threshold for out of lane (meter)
-    'desired_speed': 8,  # desired speed (m/s)
-    'display_route': True,  # whether to render the desired route
-    'pixor_size': 64,  # size of the pixor labels
-    'pixor': False,  # whether to output PIXOR observation
+    'max_episode_step': 1000,               # maximum timesteps per episode
+    'max_waypt': 12,                        # maximum number of waypoints
+    'obs_range': 32,                        # observation range (meter)
+    'lidar_bin': 0.25,                      # bin size of lidar sensor (meter)
+    'd_behind': 12,                         # distance behind the ego vehicle (meter)
+    'out_lane_thres': 4,                    # threshold for out of lane (meter)
+    'desired_speed': 8,                     # desired speed (m/s)
+    'display_route': True,                  # whether to render the desired route
+    'pixor_size': 64,                       # size of the pixor labels
+    'pixor': False,                         # whether to output PIXOR observation
 }
 
+
 def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None):
-    config = {
-        'acc_max': 3,
-        'steering_max': 0.3,
-        'obs_type': obs_type,
-    }
-    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=ROOT_DIR), config=config)
+    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=ROOT_DIR), obs_type=obs_type)

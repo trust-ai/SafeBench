@@ -7,3 +7,4 @@ route_id: null
 
 ego_action_dim: 2
 ego_state_dim: 4
+ego_action_limit: 3.0

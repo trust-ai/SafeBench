@@ -9,7 +9,6 @@ import atexit
 import json
 import os
 import os.path as osp
-import shutil
 import time
 import warnings
 
@@ -18,7 +17,7 @@ import numpy as np
 import torch
 import yaml
 from tensorboardX import SummaryWriter
-from safebench.util.torch_util import to_device
+
 
 # Determine if this is the main process so that some info could be printed
 IS_MAIN_PROC = True
@@ -190,12 +189,7 @@ class Logger:
     Makes it easy to save diagnostics, hyperparameter configurations, the 
     state of a training run, and the trained model.
     """
-    def __init__(self,
-                 output_dir=None,
-                 output_fname='progress.txt',
-                 exp_name=None,
-                 eval_mode=False,
-                 use_tensor_board=True):
+    def __init__(self, output_dir=None, output_fname='progress.txt', exp_name=None, eval_mode=False, use_tensor_board=True):
         """
         Initialize a Logger.
 
@@ -217,19 +211,15 @@ class Logger:
         if IS_MAIN_PROC and not eval_mode:
             self.output_dir = output_dir or "/tmp/experiments/%i" % int(time.time())
             if osp.exists(self.output_dir):
-                print("Warning: Log dir %s already exists! Storing info there anyway." %
-                      self.output_dir)
+                print("Warning: Log dir %s already exists! Storing info there anyway." % self.output_dir)
             else:
                 os.makedirs(self.output_dir)
             self.output_file = open(osp.join(self.output_dir, output_fname), 'a')
             atexit.register(self.output_file.close)
             print(
-                colorize("Logging data to %s" % self.output_file.name,
-                         'green',
-                         bold=True))
+                colorize("Logging data to %s" % self.output_file.name, 'green', bold=True))
             # Setup tensor board logging if enabled and MPI root process
-            self.summary_writer = SummaryWriter(os.path.join(self.output_dir, 'tb')) \
-                if use_tensor_board else None
+            self.summary_writer = SummaryWriter(os.path.join(self.output_dir, 'tb')) if use_tensor_board else None
         else:
             self.output_dir = None
             self.output_file = None
@@ -281,21 +271,14 @@ class Logger:
             config['exp_name'] = self.exp_name
         config_json = convert_json(config)
         if IS_MAIN_PROC:
-            output = json.dumps(config_json,
-                                separators=(',', ':\t'),
-                                indent=4,
-                                sort_keys=True)
+            output = json.dumps(config_json, separators=(',', ':\t'), indent=4, sort_keys=True)
             # print(colorize('Saving config:\n', color='cyan', bold=True))
             # print(output)
             with open(osp.join(self.output_dir, "config.json"), 'w') as out:
                 out.write(output)
 
             with open(osp.join(self.output_dir, "config.yaml"), 'w') as out:
-                yaml.dump(config,
-                          out,
-                          default_flow_style=False,
-                          indent=4,
-                          sort_keys=False)
+                yaml.dump(config, out, default_flow_style=False, indent=4, sort_keys=False)
 
     def save_state(self, state_dict, itr=None):
         """
@@ -348,8 +331,7 @@ class Logger:
         Saves the PyTorch model (or models).
         """
         if IS_MAIN_PROC:
-            assert hasattr(self, 'pytorch_saver_elements'), \
-                "First have to setup saving with self.setup_pytorch_saver"
+            assert hasattr(self, 'pytorch_saver_elements'), "First have to setup saving with self.setup_pytorch_saver"
             fpath = 'model_save'
             fpath = osp.join(self.output_dir, fpath)
             fname = 'model' + ('_%d' % itr if itr is not None else '') + '.pt'
@@ -410,9 +392,7 @@ class Logger:
                 for (k, v) in zip(self.log_headers, vals):
                     if k != x_axis and k != "TotalEnvInteracts" and k != "Epoch":
                         data_dict[k] = v
-                        self.summary_writer.add_scalar(tag=k,
-                                                       scalar_value=v,
-                                                       global_step=self.steps)
+                        self.summary_writer.add_scalar(tag=k, scalar_value=v, global_step=self.steps)
 
                 # Flushes the event file to disk. Call this method to make sure
                 # that all pending events have been written to disk.

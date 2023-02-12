@@ -2,7 +2,7 @@
 Author: Haohong Lin
 Email: haohongl@andrew.cmu.edu
 Date: 2023-02-04 16:30:08
-LastEditTime: 2023-02-04 17:03:43
+LastEditTime: 2023-02-12 17:07:50
 Description: 
 '''
 
@@ -21,17 +21,25 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from models.common import DetectMultiBackend
 from utils.general import (
-    check_img_size, check_imshow, check_requirements, colorstr, cv2,
-    increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
+    check_img_size, 
+    check_imshow, 
+    check_requirements, 
+    colorstr, 
+    cv2,
+    increment_path, 
+    non_max_suppression, 
+    print_args, 
+    scale_coords, 
+    strip_optimizer, 
+    xyxy2xywh
+)
 
 
-DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yaml', \
-        imgsz=(1024, 1024), 
-        conf_thres=0.25,  # confidence threshold
-        iou_thres=0.45,)
+DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yaml', imgsz=(1024, 1024),  conf_thres=0.25, iou_thres=0.45,)
+
 
 class ObjectDetection(object):
-    def __init__(self, config, ) -> None:
+    def __init__(self, config, logger) -> None:
 
         self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
@@ -80,7 +88,7 @@ class ObjectDetection(object):
         # return image
         batch_size = len(obs)
 
-        return [{'ego_action': np.array([0.5, 0.0]), 'od_result': pred} for _ in range(batch_size)]
+        return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred} for _ in range(batch_size)]
 
     def load_model(self):
         pass
