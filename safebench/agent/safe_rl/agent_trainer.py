@@ -1,9 +1,6 @@
 import time
-from tqdm import tqdm
-import traceback
 
 from safebench.agent.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
-
 
 
 WORKER_LIST = {

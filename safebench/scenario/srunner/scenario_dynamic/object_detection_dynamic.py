@@ -7,6 +7,7 @@ import cv2
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
 from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import *
+from safebench.scenario.srunner.scenario_manager.timer import GameTime
 
 
 def build_projection_matrix(w, h, fov):

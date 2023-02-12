@@ -1,37 +1,20 @@
-import time
-from copy import deepcopy
-import os.path as osp
-
-import torch
-from tqdm import tqdm
-import traceback
-
-from safebench.agent.safe_rl.util.logger import EpochLogger, setup_logger_kwargs
-from safebench.agent.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
-
-
 import copy
 
 import numpy as np
 import carla
 import pygame
 
-from safebench.buffer import Buffer
 from safebench.agent import AGENT_LIST
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-
 from safebench.agent.safe_rl.agent_trainer import AgentTrainer
 from safebench.scenario.srunner.scenario_manager.scenario_trainer import ScenarioTrainer
+from safebench.agent.safe_rl.util.logger import EpochLogger, setup_logger_kwargs
 
 
 class CarlaRunner:
     def __init__(self, agent_config, scenario_config):
-        # self.obs_type = obs_type
-        # load_dir = load_dir.split("/data/")[-1]
-        # load_dir = osp.join(osp.dirname(osp.abspath(__file__)) + '/data', load_dir)
-        # self.load_dir = load_dir
         self.scenario_config = scenario_config
         self.agent_config = agent_config
 
@@ -75,7 +58,7 @@ class CarlaRunner:
             self.logger.save_config(agent_config)
             self.trainer = AgentTrainer(agent_config, self.logger)
         else:
-            raise ValueError(f"Unsupported mode: {self.mode}.")
+            raise NotImplementedError(f"Unsupported mode: {self.mode}.")
         self.agent = AGENT_LIST[agent_config['agent_type']](agent_config, logger=self.logger)
         self.env = None
 
@@ -114,6 +97,7 @@ class CarlaRunner:
         for e_i in range(self.num_episode):
             # reset envs
             obss = self.env.reset()
+            rewards_list = {e_i: [] for e_i in range(self.num_scenario)}
             while True:
                 if np.sum(self.env.finished_env) == self.num_scenario:
                     print("######## All scenarios are completed. Prepare for exiting ########")
@@ -125,19 +109,17 @@ class CarlaRunner:
                 # apply action to env and get obs
                 obss_next, rewards, dones, infos = self.env.step(ego_actions=ego_actions)
 
-                # save to buffer
-                # self.buffer.add(obss, ego_actions, rewards, dones, infos)
-                obss = copy.deepcopy(obss_next)
-
-                # for different modes
-                if self.mode == 'train_agent':
-                    self.agent.train_model(self.buffer)
-                    self.agent.save_model()
-                elif self.mode == 'train_scenario':
-                    self.env.train_model(self.buffer)
-                    self.env.save_model()
-
-            print('[{}/{}] Finish one episode'.format(e_i, self.num_episode))
+                # accumulate reward to corresponding scenario
+                reward_idx = 0
+                for e_i in self.num_scenario:
+                    if self.env.finished_env[e_i]:
+                        rewards_list[e_i].append(reward_idx)
+                        reward_idx += 1
+            
+            # calculate episode reward and print
+            print('[{}/{}] Episode reward for {} scenarios:'.format(e_i, self.num_episode, self.num_scenario))
+            for e_i in rewards_list.keys():
+                print('\t Scenario', e_i, '-', np.sum(rewards_list[e_i]))
 
     def run(self):
         for town in self.map_town_config.keys():
@@ -150,17 +132,11 @@ class CarlaRunner:
 
             # create scenarios within the vectorized wrapper
             self.env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, config_lists, self.scenario_type)
-            # load model for scenarios
-            # if self.mode in ['eval', 'train_agent'] or self.continue_scenario_training:
-            #     self.env.load_model()
 
             if self.mode == 'eval':
                 self.eval()
-            elif self.mode == 'train_scenario':
-                self.trainer.set_environment(self.env, self.agent)
-                self.trainer.train()
-            elif self.mode == 'train_agent':
+            elif self.mode in ['train_scenario', 'train_agent']:
                 self.trainer.set_environment(self.env, self.agent)
                 self.trainer.train()
             else:
-                raise ValueError(f"Unsupported mode: {self.mode}.")
+                raise NotImplementedError(f"Unsupported mode: {self.mode}.")
