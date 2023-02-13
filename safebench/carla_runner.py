@@ -62,6 +62,24 @@ class CarlaRunner:
         self.agent = AGENT_LIST[agent_config['agent_type']](agent_config, logger=self.logger)
         self.env = None
 
+    def _eval_sampler(self, config_lists):
+        # sometimes the length of list is smaller than num_scenario
+        sample_num = np.min([self.num_scenario, len(config_lists)])
+
+        # TODO: sampled scenario should not have overlap
+        scenario_idx = np.random.randint(0, len(config_lists), size=sample_num)
+
+        selected_scenario = []
+        for s_i in scenario_idx:
+            selected_scenario.append(config_lists.pop(s_i))
+        
+        assert len(selected_scenario) <= self.num_scenario, "number of sampled scenarios is larger than {}".format(self.num_scenario)
+        return selected_scenario
+
+    def _train_sampler(self, config_lists):
+        # TODO: during training, we should provide a looped sampler
+        return self._eval_sampler(config_lists)
+
     def _init_world(self, town):
         print("######## initializeing carla world ########")
         self.clear()
@@ -93,13 +111,18 @@ class CarlaRunner:
         # initialize the render for genrating observation and visualization
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params)
 
-    def eval(self):
-        for e_i in range(self.num_episode):
+    def eval(self, config_lists):
+        num_total_scenario = len(config_lists)
+        num_finished_scenario = 0
+        while len(config_lists) > 0:
+            # sample scenarios
+            scenario_configs = self._eval_sampler(config_lists)
+            num_batch_scenario = len(scenario_configs)
+            num_finished_scenario += num_batch_scenario
             # reset envs
-            obss = self.env.reset()
-            rewards_list = {s_i: [] for s_i in range(self.num_scenario)}
+            obss = self.env.reset(scenario_configs, self.scenario_type)
+            rewards_list = {s_i: [] for s_i in range(num_batch_scenario)}
             while True:
-                print(self.env.finished_env)
                 if self.env.all_scenario_done():
                     print("######## All scenarios are completed. Prepare for exiting ########")
                     break
@@ -117,9 +140,9 @@ class CarlaRunner:
                     reward_idx += 1
 
             # calculate episode reward and print
-            print('[{}/{}] Episode reward for {} scenarios:'.format(e_i+1, self.num_episode, self.num_scenario))
+            print('[{}/{}] Episode reward for batch scenario:'.format(num_finished_scenario, num_total_scenario))
             for s_i in rewards_list.keys():
-                print('\t Scenario', s_i, '-', np.sum(rewards_list[s_i]))
+                print('\t Scenario', s_i, ':', np.sum(rewards_list[s_i]))
 
     def run(self):
         # get config of map and twon
@@ -130,13 +153,12 @@ class CarlaRunner:
             # initialize the renderer
             self._init_renderer(self.num_scenario)
             config_lists = map_town_config[town]
-            assert len(config_lists) >= self.num_scenario, "number of config is less than num_scenario ({} < {})".format(len(config_lists), self.num_scenario)
 
             # create scenarios within the vectorized wrapper
-            self.env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, config_lists, self.scenario_type)
+            self.env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display)
 
             if self.mode == 'eval':
-                self.eval()
+                self.eval(config_lists)
             elif self.mode in ['train_scenario', 'train_agent']:
                 self.trainer.set_environment(self.env, self.agent)
                 self.trainer.train()

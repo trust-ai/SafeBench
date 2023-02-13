@@ -2,11 +2,13 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-12 20:59:28
+LastEditTime: 2023-02-13 13:58:52
 Description: 
 '''
 
 import os.path as osp
+from warnings import filterwarnings
+filterwarnings(action='ignore')
 
 import torch 
 

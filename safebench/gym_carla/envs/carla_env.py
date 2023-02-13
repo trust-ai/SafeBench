@@ -88,10 +88,6 @@ class CarlaEnv(gym.Env):
         self.world = world
         self.birdeye_render = birdeye_render
         self.display = display
-        self.SpawnActor = carla.command.SpawnActor
-        self.SetAutopilot = carla.command.SetAutopilot
-        self.SetVehicleLightState = carla.command.SetVehicleLightState
-        self.FutureActor = carla.command.FutureActor
 
         # Record the time of total steps and resetting steps
         self.reset_step = 0
@@ -155,7 +151,6 @@ class CarlaEnv(gym.Env):
         self.scenario_manager._init_scenarios()
 
     def reset(self, config, env_id, scenario_type):
-        #self.clear_up()
         print("######## loading scenario ########")
         self.load_scenario(config, env_id, scenario_type)
         self.env_id = env_id

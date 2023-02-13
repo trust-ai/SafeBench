@@ -5,24 +5,23 @@ import pygame
 
 class VectorWrapper():
     """ The interface to control a list of environments"""
-    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, config_lists, scenario_type):
+    def __init__(self, agent_config, scenario_config, world, birdeye_render, display):
         self.world = world
         self.num_scenario = scenario_config['num_scenario']
-        self.finished_env = [False] * self.num_scenario
         self.ROOT_DIR = scenario_config['ROOT_DIR']
         self.frame_skip = scenario_config['frame_skip']
         self.obs_type = agent_config['obs_type']   # the observation type is determined by the ego agent
-        self.config_lists = config_lists
-        self.scenario_type = scenario_type
         self.render = scenario_config['render']
 
         self.env_list = []
         self.action_space_list = []
         for _ in range(self.num_scenario):
             env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR)
-            env.create_ego_object()
             self.env_list.append(env)
             self.action_space_list.append(env.action_space)
+
+        # flags for env list 
+        self.finished_env = [False] * self.num_scenario
 
     def load_model(self):
         for e_i in range(self.num_scenario):
@@ -33,18 +32,21 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, config_lists=None, scenario_type=None):
-        if config_lists is None:
-            config_lists = self.config_lists
-        if scenario_type is None:
-            scenario_type = self.scenario_type
-
+    def reset(self, scenario_configs, scenario_type):
+        # create scenarios and ego vehicles
         obs_list = []
-        for s_i in range(self.num_scenario):
-            config = config_lists[s_i]
+        for s_i in range(len(scenario_configs)):
+            config = scenario_configs[s_i]
+            self.env_list[s_i].create_ego_object()
             obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
             obs_list.append(obs)
+
+        # sometimes not all scenarios are used
         self.finished_env = [False] * self.num_scenario
+        for s_i in range(len(scenario_configs), self.num_scenario):
+            self.finished_env[s_i] = True
+
+        # return obs
         return self.obs_postprocess(obs_list)
 
     def step(self, ego_actions):
@@ -58,7 +60,7 @@ class VectorWrapper():
                 processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
                 self.env_list[e_i].step_before_tick(processed_action)
                 action_idx += 1
-        
+
         # tick all scenarios
         for _ in range(self.frame_skip):
             self.world.tick()
@@ -125,6 +127,7 @@ class VectorWrapper():
         ]
         for actor_filter in actor_filters:
             for actor in self.world.get_actors().filter(actor_filter):
+                print('actor id:', actor.id, actor.type_id)
                 if actor.is_alive:
                     if actor.type_id == 'controller.ai.walker':
                         actor.stop()

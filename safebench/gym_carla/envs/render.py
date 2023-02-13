@@ -102,9 +102,7 @@ class MapImage(object):
 
         # Maximum size of a Pygame surface
         width_in_pixels = (1 << 14) - 1
-
         width_in_pixels = int(self._pixels_per_meter * self.width)
-
         self.big_map_surface = pygame.Surface((width_in_pixels, width_in_pixels)).convert()
 
         # Render map
@@ -216,7 +214,6 @@ class MapImage(object):
                         markings_list.append(marking)
 
                     temp_waypoints = temp_waypoints[-1:]
-
                 else:
                     temp_waypoints.append((sample))
                     previous_marking_type = marking_type
@@ -252,8 +249,7 @@ class MapImage(object):
             forward_vector = carla.Location(waypoint.transform.get_forward_vector())
             left_vector = carla.Location(-forward_vector.y, forward_vector.x, forward_vector.z) * waypoint.lane_width / 2 * 0.7
 
-            line = [(waypoint.transform.location + (forward_vector * 1.5) + (left_vector)),
-                    (waypoint.transform.location + (forward_vector * 1.5) - (left_vector))]
+            line = [(waypoint.transform.location + (forward_vector * 1.5) + (left_vector)), (waypoint.transform.location + (forward_vector * 1.5) - (left_vector))]
 
             line_pixel = [world_to_pixel(p) for p in line]
             pygame.draw.lines(surface, color, True, line_pixel, 2)
