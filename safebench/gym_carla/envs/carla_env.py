@@ -1,9 +1,9 @@
 import copy
+import random
+
 import numpy as np
 import pygame
-import random
 from skimage.transform import resize
-
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -155,15 +155,15 @@ class CarlaEnv(gym.Env):
         self.scenario_manager._init_scenarios()
 
     def reset(self, config, env_id, scenario_type):
-        self.clear_up()
+        #self.clear_up()
         print("######## loading scenario ########")
         self.load_scenario(config, env_id, scenario_type)
         self.env_id = env_id
 
         # change view point
-        location = carla.Location(x=100, y=100, z=300)
-        spectator = self.world.get_spectator()
-        spectator.set_transform(carla.Transform(location, carla.Rotation(yaw=270.0, pitch=-90.0)))
+        #location = carla.Location(x=100, y=100, z=300)
+        #spectator = self.world.get_spectator()
+        #spectator.set_transform(carla.Transform(location, carla.Rotation(yaw=270.0, pitch=-90.0)))
 
         # Get actors polygon list (for visualization)
         self.vehicle_polygons = [self._get_actor_polygons('vehicle.*')]
@@ -585,40 +585,13 @@ class CarlaEnv(gym.Env):
         return r_collision
 
     def _terminal(self):
-        """ Calculate whether to terminate the current episode. """
-        # terminate = False
-        #
-        # # If reach maximum timestep
-        # if self.time_step > self.max_episode_step:
-        #     terminate = True
-
+        # the max step critie is included in scenario_manager
         return not self.scenario_manager._running
 
-    def _stop_sensor(self):
-        self.collision_sensor.stop()
-        self.lidar_sensor.stop()
-        self.camera_sensor.stop()
-
-    def _clear_all_actors(self, actor_filters):
-        """ Clear specific actors. """
-        for actor_filter in actor_filters:
-            for actor in self.world.get_actors().filter(actor_filter):
-                if actor.is_alive:
-                    if actor.type_id == 'controller.ai.walker':
-                        actor.stop()
-                    actor.destroy()
-
-    def clear_up(self):
-        #Clear sensor objects
+    def stop_sensor(self):
         if self.collision_sensor is not None:
-            self._stop_sensor()
-        
-        #Delete sensors, vehicles and walkers
-        self._clear_all_actors([
-            'sensor.other.collision', 
-            'sensor.lidar.ray_cast',
-            'sensor.camera.rgb', 
-            'vehicle.*',
-            'controller.ai.walker',
-            'walker.*'
-        ])
+            self.collision_sensor.stop()
+        if self.lidar_sensor is not None:
+            self.lidar_sensor.stop()
+        if self.camera_sensor is not None:
+            self.camera_sensor.stop()

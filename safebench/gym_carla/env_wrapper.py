@@ -28,7 +28,7 @@ class VectorWrapper():
         for e_i in range(self.num_scenario):
             self.env_list[e_i].load_model()
 
-    def obs_post_process(self, obs_list):
+    def obs_postprocess(self, obs_list):
         # assume all variables are array
         obs_list = np.array(obs_list)
         return obs_list
@@ -38,22 +38,22 @@ class VectorWrapper():
             config_lists = self.config_lists
         if scenario_type is None:
             scenario_type = self.scenario_type
+
         obs_list = []
         for s_i in range(self.num_scenario):
             config = config_lists[s_i]
             obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
             obs_list.append(obs)
         self.finished_env = [False] * self.num_scenario
-        return self.obs_post_process(obs_list)
+        return self.obs_postprocess(obs_list)
 
     def step(self, ego_actions):
         """
             ego_actions: [num_alive_scenario, ego_action_dim]
         """
-
         # apply action
         action_idx = 0 # action idx should match the env that is not finished
-        for e_i in range(len(self.env_list)):
+        for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
                 processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
                 self.env_list[e_i].step_before_tick(processed_action)
@@ -68,12 +68,12 @@ class VectorWrapper():
         reward_list = []
         done_list = []
         info_list = []
-        for e_i in range(len(self.env_list)):
+        for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
                 obs, reward, done, info = self.env_list[e_i].step_after_tick()
                 info['scenario_id'] = e_i
 
-                # check wether env is done
+                # check if env is done
                 if done:
                     self.finished_env[e_i] = True
 
@@ -89,14 +89,46 @@ class VectorWrapper():
         # update pygame window
         if self.render:
             pygame.display.flip()
+        
+        # clear up when all scenarios are finished
+        if self.all_scenario_done():
+            print('######## Clearning up all actors ########')
+            self._clear_up()
 
-        return self.obs_post_process(obs_list), rewards, dones, infos
+        return self.obs_postprocess(obs_list), rewards, dones, infos
 
     def sample_action_space(self):
         action = []
         for action_space in self.action_space_list:
             action.append(action_space.sample())
         return np.array(action)
+
+    def all_scenario_done(self):
+        if np.sum(self.finished_env) == self.num_scenario:
+            return True
+        else:
+            return False
+
+    def _clear_up(self):
+        # stop sensor objects
+        for e_i in range(self.num_scenario):
+            self.env_list[e_i].stop_sensor()
+
+        # this will remove all actors, thus only can be called after all scenarios are finished
+        actor_filters = [
+            'vehicle.*',
+            'walker.*',
+            'controller.ai.walker',
+            'sensor.other.collision', 
+            'sensor.lidar.ray_cast',
+            'sensor.camera.rgb', 
+        ]
+        for actor_filter in actor_filters:
+            for actor in self.world.get_actors().filter(actor_filter):
+                if actor.is_alive:
+                    if actor.type_id == 'controller.ai.walker':
+                        actor.stop()
+                    actor.destroy()
 
 
 class EnvWrapper(gym.Wrapper):

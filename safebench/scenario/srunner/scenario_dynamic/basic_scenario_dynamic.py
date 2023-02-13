@@ -24,8 +24,7 @@ class BasicScenarioDynamic(object):
     """
     Base class for user-defined scenario
     """
-    def __init__(self, name, ego_vehicles, config, world,
-                 debug_mode=False, terminate_on_failure=False, criteria_enable=False):
+    def __init__(self, name, ego_vehicles, config, world, debug_mode=False, terminate_on_failure=False, criteria_enable=False):
         """
         Setup all relevant parameters and create scenario
         and instantiate scenario manager

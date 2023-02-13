@@ -26,8 +26,7 @@ class ScenarioOperation(object):
     def initialize_vehicle_actors(self, actor_transform_list, other_actor_list, actor_type_list):
         # @note:these three lists should have same length
         # actor_type_list should be list of strings, contains vehicle type,
-        if (len(actor_type_list) != len(actor_transform_list) or
-                len(actor_type_list) == 0):
+        if (len(actor_type_list) != len(actor_transform_list) or len(actor_type_list) == 0):
             print("Error caused by length match")
         else:
             for i in range(len(actor_type_list)):
@@ -50,10 +49,8 @@ class ScenarioOperation(object):
                     actor.set_simulate_physics(enabled=False)
                     other_actor_list.append(actor)
 
-
         self.other_actors = other_actor_list
         self._init_vehicle_controller()
-
 
     def _init_vehicle_controller(self):
         # note: VehiclePIDController class just need one actor each time
@@ -63,12 +60,8 @@ class ScenarioOperation(object):
         for i in range(len(self.other_actors)):
             if(isinstance(self.other_actors[i], carla.Vehicle)):
                 cur_id = self.other_actors[i].id
-                cur_controller = VehiclePIDController(self.other_actors[i],
-                                                       args_lateral = _args_lateral_dict,
-                                                       args_longitudinal = _args_longitudinal_dict,
-                                                       )
+                cur_controller = VehiclePIDController(self.other_actors[i], args_lateral = _args_lateral_dict, args_longitudinal = _args_longitudinal_dict)
                 self.vehicle_controller[cur_id] = cur_controller
-
 
     def go_straight(self, target_speed, i, throttle_value=1.0, break_value=1.0, steering=0.0):
         control = self.other_actors[i].get_control()
@@ -85,15 +78,12 @@ class ScenarioOperation(object):
         control.steer = steering
         self.other_actors[i].apply_control(control)
 
-
     def walker_go_straight(self, target_speed, i):
         control = self.other_actors[i].get_control()
         control.speed = target_speed
         control.direction = CarlaDataProvider.get_transform(self.other_actors[i]).get_forward_vector()
         # control.throttle = 1.0
         self.other_actors[i].apply_control(control)
-
-
 
     # note:'i' represents id/order of specific actor in other_actors list
     def drive_to_target_followlane(self, i ,target_transform, target_speed):
@@ -116,14 +106,11 @@ class ScenarioOperation(object):
         control = cur_vehicle_control.run_step(target_speed, target_waypoint)
         self.other_actors[i].apply_control(control)
 
-
-
     def brake(self, actor):
         control = actor.get_control()
         control.throttle = 0.0
         control.brake = 1.0
         actor.apply_control(control)
-
 
     def roll_over(self):
         pass

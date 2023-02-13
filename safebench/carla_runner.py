@@ -100,7 +100,7 @@ class CarlaRunner:
             rewards_list = {s_i: [] for s_i in range(self.num_scenario)}
             while True:
                 print(self.env.finished_env)
-                if np.sum(self.env.finished_env) == self.num_scenario:
+                if self.env.all_scenario_done():
                     print("######## All scenarios are completed. Prepare for exiting ########")
                     break
 
@@ -108,7 +108,7 @@ class CarlaRunner:
                 ego_actions = self.agent.get_action(obss)
 
                 # apply action to env and get obs
-                obss_next, rewards, dones, infos = self.env.step(ego_actions=ego_actions)
+                obss, rewards, _, infos = self.env.step(ego_actions=ego_actions)
 
                 # accumulate reward to corresponding scenario
                 reward_idx = 0

@@ -477,9 +477,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         # Set the color
         if color:
             if not blueprint.has_attribute('color'):
-                print(
-                    "WARNING: Cannot set Color ({}) for actor {} due to missing blueprint attribute".format(
-                        color, blueprint.id))
+                print("WARNING: Cannot set Color ({}) for actor {} due to missing blueprint attribute".format(color, blueprint.id))
             else:
                 default_color_rgba = blueprint.get_attribute('color').as_color()
                 default_color = '({}, {}, {})'.format(default_color_rgba.r, default_color_rgba.g, default_color_rgba.b)
@@ -487,8 +485,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
                     blueprint.set_attribute('color', color)
                 except ValueError:
                     # Color can't be set for this vehicle
-                    print("WARNING: Color ({}) cannot be set for actor {}. Using instead: ({})".format(
-                        color, blueprint.id, default_color))
+                    print("WARNING: Color ({}) cannot be set for actor {}. Using instead: ({})".format(color, blueprint.id, default_color))
                     blueprint.set_attribute('color', default_color)
         else:
             if blueprint.has_attribute('color') and rolename != 'hero':

@@ -250,11 +250,11 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         self.route = None
         self.ego_id = ego_id
         self.sampled_scenarios_definitions = None
+        # TODO: this parameter should be obtained from outside
+        self.max_running_step = 500
 
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
-
         self._update_route(world, config)
-
         ego_vehicle = self._update_ego_vehicle()
 
         self.list_scenarios = self._build_scenario_instances(
@@ -555,7 +555,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             stop = True
             print('stop due to collision')
         if self.route_length > 1:  # only check when evaluating
-            #print(running_status['route_complete'])
             if running_status['route_complete'] == 100:
                 stop = True
                 print('stop due to route completion')
@@ -566,7 +565,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
                     stop = True
                     print('stop due to low speed')
         else:
-            if len(running_record) >= 250:  # stop at max step when training
+            if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
                 print('stop due to max steps')
 
@@ -585,9 +584,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def _create_behavior(self):
         """
-        Basic behavior do nothing, i.e. Idle
-        We need this method for background
-        We keep pytrees just for background
+            Basic behavior do nothing, i.e. Idle. We need this method for background. We keep pytrees just for background
         """
         behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SuccessOnOne)
         subbehavior = py_trees.composites.Parallel(name="Behavior", policy=py_trees.common.ParallelPolicy.SuccessOnAll)

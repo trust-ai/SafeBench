@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-12 19:42:25
+LastEditTime: 2023-02-12 20:03:46
 Description: 
 '''
 import math
@@ -27,7 +27,7 @@ def scenario_parse(config):
     """
         Data file should also come from args
     """
-    
+
     ROOT_DIR = config['ROOT_DIR']
     print("######## parsing scenario route and data ########")
     list_of_scenario_config = osp.join(ROOT_DIR, config['type_dir'], config['type_name'])

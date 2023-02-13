@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-12 19:41:16
+LastEditTime: 2023-02-12 20:59:28
 Description: 
 '''
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     args_dict = vars(args)
 
-    # set device parameters
+    # set global parameters
     set_torch_variable_env(args.device)
     torch.set_num_threads(args.threads)
     seed_torch(args.seed)
