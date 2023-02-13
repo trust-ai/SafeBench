@@ -7,6 +7,7 @@ from safebench.gym_carla.envs.render import BirdeyeRender
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_manager.scenario_trainer import ScenarioTrainer
+from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
 
 from safebench.agent import AGENT_LIST
 from safebench.agent.safe_rl.agent_trainer import AgentTrainer
@@ -22,7 +23,6 @@ class CarlaRunner:
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
         self.num_episode = scenario_config['num_episode']
-        self.map_town_config = scenario_config['map_town_config']
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
         self.scenario_type = scenario_config['type_name'].split('.')[0]
 
@@ -122,12 +122,14 @@ class CarlaRunner:
                 print('\t Scenario', s_i, '-', np.sum(rewards_list[s_i]))
 
     def run(self):
-        for town in self.map_town_config.keys():
+        # get config of map and twon
+        map_town_config = scenario_parse(self.scenario_config)
+        for town in map_town_config.keys():
             # initialize town
             self._init_world(town)
             # initialize the renderer
             self._init_renderer(self.num_scenario)
-            config_lists = self.map_town_config[town]
+            config_lists = map_town_config[town]
             assert len(config_lists) >= self.num_scenario, "number of config is less than num_scenario ({} < {})".format(len(config_lists), self.num_scenario)
 
             # create scenarios within the vectorized wrapper

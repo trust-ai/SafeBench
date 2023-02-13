@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-12 16:19:15
+LastEditTime: 2023-02-12 19:42:25
 Description: 
 '''
 import math
@@ -23,11 +23,12 @@ def calculate_distance_locations(location_1, location_2):
     return math.sqrt(distance_x + distance_y)
 
 
-def scenario_parse(ROOT_DIR, config):
+def scenario_parse(config):
     """
         Data file should also come from args
     """
     
+    ROOT_DIR = config['ROOT_DIR']
     print("######## parsing scenario route and data ########")
     list_of_scenario_config = osp.join(ROOT_DIR, config['type_dir'], config['type_name'])
     print('######## Using data file:', list_of_scenario_config, '########')
@@ -73,4 +74,4 @@ def scenario_parse(ROOT_DIR, config):
             cur_config_list = [parsed_config]
             map_town_config[cur_town] = cur_config_list
 
-    config['map_town_config'] = map_town_config
+    return map_town_config

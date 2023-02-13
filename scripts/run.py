@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-12 17:57:25
+LastEditTime: 2023-02-12 19:41:16
 Description: 
 '''
 
@@ -13,7 +13,6 @@ import torch
 from safebench.util.run_util import load_config
 from safebench.util.torch_util import seed_torch, set_torch_variable_env
 from safebench.carla_runner import CarlaRunner
-from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
 
 
 if __name__ == '__main__':
@@ -26,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('--render', type=bool, default=True)
     parser.add_argument('--frame_skip', '-fs', type=int, default=4, help='skip of frame in each step')
     parser.add_argument('--seed', '-s', type=int, default=0)
-    parser.add_argument('--device', type=str, default='cuda:0')
+    parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')
     parser.add_argument('--continue_agent_training', '-cat', type=bool, default=False)
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
     parser.add_argument('--port', type=int, default=2000)
@@ -51,7 +50,6 @@ if __name__ == '__main__':
     # load scenario config
     scenario_config_path = osp.join(args.ROOT_DIR, 'safebench/scenario/config', args.scenario_cfg)
     scenario_config = load_config(scenario_config_path)
-    scenario_parse(args.ROOT_DIR, scenario_config)
 
     # main entry with a selected mode
     scenario_config.update(args_dict)
