@@ -242,41 +242,45 @@ class CarlaEnv(gym.Env):
             snapshot = self.world.get_snapshot()
             if snapshot:
                 timestamp = snapshot.timestamp
-        self.scenario_manager.get_update(timestamp)
-        if isinstance(ego_action, dict):
-            world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
-            fov = self.camera_bp.get_attribute('fov').as_float()
-            image_w, image_h = 3000., 3000.
-            self.scenario_manager.evaluate(ego_action, world_2_camera, image_w, image_h, fov)
-            ego_action = ego_action['ego_action']
+                self.scenario_manager.get_update(timestamp)
+                if isinstance(ego_action, dict):
+                    world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
+                    fov = self.camera_bp.get_attribute('fov').as_float()
+                    image_w, image_h = 3000., 3000.
+                    self.scenario_manager.evaluate(ego_action, world_2_camera, image_w, image_h, fov)
+                    ego_action = ego_action['ego_action']
 
-        self.is_running = self.scenario_manager._running
-        
-        # Calculate acceleration and steering
-        if self.discrete:
-            acc = self.discrete_act[0][ego_action // self.n_steer]
-            steer = self.discrete_act[1][ego_action % self.n_steer]
+                self.is_running = self.scenario_manager._running
+
+                # Calculate acceleration and steering
+                if self.discrete:
+                    acc = self.discrete_act[0][ego_action // self.n_steer]
+                    steer = self.discrete_act[1][ego_action % self.n_steer]
+                else:
+                    acc = ego_action[0]
+                    steer = ego_action[1]
+
+                # normalize and clip the action
+                acc = acc * self.acc_max
+                steer = steer * self.steering_max
+                acc = max(min(self.acc_max, acc), -self.acc_max)
+                steer = max(min(self.steering_max, steer), -self.steering_max)
+
+                # Convert acceleration to throttle and brake
+                if acc > 0:
+                    throttle = np.clip(acc / 3, 0, 1)
+                    brake = 0
+                else:
+                    throttle = 0
+                    brake = np.clip(-acc / 8, 0, 1)
+
+                # Apply control
+                act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
+                self.ego.apply_control(act)
+            else:
+                raise Exception('Can not get snapshot!')
         else:
-            acc = ego_action[0]
-            steer = ego_action[1]
-
-        # normalize and clip the action
-        acc = acc * self.acc_max
-        steer = steer * self.steering_max
-        acc = max(min(self.acc_max, acc), -self.acc_max)
-        steer = max(min(self.steering_max, steer), -self.steering_max)
-
-        # Convert acceleration to throttle and brake
-        if acc > 0:
-            throttle = np.clip(acc / 3, 0, 1)
-            brake = 0
-        else:
-            throttle = 0
-            brake = np.clip(-acc / 8, 0, 1)
-
-        # Apply control
-        act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
-        self.ego.apply_control(act)
+            raise Exception('Please specify Carla world!')
 
     def step_after_tick(self):
         # Append actors polygon list
