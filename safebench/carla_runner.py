@@ -67,10 +67,10 @@ class CarlaRunner:
         sample_num = np.min([self.num_scenario, len(config_lists)])
 
         # TODO: sampled scenario should not have overlap
-        scenario_idx = np.random.randint(0, len(config_lists), size=sample_num)
 
         selected_scenario = []
-        for s_i in scenario_idx:
+        for _ in range(sample_num):
+            s_i = np.random.randint(0, len(config_lists))
             selected_scenario.append(config_lists.pop(s_i))
         
         assert len(selected_scenario) <= self.num_scenario, "number of sampled scenarios is larger than {}".format(self.num_scenario)
