@@ -31,7 +31,7 @@ class CarlaEnv(gym.Env):
     """ 
         An OpenAI-gym style interface for CARLA simulator. 
     """
-    def __init__(self, params, birdeye_render=None, display=None, world=None, ROOT_DIR=None):
+    def __init__(self, params, birdeye_render=None, display=None, world=None, ROOT_DIR=None, logger=None):
         # parameters
         self.display_size = params['display_size']  # rendering screen size
         self.max_past_step = params['max_past_step']
@@ -45,6 +45,7 @@ class CarlaEnv(gym.Env):
         self.desired_speed = params['desired_speed']
         self.display_route = params['display_route']
         self.ROOT_DIR = ROOT_DIR
+        self.logger = logger
 
         self.acc_max = params['continuous_accel_range'][1]
         self.steering_max = params['continuous_steer_range'][1]
@@ -88,12 +89,15 @@ class CarlaEnv(gym.Env):
         self.world = world
         self.birdeye_render = birdeye_render
         self.display = display
-
+        self.lidar_data = None
+        self.lidar_height = 2.1
+        
         # Record the time of total steps and resetting steps
         self.reset_step = 0
         self.total_step = 0
         self.is_running = True
         self.env_id = None
+        self.ego = None
 
         # Get pixel grid points
         if self.pixor:
@@ -110,19 +114,16 @@ class CarlaEnv(gym.Env):
         self.scenario = None
         self.scenario_manager = None
 
-    def create_ego_object(self):
+    def _create_sensors(self):
         # Collision sensor
-        self.collision_hist = []  # The collision history
         self.collision_hist_l = 1  # collision history length
         self.collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
 
         # Lidar sensor
-        self.lidar_data = None
-        self.lidar_height = 2.1
         self.lidar_trans = carla.Transform(carla.Location(x=0.0, z=self.lidar_height))
         self.lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        self.lidar_bp.set_attribute('channels', '32')
-        self.lidar_bp.set_attribute('range', '3000')
+        self.lidar_bp.set_attribute('channels', '16')
+        self.lidar_bp.set_attribute('range', '1000')
 
         # Camera sensor
         self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8) # TODO: Haohong
@@ -135,7 +136,7 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-    def load_scenario(self, config, env_id, scenario_type):
+    def _load_scenario(self, config, env_id, scenario_type):
         # create scenario accoridng to different types
         if scenario_type in ['od']:
             self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
@@ -146,14 +147,17 @@ class CarlaEnv(gym.Env):
 
         # init scenario and manager
         self.ego = self.scenario.ego_vehicles[0]
-        self.scenario_manager = ScenarioManagerDynamic()
+        self.scenario_manager = ScenarioManagerDynamic(self.logger)
         self.scenario_manager.load_scenario(self.scenario)
         self.scenario_manager._init_scenarios()
 
     def reset(self, config, env_id, scenario_type):
-        print("######## loading scenario ########")
-        self.load_scenario(config, env_id, scenario_type)
+        self.logger.log(">> create sensors")
+        self._create_sensors()
+
+        self.logger.log(">> loading scenario")
         self.env_id = env_id
+        self._load_scenario(config, env_id, scenario_type)
 
         # change view point
         #location = carla.Location(x=100, y=100, z=300)
@@ -583,10 +587,25 @@ class CarlaEnv(gym.Env):
         # the max step critie is included in scenario_manager
         return not self.scenario_manager._running
 
-    def stop_sensor(self):
+    def _remove_sensor(self):
         if self.collision_sensor is not None:
             self.collision_sensor.stop()
+            self.collision_sensor.destroy()
+            self.collision_sensor = None
         if self.lidar_sensor is not None:
             self.lidar_sensor.stop()
+            self.lidar_sensor.destroy()
+            self.lidar_sensor = None
         if self.camera_sensor is not None:
             self.camera_sensor.stop()
+            self.camera_sensor.destroy()
+            self.camera_sensor = None
+
+    def _remove_ego(self):
+        if self.ego is not None:
+            self.ego.destroy()
+            self.ego = None
+
+    def clean_up(self):
+        self._remove_sensor()
+        self._remove_ego()

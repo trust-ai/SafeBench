@@ -297,7 +297,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
         # prepare route's trajectory (interpolate and add the GPS route)
         len_trajectory = len(config.trajectory)
-        # print(f"length of trajectory {len_trajectory}")
         if len_trajectory == 0:
             len_spawn_points = len(self.vehicle_spawn_points)
             idx = random.choice(list(range(len_spawn_points)))
@@ -308,8 +307,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             gps_route, route = interpolate_trajectory(world, config.trajectory)
 
         potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
-        print('scenarios', potential_scenarios_definitions)
-
         self.route = route
         self.route_length = len(route)
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
@@ -621,6 +618,8 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         """
         for criterion_name, criterion in self.criteria.items():
             criterion.terminate()
+        
+        # each scenario remove its own actors
         for scenario in self.list_scenarios:
             scenario.remove_all_actors()
         self.remove_all_actors()

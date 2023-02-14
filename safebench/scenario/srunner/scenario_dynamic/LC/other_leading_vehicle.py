@@ -37,8 +37,7 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, toolsorld, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=80):
+    def __init__(self, toolsorld, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=80):
         """
         Setup all relevant parameters and create scenario
         """
@@ -81,12 +80,14 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
 
         self.need_decelerate = False
 
-        super(OtherLeadingVehicleDynamic, self).__init__("VehicleDeceleratingInMultiLaneSetUpDynamic",
-                                                  ego_vehicles,
-                                                  config,
-                                                  toolsorld,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable)
+        super(OtherLeadingVehicleDynamic, self).__init__(
+            "VehicleDeceleratingInMultiLaneSetUpDynamic",
+            ego_vehicles,
+            config,
+            toolsorld,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.actor_type_list.append('vehicle.nissan.patrol')
@@ -130,10 +131,8 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         first_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
         second_vehicle_toolsaypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._second_vehicle_location)
         second_vehicle_toolsaypoint = second_vehicle_toolsaypoint.get_left_lane()
-        first_vehicle_transform = carla.Transform(first_vehicle_toolsaypoint.transform.location,
-                                                  first_vehicle_toolsaypoint.transform.rotation)
-        second_vehicle_transform = carla.Transform(second_vehicle_toolsaypoint.transform.location,
-                                                   second_vehicle_toolsaypoint.transform.rotation)
+        first_vehicle_transform = carla.Transform(first_vehicle_toolsaypoint.transform.location, first_vehicle_toolsaypoint.transform.rotation)
+        second_vehicle_transform = carla.Transform(second_vehicle_toolsaypoint.transform.location, second_vehicle_toolsaypoint.transform.rotation)
 
         self.other_actor_transform.append(first_vehicle_transform)
         self.other_actor_transform.append(second_vehicle_transform)
@@ -142,8 +141,7 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         self.reference_actor = self.other_actors[0]
 
         self._first_actor_transform = first_vehicle_transform
-        # self.second_vehicle_transform = carla.Transform(second_vehicle_toolsaypoint.transform.location,
-        #                                                second_vehicle_toolsaypoint.transform.rotation)
+        # self.second_vehicle_transform = carla.Transform(second_vehicle_toolsaypoint.transform.location, second_vehicle_toolsaypoint.transform.rotation)
 
     def update_behavior(self):
         """
@@ -151,25 +149,18 @@ class OtherLeadingVehicleDynamic(BasicScenarioDynamic):
         At specific point, vehicle in front of ego toolsill decelerate
         other_actors[0] is the vehicle before the ego
         """
-        # cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.ego_vehicles[0]),
-        #                                              CarlaDataProvider.get_transform(self.other_actors[1]))
-        cur_distance = calculate_distance_transforms(self.other_actor_transform[0],
-                                                     CarlaDataProvider.get_transform(self.other_actors[0]))
-
+        # cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.ego_vehicles[0]), CarlaDataProvider.get_transform(self.other_actors[1]))
+        cur_distance = calculate_distance_transforms(self.other_actor_transform[0], CarlaDataProvider.get_transform(self.other_actors[0]))
         if cur_distance > self.dece_distance:
             self.need_decelerate = True
         for i in range(len(self.other_actors)):
             if i == 0 and self.need_decelerate:
-                # print("start to decelerate")
-                # print("cur actor speed: ", CarlaDataProvider.get_velocity(self.other_actors[i]))
                 self.scenario_operation.go_straight(self.dece_target_speed, i)
             else:
                 self.scenario_operation.go_straight(self.other_actor_speed[i], i)
-
 
     def _create_behavior(self):
         pass
 
     def check_stop_condition(self):
         pass
-

@@ -2,7 +2,7 @@
 @Author: Wenhao Ding
 @Email: wenhaod@andrew.cmu.edu
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-08 12:26:26
+LastEditTime: 2023-02-13 15:38:03
 @Description: 
 '''
 
@@ -247,9 +247,8 @@ class REINFORCE:
             return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy()]
 
     def load_model(self, filepath):
-        print('checking', filepath)
         if os.path.isfile(filepath):
-            print('loading', filepath)
+            print('Loading lc model:', filepath)
             with open(filepath, 'rb') as f:
                 checkpoint = torch.load(f)
             self.model.load_state_dict(checkpoint['parameters'])

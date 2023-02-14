@@ -5,7 +5,7 @@ import pygame
 
 class VectorWrapper():
     """ The interface to control a list of environments"""
-    def __init__(self, agent_config, scenario_config, world, birdeye_render, display):
+    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, logger):
         self.world = world
         self.num_scenario = scenario_config['num_scenario']
         self.ROOT_DIR = scenario_config['ROOT_DIR']
@@ -16,7 +16,7 @@ class VectorWrapper():
         self.env_list = []
         self.action_space_list = []
         for _ in range(self.num_scenario):
-            env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR)
+            env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, logger=logger)
             self.env_list.append(env)
             self.action_space_list.append(env.action_space)
 
@@ -37,7 +37,6 @@ class VectorWrapper():
         obs_list = []
         for s_i in range(len(scenario_configs)):
             config = scenario_configs[s_i]
-            self.env_list[s_i].create_ego_object()
             obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
             obs_list.append(obs)
 
@@ -91,11 +90,6 @@ class VectorWrapper():
         # update pygame window
         if self.render:
             pygame.display.flip()
-        
-        # clear up when all scenarios are finished
-        if self.all_scenario_done():
-            print('######## Clearning up all actors ########')
-            self._clear_up()
 
         return self.obs_postprocess(obs_list), rewards, dones, infos
 
@@ -111,27 +105,13 @@ class VectorWrapper():
         else:
             return False
 
-    def _clear_up(self):
+    def clean_up(self):
         # stop sensor objects
         for e_i in range(self.num_scenario):
-            self.env_list[e_i].stop_sensor()
+            self.env_list[e_i].clean_up()
 
-        # this will remove all actors, thus only can be called after all scenarios are finished
-        actor_filters = [
-            'vehicle.*',
-            'walker.*',
-            'controller.ai.walker',
-            'sensor.other.collision', 
-            'sensor.lidar.ray_cast',
-            'sensor.camera.rgb', 
-        ]
-        for actor_filter in actor_filters:
-            for actor in self.world.get_actors().filter(actor_filter):
-                print('actor id:', actor.id, actor.type_id)
-                if actor.is_alive:
-                    if actor.type_id == 'controller.ai.walker':
-                        actor.stop()
-                    actor.destroy()
+        # tick to ensure that all destroy commands are executed
+        self.world.tick()
 
 
 class EnvWrapper(gym.Wrapper):
@@ -237,5 +217,5 @@ params = {
 }
 
 
-def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None):
-    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=ROOT_DIR), obs_type=obs_type)
+def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None, logger=None):
+    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=ROOT_DIR, logger=logger), obs_type=obs_type)

@@ -18,6 +18,7 @@ from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_l
 
 from safebench.scenario.srunner.scenario_dynamic.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
+
 def get_opponent_transform(added_dist, waypoint, trigger_location):
     """
     Calculate the transform of the adversary
@@ -95,7 +96,6 @@ def is_lane_a_parking(waypoint):
 
 
 class VehicleTurningRouteDynamic(BasicScenarioDynamic):
-
     """
     This class holds everything required for a simple object crash
     with prior vehicle action involving a vehicle and a cyclist.
@@ -104,9 +104,7 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
     is following a given route. (Traffic Scenario 4)
     This is a single ego vehicle scenario
     """
-
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
@@ -128,11 +126,8 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         route_norm = route_norm.astype('float32')
 
         actions = self.agent.deterministic_action(route_norm)
-
         self.actions = actions
-
         print([i.item() for i in actions])
-
         self.running_distance = 10
 
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
@@ -140,13 +135,15 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         # define scenario actions with scanerio modle agent
         # self.actions = actions
 
-        super(VehicleTurningRouteDynamic, self).__init__("VehicleTurningRouteDynamic",
-                                                  ego_vehicles,
-                                                  config,
-                                                  world,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable,
-                                                  terminate_on_failure=True)
+        super(VehicleTurningRouteDynamic, self).__init__(
+            "VehicleTurningRouteDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable,
+            terminate_on_failure=True
+        )
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
 
@@ -190,15 +187,11 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         x /= len(entry_wps) * 2
         y /= len(entry_wps) * 2
         for i in range(len(entry_wps)):
-            max_x_scale = max(max_x_scale, abs(entry_wps[i].transform.location.x - x),
-                              abs(exit_wps[i].transform.location.x - x))
-            max_y_scale = max(max_y_scale, abs(entry_wps[i].transform.location.y - y),
-                              abs(exit_wps[i].transform.location.y - y))
+            max_x_scale = max(max_x_scale, abs(entry_wps[i].transform.location.x - x), abs(exit_wps[i].transform.location.x - x))
+            max_y_scale = max(max_y_scale, abs(entry_wps[i].transform.location.y - y), abs(exit_wps[i].transform.location.y - y))
         max_x_scale *= 0.8
         max_y_scale *= 0.8
-        center_transform = carla.Transform(
-            carla.Location(x=x, y=y, z=0),
-            carla.Rotation(pitch=0, yaw=0, roll=0))
+        center_transform = carla.Transform(carla.Location(x=x, y=y, z=0), carla.Rotation(pitch=0, yaw=0, roll=0))
         x_mean = x
         y_mean = y
 
@@ -206,12 +199,9 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         # x, y, yaw, self.trigger_distance_threshold = self.convert_action(self.actions)
 
         _other_actor_transform = carla.Transform(carla.Location(x, y, 0), carla.Rotation(yaw=yaw))
-
         self.other_actor_transform.append(_other_actor_transform)
-
         try:
-            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                              self.actor_type_list)
+            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         except:
             raise SpawnOtherActorError
 
@@ -229,7 +219,6 @@ class VehicleTurningRouteDynamic(BasicScenarioDynamic):
         """
 
         return False
-
 
     def _create_behavior(self):
         pass

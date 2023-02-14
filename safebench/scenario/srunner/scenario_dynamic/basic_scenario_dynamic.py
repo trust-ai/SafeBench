@@ -17,8 +17,10 @@ from safebench.scenario.srunner.scenario_manager.timer import TimeOut
 from safebench.scenario.srunner.scenario_manager.weather_sim import WeatherBehavior
 # from scenario_runner.srunner.scenario_manager.scenarioatomics.atomic_behaviors import UpdateAllActorControls
 
+
 class SpawnOtherActorError(Exception):
     pass
+
 
 class BasicScenarioDynamic(object):
     """
@@ -126,9 +128,6 @@ class BasicScenarioDynamic(object):
                     CarlaDataProvider.remove_actor_by_id(self.other_actors[i].id)
                 self.other_actors[i] = None
         self.other_actors = []
-
-    def _del(self):
-        self.remove_all_actors()
 
 
 class ScenarioDynamic(object):

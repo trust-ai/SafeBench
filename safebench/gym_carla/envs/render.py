@@ -85,8 +85,8 @@ class Util(object):
 
 
 class MapImage(object):
-    def __init__(self, carla_world, carla_map, pixels_per_meter):
-        print('######## drawing the map of the entire town ########')
+    def __init__(self, carla_world, carla_map, pixels_per_meter, logger):
+        logger.log('>> Drawing the map of the entire town')
         self._pixels_per_meter = pixels_per_meter
         self.scale = 1.0
 
@@ -371,7 +371,7 @@ class MapImage(object):
 
 
 class BirdeyeRender(object):
-    def __init__(self, world, params):
+    def __init__(self, world, params, logger):
         self.params = params
         self.server_fps = 0.0
         self.simulation_time = 0
@@ -398,7 +398,8 @@ class BirdeyeRender(object):
         self.map_image = MapImage(
             carla_world=self.world,
             carla_map=self.town_map,
-            pixels_per_meter=self.params['pixels_per_meter']
+            pixels_per_meter=self.params['pixels_per_meter'],
+            logger=logger,
         )
         self.original_surface_size = min(self.params['screen_size'][0], self.params['screen_size'][1])
         self.surface_size = self.map_image.big_map_surface.get_width()

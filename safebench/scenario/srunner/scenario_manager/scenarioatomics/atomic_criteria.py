@@ -233,8 +233,7 @@ class CollisionTest(Criterion):
     MAX_AREA_OF_COLLISION = 5       # If further than this distance, the area is forgotten
     MAX_ID_TIME = 5                 # Amount of time the last collision if is remembered
 
-    def __init__(self, actor, other_actor=None, other_actor_type=None,
-                 optional=False, name="CollisionTest", terminate_on_failure=False):
+    def __init__(self, actor, other_actor=None, other_actor_type=None, optional=False, name="CollisionTest", terminate_on_failure=False):
         """
         Construction with sensor setup
         """
@@ -258,7 +257,7 @@ class CollisionTest(Criterion):
         new_status = Status.RUNNING
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>>> CollisionTest fail')
+            print('>> CollisionTest fail')
             new_status = Status.FAILURE
 
         actor_location = CarlaDataProvider.get_location(self.actor)
@@ -286,7 +285,7 @@ class CollisionTest(Criterion):
         """
         Cleanup sensor
         """
-        if self._collision_sensor is not None:
+        if self._collision_sensor is not None and self._collision_sensor.is_alive:
             self._collision_sensor.destroy()
         self._collision_sensor = None
 

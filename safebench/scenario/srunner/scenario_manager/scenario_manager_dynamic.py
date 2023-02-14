@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-06 17:01:03
+LastEditTime: 2023-02-13 16:46:02
 Description: 
 '''
 
@@ -26,7 +26,7 @@ class ScenarioManagerDynamic(object):
             5. If needed, cleanup with manager.stop_scenario()
     """
 
-    def __init__(self):
+    def __init__(self, logger):
         self.scenario = None
         self.scenario_tree = None
         self.scenario_class = None
@@ -34,6 +34,7 @@ class ScenarioManagerDynamic(object):
         self.other_actors = None
         self.scenario_list = None
         self.triggered_scenario = None
+        self.logger = logger
         self._reset()
 
     def _reset(self):
@@ -103,7 +104,7 @@ class ScenarioManagerDynamic(object):
 
                 if cur_distance and cur_distance < spawned_scenario.trigger_distance_threshold:
                     if spawned_scenario not in self.triggered_scenario:
-                        print("Trigger scenario: " + spawned_scenario.name)
+                        self.logger.log(">> Trigger scenario: " + spawned_scenario.name)
                         self.triggered_scenario.add(spawned_scenario)
 
             for running_scenario in self.triggered_scenario.copy(): # why using copy?

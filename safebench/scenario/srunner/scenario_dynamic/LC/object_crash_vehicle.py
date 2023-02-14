@@ -34,8 +34,7 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False,
-                 debug_mode=False, criteria_enable=True, adversary_type=False, timeout=60):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, adversary_type=False, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
@@ -55,14 +54,9 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         route_norm = route_norm.astype('float32')
 
         actions = self.agent.deterministic_action(route_norm)
-
         self.actions = self.convert_actions(actions)
 
-        print(actions)
-        print(self.actions)
-
         self._wmap = CarlaDataProvider.get_map()
-
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
         # ego vehicle parameters
         # self._ego_vehicle_distance_driven = 40
@@ -85,12 +79,14 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
 
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
-        super(DynamicObjectCrossingDynamic, self).__init__("DynamicObjectCrossingDynamic",
-                                                    ego_vehicles,
-                                                    config,
-                                                    world,
-                                                    debug_mode,
-                                                    criteria_enable=criteria_enable)
+        super(DynamicObjectCrossingDynamic, self).__init__(
+            "DynamicObjectCrossingDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.trigger_distance_threshold = 20
         self.actor_type_list.append('walker.*')
@@ -129,7 +125,8 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         orientation_yaw = waypoint.transform.rotation.yaw + offset['orientation']
         offset_location = carla.Location(
             offset['k'] * lane_width * math.cos(math.radians(position_yaw)),
-            offset['k'] * lane_width * math.sin(math.radians(position_yaw)))
+            offset['k'] * lane_width * math.sin(math.radians(position_yaw))
+        )
         location += offset_location
         location.z = self._trigger_location.z + offset['z']
         return carla.Transform(location, carla.Rotation(yaw=orientation_yaw)), orientation_yaw
@@ -150,10 +147,10 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
         spawn_point_wp = self.ego_vehicles[0].get_world().get_map().get_waypoint(transform.location)
 
         #Note: if need to change tranform for blocker, here
-        self.transform2 = carla.Transform(carla.Location(x_static, y_static,
-                                                         spawn_point_wp.transform.location.z + 0.3),
-                                          carla.Rotation(yaw=orientation_yaw + 180))
-
+        self.transform2 = carla.Transform(
+            carla.Location(x_static, y_static, spawn_point_wp.transform.location.z + 0.3),
+            carla.Rotation(yaw=orientation_yaw + 180)
+        )
 
     def initialize_actors(self):
         """
@@ -194,8 +191,7 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
                     yaw -= 360
                 self.transform = carla.Transform(
                     self.transform.location,
-                    carla.Rotation(self.transform.rotation.pitch, yaw,
-                                   self.transform.rotation.roll))
+                    carla.Rotation(self.transform.rotation.pitch, yaw, self.transform.rotation.roll))
                 orientation_yaw = yaw
 
                 self._spawn_blocker(self.transform, orientation_yaw)
@@ -211,16 +207,13 @@ class DynamicObjectCrossingDynamic(BasicScenarioDynamic):
 
         # Now that we found a possible position we just put the vehicle to the underground
         disp_transform = carla.Transform(
-            carla.Location(self.transform.location.x,
-                           self.transform.location.y,
-                           self.transform.location.z),
-            self.transform.rotation)
-
+            carla.Location(self.transform.location.x, self.transform.location.y, self.transform.location.z),
+            self.transform.rotation
+        )
         prop_disp_transform = carla.Transform(
-            carla.Location(self.transform2.location.x,
-                           self.transform2.location.y,
-                           self.transform2.location.z),
-            self.transform2.rotation)
+            carla.Location(self.transform2.location.x, self.transform2.location.y, self.transform2.location.z),
+            self.transform2.rotation
+        )
 
         self.other_actor_transform.append(disp_transform)
         self.other_actor_transform.append(prop_disp_transform)

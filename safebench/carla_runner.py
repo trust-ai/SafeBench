@@ -11,7 +11,7 @@ from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
 
 from safebench.agent import AGENT_LIST
 from safebench.agent.safe_rl.agent_trainer import AgentTrainer
-from safebench.agent.safe_rl.util.logger import EpochLogger, setup_logger_kwargs
+from safebench.util.logger import EpochLogger, setup_logger_kwargs
 
 
 class CarlaRunner:
@@ -81,8 +81,7 @@ class CarlaRunner:
         return self._eval_sampler(config_lists)
 
     def _init_world(self, town):
-        print("######## initializeing carla world ########")
-        self.clear()
+        self.logger.log(">> Initializing carla world")
         self.world = self.client.load_world(town)
         settings = self.world.get_settings()
         settings.synchronous_mode = True
@@ -93,7 +92,7 @@ class CarlaRunner:
         self.world.set_weather(carla.WeatherParameters.ClearNoon)
 
     def _init_renderer(self, num_envs):
-        print("######## initializeing pygame birdeye renderer ########")
+        self.logger.log(">> Initializing pygame birdeye renderer")
         pygame.init()
         flag = pygame.HWSURFACE | pygame.DOUBLEBUF
         if not self.render:
@@ -109,7 +108,7 @@ class CarlaRunner:
         }
 
         # initialize the render for genrating observation and visualization
-        self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params)
+        self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
 
     def eval(self, config_lists):
         num_total_scenario = len(config_lists)
@@ -124,7 +123,7 @@ class CarlaRunner:
             rewards_list = {s_i: [] for s_i in range(num_batch_scenario)}
             while True:
                 if self.env.all_scenario_done():
-                    print("######## All scenarios are completed. Prepare for exiting ########")
+                    self.logger.log(">> All scenarios are completed. Prepare for exiting")
                     break
 
                 # get action from ego agent (assume using one batch)
@@ -139,14 +138,17 @@ class CarlaRunner:
                     rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
                     reward_idx += 1
 
+            self.logger.log('>> Clearning up all actors')
+            self.env.clean_up()
+
             # calculate episode reward and print
-            print('[{}/{}] Episode reward for batch scenario:'.format(num_finished_scenario, num_total_scenario))
+            self.logger.log('[{}/{}] Episode reward for batch scenario:'.format(num_finished_scenario, num_total_scenario), color='yellow')
             for s_i in rewards_list.keys():
-                print('\t Scenario', s_i, ':', np.sum(rewards_list[s_i]))
+                self.logger.log('\t Scenario' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
 
     def run(self):
         # get config of map and twon
-        map_town_config = scenario_parse(self.scenario_config)
+        map_town_config = scenario_parse(self.scenario_config, self.logger)
         for town in map_town_config.keys():
             # initialize town
             self._init_world(town)
@@ -155,7 +157,7 @@ class CarlaRunner:
             config_lists = map_town_config[town]
 
             # create scenarios within the vectorized wrapper
-            self.env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display)
+            self.env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
 
             if self.mode == 'eval':
                 self.eval(config_lists)
@@ -165,9 +167,20 @@ class CarlaRunner:
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
-    def clear(self):
-        # TODO: before init world, clear all things
-        pass
-
     def close(self):
-        self.clear()
+        # check if all actors are cleaned
+        actor_filters = [
+            'vehicle.*',
+            'walker.*',
+            'controller.ai.walker',
+            'sensor.other.collision', 
+            'sensor.lidar.ray_cast',
+            'sensor.camera.rgb', 
+        ]
+        for actor_filter in actor_filters:
+            for actor in self.world.get_actors().filter(actor_filter):
+                self.logger.log('>> Removing', actor.type_id, actor.id, actor.is_alive)
+                if actor.is_alive:
+                    if actor.type_id == 'controller.ai.walker':
+                        actor.stop()
+                    actor.destroy()

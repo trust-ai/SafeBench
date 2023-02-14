@@ -60,7 +60,7 @@ class ScenarioOperation(object):
         for i in range(len(self.other_actors)):
             if(isinstance(self.other_actors[i], carla.Vehicle)):
                 cur_id = self.other_actors[i].id
-                cur_controller = VehiclePIDController(self.other_actors[i], args_lateral = _args_lateral_dict, args_longitudinal = _args_longitudinal_dict)
+                cur_controller = VehiclePIDController(self.other_actors[i], args_lateral=_args_lateral_dict, args_longitudinal=_args_longitudinal_dict)
                 self.vehicle_controller[cur_id] = cur_controller
 
     def go_straight(self, target_speed, i, throttle_value=1.0, break_value=1.0, steering=0.0):

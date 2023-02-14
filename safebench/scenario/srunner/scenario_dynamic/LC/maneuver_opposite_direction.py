@@ -22,14 +22,11 @@ from safebench.scenario.srunner.scenario_dynamic.LC.reinforce_continuous import 
 
 
 class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
-
     """
     "Vehicle Maneuvering In Opposite Direction" (Traffic Scenario 06)
     This is a single ego vehicle scenario
     """
-
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 obstacle_type='vehicle', timeout=120):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, obstacle_type='vehicle', timeout=120):
         """
         Setup all relevant parameters and create scenario
         obstacle_type -> flag to select type of leading obstacle. Values: vehicle, barrier
@@ -83,7 +80,8 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
             config,
             world,
             debug_mode,
-            criteria_enable=criteria_enable)
+            criteria_enable=criteria_enable
+        )
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
 
@@ -118,7 +116,6 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
 
         return [x, y, yaw]
 
-
     def initialize_actors(self):
         """
         Custom initialization
@@ -127,17 +124,11 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
         second_actor_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._second_vehicle_location)
         second_actor_waypoint = second_actor_waypoint.get_left_lane()
 
-        first_actor_transform = carla.Transform(
-            first_actor_waypoint.transform.location,
-            first_actor_waypoint.transform.rotation)
+        first_actor_transform = carla.Transform(first_actor_waypoint.transform.location, first_actor_waypoint.transform.rotation)
 
         self.other_actor_transform.append(first_actor_transform)
-
         self.other_actor_transform.append(second_actor_waypoint.transform)
-
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
-
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
 
     def update_behavior(self):
@@ -146,8 +137,6 @@ class ManeuverOppositeDirectionDynamic(BasicScenarioDynamic):
         second actor run in normal speed from oncoming route
         """
         self.scenario_operation.go_straight(self._opposite_speed, 1)
-
-
 
     def _create_behavior(self):
         pass

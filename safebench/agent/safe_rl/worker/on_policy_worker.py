@@ -1,8 +1,4 @@
-import gym
 import numpy as np
-import torch
-from safebench.agent.safe_rl.policy.base_policy import Policy
-from safebench.agent.safe_rl.util.logger import EpochLogger
 from safebench.util.torch_util import to_tensor
 from safebench.agent.safe_rl.worker.buffer import OnPolicyBuffer
 

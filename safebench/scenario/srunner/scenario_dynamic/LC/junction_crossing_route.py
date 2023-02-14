@@ -33,8 +33,7 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=180):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=180):
         """
         Setup all relevant parameters and create scenario
         and instantiate scenario manager
@@ -59,20 +58,18 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         self.actions = self.convert_actions(actions)
         self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
 
-        print(actions)
-        print(self.actions)
-
         # Timeout of scenario in seconds
         self.timeout = timeout
-
         self.actor_speed = 10 + delta_v
 
-        super(OppositeVehicleRunningRedLightDynamic, self).__init__("OppositeVehicleRunningRedLightDynamic",
-                                                             ego_vehicles,
-                                                             config,
-                                                             world,
-                                                             debug_mode,
-                                                             criteria_enable=criteria_enable)
+        super(OppositeVehicleRunningRedLightDynamic, self).__init__(
+            "OppositeVehicleRunningRedLightDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
 
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
 
@@ -101,7 +98,6 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
 
         return [y, yaw, dist]
 
-
     def initialize_actors(self):
         """
         Custom initialization
@@ -113,15 +109,13 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
         self._other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x,
-                           self._other_actor_transform.location.y,
-                           self._other_actor_transform.location.z),
-            self._other_actor_transform.rotation)
+            carla.Location(self._other_actor_transform.location.x, self._other_actor_transform.location.y, self._other_actor_transform.location.z),
+            self._other_actor_transform.rotation
+        )
 
         self.other_actor_transform.append(first_vehicle_transform)
         self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
 
         # other vehicle's traffic light
@@ -148,8 +142,7 @@ class OppositeVehicleRunningRedLightDynamic(BasicScenarioDynamic):
         """
         small scenario stops when actor runs a specific distance
         """
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]),
-                                                     self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
         if cur_distance >= self._actor_distance:
             return True
         return False
@@ -163,8 +156,7 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
     Oncoming actor
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=80):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=80):
         """
             Setup all relevant parameters and create scenario
         """
@@ -188,9 +180,6 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
         self.actions = self.convert_actions(actions)
         self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
 
-        print(actions)
-        print(self.actions)
-
         self._world = world
         self._map = CarlaDataProvider.get_map()
         self._target_vel = 12.0 + delta_v
@@ -199,12 +188,14 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
         # self._ego_distance = 110
         self._actor_distance = 100
         self._traffic_light = None
-        super(SignalizedJunctionLeftTurnDynamic, self).__init__("TurnLeftAtSignalizedJunctionDynamic",
-                                                         ego_vehicles,
-                                                         config,
-                                                         world,
-                                                         debug_mode,
-                                                         criteria_enable=criteria_enable)
+        super(SignalizedJunctionLeftTurnDynamic, self).__init__(
+            "TurnLeftAtSignalizedJunctionDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
         if self._traffic_light is None:
             raise RuntimeError("No traffic light for the given location found")
@@ -238,10 +229,9 @@ class SignalizedJunctionLeftTurnDynamic(BasicScenarioDynamic):
         forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
         self._other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x,
-                           self._other_actor_transform.location.y,
-                           self._other_actor_transform.location.z),
-            self._other_actor_transform.rotation)
+            carla.Location(self._other_actor_transform.location.x, self._other_actor_transform.location.y, self._other_actor_transform.location.z),
+            self._other_actor_transform.rotation
+        )
         self.other_actor_transform.append(first_vehicle_transform)
         # self.actor_type_list.append("vehicle.diamondback.century")
         self.actor_type_list.append("vehicle.audi.tt")
@@ -283,8 +273,7 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
     Oncoming actor
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=80):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=80):
         """
             Setup all relevant parameters and create scenario
         """
@@ -304,12 +293,8 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
         route_norm = route_norm.astype('float32')
 
         actions = self.agent.deterministic_action(route_norm)
-
         self.actions = self.convert_actions(actions)
         self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
-
-        print(actions)
-        print(self.actions)
 
         self._world = world
         self._map = CarlaDataProvider.get_map()
@@ -319,12 +304,14 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
         # self._ego_distance = 110
         self._actor_distance = 100
         self._traffic_light = None
-        super(SignalizedJunctionRightTurnDynamic, self).__init__("TurnRightAtSignalizedJunctionDynamic",
-                                                         ego_vehicles,
-                                                         config,
-                                                         world,
-                                                         debug_mode,
-                                                         criteria_enable=criteria_enable)
+        super(SignalizedJunctionRightTurnDynamic, self).__init__(
+            "TurnRightAtSignalizedJunctionDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
         if self._traffic_light is None:
             raise RuntimeError("No traffic light for the given location found")
@@ -359,10 +346,13 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
         forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
         self._other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x,
-                           self._other_actor_transform.location.y,
-                           self._other_actor_transform.location.z),
-            self._other_actor_transform.rotation)
+            carla.Location(
+                self._other_actor_transform.location.x, 
+                self._other_actor_transform.location.y, 
+                self._other_actor_transform.location.z
+            ),
+            self._other_actor_transform.rotation
+        )
         self.other_actor_transform.append(first_vehicle_transform)
         self.actor_type_list.append("vehicle.audi.tt")
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
@@ -400,12 +390,7 @@ class SignalizedJunctionRightTurnDynamic(BasicScenarioDynamic):
 
 
 class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
-    """
-
-    """
-
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
@@ -429,20 +414,18 @@ class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
         self.actions = self.convert_actions(actions)
         self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
 
-        print(actions)
-        print(self.actions)
-
         # Timeout of scenario in seconds
         self.timeout = timeout
-
         self.actor_speed = 10 + delta_v
 
-        super(NoSignalJunctionCrossingRouteDynamic, self).__init__("NoSignalJunctionCrossing",
-                                                       ego_vehicles,
-                                                       config,
-                                                       world,
-                                                       debug_mode,
-                                                       criteria_enable=criteria_enable)
+        super(NoSignalJunctionCrossingRouteDynamic, self).__init__(
+            "NoSignalJunctionCrossing",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
         self.trigger_distance_threshold = 35 + delta_dist
@@ -469,15 +452,12 @@ class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
         forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
         self._other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x,
-                           self._other_actor_transform.location.y,
-                           self._other_actor_transform.location.z),
-            self._other_actor_transform.rotation)
-
+            carla.Location(self._other_actor_transform.location.x, self._other_actor_transform.location.y, self._other_actor_transform.location.z),
+            self._other_actor_transform.rotation
+        )
         self.other_actor_transform.append(first_vehicle_transform)
         self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
 
     def update_behavior(self):
@@ -495,8 +475,7 @@ class NoSignalJunctionCrossingRouteDynamic(BasicScenarioDynamic):
         """
         small scenario stops when actor runs a specific distance
         """
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]),
-                                                     self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
         if cur_distance >= self._actor_distance:
             return True
         return False

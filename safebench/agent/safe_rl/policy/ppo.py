@@ -1,12 +1,8 @@
-import gym
 import numpy as np
 import torch
 import torch.nn as nn
 from safebench.agent.safe_rl.policy.base_policy import Policy
-from safebench.agent.safe_rl.policy import LagrangianPIDController
-from safebench.agent.safe_rl.policy.model.mlp_ac import (MLPCategoricalActor, MLPGaussianActor,
-                                         mlp)
-from safebench.agent.safe_rl.util.logger import EpochLogger
+from safebench.agent.safe_rl.policy.model.mlp_ac import MLPCategoricalActor, MLPGaussianActor, mlp
 from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
@@ -45,9 +41,7 @@ class PPO(Policy):
         self.act_lim = config['ego_action_limit']
 
         if ac_model.lower() == "mlp":
-            actor = MLPGaussianActor(self.obs_dim, self.act_dim,
-                                     -self.act_lim, self.act_lim,
-                                     self.hidden_sizes, nn.ReLU)
+            actor = MLPGaussianActor(self.obs_dim, self.act_dim, -self.act_lim, self.act_lim, self.hidden_sizes, nn.ReLU)
             critic = mlp([self.obs_dim] + list(self.hidden_sizes) + [1], nn.ReLU)
         else:
             raise ValueError(f"{ac_model} ac model does not support.")
@@ -61,16 +55,14 @@ class PPO(Policy):
         # Count variables
         var_counts = tuple(
             count_vars(module) for module in [self.actor, self.critic])
-        logger.log('\nNumber of parameters: \t actor: %d, \t critic: %d\n' %
-                   var_counts)
+        logger.log('\nNumber of parameters: \t actor: %d, \t critic: %d\n' % var_counts)
 
     def _ac_training_setup(self, actor, critic):
         self.actor, self.critic = to_device([actor, critic], get_device_name())
 
         # Set up optimizers for policy and value function
         self.actor_optimizer = Adam(self.actor.parameters(), lr=self.actor_lr)
-        self.critic_optimizer = Adam(self.critic.parameters(),
-                                     lr=self.critic_lr)
+        self.critic_optimizer = Adam(self.critic.parameters(), lr=self.critic_lr)
 
     def act(self, obs, deterministic=False):
         '''
@@ -97,9 +89,7 @@ class PPO(Policy):
         '''
         self._update_actor(data)
 
-        LossV, DeltaLossV = self._update_critic(self.critic, data["obs"],
-                                                data["ret"],
-                                                self.critic_optimizer)
+        LossV, DeltaLossV = self._update_critic(self.critic, data["obs"], data["ret"], self.critic_optimizer)
         # Log critic update info
         self.logger.store(LossV=LossV, DeltaLossV=DeltaLossV)
 
@@ -131,18 +121,15 @@ class PPO(Policy):
         def policy_loss():
             pi, _, logp = self.actor_forward(obs, act)
             ratio = torch.exp(logp - logp_old)
-            clip_adv = torch.clamp(ratio, 1 - self.clip_ratio,
-                                   1 + self.clip_ratio) * adv
+            clip_adv = torch.clamp(ratio, 1 - self.clip_ratio, 1 + self.clip_ratio) * adv
             loss_pi = -(torch.min(ratio * adv, clip_adv)).mean()
 
             # Useful extra info
             approx_kl = (logp_old - logp).mean().item()
 
             ent = pi.entropy().mean().item()
-            clipped = ratio.gt(1 + self.clip_ratio) | ratio.lt(1 -
-                                                               self.clip_ratio)
-            clipfrac = torch.as_tensor(clipped,
-                                       dtype=torch.float32).mean().item()
+            clipped = ratio.gt(1 + self.clip_ratio) | ratio.lt(1 - self.clip_ratio)
+            clipfrac = torch.as_tensor(clipped, dtype=torch.float32).mean().item()
             pi_info = dict(kl=approx_kl, ent=ent, cf=clipfrac)
 
             return loss_pi, pi_info
@@ -166,13 +153,14 @@ class PPO(Policy):
         # Log actor update info
         kl, ent, cf = pi_info['kl'], pi_info_old['ent'], pi_info['cf']
 
-        self.logger.store(StopIter=i,
-                          LossPi=to_ndarray(pi_l_old),
-                          KL=kl,
-                          Entropy=ent,
-                          ClipFrac=cf,
-                          DeltaLossPi=(to_ndarray(loss_pi) -
-                                       to_ndarray(pi_l_old)))
+        self.logger.store(
+            StopIter=i,
+            LossPi=to_ndarray(pi_l_old),
+            KL=kl,
+            Entropy=ent,
+            ClipFrac=cf,
+            DeltaLossPi=(to_ndarray(loss_pi) - to_ndarray(pi_l_old))
+        )
 
     def _update_critic(self, critic, obs, ret, critic_optimizer):
         '''

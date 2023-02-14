@@ -1,14 +1,11 @@
 from copy import deepcopy
 
-import gym
 import numpy as np
 import torch
 import torch.nn as nn
 from safebench.agent.safe_rl.policy.base_policy import Policy
 from safebench.agent.safe_rl.policy.model.mlp_ac import MLPActor, EnsembleQCritic
-from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray,
-                                     to_tensor)
+from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
 

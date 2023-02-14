@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-12 20:03:46
+LastEditTime: 2023-02-13 16:42:51
 Description: 
 '''
 import math
@@ -23,15 +23,14 @@ def calculate_distance_locations(location_1, location_2):
     return math.sqrt(distance_x + distance_y)
 
 
-def scenario_parse(config):
+def scenario_parse(config, logger):
     """
         Data file should also come from args
     """
 
     ROOT_DIR = config['ROOT_DIR']
-    print("######## parsing scenario route and data ########")
+    logger.log(">> Parsing scenario route and data")
     list_of_scenario_config = osp.join(ROOT_DIR, config['type_dir'], config['type_name'])
-    print('######## Using data file:', list_of_scenario_config, '########')
     route_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenario_%02d_routes/scenario_%02d_route_%02d.xml')
     scenario_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenarios/scenario_%02d.json')
     
@@ -49,7 +48,7 @@ def scenario_parse(config):
             print('selecting route_id:', config['route_id'])
             data_full = [item for item in data_full if item["route_id"] == config['route_id']]
 
-    print('loading {} data'.format(len(data_full)))
+    logger.log('>> Loading {} data'.format(len(data_full)))
     map_town_config = {}
     for item in data_full:
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])

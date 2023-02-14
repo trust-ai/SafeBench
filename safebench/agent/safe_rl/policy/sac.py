@@ -1,12 +1,10 @@
 from copy import deepcopy
 
-import gym
 import numpy as np
 import torch
 import torch.nn as nn
 from safebench.agent.safe_rl.policy.base_policy import Policy
 from safebench.agent.safe_rl.policy.model.mlp_ac import SquashedGaussianMLPActor, EnsembleQCritic
-from safebench.agent.safe_rl.util.logger import EpochLogger
 from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
@@ -148,8 +146,7 @@ class SAC(Policy):
         def critic_loss():
             obs, act, reward, obs_next, done = to_tensor(
                 data['obs']), to_tensor(data['act']), to_tensor(
-                    data['rew']), to_tensor(data['obs2']), to_tensor(
-                        data['done'])
+                    data['rew']), to_tensor(data['obs2']), to_tensor(data['done'])
 
             _, q_list = self.critic_forward(self.critic, obs, act)
             # Bellman backup for Q functions
@@ -158,8 +155,7 @@ class SAC(Policy):
                 act_next, logp_a_next = self.actor_forward(obs_next, deterministic=False, with_logprob=True)
                 # Target Q-values
                 q_pi_targ, _ = self.critic_forward(self.critic_targ, obs_next, act_next)
-                backup = reward + self.gamma * (1 - done) * (
-                    q_pi_targ - self.alpha * logp_a_next)
+                backup = reward + self.gamma * (1 - done) * (q_pi_targ - self.alpha * logp_a_next)
             # MSE loss against Bellman backup
             loss_q = self.critic.loss(backup, q_list)
             # Useful info for logging
