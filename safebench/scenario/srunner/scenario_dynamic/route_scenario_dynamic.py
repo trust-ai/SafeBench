@@ -14,8 +14,8 @@ from numpy import random
 import py_trees
 import carla
 
-from agents.navigation.local_planner import RoadOption
-
+from safebench.scenario.srunner.scenario_manager.timer import GameTime
+from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_manager.scenarioatomics.atomic_criteria import (
     Status,
     CollisionTest,
@@ -29,14 +29,12 @@ from safebench.scenario.srunner.scenario_manager.scenarioatomics.atomic_criteria
     RunningStopTest,
     ActorSpeedAboveThresholdTest
 )
-from safebench.scenario.srunner.scenario_manager.timer import GameTime
+
 from safebench.scenario.srunner.scenarioconfigs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
-# pylint: enable=line-too-long
-from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-# from scenario_runner.srunner.scenario_manager.scenarioatomics.atomic_behaviors import Idle, ScenarioTriggerer
-from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
 from safebench.scenario.srunner.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
+
+from safebench.scenario.srunner.scenario_dynamic.basic_scenario_dynamic import BasicScenarioDynamic
 
 # standard
 from safebench.scenario.srunner.scenario_dynamic.standard.object_crash_vehicle_dynamic import DynamicObjectCrossingDynamic
@@ -241,11 +239,12 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         along which several smaller scenarios are triggered
     """
 
-    def __init__(self, world, config, ego_id, criteria_enable=True):
+    def __init__(self, world, config, ego_id, logger, criteria_enable=True):
         """
         Setup all relevant parameters and create scenarios along route
         """
         self.world = world
+        self.logger = logger
         self.config = config
         self.route = None
         self.ego_id = ego_id
@@ -281,14 +280,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         self.criteria = self._create_criteria()
 
     def _update_route(self, world, config, timeout=None):
-        """
-            Update the input route, i.e. refine waypoint list, and extract possible scenario locations
-
-            Parameters:
-            - world: CARLA world
-            - config: Scenario configuration (RouteConfiguration)
-        """
-
         # Transform the scenario file into a dictionary
         if config.scenario_file is not None:
             world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
@@ -323,7 +314,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def _scenario_sampling(self, potential_scenarios_definitions, random_seed=0):
         """
-        The function used to sample the scenarios that are going to happen for this route.
+            The function used to sample the scenarios that are going to happen for this route.
         """
 
         # fix the random seed for reproducibility
@@ -337,7 +328,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
                 # If the scenarios have equal positions then it is true.
                 if compare_scenarios(scenario_choice, existent_scenario):
                     return True
-
             return False
 
         # The idea is to randomly sample a scenario per trigger position.
@@ -357,7 +347,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
             if scenario_choice is not None:
                 sampled_scenarios.append(scenario_choice)
-
         return sampled_scenarios
 
     def _estimate_route_timeout(self):
@@ -380,7 +369,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def _update_ego_vehicle(self):
         """
-        Set/Update the start position of the ego_vehicle
+            Set/Update the start position of the ego_vehicle
         """
         # move ego to correct position
         elevate_transform = self.route[0][0]
@@ -402,7 +391,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions, scenarios_per_tick=5, timeout=300, weather=None):
         """
-        Based on the parsed route and possible scenarios, build all the scenario classes.
+            Based on the parsed route and possible scenarios, build all the scenario classes.
         """
         scenario_instance_vec = []
         for scenario_number, definition in enumerate(scenario_definitions):
@@ -451,7 +440,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def _get_actors_instances(self, list_of_antagonist_actors):
         """
-        Get the full list of actor instances.
+            Get the full list of actor instances.
         """
 
         def get_actors_from_list(list_of_actor_def):
@@ -502,7 +491,6 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
             amount = 0
 
         new_actors = CarlaDataProvider.request_new_batch_actors('vehicle.*', amount, carla.Transform(), autopilot=True, random_location=True, rolename='background')
-
         if new_actors is None:
             raise Exception("Error: Unable to add the background activity, all spawn points were occupied")
 
@@ -515,7 +503,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
 
     def update_behavior(self):
         """
-        This route scenario doesn't define updating rules for actors in small scenarios
+            This route scenario doesn't define updating rules for actors in small scenarios
         """
         pass
 
@@ -550,31 +538,31 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         stop = False
         if running_status['collision'] == Status.FAILURE:
             stop = True
-            print('stop due to collision')
+            self.logger.log('>> Stop due to collision', color='yellow')
         if self.route_length > 1:  # only check when evaluating
             if running_status['route_complete'] == 100:
                 stop = True
-                print('stop due to route completion')
+                self.logger.log('>> Stop due to route completion', color='yellow') 
             if running_status['speed_above_threshold'] == Status.FAILURE:
                 if running_status['route_complete'] == 0:
                     raise RuntimeError("Agent not moving")
                 else:
                     stop = True
-                    print('stop due to low speed')
+                    self.logger.log('>> Stop due to low speed', color='yellow') 
         else:
             if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
-                print('stop due to max steps')
+                self.logger.log('>> Stop due to max steps', color='yellow') 
 
         for scenario in self.list_scenarios:
             # print(running_status['driven_distance'])
             if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
                 stop = True
-                print('stop due to max driven distance')
+                self.logger.log('>> Stop due to max driven distance', color='yellow') 
                 break
             if running_status['current_game_time'] >= scenario.timeout:
                 stop = True
-                print('stop due to timeout')
+                self.logger.log('>> Stop due to timeout', color='yellow') 
                 break
 
         return running_status, stop

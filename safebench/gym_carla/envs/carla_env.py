@@ -105,27 +105,25 @@ class CarlaEnv(gym.Env):
             x, y = x.flatten(), y.flatten()
             self.pixel_grid = np.vstack((x, y)).T
 
-        # Init sensors
         self.collision_sensor = None
         self.lidar_sensor = None
         self.camera_sensor = None
 
-        """for scenario runner"""
         self.scenario = None
         self.scenario_manager = None
 
     def _create_sensors(self):
-        # Collision sensor
+        # collision sensor
         self.collision_hist_l = 1  # collision history length
         self.collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
 
-        # Lidar sensor
+        # lidar sensor
         self.lidar_trans = carla.Transform(carla.Location(x=0.0, z=self.lidar_height))
         self.lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
         self.lidar_bp.set_attribute('channels', '16')
         self.lidar_bp.set_attribute('range', '1000')
 
-        # Camera sensor
+        # camera sensor
         self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8) # TODO: Haohong
         self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
         self.camera_bp = self.world.get_blueprint_library().find('sensor.camera.rgb')
@@ -139,9 +137,15 @@ class CarlaEnv(gym.Env):
     def _load_scenario(self, config, env_id, scenario_type):
         # create scenario accoridng to different types
         if scenario_type in ['od']:
-            self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id) 
+            self.scenario = ObjectDetectionDynamic(
+                world=self.world, 
+                config=config, 
+                ROOT_DIR=self.ROOT_DIR, 
+                ego_id=env_id, 
+                logger=self.logger
+            )
         elif scenario_type in ['dev', 'standard', 'benign']:
-            self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
+            self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id, logger=self.logger)
         else:
             raise NotImplementedError('{} type of scenario is not implemented.'.format(scenario_type))
 
@@ -152,10 +156,10 @@ class CarlaEnv(gym.Env):
         self.scenario_manager._init_scenarios()
 
     def reset(self, config, env_id, scenario_type):
-        self.logger.log(">> create sensors")
+        self.logger.log(">> Create sensors for scenario " + str(env_id))
         self._create_sensors()
 
-        self.logger.log(">> loading scenario")
+        self.logger.log(">> Loading scenario " + str(env_id))
         self.env_id = env_id
         self._load_scenario(config, env_id, scenario_type)
 

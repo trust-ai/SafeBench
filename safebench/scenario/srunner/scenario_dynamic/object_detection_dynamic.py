@@ -25,8 +25,9 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
     is required to conduct pass-by testing.
     """
 
-    def __init__(self, world, config, ego_id, ROOT_DIR, criteria_enable=True):
+    def __init__(self, world, config, ego_id, ROOT_DIR, logger, criteria_enable=True):
         self.world = world
+        self.logger = logger
         self.config = config
         self.route = None
         self.ego_id = ego_id

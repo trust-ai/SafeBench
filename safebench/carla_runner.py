@@ -144,7 +144,7 @@ class CarlaRunner:
             # calculate episode reward and print
             self.logger.log('[{}/{}] Episode reward for batch scenario:'.format(num_finished_scenario, num_total_scenario), color='yellow')
             for s_i in rewards_list.keys():
-                self.logger.log('\t Scenario' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
+                self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
 
     def run(self):
         # get config of map and twon
@@ -179,7 +179,7 @@ class CarlaRunner:
         ]
         for actor_filter in actor_filters:
             for actor in self.world.get_actors().filter(actor_filter):
-                self.logger.log('>> Removing', actor.type_id, actor.id, actor.is_alive)
+                self.logger.log('>> Removing agent: ' + str(actor.type_id) + '-' + str(actor.id))
                 if actor.is_alive:
                     if actor.type_id == 'controller.ai.walker':
                         actor.stop()

@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2018-2020 Intel Corporation
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
 """
 This module provides all atomic scenario behaviors that reflect
 trigger conditions to either activate another behavior, or to stop
@@ -17,8 +10,6 @@ a behavior of this actor.
 The atomics are implemented with py_trees and make use of the AtomicCondition
 base class
 """
-
-from __future__ import print_function
 
 import operator
 import datetime
@@ -40,14 +31,13 @@ EPSILON = 0.001
 
 
 class AtomicCondition(py_trees.behaviour.Behaviour):
-
     """
-    Base class for all atomic conditions used to setup a scenario
+        Base class for all atomic conditions used to setup a scenario
 
-    *All behaviors should use this class as parent*
+        *All behaviors should use this class as parent*
 
-    Important parameters:
-    - name: Name of the atomic condition
+        Important parameters:
+        - name: Name of the atomic condition
     """
 
     def __init__(self, name):
@@ -79,22 +69,20 @@ class AtomicCondition(py_trees.behaviour.Behaviour):
 
 
 class InTriggerDistanceToOSCPosition(AtomicCondition):
-
     """
-    OpenSCENARIO atomic
-    This class contains the trigger condition for a distance to an OpenSCENARIO position
+        OpenSCENARIO atomic
+        This class contains the trigger condition for a distance to an OpenSCENARIO position
 
-    Args:
-        actor (carla.Actor): CARLA actor to execute the behavior
-        osc_position (str): OpenSCENARIO position
-        distance (float): Trigger distance between the actor and the target location in meters
-        name (str): Name of the condition
+        Args:
+            actor (carla.Actor): CARLA actor to execute the behavior
+            osc_position (str): OpenSCENARIO position
+            distance (float): Trigger distance between the actor and the target location in meters
+            name (str): Name of the condition
 
-    The condition terminates with SUCCESS, when the actor reached the target distance to the openSCENARIO position
+        The condition terminates with SUCCESS, when the actor reached the target distance to the openSCENARIO position
     """
 
-    def __init__(self, actor, osc_position, distance, along_route=False,
-                 comparison_operator=operator.lt, name="InTriggerDistanceToOSCPosition"):
+    def __init__(self, actor, osc_position, distance, along_route=False, comparison_operator=operator.lt, name="InTriggerDistanceToOSCPosition"):
         """
         Setup parameters
         """
@@ -126,8 +114,7 @@ class InTriggerDistanceToOSCPosition(AtomicCondition):
         new_status = py_trees.common.Status.RUNNING
 
         # calculate transform with method in openscenario_parser.py
-        osc_transform = srunner.tools.openscenario_parser.OpenScenarioParser.convert_position_to_transform(
-            self._osc_position)
+        osc_transform = srunner.tools.openscenario_parser.OpenScenarioParser.convert_position_to_transform(self._osc_position)
 
         if osc_transform is not None:
             osc_location = osc_transform.location
@@ -292,8 +279,7 @@ class RelativeVelocityToOtherActor(AtomicCondition):
         comparison_operator: Type "operator", used to compare the two velocities
     """
 
-    def __init__(self, actor, other_actor, speed, comparison_operator=operator.gt,
-                 name="RelativeVelocityToOtherActor"):
+    def __init__(self, actor, other_actor, speed, comparison_operator=operator.gt, name="RelativeVelocityToOtherActor"):
         """
         Setup the parameters
         """

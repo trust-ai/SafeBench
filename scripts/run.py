@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-13 13:58:52
+LastEditTime: 2023-02-13 21:29:08
 Description: 
 '''
 
@@ -58,5 +58,5 @@ if __name__ == '__main__':
     runner = CarlaRunner(agent_config, scenario_config)
     try:
         runner.run()
-    finally:
+    except:
         runner.close()
