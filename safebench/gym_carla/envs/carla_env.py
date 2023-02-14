@@ -222,14 +222,11 @@ class CarlaEnv(gym.Env):
         for node in route:
             loc = node[0].location
             init_waypoints.append(m.get_waypoint(loc, project_to_road=True, lane_type=carla.LaneType.Driving))
-
-        # TODO: check the target point of this planner
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
 
-        # TODO: applying setting can tick the world and get data from sensros
+        # applying setting can tick the world and get data from sensros
         # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
-        # self.world.tick()
         self.settings = self.world.get_settings()
         self.world.apply_settings(self.settings)
 
@@ -282,9 +279,11 @@ class CarlaEnv(gym.Env):
                 act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
                 self.ego.apply_control(act)
             else:
-                raise Exception('Can not get snapshot!')
+                self.logger.log('>> Can not get snapshot!', color='red')
+                raise Exception()
         else:
-            raise Exception('Please specify Carla world!')
+            self.logger.log('>> Please specify a Carla world!', color='red')
+            raise Exception()
 
     def step_after_tick(self):
         # Append actors polygon list
