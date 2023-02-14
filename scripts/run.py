@@ -2,13 +2,12 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-14 14:16:05
+LastEditTime: 2023-02-14 14:27:07
 Description: 
 '''
 
+import traceback
 import os.path as osp
-from warnings import filterwarnings
-filterwarnings(action='ignore')
 
 import torch 
 
@@ -57,4 +56,8 @@ if __name__ == '__main__':
     # main entry with a selected mode
     scenario_config.update(args_dict)
     runner = CarlaRunner(agent_config, scenario_config)
-    runner.run()
+    try:
+        runner.run()
+    except:
+        runner.close()
+        traceback.print_exc()
