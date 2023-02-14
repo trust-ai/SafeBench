@@ -1,18 +1,18 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-This module provides Challenge routes as standalone scenarios
-"""
-
-from __future__ import print_function
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-14 12:00:39
+Description: 
+'''
 
 import math
 import traceback
-import xml.etree.ElementTree as ET
-from numpy import random
 
+from numpy import random
 import py_trees
 import carla
+import xml.etree.ElementTree as ET
 
 from safebench.scenario.srunner.scenario_manager.timer import GameTime
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -239,7 +239,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         along which several smaller scenarios are triggered
     """
 
-    def __init__(self, world, config, ego_id, logger, criteria_enable=True):
+    def __init__(self, world, config, ego_id, logger, max_running_step, criteria_enable=True):
         """
         Setup all relevant parameters and create scenarios along route
         """
@@ -249,8 +249,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         self.route = None
         self.ego_id = ego_id
         self.sampled_scenarios_definitions = None
-        # TODO: this parameter should be obtained from outside
-        self.max_running_step = 500
+        self.max_running_step = max_running_step
 
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
         self._update_route(world, config)
@@ -312,14 +311,10 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         # Timeout of scenario in seconds
         self.timeout = self._estimate_route_timeout() if timeout is None else timeout
 
-    def _scenario_sampling(self, potential_scenarios_definitions, random_seed=0):
+    def _scenario_sampling(self, potential_scenarios_definitions):
         """
             The function used to sample the scenarios that are going to happen for this route.
         """
-
-        # fix the random seed for reproducibility
-        rng = random.RandomState(random_seed)
-
         def position_sampled(scenario_choice, sampled_scenarios):
             """
             Check if a position was already sampled, i.e. used for another scenario
@@ -335,14 +330,14 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         for trigger in potential_scenarios_definitions.keys():
             possible_scenarios = potential_scenarios_definitions[trigger]
 
-            scenario_choice = rng.choice(possible_scenarios)
+            scenario_choice = random.choice(possible_scenarios)
             del possible_scenarios[possible_scenarios.index(scenario_choice)]
             # We keep sampling and testing if this position is present on any of the scenarios.
             while position_sampled(scenario_choice, sampled_scenarios):
                 if possible_scenarios is None or not possible_scenarios:
                     scenario_choice = None
                     break
-                scenario_choice = rng.choice(possible_scenarios)
+                scenario_choice = random.choice(possible_scenarios)
                 del possible_scenarios[possible_scenarios.index(scenario_choice)]
 
             if scenario_choice is not None:

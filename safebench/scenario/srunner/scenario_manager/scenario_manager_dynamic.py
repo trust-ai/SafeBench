@@ -2,11 +2,9 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-13 16:46:02
+LastEditTime: 2023-02-14 12:07:32
 Description: 
 '''
-
-import time
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_manager.timer import GameTime
@@ -40,10 +38,6 @@ class ScenarioManagerDynamic(object):
     def _reset(self):
         self._running = False
         self._timestamp_last_run = 0.0
-        self.scenario_duration_system = 0.0
-        self.scenario_duration_game = 0.0
-        self.start_system_time = None
-        self.end_system_time = None
         self.running_record = []
         GameTime.restart()
 
@@ -65,9 +59,6 @@ class ScenarioManagerDynamic(object):
         self.triggered_scenario = set()
 
     def run_scenario(self):
-        print("ScenarioManager: Running scenario {}".format(self.scenario_tree.name))
-        self.start_system_time = time.time()
-
         self._running = True
         self._init_scenarios()
 

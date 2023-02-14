@@ -1,3 +1,11 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-14 12:09:40
+Description: 
+'''
+
 import gym
 import numpy as np
 import pygame
@@ -119,7 +127,7 @@ class EnvWrapper(gym.Wrapper):
         super().__init__(env)
         self._env = env
 
-        self.is_running = True
+        self.is_running = False
         self.obs_type = obs_type
         self._build_obs_space()
 
@@ -204,7 +212,7 @@ params = {
     'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
     'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
     'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-    'max_episode_step': 1000,               # maximum timesteps per episode
+    'max_episode_step': 500,                # maximum timesteps per episode
     'max_waypt': 12,                        # maximum number of waypoints
     'obs_range': 32,                        # observation range (meter)
     'lidar_bin': 0.25,                      # bin size of lidar sensor (meter)
@@ -218,4 +226,15 @@ params = {
 
 
 def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None, logger=None):
-    return EnvWrapper(gym.make('carla-v0', params=params, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=ROOT_DIR, logger=logger), obs_type=obs_type)
+    return EnvWrapper(
+        gym.make(
+            'carla-v0', 
+            params=params, 
+            birdeye_render=birdeye_render,
+            display=display, 
+            world=world, 
+            ROOT_DIR=ROOT_DIR, 
+            logger=logger
+        ), 
+        obs_type=obs_type
+    )

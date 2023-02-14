@@ -1,3 +1,11 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-14 12:07:45
+Description: 
+'''
+
 import copy
 import random
 
@@ -6,7 +14,6 @@ import pygame
 from skimage.transform import resize
 import gym
 from gym import spaces
-from gym.utils import seeding
 import carla
 
 from safebench.gym_carla.envs.route_planner import RoutePlanner
@@ -134,7 +141,7 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-    def _load_scenario(self, config, env_id, scenario_type):
+    def _create_scenario(self, config, env_id, scenario_type):
         # create scenario accoridng to different types
         if scenario_type in ['od']:
             self.scenario = ObjectDetectionDynamic(
@@ -145,15 +152,21 @@ class CarlaEnv(gym.Env):
                 logger=self.logger
             )
         elif scenario_type in ['dev', 'standard', 'benign']:
-            self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id, logger=self.logger)
+            self.scenario = RouteScenarioDynamic(
+                world=self.world, 
+                config=config, 
+                ego_id=env_id, 
+                max_running_step=self.max_episode_step, 
+                logger=self.logger
+            )
         else:
-            raise NotImplementedError('{} type of scenario is not implemented.'.format(scenario_type))
+            raise NotImplementedError(f'{scenario_type} scenario is not implemented.')
 
         # init scenario and manager
         self.ego = self.scenario.ego_vehicles[0]
         self.scenario_manager = ScenarioManagerDynamic(self.logger)
         self.scenario_manager.load_scenario(self.scenario)
-        self.scenario_manager._init_scenarios()
+        self.scenario_manager.run_scenario()
 
     def reset(self, config, env_id, scenario_type):
         self.logger.log(">> Create sensors for scenario " + str(env_id))
@@ -161,7 +174,7 @@ class CarlaEnv(gym.Env):
 
         self.logger.log(">> Loading scenario " + str(env_id))
         self.env_id = env_id
-        self._load_scenario(config, env_id, scenario_type)
+        self._create_scenario(config, env_id, scenario_type)
 
         # change view point
         #location = carla.Location(x=100, y=100, z=300)
@@ -234,7 +247,7 @@ class CarlaEnv(gym.Env):
         self.settings = self.world.get_settings()
         self.world.apply_settings(self.settings)
 
-        self.scenario_manager._running = True
+        #self.scenario_manager._running = True
         return self._get_obs()
 
     def load_model(self):
@@ -330,10 +343,6 @@ class CarlaEnv(gym.Env):
         self.total_step += 1
 
         return (self._get_obs(), self._get_reward(), self._terminal(), copy.deepcopy(info))
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def _create_vehicle_bluepprint(self,actor_filter, color=None, number_of_wheels=[4]):
         """ Create the blueprint for a specific actor type.

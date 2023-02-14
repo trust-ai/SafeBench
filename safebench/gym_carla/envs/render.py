@@ -9,11 +9,11 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import carla
 import math
-import pygame
 import weakref
-import time
+
+import carla
+import pygame
 
 
 # Colors

@@ -73,7 +73,7 @@ class CarlaRunner:
             s_i = np.random.randint(0, len(config_lists))
             selected_scenario.append(config_lists.pop(s_i))
         
-        assert len(selected_scenario) <= self.num_scenario, "number of sampled scenarios is larger than {}".format(self.num_scenario)
+        assert len(selected_scenario) <= self.num_scenario, f"number of scenarios is larger than {self.num_scenario}"
         return selected_scenario
 
     def _train_sampler(self, config_lists):
@@ -142,7 +142,7 @@ class CarlaRunner:
             self.env.clean_up()
 
             # calculate episode reward and print
-            self.logger.log('[{}/{}] Episode reward for batch scenario:'.format(num_finished_scenario, num_total_scenario), color='yellow')
+            self.logger.log(f'[{num_finished_scenario}/{num_total_scenario}] Episode reward for batch scenario:', color='yellow')
             for s_i in rewards_list.keys():
                 self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
 

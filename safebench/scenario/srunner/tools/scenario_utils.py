@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-13 16:42:51
+LastEditTime: 2023-02-14 11:49:41
 Description: 
 '''
 import math
@@ -48,7 +48,7 @@ def scenario_parse(config, logger):
             print('selecting route_id:', config['route_id'])
             data_full = [item for item in data_full if item["route_id"] == config['route_id']]
 
-    logger.log('>> Loading {} data'.format(len(data_full)))
+    logger.log(f'>> Loading {len(data_full)} data')
     map_town_config = {}
     for item in data_full:
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
