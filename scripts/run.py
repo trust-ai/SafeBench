@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-13 21:29:08
+LastEditTime: 2023-02-14 14:16:05
 Description: 
 '''
 
@@ -23,10 +23,11 @@ if __name__ == '__main__':
     parser.add_argument('--exp_name', type=str, default='exp')
     parser.add_argument('--data_dir', type=str, default='output')
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
-    parser.add_argument('--threads', type=int, default=4)
+    parser.add_argument('--save_video', type=bool, default=True)
     parser.add_argument('--render', type=bool, default=True)
     parser.add_argument('--frame_skip', '-fs', type=int, default=4, help='skip of frame in each step')
     parser.add_argument('--seed', '-s', type=int, default=0)
+    parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')
     parser.add_argument('--continue_agent_training', '-cat', type=bool, default=False)
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
@@ -56,7 +57,4 @@ if __name__ == '__main__':
     # main entry with a selected mode
     scenario_config.update(args_dict)
     runner = CarlaRunner(agent_config, scenario_config)
-    try:
-        runner.run()
-    except:
-        runner.close()
+    runner.run()

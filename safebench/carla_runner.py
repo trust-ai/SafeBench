@@ -12,6 +12,7 @@ from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
 from safebench.agent import AGENT_LIST
 from safebench.agent.safe_rl.agent_trainer import AgentTrainer
 from safebench.util.logger import EpochLogger, setup_logger_kwargs
+from safebench.util.run_util import save_video
 
 
 class CarlaRunner:
@@ -19,7 +20,10 @@ class CarlaRunner:
         self.scenario_config = scenario_config
         self.agent_config = agent_config
 
+        self.save_video = scenario_config['save_video']
         self.mode = scenario_config['mode']
+        assert not self.save_video or (self.save_video and self.mode == 'eval'), "only allowed saving video in eval mode"
+
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
         self.num_episode = scenario_config['num_episode']
@@ -113,6 +117,7 @@ class CarlaRunner:
     def eval(self, config_lists):
         num_total_scenario = len(config_lists)
         num_finished_scenario = 0
+        video_count = 0
         while len(config_lists) > 0:
             # sample scenarios
             scenario_configs = self._eval_sampler(config_lists)
@@ -121,6 +126,7 @@ class CarlaRunner:
             # reset envs
             obss = self.env.reset(scenario_configs, self.scenario_type)
             rewards_list = {s_i: [] for s_i in range(num_batch_scenario)}
+            frame_list = []
             while True:
                 if self.env.all_scenario_done():
                     self.logger.log(">> All scenarios are completed. Prepare for exiting")
@@ -132,6 +138,10 @@ class CarlaRunner:
                 # apply action to env and get obs
                 obss, rewards, _, infos = self.env.step(ego_actions=ego_actions)
 
+                if self.save_video:
+                    one_frame = pygame.surfarray.array3d(self.display)
+                    frame_list.append(one_frame.transpose(1, 0, 2))
+
                 # accumulate reward to corresponding scenario
                 reward_idx = 0
                 for s_i in infos:
@@ -140,6 +150,13 @@ class CarlaRunner:
 
             self.logger.log('>> Clearning up all actors')
             self.env.clean_up()
+
+            # save video
+            if self.save_video:
+                self.logger.log('>> Saving video')
+                video_name = './video/video_' + str(video_count) + '.gif'
+                save_video(frame_list, video_name)
+                video_count += 1
 
             # calculate episode reward and print
             self.logger.log(f'[{num_finished_scenario}/{num_total_scenario}] Episode reward for batch scenario:', color='yellow')
@@ -170,17 +187,17 @@ class CarlaRunner:
     def close(self):
         # check if all actors are cleaned
         actor_filters = [
+            'sensor.other.collision', 
+            'sensor.lidar.ray_cast',
+            'sensor.camera.rgb',
             'vehicle.*',
             'walker.*',
             'controller.ai.walker',
-            'sensor.other.collision', 
-            'sensor.lidar.ray_cast',
-            'sensor.camera.rgb', 
         ]
         for actor_filter in actor_filters:
             for actor in self.world.get_actors().filter(actor_filter):
                 self.logger.log('>> Removing agent: ' + str(actor.type_id) + '-' + str(actor.id))
                 if actor.is_alive:
-                    if actor.type_id == 'controller.ai.walker':
+                    if actor.type_id.split('.')[0] in ['controller']:
                         actor.stop()
                     actor.destroy()
