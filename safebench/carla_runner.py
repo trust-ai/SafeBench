@@ -8,6 +8,7 @@ from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenario_manager.scenario_trainer import ScenarioTrainer
 from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
+from safebench.scenario.scenario_data_loader import ScenarioDataLoader
 
 from safebench.agent import AGENT_LIST
 from safebench.agent.safe_rl.agent_trainer import AgentTrainer
@@ -64,25 +65,6 @@ class CarlaRunner:
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
         self.agent = AGENT_LIST[agent_config['agent_type']](agent_config, logger=self.logger)
-        self.env = None
-
-    def _eval_sampler(self, config_lists):
-        # sometimes the length of list is smaller than num_scenario
-        sample_num = np.min([self.num_scenario, len(config_lists)])
-
-        # TODO: sampled scenario should not have overlap
-
-        selected_scenario = []
-        for _ in range(sample_num):
-            s_i = np.random.randint(0, len(config_lists))
-            selected_scenario.append(config_lists.pop(s_i))
-        
-        assert len(selected_scenario) <= self.num_scenario, f"number of scenarios is larger than {self.num_scenario}"
-        return selected_scenario
-
-    def _train_sampler(self, config_lists):
-        # TODO: during training, we should provide a looped sampler
-        return self._eval_sampler(config_lists)
 
     def _init_world(self, town):
         self.logger.log(">> Initializing carla world")
@@ -114,21 +96,19 @@ class CarlaRunner:
         # initialize the render for genrating observation and visualization
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
 
-    def eval(self, config_lists):
-        num_total_scenario = len(config_lists)
+    def eval(self, env, data_loader):
         num_finished_scenario = 0
         video_count = 0
-        while len(config_lists) > 0:
+        while len(data_loader) > 0:
             # sample scenarios
-            scenario_configs = self._eval_sampler(config_lists)
-            num_batch_scenario = len(scenario_configs)
-            num_finished_scenario += num_batch_scenario
+            sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
+            num_finished_scenario += num_sampled_scenario
             # reset envs
-            obss = self.env.reset(scenario_configs, self.scenario_type)
-            rewards_list = {s_i: [] for s_i in range(num_batch_scenario)}
+            obss = env.reset(sampled_scenario_configs, self.scenario_type)
+            rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while True:
-                if self.env.all_scenario_done():
+                if env.all_scenario_done():
                     self.logger.log(">> All scenarios are completed. Prepare for exiting")
                     break
 
@@ -136,7 +116,7 @@ class CarlaRunner:
                 ego_actions = self.agent.get_action(obss)
 
                 # apply action to env and get obs
-                obss, rewards, _, infos = self.env.step(ego_actions=ego_actions)
+                obss, rewards, _, infos = env.step(ego_actions=ego_actions)
 
                 if self.save_video:
                     one_frame = pygame.surfarray.array3d(self.display)
@@ -148,8 +128,9 @@ class CarlaRunner:
                     rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
                     reward_idx += 1
 
+            # clean up all things
             self.logger.log('>> Clearning up all actors')
-            self.env.clean_up()
+            env.clean_up()
 
             # save video
             if self.save_video:
@@ -159,27 +140,29 @@ class CarlaRunner:
                 video_count += 1
 
             # calculate episode reward and print
-            self.logger.log(f'[{num_finished_scenario}/{num_total_scenario}] Episode reward for batch scenario:', color='yellow')
+            self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode reward for batch scenario:', color='yellow')
             for s_i in rewards_list.keys():
                 self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
 
     def run(self):
-        # get config of map and twon
-        map_town_config = scenario_parse(self.scenario_config, self.logger)
-        for town in map_town_config.keys():
+        # get scenario data of different maps
+        maps_data = scenario_parse(self.scenario_config, self.logger)
+        for town in maps_data.keys():
             # initialize town
             self._init_world(town)
             # initialize the renderer
             self._init_renderer(self.num_scenario)
-            config_lists = map_town_config[town]
 
             # create scenarios within the vectorized wrapper
-            self.env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
+            env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
+
+            # prepare data loader
+            data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)
 
             if self.mode == 'eval':
-                self.eval(config_lists)
+                self.eval(env, data_loader)
             elif self.mode in ['train_scenario', 'train_agent']:
-                self.trainer.set_environment(self.env, self.agent)
+                self.trainer.set_environment(env, self.agent)
                 self.trainer.train()
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")

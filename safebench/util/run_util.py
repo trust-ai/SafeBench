@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-12 18:17:21
-LastEditTime: 2023-02-14 14:10:35
+LastEditTime: 2023-02-15 12:16:55
 Description: 
 '''
 
@@ -15,7 +15,7 @@ import imageio
 
 
 def save_video(frame_list, filename):
-    imageio.mimsave(filename, frame_list, {'fps': 30.0})
+    imageio.v2.mimsave(filename, frame_list, fps=30)
 
 
 def print_dict(d):
