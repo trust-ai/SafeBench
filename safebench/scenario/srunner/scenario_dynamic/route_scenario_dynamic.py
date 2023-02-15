@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-14 12:00:39
+LastEditTime: 2023-02-15 14:10:21
 Description: 
 '''
 
@@ -99,7 +99,7 @@ from safebench.scenario.srunner.scenario_dynamic.advsim.junction_crossing_route 
 
 SECONDS_GIVEN_PER_METERS = 1
 
-NUMBER_CLASS_TRANSLATION = {
+SCENARIO_CLASS_MAPPING = {
     "standard": {
         "Scenario3": DynamicObjectCrossingDynamic,
         "Scenario4": VehicleTurningRouteDynamic,
@@ -391,7 +391,7 @@ class RouteScenarioDynamic(BasicScenarioDynamic):
         scenario_instance_vec = []
         for scenario_number, definition in enumerate(scenario_definitions):
             # Get the class possibilities for this scenario number
-            scenario_class = NUMBER_CLASS_TRANSLATION[self.config.scenario_generation_method][definition['name']]
+            scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
 
             # Create the other actors that are going to appear
             if definition['other_actors'] is not None:
