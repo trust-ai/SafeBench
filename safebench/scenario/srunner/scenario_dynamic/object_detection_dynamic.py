@@ -90,31 +90,10 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
                     texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
                     # texture.set(x, y, carla.Color(r,g,b,a))
             for o_name in self.object_dict[obj_key]:
-                # print(o_name)
                 world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
     
     def initialize_actors(self):
         return
-        # def find_weather_presets():
-        #     rgx = re.compile('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)')
-        #     name = lambda x: ' '.join(m.group(0) for m in rgx.finditer(x))
-        #     presets = [x for x in dir(carla.WeatherParameters) if re.match('[A-Z].+', x)]
-        #     return [(getattr(carla.WeatherParameters, x), name(x)) for x in presets]
-        
-        # _weather_presets = find_weather_presets()
-        # idx = 78 # 17
-        # bp = self.world.get_blueprint_library().filter('tesla')[0]
-        # bp.set_attribute('role_name', 'hero')
-        # self.world.spawn_actor()
-
-        # self.ego_vehicles = self.world.spawn_actor(bp, self.world.get_map().get_spawn_points()[idx])
-        # self.ego_vehicles.set_autopilot(True)
-
-        # # turn on the light
-        # light_state = carla.VehicleLightState(carla.VehicleLightState.All)
-        # for actor in self.world.get_actors():
-        #     if actor.type_id.startswith("vehicle"):
-        #         actor.set_light_state(light_state)
 
     def get_running_status(self, running_record):
         running_status = {
@@ -137,32 +116,31 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
         stop = False
         if running_status['collision'] == Status.FAILURE:
             stop = True
-            print('stop due to collision')
+            self.logger.log('>> Stop due to collision', color='yellow')
         if self.route_length > 1:  # only check when evaluating
             #print(running_status['route_complete'])
             if running_status['route_complete'] == 100:
                 stop = True
-                print('stop due to route completion')
+                self.logger.log('>> Stop due to route complete', color='yellow')
             if running_status['speed_above_threshold'] == Status.FAILURE:
                 if running_status['route_complete'] == 0:
                     raise RuntimeError("Agent not moving")
                 else:
                     stop = True
-                    print('stop due to low speed')
+                    self.logger.log('>> Stop due to low speed', color='yellow')
         else:
             if len(running_record) >= 250:  # stop at max step when training
                 stop = True
-                print('stop due to max steps')
+                self.logger.log('>> Stop due to max step', color='yellow')
 
         for scenario in self.list_scenarios:
-            # print(running_status['driven_distance'])
             if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
                 stop = True
-                print('stop due to max driven distance')
+                self.logger.log('>> Stop due to max driven distance', color='yellow')
                 break
             if running_status['current_game_time'] >= scenario.timeout:
                 stop = True
-                print('stop due to timeout')
+                self.logger.log('>> Stop due to timeout', color='yellow')
                 break
         
         return running_status, stop
@@ -188,15 +166,12 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
         if len_trajectory == 0:
             len_spawn_points = len(self.vehicle_spawn_points)
             idx = random.choice(list(range(len_spawn_points)))
-            print('choosing spawn point {} from {} points'.format(idx, len_spawn_points))
             random_transform = self.vehicle_spawn_points[idx]
             gps_route, route = interpolate_trajectory(world, [random_transform])
         else:
             gps_route, route = interpolate_trajectory(world, config.trajectory)
 
         potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
-        print('matched_triggers', mt)
-        print('scenarios', potential_scenarios_definitions)
 
         self.route = route
         self.route_length = len(route)
@@ -446,6 +421,3 @@ class ObjectDetectionDynamic(BasicScenarioDynamic):
         
         self.ground_truth_bbox.setdefault(key, [])
         self.ground_truth_bbox[key].append(np.array(bbox_label))
-    
-    def __del__(self):
-        return super().__del__()

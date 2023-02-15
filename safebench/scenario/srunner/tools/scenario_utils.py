@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-14 11:49:41
+LastEditTime: 2023-02-15 12:34:52
 Description: 
 '''
 import math
@@ -39,13 +39,13 @@ def scenario_parse(config, logger):
         data_full = json.loads(f.read())
         # filter the list if any parameter is specified
         if config['method'] is not None:
-            print('selecting method:', config['method'])
+            logger.log('>> Selecting method: ' + config['method'])
             data_full = [item for item in data_full if item["method"] == config['method']]
         if config['scenario_id'] is not None:
-            print('selecting scenario_id:', config['scenario_id'])
+            logger.log('>> Selecting scenario_id: ' + str(config['scenario_id']))
             data_full = [item for item in data_full if item["scenario_id"] == config['scenario_id']]
         if config['route_id'] is not None:
-            print('selecting route_id:', config['route_id'])
+            logger.log('>> Selecting route_id: ' + str(config['route_id']))
             data_full = [item for item in data_full if item["route_id"] == config['route_id']]
 
     logger.log(f'>> Loading {len(data_full)} data')
