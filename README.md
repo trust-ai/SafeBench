@@ -2,11 +2,13 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-02-04 17:43:12
+ * @LastEditTime: 2023-02-15 13:40:56
  * @Description: 
 -->
 
 # SafeBench
+
+This is the source code of Safebench platform, which is designed based on Carla to evaluate the security and safety of autonomous driving vehicles. More details about this platform can be found in this [NeurIPS 2022](https://arxiv.org/pdf/2206.09682.pdf) paper.
 
 ## Installation
 1. Setup conda environment
