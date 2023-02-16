@@ -104,7 +104,7 @@ class CarlaRunner:
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
             num_finished_scenario += num_sampled_scenario
             # reset envs
-            obss = env.reset(sampled_scenario_configs, self.scenario_type)
+            obss = env.reset(sampled_scenario_configs)
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while True:
@@ -154,7 +154,7 @@ class CarlaRunner:
             self._init_renderer(self.num_scenario)
 
             # create scenarios within the vectorized wrapper
-            env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
+            env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger, self.scenario_type)
 
             # prepare data loader
             data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)
@@ -162,7 +162,7 @@ class CarlaRunner:
             if self.mode == 'eval':
                 self.eval(env, data_loader)
             elif self.mode in ['train_scenario', 'train_agent']:
-                self.trainer.set_environment(env, self.agent)
+                self.trainer.set_environment(env, self.agent, data_loader)
                 self.trainer.train()
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")

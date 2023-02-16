@@ -12,6 +12,7 @@ class OffPolicyWorker:
     def __init__(self, config, logger):
         self.env = None
         self.policy = None
+        self.data_loader = None
         self.logger = logger
         self.timeout_steps = config['timeout_steps']
         self.warmup_steps = config['warmup_steps']
@@ -53,9 +54,10 @@ class OffPolicyWorker:
         #     self.SAFE_RL_ENV = False
         self.cpp_buffer = ReplayBuffer(config['buffer_size'], env_dict)
 
-    def set_environment(self, env, agent):
+    def set_environment(self, env, agent, data_loader):
         self.env = env
         self.policy = agent
+        self.data_loader = data_loader
 
         ######### Warmup phase to collect data with random policy #########
         steps = 0
@@ -66,12 +68,12 @@ class OffPolicyWorker:
         for i in range(self.warmup_steps // 2):
             self.policy.learn_on_batch(self.get_sample())
 
-    def train_one_epoch(self, epoch):
+    def train_one_epoch(self, epoch, total_epochs):
         epoch_steps = 0
         range_instance = tqdm(
-            range(self.sample_episode_num),
+            range(self.sample_episode_num // self.data_loader.num_scenario),
             desc='Collecting trajectories') if self.verbose else range(
-                self.sample_episode_num)
+                self.sample_episode_num // self.data_loader.num_scenario)
         for i in range_instance:
             steps = self.work()
             epoch_steps += steps
@@ -79,7 +81,7 @@ class OffPolicyWorker:
         train_steps = self.episode_rerun_num * epoch_steps // self.batch_size
         range_instance = tqdm(
             range(train_steps), desc='training {}/{}'.format(
-                epoch + 1, self.epochs)) if self.verbose else range(train_steps)
+                epoch + 1, total_epochs)) if self.verbose else range(train_steps)
         for i in range_instance:
             data = self.get_sample()
             self.policy.learn_on_batch(data)
@@ -90,89 +92,85 @@ class OffPolicyWorker:
         '''
         Interact with the environment to collect data
         '''
-        raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(), 0, 0, 0
-        if self.obs_type > 1:
-            obs = self.policy.process_img(raw_obs)
-        else:
-            obs = raw_obs
+        # sample scenarios
+        sampled_scenario_configs, num_sampled_scenario = self.data_loader.sampler()
+        # reset envs
+        obss = self.env.reset(sampled_scenario_configs)
+
         for i in range(self.timeout_steps):
+            if self.env.all_scenario_done():
+                break
+
             if warmup:
                 action = self.env.sample_action_space()
             else:
-                action, _ = self.policy.act(obs,
-                                            deterministic=False,
-                                            with_logprob=False)
-            raw_obs_next, reward, done, info = self.env.step(action)  # assume action in [-1, 1]
+                action, _ = self.policy.act(obss, deterministic=False, with_logprob=False)
+            obss, reward, done, info = self.env.step(action)  # assume action in [-1, 1]
+        self.env.clean_up()
 
-            # TODO: hard code multiple results for now
-            action = action[0]
-            # raw_obs_next = raw_obs_next[0]
-            # reward = reward[0]
-            done = done[0]
-            info = info[0]
+        ep_len_total = 0
+        for trajectory in self.env.replay_buffer.get_trajectories():
+            ep_reward = ep_cost = 0
+            for timestep in trajectory:
+                obs = timestep['obs']
+                action = timestep['act']
+                obs_next = timestep['obs2']
+                reward = timestep['rew']
+                done = timestep['done']
+                info = timestep['info']
 
-            if self.obs_type > 1:
-                obs_next = self.policy.process_img(raw_obs_next)
-            else:
-                obs_next = raw_obs_next
-            self.logger.store(Act1=action[0], Act2=action[1], tab="worker")
-            # Ignore the "done" signal if it comes from hitting the time
-            # horizon (that is, when it's an artificial terminal signal
-            # that isn't based on the agent's state)
-            # done = False if ep_len == self.timeout_steps - 1 or "TimeLimit.truncated" in info else done
-            # done = True if "goal_met" in info and info["goal_met"] else done
-            if "cost" in info:
-                cost = info["cost"]
-                ep_cost += cost
-                self.cpp_buffer.add(obs=obs,
-                                    act=np.squeeze(action),
-                                    rew=reward,
-                                    obs2=obs_next,
-                                    done=done,
-                                    cost=cost)
-            else:
-                self.cpp_buffer.add(obs=obs,
-                                    act=np.squeeze(action),
-                                    rew=reward,
-                                    obs2=obs_next,
-                                    done=done)
-                # raise Exception('no cost in info')
-            ep_reward += reward
-            ep_len += 1
-            obs = obs_next
-            if done:
-                break
-        self.logger.store(EpRet=ep_reward, EpCost=ep_cost, tab="worker")
-        return ep_len
+                self.logger.store(Act1=action[0], Act2=action[1], tab="worker")
+                if "cost" in info:
+                    cost = info["cost"]
+                    ep_cost += cost
+                    self.cpp_buffer.add(obs=obs,
+                                        act=np.squeeze(action),
+                                        rew=reward,
+                                        obs2=obs_next,
+                                        done=done,
+                                        cost=cost)
+                else:
+                    self.cpp_buffer.add(obs=obs,
+                                        act=np.squeeze(action),
+                                        rew=reward,
+                                        obs2=obs_next,
+                                        done=done)
+                ep_reward += reward
+                ep_len_total += 1
+            self.logger.store(EpRet=ep_reward, EpCost=ep_cost, tab="worker")
+        return ep_len_total
 
     def eval(self):
         '''
         Interact with the environment to collect data
         '''
-        raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(), 0, 0, 0
-        if self.obs_type > 1:
-            obs = self.policy.process_img(raw_obs)
-        else:
-            obs = raw_obs
+        # sample scenarios
+        sampled_scenario_configs, num_sampled_scenario = self.data_loader.sampler()
+        # reset envs
+        obss = self.env.reset(sampled_scenario_configs)
+
         for i in range(self.timeout_steps):
-            action, _ = self.policy.act(obs, deterministic=True, with_logprob=False)
-            raw_obs_next, reward, done, info = self.env.step(action)
-            if self.obs_type > 1:
-                obs_next = self.policy.process_img(raw_obs_next)
-            else:
-                obs_next = raw_obs_next
-            if "cost" in info:
-                cost = info["cost"]
-                ep_cost += cost
-            ep_reward += reward
-            ep_len += 1
-            obs = obs_next
-            if done:
+            if self.env.all_scenario_done():
                 break
-        self.logger.store(TestEpRet=ep_reward,
-                          TestEpLen=ep_len,
-                          TestEpCost=ep_cost,
-                          tab="eval")
+            action, _ = self.policy.act(obss, deterministic=True, with_logprob=False)
+            obss, reward, done, info = self.env.step(action)  # assume action in [-1, 1]
+        self.env.clean_up()
+
+        for trajectory in self.env.replay_buffer.get_trajectories():
+            ep_reward = ep_len = ep_cost = 0
+            for timestep in trajectory:
+                obs = timestep['obs']
+                action = timestep['act']
+                obs_next = timestep['obs2']
+                reward = timestep['rew']
+                done = timestep['done']
+                info = timestep['info']
+                if "cost" in info:
+                    cost = info["cost"]
+                    ep_cost += cost
+                ep_reward += reward
+                ep_len += 1
+            self.logger.store(TestEpRet=ep_reward, TestEpLen=ep_len, TestEpCost=ep_cost, tab="eval")
 
     def get_sample(self):
         data = to_tensor(self.cpp_buffer.sample(self.batch_size))

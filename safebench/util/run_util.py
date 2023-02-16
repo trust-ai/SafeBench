@@ -70,7 +70,5 @@ def setup_eval_configs(dir, itr=None):
     path, config_name = find_config_dir(dir)
     model_path, load_itr = find_model_path(osp.join(path, "model_save"), itr=itr)
     config_path = osp.join(path, config_name)
-    print("Model path: %s " % model_path)
-    print("Loading config from %s " % config_path)
     configs = load_config(config_path)
     return model_path, load_itr, configs["policy"], configs["timeout_steps"], configs[configs["policy"]]

@@ -9,17 +9,20 @@ Description:
 import gym
 import numpy as np
 import pygame
+from safebench.gym_carla.buffer import ReplayBuffer
 
 
 class VectorWrapper():
     """ The interface to control a list of environments"""
-    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, logger):
+    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, logger, scenario_type):
         self.world = world
         self.num_scenario = scenario_config['num_scenario']
         self.ROOT_DIR = scenario_config['ROOT_DIR']
         self.frame_skip = scenario_config['frame_skip']
         self.obs_type = agent_config['obs_type']   # the observation type is determined by the ego agent
         self.render = scenario_config['render']
+        self.scenario_type = scenario_type
+        self.replay_buffer = None
 
         self.env_list = []
         self.action_space_list = []
@@ -40,30 +43,36 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, scenario_configs, scenario_type):
+    def reset(self, scenario_configs, scenario_type=None):
+        if scenario_type is None:
+            scenario_type = self.scenario_type
+        self.replay_buffer = ReplayBuffer(self.num_scenario)
         # create scenarios and ego vehicles
         obs_list = []
         for s_i in range(len(scenario_configs)):
             config = scenario_configs[s_i]
             obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
             obs_list.append(obs)
+            self.replay_buffer.save_init_obs(s_i, obs)
 
         # sometimes not all scenarios are used
         self.finished_env = [False] * self.num_scenario
         for s_i in range(len(scenario_configs), self.num_scenario):
             self.finished_env[s_i] = True
 
+
         # return obs
         return self.obs_postprocess(obs_list)
 
-    def step(self, ego_actions):
+    def step(self, ego_actions, critic_value=None, log_prob=None):
         """
             ego_actions: [num_alive_scenario, ego_action_dim]
         """
         # apply action
-        action_idx = 0 # action idx should match the env that is not finished
+        action_idx = 0  # action idx should match the env that is not finished
         for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
+                self.replay_buffer.save_current_action(e_i, ego_actions[action_idx])
                 processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
                 self.env_list[e_i].step_before_tick(processed_action)
                 action_idx += 1
@@ -80,6 +89,8 @@ class VectorWrapper():
         for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
                 obs, reward, done, info = self.env_list[e_i].step_after_tick()
+                self.replay_buffer.save_step_results(e_i, next_obs=obs, reward=reward, done=done, info=info,
+                                                     critic_value=critic_value, log_prob=log_prob)
                 info['scenario_id'] = e_i
 
                 # check if env is done

@@ -10,6 +10,7 @@ class OnPolicyWorker:
     def __init__(self, config, logger):
         self.env = None
         self.policy = None
+        self.data_loader = None
         self.logger = logger
         self.interact_steps = config['interact_steps']
         self.timeout_steps = config['timeout_steps']
@@ -23,11 +24,12 @@ class OnPolicyWorker:
 
         self.buffer = OnPolicyBuffer(obs_dim, act_dim, self.interact_steps + 1, gamma, lam)
 
-    def set_environment(self, env, agent):
+    def set_environment(self, env, agent, data_loader):
         self.env = env
         self.policy = agent
+        self.data_loader = data_loader
 
-    def train_one_epoch(self, epoch):
+    def train_one_epoch(self, epoch, total_epochs):
         epoch_steps = 0
         steps = self.work()
         epoch_steps += steps
@@ -39,101 +41,106 @@ class OnPolicyWorker:
         '''
         Interact with the environment to collect data
         '''
+        # sample scenarios
         self.cost_list = []
-        raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(), 0, 0, 0
-        if self.obs_type > 1:
-            obs = self.policy.process_img(raw_obs)
-        else:
-            obs = raw_obs
+        sampled_scenario_configs, num_sampled_scenario = self.data_loader.sampler()
+        # reset envs
+        obss = self.env.reset(sampled_scenario_configs)
+
         for i in range(self.interact_steps):
-            action, value, log_prob = self.policy.act(obs)
-            raw_obs_next, reward, done, info = self.env.step(action)
-            if self.obs_type > 1:
-                obs_next = self.policy.process_img(raw_obs_next)
-            else:
-                obs_next = raw_obs_next
-            if hasattr(self.policy, "get_qc_v"):
-                cost_value = self.policy.get_qc_v(obs)
-            else:
+            if self.env.all_scenario_done():
+                break
+
+            action, value, log_prob = self.policy.act(obss)
+            obss, reward, done, info = self.env.step(action, value, log_prob)  # assume action in [-1, 1]
+            cost_value = 0
+            cost = info["cost"] if "cost" in info else 0
+        self.env.clean_up()
+
+        for trajectory in self.env.replay_buffer.get_trajectories():
+            ep_reward = ep_len = ep_cost = 0
+            for i, timestep in enumerate(trajectory):
+                obs = timestep['obs']
+                action = timestep['act']
+                obs_next = timestep['obs2']
+                reward = timestep['rew']
+                done = timestep['done']
+                info = timestep['info']
+                value = timestep['value']
+                log_prob = timestep['log_prob']
                 cost_value = 0
 
-            # if done and 'TimeLimit.truncated' in info:
-            #     done = False
-            #     timeout_env = True
-            # else:
-            #     timeout_env = False
+                if done and 'TimeLimit.truncated' in info:
+                    done = False
+                    timeout_env = True
+                else:
+                    timeout_env = False
 
-            cost = info["cost"] if "cost" in info else 0
+                cost = info["cost"] if "cost" in info else 0
 
-            self.buffer.store(obs, np.squeeze(action), reward, value, log_prob, done,
-                              cost, cost_value)
-            self.logger.store(VVals=value, CostVVals=cost_value, tab="worker")
-            ep_reward += reward
-            ep_cost += cost
-            ep_len += 1
-            obs = obs_next
+                self.buffer.store(obs, np.squeeze(action), reward, value, log_prob, done, cost, cost_value)
+                self.logger.store(VVals=value, CostVVals=cost_value, tab="worker")
+                ep_reward += reward
+                ep_cost += cost
+                ep_len += 1
+                obs = obs_next
 
-            # timeout = ep_len == self.timeout_steps - 1 or i == self.interact_steps - 1 or timeout_env and not done
-            # terminal = done or timeout
-            terminal = done
-            if terminal:
-                # after each episode
-                if timeout:
-                    # if trajectory didn't reach terminal state, bootstrap value target
-                    _, value, _ = self.policy.act(obs)
-                    if hasattr(self.policy, "get_qc_v"):
-                        cost_value = self.policy.get_qc_v(obs)
-                    else:
+                timeout = ep_len == self.timeout_steps - 1 or i == self.interact_steps - 1 or timeout_env and not done
+                terminal = done or timeout
+                if terminal:
+                    # after each episode
+                    if timeout:
+                        # if trajectory didn't reach terminal state, bootstrap value target
+                        _, value, _ = self.policy.act(np.array([obs]))
+                        value = value[0]
                         cost_value = 0
-                else:
-                    value = 0
-                    cost_value = 0
-                self.buffer.finish_path(value, cost_value)
-                if i < self.interact_steps - 1:
-                    self.logger.store(EpRet=ep_reward,
-                                      EpLen=ep_len,
-                                      EpCost=ep_cost,
-                                      tab="worker")
-                raw_obs = self.env.reset()
-                if self.obs_type > 1:
-                    obs = self.policy.process_img(raw_obs)
-                else:
-                    obs = raw_obs
-                self.cost_list.append(ep_cost)
-                # episode reward and length
-                ep_reward = 0
-                ep_cost = 0
-                ep_len = 0
+                    else:
+                        value = 0
+                        cost_value = 0
+                    self.buffer.finish_path(value, cost_value)
+                    if i < self.interact_steps - 1:
+                        self.logger.store(EpRet=ep_reward,
+                                          EpLen=ep_len,
+                                          EpCost=ep_cost,
+                                          tab="worker")
+                    self.cost_list.append(ep_cost)
+
         return self.interact_steps
 
     def eval(self):
         '''
         Evaluate the policy
         '''
-        raw_obs, ep_reward, ep_len, ep_cost = self.env.reset(), 0, 0, 0
-        if self.obs_type > 1:
-            obs = self.policy.process_img(raw_obs)
-        else:
-            obs = raw_obs
+        sampled_scenario_configs, num_sampled_scenario = self.data_loader.sampler()
+        # reset envs
+        obss = self.env.reset(sampled_scenario_configs)
+
         for i in range(self.timeout_steps):
-            action, _, _ = self.policy.act(obs, deterministic=True)
-            raw_obs_next, reward, done, info = self.env.step(action)
-            if self.obs_type > 1:
-                obs_next = self.policy.process_img(raw_obs_next)
-            else:
-                obs_next = raw_obs_next
-            if "cost" in info:
-                cost = info["cost"]
-                ep_cost += cost
-            ep_reward += reward
-            ep_len += 1
-            obs = obs_next
-            if done:
+            if self.env.all_scenario_done():
                 break
-        self.logger.store(TestEpRet=ep_reward,
-                          TestEpLen=ep_len,
-                          TestEpCost=ep_cost,
-                          tab="eval")
+
+            action, _, _ = self.policy.act(obss, deterministic=True)
+            obss, reward, done, info = self.env.step(action)  # assume action in [-1, 1]
+        self.env.clean_up()
+
+        for trajectory in self.env.replay_buffer.get_trajectories():
+            ep_reward = ep_len = ep_cost = 0
+            for i, timestep in enumerate(trajectory):
+                obs = timestep['obs']
+                action = timestep['act']
+                obs_next = timestep['obs2']
+                reward = timestep['rew']
+                done = timestep['done']
+                info = timestep['info']
+                if "cost" in info:
+                    cost = info["cost"]
+                    ep_cost += cost
+                ep_reward += reward
+                ep_len += 1
+            self.logger.store(TestEpRet=ep_reward,
+                              TestEpLen=ep_len,
+                              TestEpCost=ep_cost,
+                              tab="eval")
 
     def get_sample(self):
         data = self.buffer.get()
