@@ -28,9 +28,9 @@ from safebench.gym_carla.envs.misc import (
     get_pixels_inside_vehicle,
     get_pixel_info,
 )
-from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
-from safebench.scenario.srunner.scenario_dynamic.object_detection_dynamic import ObjectDetectionDynamic
-from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
+from safebench.scenario.srunner.scenarios.route_scenario import RouteScenario
+from safebench.scenario.srunner.scenarios.object_detection_scenario import ObjectDetectionScenario
+from safebench.scenario.srunner.scenario_manager.scenario_manager import ScenarioManager
 from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
 
 
@@ -144,7 +144,7 @@ class CarlaEnv(gym.Env):
     def _create_scenario(self, config, env_id, scenario_type):
         # create scenario accoridng to different types
         if scenario_type in ['od']:
-            self.scenario = ObjectDetectionDynamic(
+            self.scenario = ObjectDetectionScenario(
                 world=self.world, 
                 config=config, 
                 ROOT_DIR=self.ROOT_DIR, 
@@ -152,7 +152,7 @@ class CarlaEnv(gym.Env):
                 logger=self.logger
             )
         elif scenario_type in ['dev', 'standard', 'benign']:
-            self.scenario = RouteScenarioDynamic(
+            self.scenario = RouteScenario(
                 world=self.world, 
                 config=config, 
                 ego_id=env_id, 
@@ -164,7 +164,7 @@ class CarlaEnv(gym.Env):
 
         # init scenario and manager
         self.ego = self.scenario.ego_vehicles[0]
-        self.scenario_manager = ScenarioManagerDynamic(self.logger)
+        self.scenario_manager = ScenarioManager(self.logger)
         self.scenario_manager.load_scenario(self.scenario)
         self.scenario_manager.run_scenario()
 
