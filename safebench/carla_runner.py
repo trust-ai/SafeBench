@@ -80,8 +80,12 @@ class CarlaRunner:
         flag = pygame.HWSURFACE | pygame.DOUBLEBUF
         if not self.render:
             flag = flag | pygame.HIDDEN
-        self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
-
+        if self.scenario_type != 'od': 
+            self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
+        else:
+            self.display_size = 1024
+            self.display = pygame.display.set_mode((self.display_size, self.display_size * num_envs), flag)
+        
         pixels_per_meter = self.display_size / self.obs_range
         pixels_ahead_vehicle = (self.obs_range / 2 - self.d_behind) * pixels_per_meter
         self.birdeye_params = {
@@ -92,14 +96,14 @@ class CarlaRunner:
 
         # initialize the render for genrating observation and visualization
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params)
-
+    
     def eval(self):
         for e_i in range(self.num_episode):
             # reset envs
             obss = self.env.reset()
             rewards_list = {s_i: [] for s_i in range(self.num_scenario)}
             while True:
-                print(self.env.finished_env)
+                # print(self.env.finished_env)
                 if self.env.all_scenario_done():
                     print("######## All scenarios are completed. Prepare for exiting ########")
                     break

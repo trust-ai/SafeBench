@@ -24,7 +24,7 @@ class BasicScenarioDynamic(object):
     """
     Base class for user-defined scenario
     """
-    def __init__(self, name, ego_vehicles, config, world, debug_mode=False, terminate_on_failure=False, criteria_enable=False):
+    def __init__(self, name, ego_vehicles, config, world, debug_mode=False, terminate_on_failure=False, criteria_enable=False, first_env=False):
         """
         Setup all relevant parameters and create scenario
         and instantiate scenario manager
@@ -46,8 +46,8 @@ class BasicScenarioDynamic(object):
         self.name = name
         self.config = config
         self.terminate_on_failure = terminate_on_failure
-
-        self._initialize_environment(world)
+        if first_env:
+            self._initialize_environment(world)
 
         if CarlaDataProvider.is_sync_mode():
             world.tick()
