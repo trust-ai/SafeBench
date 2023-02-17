@@ -26,17 +26,8 @@ class VectorWrapper():
 
         self.env_list = []
         self.action_space_list = []
-<<<<<<< HEAD
         for _ in range(self.num_scenario):
             env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, logger=logger)
-=======
-        for i in range(self.num_scenario):
-            if i == 0:
-                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, scenario_type=scenario_type, first_env=True)
-            else:
-                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, scenario_type=scenario_type)
-            env.create_ego_object()
->>>>>>> bca9dcde7cc16da3e0a4e91407ef387f235c87ba
             self.env_list.append(env)
             self.action_space_list.append(env.action_space)
 
@@ -235,18 +226,16 @@ params = {
     'max_episode_step': 500,                # maximum timesteps per episode
     'max_waypt': 12,                        # maximum number of waypoints
     'obs_range': 32,                        # observation range (meter)
-    'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
+    'lidar_bin': 0.25,                      # bin size of lidar sensor (meter)
     'd_behind': 12,                         # distance behind the ego vehicle (meter)
     'out_lane_thres': 4,                    # threshold for out of lane (meter)
     'desired_speed': 8,                     # desired speed (m/s)
     'display_route': True,                  # whether to render the desired route
     'pixor_size': 64,                       # size of the pixor labels
     'pixor': False,                         # whether to output PIXOR observation
-    'image_sz': 1024,
 }
 
 
-<<<<<<< HEAD
 def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None, logger=None):
     return EnvWrapper(
         gym.make(
@@ -260,9 +249,3 @@ def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=
         ), 
         obs_type=obs_type
     )
-=======
-def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None, scenario_type=None, first_env=False):
-    return EnvWrapper(gym.make('carla-v0', params=params, \
-                               birdeye_render=birdeye_render, display=display, world=world, \
-                               ROOT_DIR=ROOT_DIR, scenario_type=scenario_type, first_env=first_env), obs_type=obs_type)
->>>>>>> bca9dcde7cc16da3e0a4e91407ef387f235c87ba

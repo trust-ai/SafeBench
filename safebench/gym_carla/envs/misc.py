@@ -15,7 +15,7 @@ import carla
 import pygame
 from matplotlib.path import Path
 import skimage
-import cv2
+
 
 def get_speed(vehicle):
     """
@@ -250,63 +250,3 @@ def rgb_to_display_surface(rgb, display_size):
     pygame.surfarray.blit_array(surface, display)
     return surface
 
-
-def get_image_point(loc, K, w2c):
-    # Calculate 2D projection of 3D coordinate
-
-    # Format the input coordinate (loc is a carla.Position object)
-    point = np.array([loc.x, loc.y, loc.z, 1])
-    # transform to camera coordinates
-    point_camera = np.dot(w2c, point)
-
-    # New we must change from UE4's coordinate system to an "standard"
-    # (x, y ,z) -> (y, -z, x)
-    # and we remove the fourth componebonent also
-    point_camera = [point_camera[1], -point_camera[2], point_camera[0]]
-
-    # now project 3D->2D using the camera matrix
-    point_img = np.dot(K, point_camera)
-    # normalize
-    point_img[0] /= point_img[2]
-    point_img[1] /= point_img[2]
-    return point_img[0:2]
-
-def build_projection_matrix(w, h, fov):
-    focal = w / (2.0 * np.tan(fov * np.pi / 360.0))
-    K = np.identity(3)
-    K[0, 0] = K[1, 1] = focal
-    K[0, 2] = w / 2.0
-    K[1, 2] = h / 2.0
-    return K
-
-
-def debug_bbox(data, obs_size, fov, camera_sensor, world, ego):
-    edges = [[0,1], [1,3], [3,2], [2,0], [0,4], [4,5], [5,1], [5,7], [7,6], [6,4], [6,2], [7,3]]
-    K = build_projection_matrix(obs_size, obs_size, fov)
-    world_2_camera = np.array(camera_sensor.get_transform().get_inverse_matrix())
-
-    signs = world.get_level_bbs(carla.CityObjectLabel.TrafficSigns)
-    for bbox in signs:
-        if bbox.location.distance(ego.get_transform().location) < 50:
-            forward_vec = ego.get_transform().get_forward_vector()
-            ray = bbox.location - ego.get_transform().location
-            if forward_vec.dot(ray) > 5.0:
-                verts = [v for v in bbox.get_world_vertices(carla.Transform())]
-                for edge in edges:
-                    p1 = get_image_point(verts[edge[0]], K, world_2_camera)
-                    p2 = get_image_point(verts[edge[1]], K, world_2_camera)
-                    cv2.line(data, (int(p1[0]), int(p1[1])), (int(p2[0]), int(p2[1])), (0,0,255, 255), 2)
-                    signs = world.get_level_bbs(carla.CityObjectLabel.TrafficSigns)
-
-    signs = world.get_level_bbs(carla.CityObjectLabel.Vehicles)                
-    for bbox in signs:
-        if bbox.location.distance(ego.get_transform().location) < 50:
-            forward_vec = ego.get_transform().get_forward_vector()
-            ray = bbox.location - ego.get_transform().location
-            if forward_vec.dot(ray) > 5.0:
-                verts = [v for v in bbox.get_world_vertices(carla.Transform())]
-                for edge in edges:
-                    p1 = get_image_point(verts[edge[0]], K, world_2_camera)
-                    p2 = get_image_point(verts[edge[1]], K, world_2_camera)
-                    cv2.line(data, (int(p1[0]), int(p1[1])), (int(p2[0]), int(p2[1])), (0,0,255, 255), 2)
-    return data

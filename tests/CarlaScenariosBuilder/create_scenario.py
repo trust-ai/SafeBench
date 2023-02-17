@@ -27,9 +27,7 @@ def draw(ax, center, dist, road_waypoints, selected_waypoints_idx):
         for end_waypoint in waypoints[1:]:
             ax.plot([start_waypoint[0], end_waypoint[0]], [-start_waypoint[1], -end_waypoint[1]], '--', color='b')
             ax.plot(end_waypoint[0], -end_waypoint[1], 'o', color='g')
-            ax.text(end_waypoint[0] + 8, -end_waypoint[1] + 8, "Actor", bbox=dict(facecolor='green', alpha=0.7))
         ax.plot(start_waypoint[0], -start_waypoint[1], 'o', color='r')
-        ax.text(start_waypoint[0] + 12, -start_waypoint[1] + 8, "Trigger", bbox=dict(facecolor='red', alpha=0.7))
 
     x_min, x_max = center[0] - dist, center[0] + dist
     y_min, y_max = -center[1] - dist, -center[1] + dist
@@ -39,7 +37,7 @@ def draw(ax, center, dist, road_waypoints, selected_waypoints_idx):
 
 def set_title(ax, title=None):
     if title is None:
-        title = "Left click:  select or remove waypoints.\nRight click:  save scenarios to file."
+        title = "Left click:  select or remove waypoints.\nRight click:  save route to file."
     ax.set_title(title, fontsize=25, loc='left')
 
 
@@ -70,12 +68,16 @@ def create_scenario_intersection(config, selected_waypoints_idx, road_waypoints)
         local_waypoints.append(selected_waypoints)
     local_waypoints = np.vstack(local_waypoints)
 
-    # rotate waypoints around the map center
+    # shift waypoints
     map_waypoints = []
-    for i in range(4):
-        theta = i * np.pi / 2
-        rotated_waypoints = rotate_waypoints(local_waypoints, [100, 100], theta)
-        map_waypoints.append(rotated_waypoints)
+    for i in range(2):
+        for j in range(2):
+            xs = 200 * i
+            ys = 200 * j
+            shift = np.asarray([[xs, ys]])
+            shift_waypoints = local_waypoints.copy()
+            shift_waypoints[:, :2] += shift
+            map_waypoints.append(shift_waypoints)
     map_waypoints = np.vstack(map_waypoints)
     return map_waypoints
 
@@ -134,6 +136,7 @@ def create_scenario(config, selected_waypoints_idx, road_waypoints, waypoints_de
                 print(f"waypoint {scenario_waypoint} can not be found on the map, "
                       f"assigned to the nearist waypoint {real_scenario_waypoint}")
 
+        print(len(real_scenario_waypoints))
         scenario_config = build_scenarios(real_scenario_waypoints)
         all_scenarios_configs.append(scenario_config)
 
@@ -178,11 +181,12 @@ def main(config):
     selected_waypoints_idx = []
 
     # set waypoints that user can work on
-    dist = 120
     if config.road == 'intersection':
         center = [0, 0]
+        dist = 85
     else:
         center = [100, 0]
+        dist = 85
 
     def onclick(event):
         # print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
@@ -212,9 +216,8 @@ def main(config):
                 selected_waypoints_idx.clear()
 
                 draw(ax, center, dist, road_waypoints, selected_waypoints_idx)
-                set_title(ax, "Scenario create success! Click to create more scenarios.")
+                set_title(ax, "scenario create success! Click to create more scenarios.")
                 plt.draw()
-
 
     # visualize waypoints
     road_waypoints = select_waypoints(waypoints_sparse, center, dist)
@@ -233,15 +236,46 @@ if __name__ == '__main__':
     parser.add_argument('--save_dir', type=str, default="scenario_data/route_new_map")
     parser.add_argument('--scenario', type=int, default=5)
     parser.add_argument('--road', type=str, default='intersection', choices=['intersection', 'straight'],
-                        help='Create routes based on a intersection or a straight road.')
+                        help='Create scenario based on the intersection or straight road')
     parser.add_argument('--multi_rotation', action='store_true',
-                        help='Create multiple symmetrical routes.'
-                             'When creating routes that involve an intersection, the code will generate four routes, '
-                             'each rotated 90 degrees around the center of the intersection. '
-                             'When creating routes alone a straight road, the code will generate two routes, '
-                             'each rotated 180 degrees around the center of the road. ')
+                        help='This will create multiple scenarios that is symetry. For example for intersection, '
+                             'this will create 4 scenarios in total with ego vehicle coming from different direction')
 
     args = parser.parse_args()
 
     main(args)
 
+    # # all trigger points and other actors
+    # all_scenarios = {
+    #     "available_scenarios": [
+    #         {
+    #             "Town_Safebench": [
+    #                 {
+    #                     "available_event_configurations": [],
+    #                     "scenario_type": "Scenario7"
+    #                 }
+    #             ]
+    #         }
+    #     ]
+    # }
+
+    # config = {
+    #     "other_actors": {
+    #         "left": [
+    #             {
+    #                 "pitch": str(act_pitch),
+    #                 "x": str(act_x),
+    #                 "y": str(act_y),
+    #                 "yaw": str(act_yaw),
+    #                 "z": str(act_z)
+    #             }
+    #         ]
+    #     },
+    #     "transform": {
+    #         "pitch": str(tri_pitch),
+    #         "x": str(tri_x),
+    #         "y": str(tri_y),
+    #         "yaw": str(tri_yaw),
+    #         "z": str(tri_z)
+    #     }
+    # }

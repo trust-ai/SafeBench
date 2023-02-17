@@ -1,55 +1,43 @@
 # Create routes
-To create route waypoints, run the following command.
+Run the following command to create route waypoints.
 ```
-python create_routes.py
-
+python create_waypoints.py
 optional arguments:
-  --map                          Name of the map
-  --save_dir                     Output directory
-  --scenario                     Scenario index
-  --road {intersection,straight} Create routes based on a intersection or a straight road.
-  --multi_rotation               Create multiple symmetrical routes. 
-                                 - When creating routes within the intersection, the code will generate four routes, 
-                                   each rotated 90 degrees around the intersection center. 
-                                 - When creating routes alone the straight road, the code will generate two routes, 
-                                   each rotated 180 degrees around the road center.
+  --map Name of the map
+  --save_dir Output directory
+  --scenario Scenario index
+  --road {intersection,straight} Create route based on the intersection or straight road
+  --multi_rotation      This will create multiple routes that is symetry. For example for intersection, this will create 4 routes in total with ego vehicle coming from different direction
 ```
 
 # Create Scenarios
-To create the scenario trigger point and spawn points for other actors, run the following command.
+Run the following command to create scenario trigger point and other actor spawn point.
 ```
 python create_scenario.py
-
 optional arguments:
-  --map                          Name of the map
-  --save_dir                     Output directory
-  --scenario                     Scenario index
-  --road {intersection,straight} Create routes based on a intersection or a straight road.
-  --multi_rotation               Create multiple symmetrical routes. 
-                                 - When creating routes within the intersection, the code will generate four routes, 
-                                   each rotated 90 degrees around the intersection center. 
-                                 - When creating routes alone the straight road, the code will generate two routes, 
-                                   each rotated 180 degrees around the road center.
+  --map Name of the map
+  --save_dir Output directory
+  --scenario Scenario index
+  --road {intersection,straight} Create route based on the intersection or straight road
+  --multi_rotation      This will create multiple routes that is symetry. For example for intersection, this will create 4 routes in total with ego vehicle coming from different direction
 ```
 
 # Visualize Routes
-To visualize the routes, run the following command.
+To visualize the route, run command
 ```
-python visualize_routes.py
-
+python visualize_waypoints.py.py
 optional arguments:
-  --map                          Name of the map
-  --save_dir                     Output directory
-  --scenario                     Scenario index
+  --map Name of the map
+  --save_dir Output directory
+  --scenario Scenario index
 ```
 
 # Visualize Scenarios
-To visualize trigger point and spawn points for other actors of a scenario, run the following command
+To visualize the route, run command
 ```
-python visualize_scenarios.py
-
+python visualize_scenario.py
 optional arguments:
-  --map                          Name of the map
-  --save_dir                     Output directory
-  --scenario                     Scenario index
+  --map Name of the map
+  --save_dir Output directory
+  --scenario Scenario index
 ```

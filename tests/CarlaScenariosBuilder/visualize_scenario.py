@@ -17,9 +17,11 @@ def draw_global(ax, scenario_config, waypoints_sparse):
     ax.plot(waypoints_sparse[:, 0], -waypoints_sparse[:, 1], 'o', color='y')
 
     waypoints = parse_scenarios(scenario_config)
+    print(waypoints)
 
     start_waypoint = waypoints[0]
     for end_waypoint in waypoints[1:]:
+        print(end_waypoint)
         ax.plot([start_waypoint[0], end_waypoint[0]], [-start_waypoint[1], -end_waypoint[1]], '--', color='b')
         ax.plot(end_waypoint[0], -end_waypoint[1], 'o', color='g')
         ax.text(end_waypoint[0] + 8, -end_waypoint[1] + 8, "Actor", bbox=dict(facecolor='green', alpha=0.7))
@@ -68,10 +70,10 @@ def draw_zoom(ax, scenario_config, centers, waypoints_sparse):
     ax.set_ylim([y_min, y_max])
 
 
-def set_title(ax, scenario_idx, title=None):
+def set_title(ax, route_file, title=None):
     if title is None:
-        title = "Left and right click to change scenario.\nMiddle click to zoom."
-    title = f"Visualizing scenario: {scenario_idx}.\n" + title
+        title = "Left and right click to change route.\nMiddle click to zoom."
+    title = f"Visualizing route: {route_file}.\n" + title
     ax.set_title(title, fontsize=12, loc='left')
 
 
