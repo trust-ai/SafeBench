@@ -81,10 +81,10 @@ class ObjectDetection(object):
         #         label = str(self.model.names[c]) + ' {:.2f}'.format(conf)
         #         self.annotator.box_label(xyxy, label, color=colors(c, True)) 
         # print(xyxy, conf)
-        image = image.permute(0, 2, 3, 1).detach().cpu().numpy()[0]
+        # image = image.permute(0, 2, 3, 1).detach().cpu().numpy()[0]
         # print(image.shape)
-        image = cv2.resize(image, (3000, 3000), interpolation=cv2.INTER_LINEAR)
-        image = np.array(255*image, np.uint8)
+        # image = cv2.resize(image, (3000, 3000), interpolation=cv2.INTER_LINEAR)
+        # image = np.array(255*image, np.uint8)
         # return image
         batch_size = len(obs)
 

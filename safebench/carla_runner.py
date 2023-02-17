@@ -83,8 +83,12 @@ class CarlaRunner:
         flag = pygame.HWSURFACE | pygame.DOUBLEBUF
         if not self.render:
             flag = flag | pygame.HIDDEN
-        self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
-
+        if self.scenario_type != 'od': 
+            self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
+        else:
+            self.display_size = 1024
+            self.display = pygame.display.set_mode((self.display_size, self.display_size * num_envs), flag)
+        
         pixels_per_meter = self.display_size / self.obs_range
         pixels_ahead_vehicle = (self.obs_range / 2 - self.d_behind) * pixels_per_meter
         self.birdeye_params = {
@@ -94,6 +98,7 @@ class CarlaRunner:
         }
 
         # initialize the render for genrating observation and visualization
+<<<<<<< HEAD
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
 
     def eval(self, env, data_loader):
@@ -103,13 +108,25 @@ class CarlaRunner:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
             num_finished_scenario += num_sampled_scenario
+=======
+        self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params)
+    
+    def eval(self):
+        for e_i in range(self.num_episode):
+>>>>>>> bca9dcde7cc16da3e0a4e91407ef387f235c87ba
             # reset envs
             obss = env.reset(sampled_scenario_configs)
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while True:
+<<<<<<< HEAD
                 if env.all_scenario_done():
                     self.logger.log(">> All scenarios are completed. Prepare for exiting")
+=======
+                # print(self.env.finished_env)
+                if self.env.all_scenario_done():
+                    print("######## All scenarios are completed. Prepare for exiting ########")
+>>>>>>> bca9dcde7cc16da3e0a4e91407ef387f235c87ba
                     break
 
                 # get action from ego agent (assume using one batch)
