@@ -22,8 +22,11 @@ def draw(ax, center, dist, road_waypoints, selected_waypoints_idx):
         waypoints = np.take(road_waypoints, waypoints_idx, axis=0)
         ax.plot(waypoints[:, 0], -waypoints[:, 1], '-o', color='r')
         ax.plot(waypoints[0, 0], -waypoints[0, 1], 'o', color='g')
+        ax.text(waypoints[0, 0] + 8, -waypoints[0, 1] + 8, "Start", bbox=dict(facecolor='green', alpha=0.7))
+
         if len(selected_waypoints_idx) > 1:
             ax.plot(waypoints[-1, 0], -waypoints[-1, 1], 'o', color='b')
+            ax.text(waypoints[-1, 0] + 8, -waypoints[-1, 1] + 8, "End", bbox=dict(facecolor='red', alpha=0.7))
 
     x_min, x_max = center[0] - dist, center[0] + dist
     y_min, y_max = -center[1] - dist, -center[1] + dist
@@ -72,17 +75,13 @@ def create_route_intersection(config, selected_waypoints_idx, road_waypoints):
     else:
         local_waypoints.append(selected_waypoints)
     local_waypoints = np.vstack(local_waypoints)
-    
-    # shift waypoints
+
+    # rotate waypoints around the map center
     map_waypoints = []
-    for i in range(2):
-        for j in range(2):
-            xs = 200 * i
-            ys = 200 * j
-            shift = np.asarray([[xs, ys]])
-            shift_waypoints = local_waypoints.copy()
-            shift_waypoints[:, :2] += shift
-            map_waypoints.append(shift_waypoints)
+    for i in range(4):
+        theta = i * np.pi / 2
+        rotated_waypoints = rotate_waypoints(local_waypoints, [100, 100], theta)
+        map_waypoints.append(rotated_waypoints)
     map_waypoints = np.vstack(map_waypoints)
     return map_waypoints
 
@@ -108,7 +107,7 @@ def create_route_straight(config, selected_waypoints_idx, road_waypoints):
         map_waypoints.append(rotated_waypoints)
     map_waypoints = np.vstack(map_waypoints)
     return map_waypoints
-            
+
 
 def create_route(config, selected_waypoints_idx, road_waypoints, waypoints_dense):
     # get point shift in x and y locations
@@ -118,7 +117,7 @@ def create_route(config, selected_waypoints_idx, road_waypoints, waypoints_dense
         all_routes_waypoints = create_route_straight(config, selected_waypoints_idx, road_waypoints)
     else:
         raise ValueError("--road must be 'intersection' or 'straight'.")
-    
+
     # save waypoints
     scenario_id = config.scenario
     save_dir = os.path.join(config.save_dir, f"scenario_{scenario_id:02d}_routes")
@@ -158,12 +157,11 @@ def main(config):
     selected_waypoints_idx = []
 
     # set waypoints that user can work on
+    dist = 120
     if config.road == 'intersection':
         center = [0, 0]
-        dist = 85
     else:
         center = [100, 0]
-        dist = 85
 
     def onclick(event):
         # print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
@@ -205,7 +203,6 @@ def main(config):
     plt.show()
 
 
-
 if __name__ == '__main__':
     import argparse
 
@@ -214,10 +211,13 @@ if __name__ == '__main__':
     parser.add_argument('--save_dir', type=str, default="scenario_data/route_new_map")
     parser.add_argument('--scenario', type=int, default=5)
     parser.add_argument('--road', type=str, default='intersection', choices=['intersection', 'straight'],
-                        help='Create route based on the intersection or straight road')
+                        help='Create routes based on a intersection or a straight road.')
     parser.add_argument('--multi_rotation', action='store_true',
-                        help='This will create multiple routes that is symetry. For example for intersection, '
-                             'this will create 4 routes in total with ego vehicle coming from different direction')
+                        help='Create multiple symmetrical routes.'
+                             'When creating routes that involve an intersection, the code will generate four routes, '
+                             'each rotated 90 degrees around the center of the intersection. '
+                             'When creating routes alone a straight road, the code will generate two routes, '
+                             'each rotated 180 degrees around the center of the road. ')
 
     args = parser.parse_args()
 
