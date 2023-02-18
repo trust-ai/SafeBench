@@ -1,3 +1,11 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-14 12:07:45
+Description: 
+'''
+
 import copy
 import random
 
@@ -6,7 +14,6 @@ import pygame
 from skimage.transform import resize
 import gym
 from gym import spaces
-from gym.utils import seeding
 import carla
 
 from safebench.gym_carla.envs.route_planner import RoutePlanner
@@ -22,17 +29,19 @@ from safebench.gym_carla.envs.misc import (
     get_pixel_info,
     debug_bbox
 )
-from safebench.scenario.srunner.scenario_dynamic.route_scenario_dynamic import RouteScenarioDynamic
-from safebench.scenario.srunner.scenario_dynamic.object_detection_dynamic import ObjectDetectionDynamic
-from safebench.scenario.srunner.scenario_manager.scenario_manager_dynamic import ScenarioManagerDynamic
+from safebench.scenario.srunner.scenarios.route_scenario import RouteScenario
+from safebench.scenario.srunner.scenarios.object_detection_scenario import ObjectDetectionScenario
+from safebench.scenario.srunner.scenario_manager.scenario_manager import ScenarioManager
 from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
 
 class CarlaEnv(gym.Env):
     """ 
         An OpenAI-gym style interface for CARLA simulator. 
     """
-    def __init__(self, params, birdeye_render=None, display=None, world=None, ROOT_DIR=None, scenario_type=None, first_env=False):
+    def __init__(self, params, birdeye_render=None, display=None, world=None, ROOT_DIR=None, scenario_type=None, logger=None, first_env=False):
+        self.scenario_type = scenario_type
         if scenario_type != 'od': # dev, benign, standard
+            self.first_env = first_env
             # parameters
             self.display_size = params['display_size']  # rendering screen size
             self.max_past_step = params['max_past_step']
@@ -46,6 +55,8 @@ class CarlaEnv(gym.Env):
             self.desired_speed = params['desired_speed']
             self.display_route = params['display_route']
             self.ROOT_DIR = ROOT_DIR
+            self.logger = logger
+
             self.acc_max = params['continuous_accel_range'][1]
             self.steering_max = params['continuous_steer_range'][1]
 
@@ -86,18 +97,17 @@ class CarlaEnv(gym.Env):
 
             assert world is not None, "the world passed into CarlaEnv is None"
             self.world = world
-            self.birdeye_render = birdeye_render
             self.display = display
-            self.SpawnActor = carla.command.SpawnActor
-            self.SetAutopilot = carla.command.SetAutopilot
-            self.SetVehicleLightState = carla.command.SetVehicleLightState
-            self.FutureActor = carla.command.FutureActor
-
+            self.birdeye_render = birdeye_render
+            self.lidar_data = None
+            self.lidar_height = 2.1
+            
             # Record the time of total steps and resetting steps
             self.reset_step = 0
             self.total_step = 0
             self.is_running = True
             self.env_id = None
+            self.ego = None
 
             # Get pixel grid points
             if self.pixor:
@@ -105,12 +115,10 @@ class CarlaEnv(gym.Env):
                 x, y = x.flatten(), y.flatten()
                 self.pixel_grid = np.vstack((x, y)).T
 
-            # Init sensors
             self.collision_sensor = None
             self.lidar_sensor = None
             self.camera_sensor = None
 
-            """for scenario runner"""
             self.scenario = None
             self.scenario_manager = None
 
@@ -118,7 +126,7 @@ class CarlaEnv(gym.Env):
             # TODO: only initialize textures for once in parallel rollout!
             self.first_env = first_env
             # parameters
-            self.display_size = params['image_sz'] # TODO: match rendering screen size with image_size
+            self.display_size = params['display_size'] # TODO: match rendering screen size with image_size
             self.max_past_step = params['max_past_step']
             self.max_episode_step = params['max_episode_step']
             self.max_waypt = params['max_waypt']
@@ -130,6 +138,7 @@ class CarlaEnv(gym.Env):
             self.desired_speed = params['desired_speed']
             self.display_route = params['display_route']
             self.ROOT_DIR = ROOT_DIR
+            self.logger = logger
 
             self.acc_max = params['continuous_accel_range'][1]
             self.steering_max = params['continuous_steer_range'][1]
@@ -158,10 +167,6 @@ class CarlaEnv(gym.Env):
             self.world = world
             self.birdeye_render = birdeye_render
             self.display = display
-            self.SpawnActor = carla.command.SpawnActor
-            self.SetAutopilot = carla.command.SetAutopilot
-            self.SetVehicleLightState = carla.command.SetVehicleLightState
-            self.FutureActor = carla.command.FutureActor
 
             # Record the time of total steps and resetting steps
             self.reset_step = 0
@@ -174,25 +179,22 @@ class CarlaEnv(gym.Env):
             self.lidar_sensor = None
             self.camera_sensor = None
 
-            """for scenario runner"""
-            self.scenario = None
-            self.scenario_manager = None
+        """for scenario runner"""
+        self.scenario = None
+        self.scenario_manager = None
 
-    def create_ego_object(self):
-        # Collision sensor
-        self.collision_hist = []  # The collision history
+    def _create_sensors(self):
+        # collision sensor
         self.collision_hist_l = 1  # collision history length
         self.collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
+        if self.scenario_type != 'od':
+            # lidar sensor
+            self.lidar_trans = carla.Transform(carla.Location(x=0.0, z=self.lidar_height))
+            self.lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
+            self.lidar_bp.set_attribute('channels', '16')
+            self.lidar_bp.set_attribute('range', '1000')
 
-        # Lidar sensor
-        self.lidar_data = None
-        self.lidar_height = 2.1
-        self.lidar_trans = carla.Transform(carla.Location(x=0.0, z=self.lidar_height))
-        self.lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
-        self.lidar_bp.set_attribute('channels', '32')
-        self.lidar_bp.set_attribute('range', '3000')
-
-        # Camera sensor
+        # camera sensor
         self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8) # TODO: Haohong
         self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
         self.camera_bp = self.world.get_blueprint_library().find('sensor.camera.rgb')
@@ -203,27 +205,41 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-    def load_scenario(self, config, env_id, scenario_type):
+    def _create_scenario(self, config, env_id, scenario_type):
         # create scenario accoridng to different types
         if scenario_type in ['od']:
-            self.scenario = ObjectDetectionDynamic(world=self.world, config=config, ROOT_DIR=self.ROOT_DIR, ego_id=env_id, first_env=self.first_env) 
-            self._init_env_flag = True
+            self.scenario = ObjectDetectionScenario(
+                world=self.world, 
+                config=config, 
+                ROOT_DIR=self.ROOT_DIR, 
+                ego_id=env_id, 
+                logger=self.logger,
+                first_env=self.first_env
+            )
         elif scenario_type in ['dev', 'standard', 'benign']:
-            self.scenario = RouteScenarioDynamic(world=self.world, config=config, ego_id=env_id)
+            self.scenario = RouteScenario(
+                world=self.world, 
+                config=config, 
+                ego_id=env_id, 
+                max_running_step=self.max_episode_step, 
+                logger=self.logger
+            )
         else:
-            raise NotImplementedError('{} type of scenario is not implemented.'.format(scenario_type))
+            raise NotImplementedError(f'{scenario_type} scenario is not implemented.')
 
         # init scenario and manager
         self.ego = self.scenario.ego_vehicles[0]
-        self.scenario_manager = ScenarioManagerDynamic()
+        self.scenario_manager = ScenarioManager(self.logger)
         self.scenario_manager.load_scenario(self.scenario)
-        self.scenario_manager._init_scenarios()
+        self.scenario_manager.run_scenario()
 
     def reset(self, config, env_id, scenario_type):
-        #self.clear_up()
-        print("######## loading scenario ########")
-        self.load_scenario(config, env_id, scenario_type)
+        self.logger.log(">> Create sensors for scenario " + str(env_id))
+        self._create_sensors()
+
+        self.logger.log(">> Loading scenario " + str(env_id) + ' ' + str(scenario_type))
         self.env_id = env_id
+        self._create_scenario(config, env_id, scenario_type)
 
         # change view point
         #location = carla.Location(x=100, y=100, z=300)
@@ -254,8 +270,9 @@ class CarlaEnv(gym.Env):
         self.collision_hist = []
 
         # Add lidar sensor
-        self.lidar_sensor = self.world.spawn_actor(self.lidar_bp, self.lidar_trans, attach_to=self.ego)
-        self.lidar_sensor.listen(lambda data: get_lidar_data(data))
+        if self.scenario_type != 'od':
+            self.lidar_sensor = self.world.spawn_actor(self.lidar_bp, self.lidar_trans, attach_to=self.ego)
+            self.lidar_sensor.listen(lambda data: get_lidar_data(data))
 
         def get_lidar_data(data):
             self.lidar_data = data
@@ -294,19 +311,16 @@ class CarlaEnv(gym.Env):
         for node in route:
             loc = node[0].location
             init_waypoints.append(m.get_waypoint(loc, project_to_road=True, lane_type=carla.LaneType.Driving))
-
-        # TODO: check the target point of this planner
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
 
-        # TODO: applying setting can tick the world and get data from sensros
+        # applying setting can tick the world and get data from sensros
         # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
-        # self.world.tick()
         self.settings = self.world.get_settings()
         self.world.apply_settings(self.settings)
 
-        self.scenario_manager._running = True
-        return self._get_obs(scenario_type)
+        #self.scenario_manager._running = True
+        return self._get_obs()
 
     def load_model(self):
         # TODO: load scenario policy model
@@ -318,42 +332,47 @@ class CarlaEnv(gym.Env):
             snapshot = self.world.get_snapshot()
             if snapshot:
                 timestamp = snapshot.timestamp
-        self.scenario_manager.get_update(timestamp)
-        # OD Scenario
-        if isinstance(ego_action, dict):
-            world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
-            fov = self.camera_bp.get_attribute('fov').as_float()
-            image_w, image_h = self.obs_size, self.obs_size
-            self.scenario_manager.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
-            ego_action = ego_action['ego_action']
+                self.scenario_manager.get_update(timestamp)
+                if isinstance(ego_action, dict):
+                    world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
+                    fov = self.camera_bp.get_attribute('fov').as_float()
+                    image_w, image_h = self.obs_size, self.obs_size
+                    self.scenario_manager.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
+                    ego_action = ego_action['ego_action']
 
-        self.is_running = self.scenario_manager._running
-        
-        # Calculate acceleration and steering
-        if self.discrete:
-            acc = self.discrete_act[0][ego_action // self.n_steer]
-            steer = self.discrete_act[1][ego_action % self.n_steer]
+                self.is_running = self.scenario_manager._running
+
+                # Calculate acceleration and steering
+                if self.discrete:
+                    acc = self.discrete_act[0][ego_action // self.n_steer]
+                    steer = self.discrete_act[1][ego_action % self.n_steer]
+                else:
+                    acc = ego_action[0]
+                    steer = ego_action[1]
+
+                # normalize and clip the action
+                acc = acc * self.acc_max
+                steer = steer * self.steering_max
+                acc = max(min(self.acc_max, acc), -self.acc_max)
+                steer = max(min(self.steering_max, steer), -self.steering_max)
+
+                # Convert acceleration to throttle and brake
+                if acc > 0:
+                    throttle = np.clip(acc / 3, 0, 1)
+                    brake = 0
+                else:
+                    throttle = 0
+                    brake = np.clip(-acc / 8, 0, 1)
+
+                # Apply control
+                act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
+                self.ego.apply_control(act)
+            else:
+                self.logger.log('>> Can not get snapshot!', color='red')
+                raise Exception()
         else:
-            acc = ego_action[0]
-            steer = ego_action[1]
-
-        # normalize and clip the action
-        acc = acc * self.acc_max
-        steer = steer * self.steering_max
-        acc = max(min(self.acc_max, acc), -self.acc_max)
-        steer = max(min(self.steering_max, steer), -self.steering_max)
-
-        # Convert acceleration to throttle and brake
-        if acc > 0:
-            throttle = np.clip(acc / 3, 0, 1)
-            brake = 0
-        else:
-            throttle = 0
-            brake = np.clip(-acc / 8, 0, 1)
-
-        # Apply control
-        act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
-        self.ego.apply_control(act)
+            self.logger.log('>> Please specify a Carla world!', color='red')
+            raise Exception()
 
     def step_after_tick(self):
         # Append actors polygon list
@@ -396,10 +415,6 @@ class CarlaEnv(gym.Env):
         self.total_step += 1
 
         return (self._get_obs(), self._get_reward(), self._terminal(), copy.deepcopy(info))
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def _create_vehicle_bluepprint(self,actor_filter, color=None, number_of_wheels=[4]):
         """ Create the blueprint for a specific actor type.
@@ -456,8 +471,8 @@ class CarlaEnv(gym.Env):
 
         return actor_trajectory_dict, actor_acceleration_dict, actor_angular_velocity_dict, actor_velocity_dict
 
-    def _get_obs(self, scenario_type='od'):
-        if scenario_type != 'od': # dev, benign, standard
+    def _get_obs(self):
+        if self.scenario_type != 'od': # dev, benign, standard
             """ Get the observations. """
             # set ego information for birdeye_render
             self.birdeye_render.set_hero(self.ego, self.ego.id)
@@ -527,6 +542,7 @@ class CarlaEnv(gym.Env):
             # display lidar image
             lidar_surface = rgb_to_display_surface(lidar, self.display_size)
             self.display.blit(lidar_surface, (self.display_size, self.env_id*self.display_size))
+
             # display camera image
             camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
             camera_surface = rgb_to_display_surface(camera, self.display_size)
@@ -690,10 +706,25 @@ class CarlaEnv(gym.Env):
         # the max step critie is included in scenario_manager
         return not self.scenario_manager._running
 
-    def stop_sensor(self):
+    def _remove_sensor(self):
         if self.collision_sensor is not None:
             self.collision_sensor.stop()
+            self.collision_sensor.destroy()
+            self.collision_sensor = None
         if self.lidar_sensor is not None:
             self.lidar_sensor.stop()
+            self.lidar_sensor.destroy()
+            self.lidar_sensor = None
         if self.camera_sensor is not None:
             self.camera_sensor.stop()
+            self.camera_sensor.destroy()
+            self.camera_sensor = None
+
+    def _remove_ego(self):
+        if self.ego is not None:
+            self.ego.destroy()
+            self.ego = None
+
+    def clean_up(self):
+        self._remove_sensor()
+        self._remove_ego()

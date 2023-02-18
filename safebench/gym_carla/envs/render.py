@@ -9,11 +9,11 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-import carla
 import math
-import pygame
 import weakref
-import time
+
+import carla
+import pygame
 
 
 # Colors
@@ -85,8 +85,8 @@ class Util(object):
 
 
 class MapImage(object):
-    def __init__(self, carla_world, carla_map, pixels_per_meter):
-        print('######## drawing the map of the entire town ########')
+    def __init__(self, carla_world, carla_map, pixels_per_meter, logger):
+        logger.log('>> Drawing the map of the entire town')
         self._pixels_per_meter = pixels_per_meter
         self.scale = 1.0
 
@@ -102,9 +102,7 @@ class MapImage(object):
 
         # Maximum size of a Pygame surface
         width_in_pixels = (1 << 14) - 1
-
         width_in_pixels = int(self._pixels_per_meter * self.width)
-
         self.big_map_surface = pygame.Surface((width_in_pixels, width_in_pixels)).convert()
 
         # Render map
@@ -216,7 +214,6 @@ class MapImage(object):
                         markings_list.append(marking)
 
                     temp_waypoints = temp_waypoints[-1:]
-
                 else:
                     temp_waypoints.append((sample))
                     previous_marking_type = marking_type
@@ -252,8 +249,7 @@ class MapImage(object):
             forward_vector = carla.Location(waypoint.transform.get_forward_vector())
             left_vector = carla.Location(-forward_vector.y, forward_vector.x, forward_vector.z) * waypoint.lane_width / 2 * 0.7
 
-            line = [(waypoint.transform.location + (forward_vector * 1.5) + (left_vector)),
-                    (waypoint.transform.location + (forward_vector * 1.5) - (left_vector))]
+            line = [(waypoint.transform.location + (forward_vector * 1.5) + (left_vector)), (waypoint.transform.location + (forward_vector * 1.5) - (left_vector))]
 
             line_pixel = [world_to_pixel(p) for p in line]
             pygame.draw.lines(surface, color, True, line_pixel, 2)
@@ -375,7 +371,7 @@ class MapImage(object):
 
 
 class BirdeyeRender(object):
-    def __init__(self, world, params):
+    def __init__(self, world, params, logger):
         self.params = params
         self.server_fps = 0.0
         self.simulation_time = 0
@@ -402,7 +398,8 @@ class BirdeyeRender(object):
         self.map_image = MapImage(
             carla_world=self.world,
             carla_map=self.town_map,
-            pixels_per_meter=self.params['pixels_per_meter']
+            pixels_per_meter=self.params['pixels_per_meter'],
+            logger=logger,
         )
         self.original_surface_size = min(self.params['screen_size'][0], self.params['screen_size'][1])
         self.surface_size = self.map_image.big_map_surface.get_width()

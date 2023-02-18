@@ -1,14 +1,11 @@
 from copy import deepcopy
 
-import gym
 import numpy as np
 import torch
 import torch.nn as nn
 from safebench.agent.safe_rl.policy.base_policy import Policy
 from safebench.agent.safe_rl.policy.model.mlp_ac import MLPActor, EnsembleQCritic
-from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray,
-                                     to_tensor)
+from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
 
@@ -225,10 +222,14 @@ class TD3(Policy):
                 p_targ.data.add_((1 - self.polyak) * p.data)
 
     def save_model(self):
-        self.logger.setup_pytorch_saver((self.actor, self.critic))
+        self.logger.setup_pytorch_saver((self.actor.state_dict(), self.critic.state_dict()))
 
     def load_model(self, path):
-        actor, critic = torch.load(path)
-        self._ac_training_setup(actor, critic)
+        actor_state_dict, critic_state_dict = torch.load(path)
+        self.actor.load_state_dict(actor_state_dict)
+        self.actor.eval()
+        self.critic.load_state_dict(critic_state_dict)
+        self.critic.eval()
+        self._ac_training_setup(self.actor, self.critic)
         # Set up model saving
         self.save_model()

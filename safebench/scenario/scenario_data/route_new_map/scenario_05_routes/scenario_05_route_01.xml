@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <routes>
-   <route id="0" town="town_4intersection_2lane">
+   <route id="0" town="Town_Safebench">
       <weather
          cloudiness="0"
          precipitation="0"

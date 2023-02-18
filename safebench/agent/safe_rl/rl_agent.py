@@ -26,6 +26,7 @@ class RLAgent:
     """
     def __init__(self, config, logger):
         self.config = config
+        self.logger = logger
         self.policy_name = config['policy_name']
         self.ego_action_dim = config['ego_action_dim']
         self.mode = config['mode']
@@ -35,7 +36,7 @@ class RLAgent:
         policy_config['ego_action_dim'] = config['ego_action_dim']
         policy_config['ego_action_limit'] = config['ego_action_limit']
         self.policy = POLICY_LIST[self.policy_name](policy_config, logger)
-        self.load_model()
+        self.load_itr = self.load_model()
 
     def get_action(self, obs, deterministic=True, with_logprob=False):
         action = []
@@ -49,6 +50,7 @@ class RLAgent:
             assert self.config['load_dir'] is not None, "Please specify load_dir!"
         if self.config['load_dir'] is not None:
             model_path, load_itr, _, _, _ = setup_eval_configs(self.config['load_dir'], itr=self.config['load_iteration'])
+            self.logger.log(f'>> Loading model from {model_path}')
             self.policy.load_model(model_path)
             return load_itr
         else:

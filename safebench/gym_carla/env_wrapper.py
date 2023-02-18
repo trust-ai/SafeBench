@@ -1,31 +1,41 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-14 12:09:40
+Description: 
+'''
+
 import gym
 import numpy as np
 import pygame
+from safebench.gym_carla.buffer import ReplayBuffer
 
 
 class VectorWrapper():
     """ The interface to control a list of environments"""
-    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, config_lists, scenario_type):
+    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, logger, scenario_type):
         self.world = world
         self.num_scenario = scenario_config['num_scenario']
-        self.finished_env = [False] * self.num_scenario
         self.ROOT_DIR = scenario_config['ROOT_DIR']
         self.frame_skip = scenario_config['frame_skip']
         self.obs_type = agent_config['obs_type']   # the observation type is determined by the ego agent
-        self.config_lists = config_lists
-        self.scenario_type = scenario_type
         self.render = scenario_config['render']
+        self.scenario_type = scenario_type
+        self.replay_buffer = None
 
         self.env_list = []
         self.action_space_list = []
         for i in range(self.num_scenario):
             if i == 0:
-                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, scenario_type=scenario_type, first_env=True)
+                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, logger=logger, scenario_type=scenario_type, first_env=True)
             else:
-                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, scenario_type=scenario_type)
-            env.create_ego_object()
+                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, logger=logger, scenario_type=scenario_type)
             self.env_list.append(env)
             self.action_space_list.append(env.action_space)
+
+        # flags for env list 
+        self.finished_env = [False] * self.num_scenario
 
     def load_model(self):
         for e_i in range(self.num_scenario):
@@ -36,32 +46,40 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, config_lists=None, scenario_type=None):
-        if config_lists is None:
-            config_lists = self.config_lists
+    def reset(self, scenario_configs, scenario_type=None):
         if scenario_type is None:
             scenario_type = self.scenario_type
-
+        self.replay_buffer = ReplayBuffer(self.num_scenario)
+        # create scenarios and ego vehicles
         obs_list = []
-        for s_i in range(self.num_scenario):
-            config = config_lists[s_i]
+        for s_i in range(len(scenario_configs)):
+            config = scenario_configs[s_i]
             obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
             obs_list.append(obs)
+            self.replay_buffer.save_init_obs(s_i, obs)
+
+        # sometimes not all scenarios are used
         self.finished_env = [False] * self.num_scenario
+        for s_i in range(len(scenario_configs), self.num_scenario):
+            self.finished_env[s_i] = True
+
+
+        # return obs
         return self.obs_postprocess(obs_list)
 
-    def step(self, ego_actions):
+    def step(self, ego_actions, critic_value=None, log_prob=None):
         """
             ego_actions: [num_alive_scenario, ego_action_dim]
         """
         # apply action
-        action_idx = 0 # action idx should match the env that is not finished
+        action_idx = 0  # action idx should match the env that is not finished
         for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
+                self.replay_buffer.save_current_action(e_i, ego_actions[action_idx])
                 processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
                 self.env_list[e_i].step_before_tick(processed_action)
                 action_idx += 1
-        
+
         # tick all scenarios
         for _ in range(self.frame_skip):
             self.world.tick()
@@ -74,6 +92,8 @@ class VectorWrapper():
         for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
                 obs, reward, done, info = self.env_list[e_i].step_after_tick()
+                self.replay_buffer.save_step_results(e_i, next_obs=obs, reward=reward, done=done, info=info,
+                                                     critic_value=critic_value, log_prob=log_prob)
                 info['scenario_id'] = e_i
 
                 # check if env is done
@@ -92,11 +112,6 @@ class VectorWrapper():
         # update pygame window
         if self.render:
             pygame.display.flip()
-        
-        # clear up when all scenarios are finished
-        if self.all_scenario_done():
-            print('######## Clearning up all actors ########')
-            self._clear_up()
 
         return self.obs_postprocess(obs_list), rewards, dones, infos
 
@@ -112,26 +127,13 @@ class VectorWrapper():
         else:
             return False
 
-    def _clear_up(self):
+    def clean_up(self):
         # stop sensor objects
         for e_i in range(self.num_scenario):
-            self.env_list[e_i].stop_sensor()
+            self.env_list[e_i].clean_up()
 
-        # this will remove all actors, thus only can be called after all scenarios are finished
-        actor_filters = [
-            'vehicle.*',
-            'walker.*',
-            'controller.ai.walker',
-            'sensor.other.collision', 
-            'sensor.lidar.ray_cast',
-            'sensor.camera.rgb', 
-        ]
-        for actor_filter in actor_filters:
-            for actor in self.world.get_actors().filter(actor_filter):
-                if actor.is_alive:
-                    if actor.type_id == 'controller.ai.walker':
-                        actor.stop()
-                    actor.destroy()
+        # tick to ensure that all destroy commands are executed
+        self.world.tick()
 
 
 class EnvWrapper(gym.Wrapper):
@@ -139,7 +141,7 @@ class EnvWrapper(gym.Wrapper):
         super().__init__(env)
         self._env = env
 
-        self.is_running = True
+        self.is_running = False
         self.obs_type = obs_type
         self._build_obs_space()
 
@@ -224,7 +226,7 @@ params = {
     'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
     'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
     'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-    'max_episode_step': 1000,               # maximum timesteps per episode
+    'max_episode_step': 500,                # maximum timesteps per episode
     'max_waypt': 12,                        # maximum number of waypoints
     'obs_range': 32,                        # observation range (meter)
     'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
@@ -238,7 +240,18 @@ params = {
 }
 
 
-def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None, scenario_type=None, first_env=False):
-    return EnvWrapper(gym.make('carla-v0', params=params, \
-                               birdeye_render=birdeye_render, display=display, world=world, \
-                               ROOT_DIR=ROOT_DIR, scenario_type=scenario_type, first_env=first_env), obs_type=obs_type)
+def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None, scenario_type=None, logger=None, first_env=False):
+    return EnvWrapper(
+        gym.make(
+            'carla-v0', 
+            params=params, 
+            birdeye_render=birdeye_render,
+            display=display, 
+            world=world, 
+            ROOT_DIR=ROOT_DIR, 
+            scenario_type=scenario_type,
+            logger=logger,
+            first_env=first_env
+        ), 
+        obs_type=obs_type
+    )

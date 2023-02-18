@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2018-2020 Intel Corporation
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
 """
 This module provides all atomic evaluation criteria required to analyze if a
 scenario was completed successfully or failed.
@@ -35,28 +28,27 @@ class Status(Enum):
 
 
 class Criterion:
-
     """
-    Base class for all criteria used to evaluate a scenario for success/failure
+        Base class for all criteria used to evaluate a scenario for success/failure
 
-    Important parameters (PUBLIC):
-    - name: Name of the criterion
-    - expected_value_success:    Result in case of success
-                                 (e.g. max_speed, zero collisions, ...)
-    - expected_value_acceptable: Result that does not mean a failure,
-                                 but is not good enough for a success
-    - actual_value: Actual result after running the scenario
-    - test_status: Used to access the result of the criterion
-    - optional: Indicates if a criterion is optional (not used for overall analysis)
+        Important parameters (PUBLIC):
+        - name: Name of the criterion
+        - expected_value_success:    Result in case of success (e.g. max_speed, zero collisions, ...)
+        - expected_value_acceptable: Result that does not mean a failure, but is not good enough for a success
+        - actual_value: Actual result after running the scenario
+        - test_status: Used to access the result of the criterion
+        - optional: Indicates if a criterion is optional (not used for overall analysis)
     """
 
-    def __init__(self,
-                 name,
-                 actor,
-                 expected_value_success,
-                 expected_value_acceptable=None,
-                 optional=False,
-                 terminate_on_failure=False):
+    def __init__(
+        self,
+        name,
+        actor,
+        expected_value_success,
+        expected_value_acceptable=None,
+        optional=False,
+        terminate_on_failure=False
+    ):
         self._terminate_on_failure = terminate_on_failure
 
         self.name = name
@@ -216,25 +208,23 @@ class AverageVelocityTest(Criterion):
 
 
 class CollisionTest(Criterion):
-
     """
-    This class contains an atomic test for collisions.
+        This class contains an atomic test for collisions.
 
-    Args:
-    - actor (carla.Actor): CARLA actor to be used for this test
-    - other_actor (carla.Actor): only collisions with this actor will be registered
-    - other_actor_type (str): only collisions with actors including this type_id will count.
-        Additionally, the "miscellaneous" tag can also be used to include all static objects in the scene
-    - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
-    - optional [optional]: If True, the result is not considered for an overall pass/fail result
+        Args:
+        - actor (carla.Actor): CARLA actor to be used for this test
+        - other_actor (carla.Actor): only collisions with this actor will be registered
+        - other_actor_type (str): only collisions with actors including this type_id will count.
+            Additionally, the "miscellaneous" tag can also be used to include all static objects in the scene
+        - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
+        - optional [optional]: If True, the result is not considered for an overall pass/fail result
     """
 
     MIN_AREA_OF_COLLISION = 3       # If closer than this distance, the collision is ignored
     MAX_AREA_OF_COLLISION = 5       # If further than this distance, the area is forgotten
     MAX_ID_TIME = 5                 # Amount of time the last collision if is remembered
 
-    def __init__(self, actor, other_actor=None, other_actor_type=None,
-                 optional=False, name="CollisionTest", terminate_on_failure=False):
+    def __init__(self, actor, other_actor=None, other_actor_type=None, optional=False, name="CollisionTest", terminate_on_failure=False):
         """
         Construction with sensor setup
         """
@@ -258,7 +248,6 @@ class CollisionTest(Criterion):
         new_status = Status.RUNNING
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>>> CollisionTest fail')
             new_status = Status.FAILURE
 
         actor_location = CarlaDataProvider.get_location(self.actor)
@@ -266,7 +255,6 @@ class CollisionTest(Criterion):
 
         # Loops through all the previous registered collisions
         for collision_location in self.registered_collisions:
-
             # Get the distance to the collision point
             distance_vector = actor_location - collision_location
             distance = math.sqrt(math.pow(distance_vector.x, 2) + math.pow(distance_vector.y, 2))
@@ -284,18 +272,17 @@ class CollisionTest(Criterion):
 
     def terminate(self):
         """
-        Cleanup sensor
+            Cleanup sensor
         """
-        if self._collision_sensor is not None:
+        if self._collision_sensor is not None and self._collision_sensor.is_alive:
             self._collision_sensor.destroy()
         self._collision_sensor = None
-
         super(CollisionTest, self).terminate()
 
     @staticmethod
     def _count_collisions(weak_self, event):     # pylint: disable=too-many-return-statements
         """
-        Callback to update collision count
+            Callback to update collision count
         """
         self = weak_self()
         if not self:
@@ -314,8 +301,7 @@ class CollisionTest(Criterion):
         # Filter to only a specific type
         if self.other_actor_type:
             if self.other_actor_type == "miscellaneous":
-                if "traffic" not in event.other_actor.type_id \
-                        and "static" not in event.other_actor.type_id:
+                if "traffic" not in event.other_actor.type_id and "static" not in event.other_actor.type_id:
                     return
             else:
                 if self.other_actor_type not in event.other_actor.type_id:
@@ -323,15 +309,12 @@ class CollisionTest(Criterion):
 
         # Ignore it if its too close to a previous collision (avoid micro collisions)
         for collision_location in self.registered_collisions:
-
             distance_vector = actor_location - collision_location
             distance = math.sqrt(math.pow(distance_vector.x, 2) + math.pow(distance_vector.y, 2))
-
             if distance <= self.MIN_AREA_OF_COLLISION:
                 return
 
-        if ('static' in event.other_actor.type_id or 'traffic' in event.other_actor.type_id) \
-                and 'sidewalk' not in event.other_actor.type_id:
+        if ('static' in event.other_actor.type_id or 'traffic' in event.other_actor.type_id) and 'sidewalk' not in event.other_actor.type_id:
             actor_type = TrafficEventType.COLLISION_STATIC
         elif 'vehicle' in event.other_actor.type_id:
             actor_type = TrafficEventType.COLLISION_VEHICLE
@@ -346,14 +329,17 @@ class CollisionTest(Criterion):
             'id': event.other_actor.id,
             'x': actor_location.x,
             'y': actor_location.y,
-            'z': actor_location.z})
+            'z': actor_location.z
+        })
         collision_event.set_message(
             "Agent collided against object with type={} and id={} at (x={}, y={}, z={})".format(
                 event.other_actor.type_id,
                 event.other_actor.id,
                 round(actor_location.x, 3),
                 round(actor_location.y, 3),
-                round(actor_location.z, 3)))
+                round(actor_location.z, 3)
+            )
+        )
 
         self.test_status = "FAILURE"
         self.actual_value += 1
@@ -379,8 +365,7 @@ class ActorSpeedAboveThresholdTest(Criterion):
     - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
 
-    def __init__(self, actor, speed_threshold, below_threshold_max_time,
-                 name="ActorSpeedAboveThresholdTest", terminate_on_failure=False):
+    def __init__(self, actor, speed_threshold, below_threshold_max_time, name="ActorSpeedAboveThresholdTest", terminate_on_failure=False):
         """
         Class constructor.
         """
@@ -415,46 +400,35 @@ class ActorSpeedAboveThresholdTest(Criterion):
                 self._time_last_valid_state = GameTime.get_time()
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>>> ActorSpeedAboveThresholdTest fail')
             new_status = Status.FAILURE
-
         return new_status
 
     @staticmethod
     def _set_event_message(event, location):
         """
-        Sets the message of the event
+            Sets the message of the event
         """
-
-        event.set_message('Agent got blocked at (x={}, y={}, z={})'.format(round(location.x, 3),
-                                                                           round(location.y, 3),
-                                                                           round(location.z, 3)))
+        event.set_message('Agent got blocked at (x={}, y={}, z={})'.format(round(location.x, 3), round(location.y, 3), round(location.z, 3)))
 
     @staticmethod
     def _set_event_dict(event, location):
         """
-        Sets the dictionary of the event
+            Sets the dictionary of the event
         """
-        event.set_dict({
-            'x': location.x,
-            'y': location.y,
-            'z': location.z,
-        })
+        event.set_dict({'x': location.x, 'y': location.y, 'z': location.z})
 
 
 class KeepLaneTest(Criterion):
-
     """
-    This class contains an atomic test for keeping lane.
+        This class contains an atomic test for keeping lane.
 
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - optional [optional]: If True, the result is not considered for an overall pass/fail result
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - optional [optional]: If True, the result is not considered for an overall pass/fail result
     """
-
     def __init__(self, actor, optional=False, name="CheckKeepLane"):
         """
-        Construction with sensor setup
+            Construction with sensor setup
         """
         super(KeepLaneTest, self).__init__(name, actor, 0, None, optional)
 
@@ -475,14 +449,13 @@ class KeepLaneTest(Criterion):
             self.test_status = "SUCCESS"
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>>> KeepLaneTest fail')
             new_status = Status.FAILURE
 
         return self.actual_value
 
     def terminate(self):
         """
-        Cleanup sensor
+            Cleanup sensor
         """
         if self._lane_sensor is not None:
             self._lane_sensor.destroy()
@@ -492,7 +465,7 @@ class KeepLaneTest(Criterion):
     @staticmethod
     def _count_lane_invasion(weak_self, event):
         """
-        Callback to update lane invasion count
+            Callback to update lane invasion count
         """
         self = weak_self()
         if not self:
@@ -501,19 +474,16 @@ class KeepLaneTest(Criterion):
 
 
 class OffRoadTest(Criterion):
-
     """
-    Atomic containing a test to detect when an actor deviates from the driving lanes. This atomic can
-    fail when actor has spent a specific time outside driving lanes (defined by OpenDRIVE). Simplified
-    version of OnSidewalkTest, and doesn't relly on waypoints with *Sidewalk* lane types
+        Atomic containing a test to detect when an actor deviates from the driving lanes. This atomic can
+        fail when actor has spent a specific time outside driving lanes (defined by OpenDRIVE). Simplified
+        version of OnSidewalkTest, and doesn't relly on waypoints with *Sidewalk* lane types
 
-    Args:
-        actor (carla.Actor): CARLA actor to be used for this test
-        duration (float): Time spent at sidewalks before the atomic fails.
-            If terminate_on_failure isn't active, this is ignored.
-        optional (bool): If True, the result is not considered for an overall pass/fail result
-            when using the output argument
-        terminate_on_failure (bool): If True, the atomic will fail when the duration condition has been met.
+        Args:
+            actor (carla.Actor): CARLA actor to be used for this test
+            duration (float): Time spent at sidewalks before the atomic fails. If terminate_on_failure isn't active, this is ignored.
+            optional (bool): If True, the result is not considered for an overall pass/fail result when using the output argument
+            terminate_on_failure (bool): If True, the atomic will fail when the duration condition has been met.
     """
 
     def __init__(self, actor, duration=0, optional=False, terminate_on_failure=False, name="OffRoadTest"):
@@ -531,28 +501,21 @@ class OffRoadTest(Criterion):
 
     def update(self):
         """
-        First, transforms the actor's current position to its corresponding waypoint. This is
-        filtered to only use waypoints of type Driving or Parking. Depending on these results,
-        the actor will be considered to be outside (or inside) driving lanes.
+            First, transforms the actor's current position to its corresponding waypoint. This is
+            filtered to only use waypoints of type Driving or Parking. Depending on these results,
+            the actor will be considered to be outside (or inside) driving lanes.
 
-        returns:
-            Status.FAILURE: when the actor has spent a given duration outside driving lanes
-            Status.RUNNING: the rest of the time
+            returns:
+                Status.FAILURE: when the actor has spent a given duration outside driving lanes
+                Status.RUNNING: the rest of the time
         """
         new_status = Status.RUNNING
 
         current_location = CarlaDataProvider.get_location(self.actor)
 
         # Get the waypoint at the current location to see if the actor is offroad
-        drive_waypoint = self._map.get_waypoint(
-            current_location,
-            project_to_road=False
-        )
-        park_waypoint = self._map.get_waypoint(
-            current_location,
-            project_to_road=False,
-            lane_type=carla.LaneType.Parking
-        )
+        drive_waypoint = self._map.get_waypoint(current_location, project_to_road=False)
+        park_waypoint = self._map.get_waypoint(current_location, project_to_road=False, lane_type=carla.LaneType.Parking)
         if drive_waypoint or park_waypoint:
             self._offroad = False
         else:
@@ -573,31 +536,27 @@ class OffRoadTest(Criterion):
             self.test_status = "FAILURE"
 
         if self._terminate_on_failure and self.test_status == "FAILURE":
-            print('>>>>>>> OffRoadTest fail')
             new_status = Status.FAILURE
 
         return self._offroad
 
 
 class InRouteTest(Criterion):
-
     """
-    The test is a success if the actor is never outside route. The actor can go outside of the route
-    but only for a certain amount of distance
+        The test is a success if the actor is never outside route. The actor can go outside of the route
+        but only for a certain amount of distance
 
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - route: Route to be checked
-    - offroad_max: Maximum distance (in meters) the actor can deviate from the route
-    - offroad_min: Maximum safe distance (in meters). Might eventually cause failure
-    - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - route: Route to be checked
+        - offroad_max: Maximum distance (in meters) the actor can deviate from the route
+        - offroad_min: Maximum safe distance (in meters). Might eventually cause failure
+        - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
     MAX_ROUTE_PERCENTAGE = 30  # %
     WINDOWS_SIZE = 5  # Amount of additional waypoints checked
 
     def __init__(self, actor, route, offroad_min=-1, offroad_max=30, name="InRouteTest", terminate_on_failure=False):
-        """
-        """
         super(InRouteTest, self).__init__(name, actor, 0, terminate_on_failure=terminate_on_failure)
         self._actor = actor
         self._route = route
@@ -638,13 +597,9 @@ class InRouteTest(Criterion):
             return 0
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>> InRouteTest fail1')
             new_status = Status.FAILURE
 
-        # elif self.test_status == "RUNNING" or self.test_status == "INIT":
-
         off_route = True
-
         shortest_distance = float('inf')
         closest_index = -1
 
@@ -669,7 +624,6 @@ class InRouteTest(Criterion):
 
         # If actor advanced a step, record the distance
         if self._current_index != closest_index:
-
             new_dist = self._accum_meters[closest_index] - self._accum_meters[self._current_index]
 
             # If too far from the route, add it and check if its value
@@ -687,14 +641,11 @@ class InRouteTest(Criterion):
                 "Agent deviated from the route at (x={}, y={}, z={})".format(
                     round(location.x, 3),
                     round(location.y, 3),
-                    round(location.z, 3)))
-            route_deviation_event.set_dict({
-                'x': location.x,
-                'y': location.y,
-                'z': location.z})
-
+                    round(location.z, 3)
+                )
+            )
+            route_deviation_event.set_dict({'x': location.x, 'y': location.y, 'z': location.z})
             self.list_traffic_events.append(route_deviation_event)
-
             self.test_status = "FAILURE"
             self.actual_value += 1
             new_status = Status.FAILURE
@@ -703,7 +654,6 @@ class InRouteTest(Criterion):
 
 
 class RouteCompletionTest(Criterion):
-
     """
     Check at which stage of the route is the actor at each tick
 
@@ -716,8 +666,6 @@ class RouteCompletionTest(Criterion):
     WINDOWS_SIZE = 2
 
     def __init__(self, actor, route, name="RouteCompletionTest", terminate_on_failure=False):
-        """
-        """
         super(RouteCompletionTest, self).__init__(name, actor, 100, terminate_on_failure=terminate_on_failure)
         self._actor = actor
         self._route = route
@@ -747,9 +695,8 @@ class RouteCompletionTest(Criterion):
 
     def update(self):
         """
-        Check if the actor location is within trigger region
+            Check if the actor location is within trigger region
         """
-        # print(f'test_status: {self.test_status}')  # INIT
         new_status = Status.RUNNING
 
         location = CarlaDataProvider.get_location(self._actor)
@@ -757,11 +704,8 @@ class RouteCompletionTest(Criterion):
             return self._percentage_route_completed
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>> RouteCompletionTest fail')
             new_status = Status.FAILURE
-
         elif self.test_status == "RUNNING" or self.test_status == "INIT":
-
             for index in range(self._current_index, self._route_length):
                 # Get the dot product to know if it has passed this location
                 ref_waypoint = self._waypoints[index]
@@ -791,7 +735,7 @@ class RouteCompletionTest(Criterion):
 
     def terminate(self):
         """
-        Set test status to failure if not successful and terminate
+            Set test status to failure if not successful and terminate
         """
         self.actual_value = round(self._percentage_route_completed, 2)
 
@@ -801,13 +745,12 @@ class RouteCompletionTest(Criterion):
 
 
 class RunningRedLightTest(Criterion):
-
     """
-    Check if an actor is running a red light
+        Check if an actor is running a red light
 
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
     DISTANCE_LIGHT = 15  # m
 
@@ -830,20 +773,18 @@ class RunningRedLightTest(Criterion):
                 center, waypoints = self.get_traffic_light_waypoints(_actor)
                 self._list_traffic_lights.append((_actor, center, waypoints))
 
-    # pylint: disable=no-self-use
     def is_vehicle_crossing_line(self, seg1, seg2):
         """
-        check if vehicle crosses a line segment
+            Check if vehicle crosses a line segment
         """
         line1 = shapely.geometry.LineString([(seg1[0].x, seg1[0].y), (seg1[1].x, seg1[1].y)])
         line2 = shapely.geometry.LineString([(seg2[0].x, seg2[0].y), (seg2[1].x, seg2[1].y)])
         inter = line1.intersection(line2)
-
         return not inter.is_empty
 
     def update(self):
         """
-        Check if the actor is running a red light
+            Check if the actor is running a red light
         """
         new_status = Status.RUNNING
 
@@ -861,7 +802,6 @@ class RunningRedLightTest(Criterion):
         tail_far_pt = location + carla.Location(tail_far_pt)
 
         for traffic_light, center, waypoints in self._list_traffic_lights:
-
             if self.debug:
                 z = 2.1
                 if traffic_light.state == carla.TrafficLightState.Red:
@@ -873,13 +813,10 @@ class RunningRedLightTest(Criterion):
                 self._world.debug.draw_point(center + carla.Location(z=z), size=0.2, color=color, life_time=0.01)
                 for wp in waypoints:
                     text = "{}.{}".format(wp.road_id, wp.lane_id)
-                    self._world.debug.draw_string(
-                        wp.transform.location + carla.Location(x=1, z=z), text, color=color, life_time=0.01)
-                    self._world.debug.draw_point(
-                        wp.transform.location + carla.Location(z=z), size=0.1, color=color, life_time=0.01)
+                    self._world.debug.draw_string(wp.transform.location + carla.Location(x=1, z=z), text, color=color, life_time=0.01)
+                    self._world.debug.draw_point(wp.transform.location + carla.Location(z=z), size=0.1, color=color, life_time=0.01)
 
             center_loc = carla.Location(center)
-
             if self._last_red_light_id and self._last_red_light_id == traffic_light.id:
                 continue
             if center_loc.distance(location) > self.DISTANCE_LIGHT:
@@ -888,7 +825,6 @@ class RunningRedLightTest(Criterion):
                 continue
 
             for wp in waypoints:
-
                 tail_wp = self._map.get_waypoint(tail_far_pt)
 
                 # Calculate the dot product (Might be unscaled, as only its sign is important)
@@ -910,7 +846,6 @@ class RunningRedLightTest(Criterion):
 
                     # Is the vehicle traversing the stop line?
                     if self.is_vehicle_crossing_line((tail_close_pt, tail_far_pt), (lft_lane_wp, rgt_lane_wp)):
-
                         self.test_status = "FAILURE"
                         self.actual_value += 1
                         location = traffic_light.get_transform().location
@@ -920,26 +855,22 @@ class RunningRedLightTest(Criterion):
                                 traffic_light.id,
                                 round(location.x, 3),
                                 round(location.y, 3),
-                                round(location.z, 3)))
-                        red_light_event.set_dict({
-                            'id': traffic_light.id,
-                            'x': location.x,
-                            'y': location.y,
-                            'z': location.z})
+                                round(location.z, 3)
+                            )
+                        )
+                        red_light_event.set_dict({'id': traffic_light.id, 'x': location.x, 'y': location.y, 'z': location.z})
 
                         self.list_traffic_events.append(red_light_event)
                         self._last_red_light_id = traffic_light.id
                         break
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>> RunningRedLightTest fail')
             new_status = Status.FAILURE
-
         return self.actual_value
 
     def rotate_point(self, point, angle):
         """
-        rotate a given point by a given angle
+            Rotate a given point by a given angle
         """
         x_ = math.cos(math.radians(angle)) * point.x - math.sin(math.radians(angle)) * point.y
         y_ = math.sin(math.radians(angle)) * point.x + math.cos(math.radians(angle)) * point.y
@@ -947,7 +878,7 @@ class RunningRedLightTest(Criterion):
 
     def get_traffic_light_waypoints(self, traffic_light):
         """
-        get area of a given traffic light
+            Get area of a given traffic light
         """
         base_transform = traffic_light.get_transform()
         base_rot = base_transform.rotation.yaw
@@ -986,7 +917,6 @@ class RunningRedLightTest(Criterion):
 
 
 class RunningStopTest(Criterion):
-
     """
     Check if an actor is running a stop sign
 
@@ -999,8 +929,6 @@ class RunningStopTest(Criterion):
     WAYPOINT_STEP = 1.0  # meters
 
     def __init__(self, actor, name="RunningStopTest", terminate_on_failure=False):
-        """
-        """
         super(RunningStopTest, self).__init__(name, actor, 0, terminate_on_failure=terminate_on_failure)
         self._actor = actor
         self._world = CarlaDataProvider.get_world()
@@ -1018,14 +946,6 @@ class RunningStopTest(Criterion):
 
     @staticmethod
     def point_inside_boundingbox(point, bb_center, bb_extent):
-        """
-        X
-        :param point:
-        :param bb_center:
-        :param bb_extent:
-        :return:
-        """
-
         # pylint: disable=invalid-name
         A = carla.Vector2D(bb_center.x - bb_extent.x, bb_center.y - bb_extent.y)
         B = carla.Vector2D(bb_center.x + bb_extent.x, bb_center.y - bb_extent.y)
@@ -1097,7 +1017,7 @@ class RunningStopTest(Criterion):
 
     def update(self):
         """
-        Check if the actor is running a red light
+            Check if the actor is running a red light
         """
         new_status = Status.RUNNING
 
@@ -1151,7 +1071,6 @@ class RunningStopTest(Criterion):
                 self._affected_by_stop = False
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
-            print('>>>>>> RunningStopTest fail')
             new_status = Status.FAILURE
 
         return self.actual_value

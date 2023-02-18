@@ -1,14 +1,11 @@
 from copy import deepcopy
 
-import gym
 import numpy as np
 import torch
 import torch.nn as nn
 from safebench.agent.safe_rl.policy.base_policy import Policy
 from safebench.agent.safe_rl.policy.model.mlp_ac import MLPActor, EnsembleQCritic
-from safebench.agent.safe_rl.util.logger import EpochLogger
-from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray,
-                                     to_tensor)
+from safebench.util.torch_util import (count_vars, get_device_name, to_device, to_ndarray, to_tensor)
 from torch.optim import Adam
 
 
@@ -49,11 +46,7 @@ class DDPG(Policy):
         '''
         if ac_model.lower() == "mlp":
             actor = MLPActor(self.obs_dim, self.act_dim, self.hidden_sizes, nn.ReLU, self.act_lim)
-            critic = EnsembleQCritic(self.obs_dim,
-                                     self.act_dim,
-                                     self.hidden_sizes,
-                                     nn.ReLU,
-                                     num_q=config['num_q'])
+            critic = EnsembleQCritic(self.obs_dim, self.act_dim, self.hidden_sizes, nn.ReLU, num_q=config['num_q'])
         else:
             raise ValueError(f"{ac_model} ac model does not support.")
 
@@ -65,8 +58,7 @@ class DDPG(Policy):
 
         # Count variables
         var_counts = tuple(count_vars(module) for module in [self.actor, self.critic])
-        self.logger.log('\nNumber of parameters: \t actor pi: %d, \t critic q: %d, \n' %
-                        var_counts)
+        self.logger.log('\nNumber of parameters: \t actor pi: %d, \t critic q: %d, \n' % var_counts)
 
     def _ac_training_setup(self, actor, critic):
         critic_targ = deepcopy(critic)
@@ -172,8 +164,7 @@ class DDPG(Policy):
                 # Target actions come from *target* policy, different from SAC
                 act_targ_next = self.actor_forward(self.actor_targ, obs_next)
                 # Target Q-values
-                q_pi_targ, _ = self.critic_forward(self.critic_targ, obs_next,
-                                                   act_targ_next)
+                q_pi_targ, _ = self.critic_forward(self.critic_targ, obs_next, act_targ_next)
                 backup = reward + self.gamma * (1 - done) * q_pi_targ
             # MSE loss against Bellman backup
             loss_q = self.critic.loss(backup, q_list)
@@ -205,10 +196,14 @@ class DDPG(Policy):
                 p_targ.data.add_((1 - self.polyak) * p.data)
 
     def save_model(self):
-        self.logger.setup_pytorch_saver((self.actor, self.critic))
+        self.logger.setup_pytorch_saver((self.actor.state_dict(), self.critic.state_dict()))
 
     def load_model(self, path):
-        actor, critic = torch.load(path)
-        self._ac_training_setup(actor, critic)
+        actor_state_dict, critic_state_dict = torch.load(path)
+        self.actor.load_state_dict(actor_state_dict)
+        self.actor.eval()
+        self.critic.load_state_dict(critic_state_dict)
+        self.critic.eval()
+        self._ac_training_setup(self.actor, self.critic)
         # Set up model saving
         self.save_model()

@@ -16,6 +16,9 @@ class AgentTrainer:
         self.logger = logger
         self.verbose = agent_config['verbose']
         self.epochs = agent_config['epochs']
+        self.evaluate_episode_num = agent_config['evaluate_episode_num']
+        self.save_freq = agent_config['save_freq']
+        self.cost_limit = agent_config['cost_limit']
         self.policy_config = agent_config[agent_config['policy_name']]
         self.worker_config = self.policy_config["worker_config"]
         self.worker_config['ego_action_dim'] = agent_config['ego_action_dim']
@@ -24,20 +27,22 @@ class AgentTrainer:
         self.worker = WORKER_LIST[agent_config['policy_name']](self.worker_config, self.logger)
         self.env = None
         self.policy = None
+        self.data_loader = None
 
-    def set_environment(self, env, agent):
+    def set_environment(self, env, agent, data_loader):
         self.env = env
         self.policy = agent
-        self.worker.set_environment(env, agent)
+        self.data_loader = data_loader
+        self.worker.set_environment(env, agent, data_loader)
 
     def train(self):
-        continue_from_epoch = self.policy.load_model()
+        continue_from_epoch = self.policy.load_itr
         if continue_from_epoch is None:
             continue_from_epoch = 0
         start_time = time.time()
         total_steps = 0
         for epoch in range(continue_from_epoch, self.epochs):
-            epoch_steps = self.worker.train_one_epoch(epoch)
+            epoch_steps = self.worker.train_one_epoch(epoch, self.epochs)
             total_steps += epoch_steps
 
             for _ in range(self.evaluate_episode_num):
