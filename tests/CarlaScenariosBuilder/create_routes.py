@@ -1,9 +1,7 @@
 import numpy as np
 import os
-import xml.etree.cElementTree as ET
 import matplotlib.pyplot as plt
-
-from utilities import build_route, select_waypoints
+from utilities import build_route, select_waypoints, get_nearist_waypoints, rotate_waypoints, get_map_centers
 
 
 def draw(ax, center, dist, road_waypoints, selected_waypoints_idx):
@@ -49,23 +47,9 @@ def get_route_id(config, save_dir):
     return route_id
 
 
-def rotate_waypoints(origin_waypoints, center, theta):
-    # waypoint format: x, y, z, pitch, yaw, roll
-    m = np.asarray([
-        [np.cos(theta), -np.sin(theta)],
-        [np.sin(theta), np.cos(theta)]
-    ])
-    center = np.array(center).reshape((1, 2))
-    rotated_waypoints = origin_waypoints.copy()
-    rotated_waypoints[:, :2] = (origin_waypoints[:, :2] - center) @ m.T + center
-    # TODO: check if we changed yaw in the correctly
-    rotated_waypoints[:, 4] = rotated_waypoints[:, 4] + theta / np.pi * 180
-    return rotated_waypoints
-
-
-def create_route_intersection(config, selected_waypoints_idx, road_waypoints):
+def create_route_intersection(config, selected_waypoints):
     # rotate waypoints
-    selected_waypoints = np.take(road_waypoints, selected_waypoints_idx, axis=0)
+    # selected_waypoints = np.take(road_waypoints, selected_waypoints_idx, axis=0)
     local_waypoints = []
     if config.multi_rotation:
         for i in range(4):
@@ -86,9 +70,8 @@ def create_route_intersection(config, selected_waypoints_idx, road_waypoints):
     return map_waypoints
 
 
-def create_route_straight(config, selected_waypoints_idx, road_waypoints):
+def create_route_straight(config, selected_waypoints):
     # rotate waypoints
-    selected_waypoints = np.take(road_waypoints, selected_waypoints_idx, axis=0)
     local_waypoints = []
     if config.multi_rotation:
         for i in range(2):
@@ -109,12 +92,12 @@ def create_route_straight(config, selected_waypoints_idx, road_waypoints):
     return map_waypoints
 
 
-def create_route(config, selected_waypoints_idx, road_waypoints, waypoints_dense):
+def create_route(config, selected_waypoints, waypoints_dense):
     # get point shift in x and y locations
     if config.road == 'intersection':
-        all_routes_waypoints = create_route_intersection(config, selected_waypoints_idx, road_waypoints)
+        all_routes_waypoints = create_route_intersection(config, selected_waypoints)
     elif config.road == 'straight':
-        all_routes_waypoints = create_route_straight(config, selected_waypoints_idx, road_waypoints)
+        all_routes_waypoints = create_route_straight(config, selected_waypoints)
     else:
         raise ValueError("--road must be 'intersection' or 'straight'.")
 
@@ -123,8 +106,8 @@ def create_route(config, selected_waypoints_idx, road_waypoints, waypoints_dense
     save_dir = os.path.join(config.save_dir, f"scenario_{scenario_id:02d}_routes")
     os.makedirs(save_dir, exist_ok=True)
 
-    route_num = len(all_routes_waypoints) // len(selected_waypoints_idx)
-    route_length = len(selected_waypoints_idx)
+    route_length = len(selected_waypoints)
+    route_num = len(all_routes_waypoints) // route_length
     for idx in range(route_num):
         route_waypoints = all_routes_waypoints[route_length * idx: route_length * (idx + 1)]
         real_route_waypoints = []
@@ -145,23 +128,82 @@ def create_route(config, selected_waypoints_idx, road_waypoints, waypoints_dense
         build_route(real_route_waypoints, route_id, config.map, save_file)
 
 
+def save_waypoints(config, save_dir, selected_waypoints):
+    route_id = config.route
+    if config.route < 0:
+        # create new route
+        route_id = 0
+        while os.path.isfile(os.path.join(save_dir, f'route_{route_id:02d}.npy')):
+            route_id += 1
+
+    os.makedirs(save_dir, exist_ok=True)
+    save_file = os.path.join(save_dir, f'route_{route_id:02d}.npy')
+    np.save(save_file, selected_waypoints)
+
+
+def load_route(config, dist, waypoints_sparse, save_dir):
+    # load route if route is set
+    center = None
+    road_waypoints = None
+    selected_waypoints_idx = []
+    if config.route >= 0:
+        # check if route is created
+        route_file = os.path.join(save_dir, f'route_{config.route:02d}.npy')
+        if os.path.isfile(route_file):
+            # load existing routes
+            selected_waypoints = np.load(route_file)
+
+            # change world center based on waypoints
+            geo_center = selected_waypoints[:, :2].mean(0)
+            centers = get_map_centers(config.map)[0]
+            centers = np.asarray([centers + [-100, -100], centers + [0, -100]])
+            center_dists = np.linalg.norm(np.array(centers) - geo_center, axis=1)
+            center = centers[center_dists.argmin()]
+
+            # select waypoints
+            road_waypoints = select_waypoints(waypoints_sparse, center, dist)
+            for waypoint in selected_waypoints:
+                idx, dist = get_nearist_waypoints(waypoint, road_waypoints)
+                if dist > 5:
+                    print(f"waypoint {waypoint} can not be found on the map, "
+                          f"assigned to the nearist waypoint {road_waypoints[idx]}")
+                selected_waypoints_idx.append(idx)
+
+    return center, road_waypoints, selected_waypoints_idx
+
+
 def main(config):
-
-    # all waypoints on the map
-    waypoints_dense = np.load(f"map_waypoints/{config.map}/dense.npy")
-
     # sparse waypoints used for user to select
     waypoints_sparse = np.load(f"map_waypoints/{config.map}/sparse.npy")
-
     # waypoints selected by user
     selected_waypoints_idx = []
 
+    # set road type if is not set
+    if config.road == 'auto':
+        if config.scenario + 2 in [1, 2, 3, 5, 6]:
+            config.road = 'straight'
+        elif config.scenario + 2 in [4, 7, 8, 9, 10]:
+            config.road = 'intersection'
+        else:
+            raise ValueError("scenario can not be found.")
+
     # set waypoints that user can work on
+    center = get_map_centers(config.map)[0]
     dist = 120
     if config.road == 'intersection':
-        center = [0, 0]
+        center = center + [-100, -100]
     else:
-        center = [100, 0]
+        center = center + [0, -100]
+
+    road_waypoints = select_waypoints(waypoints_sparse, center, dist)
+
+    # load routes
+    scenario_id = config.scenario
+    save_dir = os.path.join("scenario_origin", config.map, f"scenario_{scenario_id:02d}_routes")
+    new_center, new_road_waypoints, selected_waypoints_idx = load_route(config, dist, waypoints_sparse, save_dir)
+    if len(selected_waypoints_idx) > 0:
+        center = new_center
+        road_waypoints = new_road_waypoints
 
     def onclick(event):
         # print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
@@ -187,15 +229,22 @@ def main(config):
                 set_title(ax, "Need at lease 2 waypoints to create a route.")
                 plt.draw()
             else:
-                create_route(config, selected_waypoints_idx, road_waypoints, waypoints_dense)
-                selected_waypoints_idx.clear()
+                # save routes to a numpy file
+                selected_waypoints = np.take(road_waypoints, selected_waypoints_idx, axis=0)
+                save_waypoints(config, save_dir, selected_waypoints)
 
-                draw(ax, center, dist, road_waypoints, selected_waypoints_idx)
-                set_title(ax, "Route create success! Click to create more routes.")
-                plt.draw()
+                # clear selected waypoints
+                if config.route < 0:
+                    selected_waypoints_idx.clear()
+                    draw(ax, center, dist, road_waypoints, selected_waypoints_idx)
+                    set_title(ax, "Route create success! Click to create more routes.")
+                    plt.draw()
+                else:
+                    set_title(ax, "Route change success! Click to keep change the route.")
+                    plt.draw()
 
     # visualize waypoints
-    road_waypoints = select_waypoints(waypoints_sparse, center, dist)
+
     fig, ax = plt.subplots(figsize=(12, 12))
     draw(ax, center, dist, road_waypoints, selected_waypoints_idx)
     set_title(ax)
@@ -208,18 +257,18 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--map', type=str, default='Town_Safebench')
-    parser.add_argument('--save_dir', type=str, default="scenario_data/route_new_map")
-    parser.add_argument('--scenario', type=int, default=5)
-    parser.add_argument('--road', type=str, default='intersection', choices=['intersection', 'straight'],
+    # parser.add_argument('--save_dir', type=str, default="scenario_data/route_new_map")
+    parser.add_argument('--scenario', type=int, required=True)
+    parser.add_argument('--route', type=int, default=-1)
+    parser.add_argument('--road', type=str, default='auto', choices=['auto', 'intersection', 'straight'],
                         help='Create routes based on a intersection or a straight road.')
-    parser.add_argument('--multi_rotation', action='store_true',
-                        help='Create multiple symmetrical routes.'
-                             'When creating routes that involve an intersection, the code will generate four routes, '
-                             'each rotated 90 degrees around the center of the intersection. '
-                             'When creating routes alone a straight road, the code will generate two routes, '
-                             'each rotated 180 degrees around the center of the road. ')
+    # parser.add_argument('--multi_rotation', action='store_true',
+    #                     help='Create multiple symmetrical routes.'
+    #                          'When creating routes that involve an intersection, the code will generate four routes, '
+    #                          'each rotated 90 degrees around the center of the intersection. '
+    #                          'When creating routes alone a straight road, the code will generate two routes, '
+    #                          'each rotated 180 degrees around the center of the road. ')
 
     args = parser.parse_args()
-
 
     main(args)
