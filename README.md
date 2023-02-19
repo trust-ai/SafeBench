@@ -2,11 +2,25 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-02-18 22:27:38
+ * @LastEditTime: 2023-02-19 17:57:22
  * @Description: 
 -->
 
 # SafeBench
+
+<div style="text-align: center; width:100%; margin: 0 auto; display: inline-block">
+<strong>
+[
+<a href="https://safebench.readthedocs.io">Documentation</a>
+|
+<a href="">Demo Video</a>
+|
+<a href="">Website</a>
+|
+<a href="https://arxiv.org/pdf/2206.09682.pdf">Paper</a>
+]
+</strong>
+</div>
 
 This is the source code of Safebench platform, which is designed based on Carla to evaluate the security and safety of autonomous driving vehicles. More details about this platform can be found in this [NeurIPS 2022](https://arxiv.org/pdf/2206.09682.pdf) paper.
 
