@@ -3,17 +3,17 @@ import os
 import xml.etree.cElementTree as ET
 import matplotlib.pyplot as plt
 
-from utilities import parse_route, select_waypoints
+from utilities import parse_route, select_waypoints, get_view_centers, get_map_centers
 
 
-def draw(ax, route_waypoints, centers, waypoints_sparse, zoom):
+def draw(ax, map_name, route_waypoints, centers, waypoints_sparse, zoom):
     if zoom:
         draw_zoom(ax, route_waypoints, centers, waypoints_sparse)
     else:
-        draw_global(ax, route_waypoints, waypoints_sparse)
+        draw_global(ax, map_name, route_waypoints, waypoints_sparse)
 
 
-def draw_global(ax, route_waypoints, waypoints_sparse):
+def draw_global(ax, map_name, route_waypoints, waypoints_sparse):
     ax.cla()
     ax.plot(waypoints_sparse[:, 0], -waypoints_sparse[:, 1], 'o', color='y')
     for waypoints in route_waypoints:
@@ -23,8 +23,13 @@ def draw_global(ax, route_waypoints, waypoints_sparse):
         ax.text(waypoints[0, 0] + 8, -waypoints[0, 1] + 8, "Start", bbox=dict(facecolor='green', alpha=0.7))
         ax.text(waypoints[-1, 0] + 8, -waypoints[-1, 1] + 8, "End", bbox=dict(facecolor='red', alpha=0.7))
 
-    center = [100, 100]
-    dist = 220
+    centers = get_map_centers(map_name)
+    if centers is None:
+        center = waypoints_sparse[:, :2].mean(0)
+    else:
+        center = centers.mean(0)
+
+    dist = np.linalg.norm(waypoints_sparse[:, :2] - center, np.inf, axis=1).max() + 20
     x_min, x_max = center[0] - dist, center[0] + dist
     y_min, y_max = -center[1] - dist, -center[1] + dist
     ax.set_xlim([x_min, x_max])
@@ -34,8 +39,11 @@ def draw_global(ax, route_waypoints, waypoints_sparse):
 def draw_zoom(ax, route_waypoints, centers, waypoints_sparse):
     # get center of the waypoints
     geo_center = route_waypoints[0][:, :2].mean(0)
-    center_dists = np.linalg.norm(np.array(centers) - geo_center, axis=1)
-    center = centers[center_dists.argmin()]
+    if centers is None:
+        center = geo_center
+    else:
+        center_dists = np.linalg.norm(np.array(centers) - geo_center, axis=1)
+        center = centers[center_dists.argmin()]
     dist = 120
 
     ax.cla()
@@ -61,28 +69,14 @@ def draw_zoom(ax, route_waypoints, centers, waypoints_sparse):
     ax.set_ylim([y_min, y_max])
 
 
-def set_title(ax, route_file, title=None):
+def set_title(ax, map_name, route_file, title=None):
     if title is None:
         title = "Left and right click to change route.\nMiddle click to zoom."
-    title = f"Visualizing route: {route_file}.\n" + title
+    title = f"Visualizing route: {route_file} on map {map_name}.\n" + title
     ax.set_title(title, fontsize=12, loc='left')
 
 
 def main(config):
-    # sparse waypoints used for visualization
-    waypoints_sparse = np.load(f"map_waypoints/{config.map}/sparse.npy")
-
-    # initialize potential center position
-    centers = [
-        [100, 0],
-        [200, 100],
-        [100, 200],
-        [0, 100]
-    ]
-    for i in range(2):
-        for j in range(2):
-            centers.append([200 * i, 200 * j])
-
     # get all routes of the scenarios
     scenario_id = config.scenario
     route_dir = os.path.join(config.save_dir, f"scenario_{scenario_id:02d}_routes")
@@ -92,13 +86,20 @@ def main(config):
     route_file_num = len(route_files)
     route_idx = 0
     route_file = os.path.join(route_dir, route_files[route_idx])
-    route_waypoints = parse_route(route_file)
+    route_waypoints, maps_names = parse_route(route_file)
+    map_name = maps_names[0]
+
+    # sparse waypoints used for visualization
+    waypoints_sparse = np.load(f"map_waypoints/{map_name}/sparse.npy")
+
+    # initialize potential center position
+    centers = get_view_centers(map_name)
     zoom = False
 
     assert route_file_num > 0, "No route to visualize."
 
     def onclick(event):
-        nonlocal route_idx, route_file, route_waypoints, zoom
+        nonlocal route_idx, map_name, route_file, route_waypoints, waypoints_sparse, centers, zoom
 
         # print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
         #       ('double' if event.dblclick else 'single', event.button,
@@ -118,17 +119,26 @@ def main(config):
         if new_route_id != route_idx:
             route_idx = new_route_id
             route_file = os.path.join(route_dir, route_files[route_idx])
-            route_waypoints = parse_route(route_file)
+            route_waypoints, map_names = parse_route(route_file)
+            if map_name != map_names[0]:
+
+                map_name = map_names[0]
+                # sparse waypoints used for visualization
+                waypoints_sparse = np.load(f"map_waypoints/{map_name}/sparse.npy")
+
+                # initialize potential center position
+                centers = get_view_centers(map_name)
+
 
         if 1 <= int(event.button) <= 3:
-            draw(ax, route_waypoints, centers, waypoints_sparse, zoom)
-            set_title(ax, route_file)
+            draw(ax, map_name, route_waypoints, centers, waypoints_sparse, zoom)
+            set_title(ax, map_name, route_file)
             plt.draw()
 
     # visualize waypoints
     fig, ax = plt.subplots(figsize=(12, 12))
-    draw(ax, route_waypoints, centers, waypoints_sparse, zoom)
-    set_title(ax, route_file)
+    draw(ax, map_name, route_waypoints, centers, waypoints_sparse, zoom)
+    set_title(ax, map_name, route_file)
     fig.canvas.mpl_connect('button_press_event', onclick)
     plt.show()
 
@@ -139,7 +149,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--map', type=str, default='Town_Safebench')
     parser.add_argument('--save_dir', type=str, default="scenario_data/route_new_map")
-    parser.add_argument('--scenario', type=int, default=5)
+    parser.add_argument('--scenario', type=int, required=True)
 
     args = parser.parse_args()
 

@@ -1,11 +1,8 @@
-import json
-
 import numpy as np
 import os
-import xml.etree.cElementTree as ET
 import matplotlib.pyplot as plt
 
-from utilities import select_waypoints, build_scenarios
+from utilities import select_waypoints, get_nearist_waypoints, get_map_centers
 
 
 def draw(ax, center, dist, road_waypoints, selected_waypoints_idx):
@@ -43,146 +40,83 @@ def set_title(ax, title=None):
     ax.set_title(title, fontsize=25, loc='left')
 
 
-def rotate_waypoints(origin_waypoints, center, theta):
-    # waypoint format: x, y, z, pitch, yaw, roll
-    m = np.asarray([
-        [np.cos(theta), -np.sin(theta)],
-        [np.sin(theta), np.cos(theta)]
-    ])
-    center = np.array(center).reshape((1, 2))
-    rotated_waypoints = origin_waypoints.copy()
-    rotated_waypoints[:, :2] = (origin_waypoints[:, :2] - center) @ m.T + center
-    # TODO: check if we changed yaw in the correctly
-    rotated_waypoints[:, 4] = rotated_waypoints[:, 4] + theta / np.pi * 180
-    return rotated_waypoints
+def load_scenario(config, dist, waypoints_sparse, save_dir):
+    # load route if route is set
+    center = None
+    road_waypoints = None
+    selected_waypoints_idx = []
+    if config.scenario_idx >= 0:
+        # check if route is created
+        scenario_file = os.path.join(save_dir, f'scenario_{config.scenario_idx:02d}.npy')
+        if os.path.isfile(scenario_file):
+            # load existing routes
+            selected_waypoints = np.load(scenario_file)
+
+            # change world center based on waypoints
+            geo_center = selected_waypoints[:, :2].mean(0)
+
+            centers = get_map_centers(config.map)[0]
+            centers = np.asarray([centers + [-100, -100], centers + [0, -100]])
+
+            center_dists = np.linalg.norm(np.array(centers) - geo_center, axis=1)
+            center = centers[center_dists.argmin()]
+
+            # select waypoints
+            road_waypoints = select_waypoints(waypoints_sparse, center, dist)
+            for waypoint in selected_waypoints:
+                idx, dist = get_nearist_waypoints(waypoint, road_waypoints)
+                if dist > 5:
+                    print(f"waypoint {waypoint} can not be found on the map, "
+                          f"assigned to the nearist waypoint {road_waypoints[idx]}")
+                selected_waypoints_idx.append(idx)
+
+    return center, road_waypoints, selected_waypoints_idx
 
 
-def create_scenario_intersection(config, selected_waypoints_idx, road_waypoints):
-    # rotate waypoints
-    selected_waypoints = np.take(road_waypoints, selected_waypoints_idx, axis=0)
-    local_waypoints = []
-    if config.multi_rotation:
-        for i in range(4):
-            theta = i * np.pi / 2
-            rotated_waypoints = rotate_waypoints(selected_waypoints, [0, 0], theta)
-            local_waypoints.append(rotated_waypoints)
-    else:
-        local_waypoints.append(selected_waypoints)
-    local_waypoints = np.vstack(local_waypoints)
+def save_scenario(config, save_dir, selected_waypoints):
+    scenario_idx = config.scenario_idx
+    if scenario_idx < 0:
+        # create new route
+        scenario_idx = 0
+        while os.path.isfile(os.path.join(save_dir, f'scenario_{scenario_idx:02d}.npy')):
+            scenario_idx += 1
 
-    # rotate waypoints around the map center
-    map_waypoints = []
-    for i in range(4):
-        theta = i * np.pi / 2
-        rotated_waypoints = rotate_waypoints(local_waypoints, [100, 100], theta)
-        map_waypoints.append(rotated_waypoints)
-    map_waypoints = np.vstack(map_waypoints)
-    return map_waypoints
-
-
-def create_scenario_straight(config, selected_waypoints_idx, road_waypoints):
-    # rotate waypoints
-    selected_waypoints = np.take(road_waypoints, selected_waypoints_idx, axis=0)
-    local_waypoints = []
-    if config.multi_rotation:
-        for i in range(2):
-            theta = i * np.pi
-            rotated_waypoints = rotate_waypoints(selected_waypoints, [100, 0], theta)
-            local_waypoints.append(rotated_waypoints)
-    else:
-        local_waypoints.append(selected_waypoints)
-    local_waypoints = np.vstack(local_waypoints)
-
-    # rotate waypoints around the map center
-    map_waypoints = []
-    for i in range(4):
-        theta = i * np.pi / 2
-        rotated_waypoints = rotate_waypoints(local_waypoints, [100, 100], theta)
-        map_waypoints.append(rotated_waypoints)
-    map_waypoints = np.vstack(map_waypoints)
-    return map_waypoints
-
-
-def create_scenario(config, selected_waypoints_idx, road_waypoints, waypoints_dense):
-    # get point shift in x and y locations
-    if config.road == 'intersection':
-        all_scenarios_waypoints = create_scenario_intersection(config, selected_waypoints_idx, road_waypoints)
-    elif config.road == 'straight':
-        all_scenarios_waypoints = create_scenario_straight(config, selected_waypoints_idx, road_waypoints)
-    else:
-        raise ValueError("--road must be 'intersection' or 'straight'.")
-
-    # save waypoints
-    save_dir = os.path.join(config.save_dir, f"scenarios")
     os.makedirs(save_dir, exist_ok=True)
-
-    scenario_num = len(all_scenarios_waypoints) // len(selected_waypoints_idx)
-    scenario_length = len(selected_waypoints_idx)
-
-    all_scenarios_configs = []
-    for idx in range(scenario_num):
-        scenario_waypoints = all_scenarios_waypoints[scenario_length * idx: scenario_length * (idx + 1)]
-        real_scenario_waypoints = []
-
-        # find the closest waypoints from the dense waypoints
-        for scenario_waypoint in scenario_waypoints:
-            waypoints_dist = np.linalg.norm(waypoints_dense[:, :2] - scenario_waypoint[:2].reshape((1, -1)), axis=1)
-            idx = waypoints_dist.argmin()
-            real_scenario_waypoint = waypoints_dense[idx]
-            real_scenario_waypoints.append(real_scenario_waypoint)
-            if waypoints_dist.min() > 2:
-                print(f"waypoint {scenario_waypoint} can not be found on the map, "
-                      f"assigned to the nearist waypoint {real_scenario_waypoint}")
-
-        scenario_config = build_scenarios(real_scenario_waypoints)
-        all_scenarios_configs.append(scenario_config)
-
-    # check if we need to create json file
-    scenario_id = config.scenario
-    save_file = os.path.join(save_dir, f"scenario_{scenario_id:02d}.json")
-    if os.path.isfile(save_file):
-        with open(save_file, 'r') as f:
-            scenario_json = json.load(f)
-
-        if config.map in scenario_json["available_scenarios"][0]:
-            scenario_json["available_scenarios"][0][config.map][0][
-                "available_event_configurations"] += all_scenarios_configs
-
-    else:
-        scenario_json = {
-            "available_scenarios": [
-                {
-                    config.map: [
-                        {
-                            "available_event_configurations": all_scenarios_configs,
-                            "scenario_type": f"Scenario{scenario_id + 2}"
-                        }
-                    ]
-                }
-            ]
-        }
-
-    with open(save_file, 'w') as f:
-        json.dump(scenario_json, f, indent=2)
-
+    save_file = os.path.join(save_dir, f'scenario_{scenario_idx:02d}.npy')
+    np.save(save_file, selected_waypoints)
 
 
 def main(config):
-    # all waypoints on the map
-    waypoints_dense = np.load(f"map_waypoints/{config.map}/dense.npy")
-
     # sparse waypoints used for user to select
     waypoints_sparse = np.load(f"map_waypoints/{config.map}/sparse.npy")
-
     # waypoints selected by user
     selected_waypoints_idx = []
 
+    # set road type if is not set
+    if config.road == 'auto':
+        if config.scenario + 2 in [1, 2, 3, 5, 6]:
+            config.road = 'straight'
+        elif config.scenario + 2 in [4, 7, 8, 9, 10]:
+            config.road = 'intersection'
+        else:
+            raise ValueError("scenario can not be found.")
+
     # set waypoints that user can work on
+    center = get_map_centers(config.map)[0]
     dist = 120
     if config.road == 'intersection':
-        center = [0, 0]
+        center = center + [-100, -100]
     else:
-        center = [100, 0]
+        center = center + [0, -100]
+    road_waypoints = select_waypoints(waypoints_sparse, center, dist)
+
+    # load routes
+    scenario_id = config.scenario
+    save_dir = os.path.join("scenario_origin", config.map, f"scenario_{scenario_id:02d}_scenarios")
+    new_center, new_road_waypoints, selected_waypoints_idx = load_scenario(config, dist, waypoints_sparse, save_dir)
+    if len(selected_waypoints_idx) > 0:
+        center = new_center
+        road_waypoints = new_road_waypoints
 
     def onclick(event):
         # print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
@@ -203,18 +137,24 @@ def main(config):
             plt.draw()
 
         elif int(event.button) == 3:
-            # right click to save waypoints
-            if len(selected_waypoints_idx) < 2:
-                set_title(ax, "Need at lease 2 waypoints to create a scenario.")
+            # right click to save scenario
+            if len(selected_waypoints_idx) < 1:
+                set_title(ax, "Need at lease 1 waypoints to create a scenario.")
                 plt.draw()
             else:
-                create_scenario(config, selected_waypoints_idx, road_waypoints, waypoints_dense)
-                selected_waypoints_idx.clear()
+                # save routes to a numpy file
+                selected_waypoints = np.take(road_waypoints, selected_waypoints_idx, axis=0)
+                save_scenario(config, save_dir, selected_waypoints)
 
-                draw(ax, center, dist, road_waypoints, selected_waypoints_idx)
-                set_title(ax, "Scenario create success! Click to create more scenarios.")
-                plt.draw()
-
+                # clear selected waypoints
+                if config.scenario_idx < 0:
+                    selected_waypoints_idx.clear()
+                    draw(ax, center, dist, road_waypoints, selected_waypoints_idx)
+                    set_title(ax, "Scenario create success! Click to create more scenarios.")
+                    plt.draw()
+                else:
+                    set_title(ax, "Scenario change success! You can keep edit the scenario.")
+                    plt.draw()
 
     # visualize waypoints
     road_waypoints = select_waypoints(waypoints_sparse, center, dist)
@@ -232,7 +172,8 @@ if __name__ == '__main__':
     parser.add_argument('--map', type=str, default='Town_Safebench')
     parser.add_argument('--save_dir', type=str, default="scenario_data/route_new_map")
     parser.add_argument('--scenario', type=int, default=5)
-    parser.add_argument('--road', type=str, default='intersection', choices=['intersection', 'straight'],
+    parser.add_argument('--scenario_idx', type=int, default=-1)
+    parser.add_argument('--road', type=str, default='auto', choices=['auto', 'intersection', 'straight'],
                         help='Create routes based on a intersection or a straight road.')
     parser.add_argument('--multi_rotation', action='store_true',
                         help='Create multiple symmetrical routes.'
@@ -244,4 +185,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args)
-

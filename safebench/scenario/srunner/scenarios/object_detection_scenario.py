@@ -8,15 +8,8 @@ from safebench.scenario.srunner.scenario_manager.carla_data_provider import Carl
 from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
 from safebench.scenario.srunner.scenarios.route_scenario import *
 from safebench.scenario.srunner.scenario_manager.timer import GameTime
+from safebench.util.od_util import *
 
-
-def build_projection_matrix(w, h, fov):
-    focal = w / (2.0 * np.tan(fov * np.pi / 360.0))
-    K = np.identity(3)
-    K[0, 0] = K[1, 1] = focal
-    K[0, 2] = w / 2.0
-    K[1, 2] = h / 2.0
-    return K
 
 
 class ObjectDetectionScenario(BasicScenario):
@@ -25,7 +18,7 @@ class ObjectDetectionScenario(BasicScenario):
     is required to conduct pass-by testing.
     """
 
-    def __init__(self, world, config, ego_id, ROOT_DIR, logger, criteria_enable=True):
+    def __init__(self, world, config, ego_id, ROOT_DIR, logger, criteria_enable=True, first_env=False):
         self.world = world
         self.logger = logger
         self.config = config
@@ -43,6 +36,7 @@ class ObjectDetectionScenario(BasicScenario):
             timeout=self.timeout,
             weather=config.weather
         )
+        self.n_step = 0
 
         TEMPLATE_DIR = os.path.join(ROOT_DIR, 'safebench/scenario/scenario_data/template_od')
         self.object_dict = dict(
@@ -57,6 +51,7 @@ class ObjectDetectionScenario(BasicScenario):
         
         self.bbox_ground_truth = {}
         self.ground_truth_bbox = {}
+        
 
         super(ObjectDetectionScenario, self).__init__(
             name=config.name,
@@ -65,9 +60,15 @@ class ObjectDetectionScenario(BasicScenario):
             world=world,
             debug_mode=False,
             terminate_on_failure=False,
-            criteria_enable=criteria_enable
+            criteria_enable=criteria_enable, 
+            first_env=first_env
         )
         self.criteria = self._create_criteria()
+        # TODO: make save dir, add flag
+        # os.makedirs('online_data/', exist_ok=True)
+        # os.makedirs('online_data/images', exist_ok=True)
+        # os.makedirs('online_data/labels', exist_ok=True)
+        # self.video_writer = xverse_video_writer('online_data/images/debug.mp4', 1024, 1024)
 
     def _initialize_environment(self, world): # TODO: image from dict or parameter?
         settings = world.get_settings()
@@ -400,24 +401,69 @@ class ObjectDetectionScenario(BasicScenario):
 
             return point_img[0:2]
 
+        self.ground_truth_bbox = {}
         self.K = build_projection_matrix(image_w, image_h, fov)
         self.bbox_ground_truth['stopsign'] = self.world.get_level_bbs(carla.CityObjectLabel.TrafficSigns)
         self.bbox_ground_truth['car'] = self.world.get_level_bbs(carla.CityObjectLabel.Vehicles)
         self.bbox_ground_truth['person'] = self.world.get_level_bbs(carla.CityObjectLabel.Pedestrians)
 
         label_verts = [2, 3, 6, 7]
-        bbox_label = []
 
         for key, bounding_box_set in self.bbox_ground_truth.items():
             for bbox in bounding_box_set:
+                bbox_label = []
                 if bbox.location.distance(self.ego_vehicles[0].get_transform().location) < 50:
                     forward_vec = self.ego_vehicles[0].get_transform().get_forward_vector()
                     ray = bbox.location - self.ego_vehicles[0].get_transform().location
                     if forward_vec.dot(ray) > 5.0:
                         verts = [v for v in bbox.get_world_vertices(carla.Transform())]
+                        
                         for v in label_verts:
                             p = get_image_point(verts[v], self.K, world_2_camera)
                             bbox_label.append(p)
-        
-        self.ground_truth_bbox.setdefault(key, [])
-        self.ground_truth_bbox[key].append(np.array(bbox_label))
+                        
+                        self.ground_truth_bbox.setdefault(key, [])
+                        self.ground_truth_bbox[key].append(np.array(bbox_label))
+    
+    def eval(self, bbox_pred, bbox_gt):
+        # print(bbox_pred)
+        # print(bbox_gt)
+        types = bbox_pred[0][:, -1].detach().cpu().numpy()
+        types = np.array(types, dtype=np.int32)
+        pred = bbox_pred[0][:, :-2]
+        # pred = xywh2xyxy(pred)
+        # print(pred.shape)
+        # print(bbox_gt.keys())
+        for obj_idx in range(len(types)):
+            if names[types[obj_idx]] in bbox_gt.keys():
+                box_true = bbox_gt[names[types[obj_idx]]]
+
+                if len(box_true) > 0:
+                    box_pred = pred[obj_idx]
+                    for b_true in box_true:
+                        b_true = get_xyxy(b_true)
+                        ret = box_iou(box_pred[None, :].detach().cpu(), b_true[None, :])[0][0]
+                        if ret > 0:
+                            print('detected: ', names[types[obj_idx]], '|  IoU: ', ret.item())
+                else:
+                    continue
+    
+    def save_img_label(self, obs, label):
+        # self.video_writer.write_frame(obs)
+
+        saved_list = []
+        for k in label.keys():
+            cls = names.index(k)
+            bbox_true = label[k]
+            for box_true in bbox_true:
+                box_save = xyxy2xywhn(get_xyxy(box_true)[None, :])[0]
+                saved_list.append(np.concatenate([np.array([cls]), box_save.numpy()], axis=0))
+        # print(self.n_step, obs.shape)
+        # np.savetxt('online_data/labels/'+str(self.n_step)+'.txt', np.array(saved_list), delimiter=' ')
+        # save_image('online_data/images/'+str(self.n_step)+'.jpg', obs)
+        self.n_step += 1
+        pass
+
+    def __del__(self):
+        # self.video_writer.release()
+        return super().__del__()
