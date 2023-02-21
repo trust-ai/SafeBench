@@ -2,9 +2,10 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2021-07-18 21:46:37
-LastEditTime: 2021-07-18 21:57:35
+LastEditTime: 2022-11-23 17:25:24
 Description: 
 '''
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -24,9 +25,9 @@ Description:
 
 # -- Project information -----------------------------------------------------
 
-project = 'platform'
-copyright = '2021, Wenhao Ding'
-author = 'Wenhao Ding'
+project = 'SafeBench'
+copyright = '2022, SafeBench Developer'
+author = 'SafeBench Developer'
 
 
 # -- General configuration ---------------------------------------------------

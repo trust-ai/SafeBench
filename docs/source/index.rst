@@ -10,13 +10,19 @@ Documentation of Platform
    introduction
    
 .. toctree::
-   :caption: Installation
+   :caption: Instruction
    :maxdepth: 2
 
-   installation
+   instruction
 
 .. toctree::
     :maxdepth: 2
-    :caption: API Documentation
+    :caption: Main Files
 
-    API
+    main_files
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Self-defined Scenario
+
+    self_defined_scenario

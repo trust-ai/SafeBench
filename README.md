@@ -2,7 +2,7 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-02-19 17:57:22
+ * @LastEditTime: 2023-02-20 20:26:29
  * @Description: 
 -->
 
@@ -59,7 +59,7 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 
 ## Usage
 
-### Desktop Users
+### 1. Desktop Users
 
 Enter the CARLA root folder, launch the CARLA server and run our platform with
 ```
@@ -70,7 +70,7 @@ Enter the CARLA root folder, launch the CARLA server and run our platform with
 python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
 ```
 
-### Remote Server Users
+### 2. Remote Server Users
 Enter the CARLA root folder, launch the CARLA server with headless mode, and run our platform with
 ```
 # Launch CARLA

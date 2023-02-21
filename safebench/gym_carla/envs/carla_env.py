@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-14 12:07:45
+LastEditTime: 2023-02-20 20:41:24
 Description: 
 '''
 
@@ -40,25 +40,51 @@ class CarlaEnv(gym.Env):
     """
     def __init__(self, params, birdeye_render=None, display=None, world=None, ROOT_DIR=None, scenario_type=None, logger=None, first_env=False):
         self.scenario_type = scenario_type
-        if scenario_type != 'od': # dev, benign, standard
-            self.first_env = first_env
-            # parameters
-            self.display_size = params['display_size']  # rendering screen size
-            self.max_past_step = params['max_past_step']
-            self.max_episode_step = params['max_episode_step']
-            self.max_waypt = params['max_waypt']
-            self.obs_range = params['obs_range']
-            self.lidar_bin = params['lidar_bin']
-            self.d_behind = params['d_behind']
-            self.obs_size = int(self.obs_range / self.lidar_bin)
-            self.out_lane_thres = params['out_lane_thres']
-            self.desired_speed = params['desired_speed']
-            self.display_route = params['display_route']
-            self.ROOT_DIR = ROOT_DIR
-            self.logger = logger
 
-            self.acc_max = params['continuous_accel_range'][1]
-            self.steering_max = params['continuous_steer_range'][1]
+        # TODO: only initialize textures for once in parallel rollout
+        self.first_env = first_env
+
+        assert world is not None, "the world passed into CarlaEnv is None"
+        self.world = world
+        self.display = display
+        self.birdeye_render = birdeye_render
+        self.lidar_data = None
+        self.lidar_height = 2.1
+        
+        # Record the time of total steps and resetting steps
+        self.reset_step = 0
+        self.total_step = 0
+        self.is_running = True
+        self.env_id = None
+        self.ego = None
+
+        self.collision_sensor = None
+        self.lidar_sensor = None
+        self.camera_sensor = None
+
+        # for scenario runner
+        self.scenario = None
+        self.scenario_manager = None
+
+        # parameters
+        self.display_size = params['display_size'] # TODO: match rendering screen size with image_size
+        self.max_past_step = params['max_past_step']
+        self.max_episode_step = params['max_episode_step']
+        self.max_waypt = params['max_waypt']
+        self.obs_range = params['obs_range']
+        self.lidar_bin = params['lidar_bin']
+        self.d_behind = params['d_behind']
+        self.out_lane_thres = params['out_lane_thres']
+        self.desired_speed = params['desired_speed']
+        self.display_route = params['display_route']
+        self.ROOT_DIR = ROOT_DIR
+        self.logger = logger
+
+        self.acc_max = params['continuous_accel_range'][1]
+        self.steering_max = params['continuous_steer_range'][1]
+
+        if scenario_type != 'od': # dev, benign, standard
+            self.obs_size = int(self.obs_range / self.lidar_bin)
 
             if 'pixor' in params.keys():
                 self.pixor = params['pixor']
@@ -66,20 +92,12 @@ class CarlaEnv(gym.Env):
             else:
                 self.pixor = False
 
-            # action and observation spaces
-            self.discrete = params['discrete']
-            self.discrete_act = [params['discrete_acc'], params['discrete_steer']]  # acc, steer
-            self.n_acc = len(self.discrete_act[0])
-            self.n_steer = len(self.discrete_act[1])
-            if self.discrete:
-                self.action_space = spaces.Discrete(self.n_acc * self.n_steer)
-            else:
-                # TODO: we assume the output of NN is -1 to 1
-                self.action_space = spaces.Box(
-                    np.array([params['continuous_accel_range'][0], params['continuous_steer_range'][0]]),
-                    np.array([params['continuous_accel_range'][1], params['continuous_steer_range'][1]]),
-                    dtype=np.float32
-                )  # acc, steer
+            # Get pixel grid points
+            if self.pixor:
+                x, y = np.meshgrid(np.arange(self.pixor_size), np.arange(self.pixor_size))  # make a canvas with coordinates
+                x, y = x.flatten(), y.flatten()
+                self.pixel_grid = np.vstack((x, y)).T
+
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'lidar': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
@@ -93,95 +111,29 @@ class CarlaEnv(gym.Env):
                     'vh_regr': spaces.Box(low=-5, high=5, shape=(self.pixor_size, self.pixor_size, 6), dtype=np.float32),
                     'pixor_state': spaces.Box(np.array([-1000, -1000, -1, -1, -5]), np.array([1000, 1000, 1, 1, 20]), dtype=np.float32)
                 })
-            self.observation_space = spaces.Dict(observation_space_dict)
-
-            assert world is not None, "the world passed into CarlaEnv is None"
-            self.world = world
-            self.display = display
-            self.birdeye_render = birdeye_render
-            self.lidar_data = None
-            self.lidar_height = 2.1
-            
-            # Record the time of total steps and resetting steps
-            self.reset_step = 0
-            self.total_step = 0
-            self.is_running = True
-            self.env_id = None
-            self.ego = None
-
-            # Get pixel grid points
-            if self.pixor:
-                x, y = np.meshgrid(np.arange(self.pixor_size), np.arange(self.pixor_size))  # make a canvas with coordinates
-                x, y = x.flatten(), y.flatten()
-                self.pixel_grid = np.vstack((x, y)).T
-
-            self.collision_sensor = None
-            self.lidar_sensor = None
-            self.camera_sensor = None
-
-            self.scenario = None
-            self.scenario_manager = None
-
         else: # od
-            # TODO: only initialize textures for once in parallel rollout!
-            self.first_env = first_env
-            # parameters
-            self.display_size = params['display_size'] # TODO: match rendering screen size with image_size
-            self.max_past_step = params['max_past_step']
-            self.max_episode_step = params['max_episode_step']
-            self.max_waypt = params['max_waypt']
-            self.obs_range = params['obs_range']
-            self.lidar_bin = params['lidar_bin']
-            self.d_behind = params['d_behind']
             self.obs_size = params['image_sz']
-            self.out_lane_thres = params['out_lane_thres']
-            self.desired_speed = params['desired_speed']
-            self.display_route = params['display_route']
-            self.ROOT_DIR = ROOT_DIR
-            self.logger = logger
-
-            self.acc_max = params['continuous_accel_range'][1]
-            self.steering_max = params['continuous_steer_range'][1]
-
-            # action and observation spaces
-            self.discrete = params['discrete']
-            self.discrete_act = [params['discrete_acc'], params['discrete_steer']]  # acc, steer
-            self.n_acc = len(self.discrete_act[0])
-            self.n_steer = len(self.discrete_act[1])
-            if self.discrete:
-                self.action_space = spaces.Discrete(self.n_acc * self.n_steer)
-            else:
-                # TODO: we assume the output of NN is -1 to 1
-                self.action_space = spaces.Box(
-                    np.array([params['continuous_accel_range'][0], params['continuous_steer_range'][0]]),
-                    np.array([params['continuous_accel_range'][1], params['continuous_steer_range'][1]]),
-                    dtype=np.float32
-                )  # acc, steer
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
             }
 
-            self.observation_space = spaces.Dict(observation_space_dict)
+        # define obs space
+        self.observation_space = spaces.Dict(observation_space_dict)
 
-            assert world is not None, "the world passed into CarlaEnv is None"
-            self.world = world
-            self.birdeye_render = birdeye_render
-            self.display = display
-
-            # Record the time of total steps and resetting steps
-            self.reset_step = 0
-            self.total_step = 0
-            self.is_running = True
-            self.env_id = None
-
-            # Init sensors
-            self.collision_sensor = None
-            self.lidar_sensor = None
-            self.camera_sensor = None
-
-        """for scenario runner"""
-        self.scenario = None
-        self.scenario_manager = None
+        # action and observation spaces
+        self.discrete = params['discrete']
+        self.discrete_act = [params['discrete_acc'], params['discrete_steer']]  # acc, steer
+        self.n_acc = len(self.discrete_act[0])
+        self.n_steer = len(self.discrete_act[1])
+        if self.discrete:
+            self.action_space = spaces.Discrete(self.n_acc * self.n_steer)
+        else:
+            # TODO: we assume the output of NN is -1 to 1
+            self.action_space = spaces.Box(
+                np.array([params['continuous_accel_range'][0], params['continuous_steer_range'][0]]),
+                np.array([params['continuous_accel_range'][1], params['continuous_steer_range'][1]]),
+                dtype=np.float32
+            )  # acc, steer
 
     def _create_sensors(self):
         # collision sensor
@@ -292,7 +244,6 @@ class CarlaEnv(gym.Env):
             array = array[:, :, :3]
             array = array[:, :, ::-1]
             self.camera_img = array
-            
 
         # Update timesteps
         self.time_step = 0
@@ -416,7 +367,7 @@ class CarlaEnv(gym.Env):
 
         return (self._get_obs(), self._get_reward(), self._terminal(), copy.deepcopy(info))
 
-    def _create_vehicle_bluepprint(self,actor_filter, color=None, number_of_wheels=[4]):
+    def _create_vehicle_bluepprint(self, actor_filter, color=None, number_of_wheels=[4]):
         """ Create the blueprint for a specific actor type.
 
             Args:
@@ -522,11 +473,6 @@ class CarlaEnv(gym.Env):
             lidar, _ = np.histogramdd(point_cloud, bins=(x_bins, y_bins, z_bins))
             lidar[:, :, 0] = np.array(lidar[:, :, 0] > 0, dtype=np.uint8)
             lidar[:, :, 1] = np.array(lidar[:, :, 1] > 0, dtype=np.uint8)
-            # Add the waypoints to lidar image (according to the color of routes)
-            # if self.display_route:
-            #     wayptimg = (birdeye[:, :, 0] <= 10) * (birdeye[:, :, 1] <= 10) * (birdeye[:, :, 2] >= 240)
-            # else:
-            #     wayptimg = birdeye[:, :, 0] < 0  # Equal to a zero matrix
             wayptimg = birdeye[:, :, 0] < 0  # Equal to a zero matrix
             wayptimg = np.expand_dims(wayptimg, axis=2)
             wayptimg = np.fliplr(np.rot90(wayptimg, 3))
@@ -548,7 +494,7 @@ class CarlaEnv(gym.Env):
             camera_surface = rgb_to_display_surface(camera, self.display_size)
             self.display.blit(camera_surface, (self.display_size*2, self.env_id*self.display_size))
             
-            # show image on window
+            # show image on window (move outside of env)
             #pygame.display.flip()
 
             # State observation
@@ -721,6 +667,7 @@ class CarlaEnv(gym.Env):
             self.camera_sensor = None
 
     def _remove_ego(self):
+        # TODO: ego can be reused.
         if self.ego is not None:
             self.ego.destroy()
             self.ego = None

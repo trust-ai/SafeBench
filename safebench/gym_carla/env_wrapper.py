@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-14 12:09:40
+LastEditTime: 2023-02-20 20:30:35
 Description: 
 '''
 
@@ -92,8 +92,15 @@ class VectorWrapper():
         for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
                 obs, reward, done, info = self.env_list[e_i].step_after_tick()
-                self.replay_buffer.save_step_results(e_i, next_obs=obs, reward=reward, done=done, info=info,
-                                                     critic_value=critic_value, log_prob=log_prob)
+                self.replay_buffer.save_step_results(
+                    e_i, 
+                    next_obs=obs, 
+                    reward=reward, 
+                    done=done, 
+                    info=info,
+                    critic_value=critic_value, 
+                    log_prob=log_prob
+                )
                 info['scenario_id'] = e_i
 
                 # check if env is done
