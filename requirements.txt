@@ -16,3 +16,4 @@ ephem
 joblib
 tensorboardX
 cpprb
+moviepy

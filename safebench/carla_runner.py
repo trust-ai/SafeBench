@@ -40,10 +40,30 @@ class CarlaRunner:
         self.client.set_timeout(10.0)
         self.world = None
 
-        # for obtaining rendering results
-        self.display_size = 256
-        self.obs_range = 32
-        self.d_behind = 12
+        self.env_params = {
+            'obs_type': agent_config['obs_type'],
+            'scenario_type': self.scenario_type,
+            'ROOT_DIR': scenario_config['ROOT_DIR'],
+            'disable_lidar': True,
+            'display_size': 256,                    # screen size of one bird-eye view windowd=
+            'obs_range': 32,                        # observation range (meter)
+            'd_behind': 12,                         # distance behind the ego vehicle (meter)
+            'max_past_step': 1,                     # the number of past steps to draw
+            'discrete': False,                      # whether to use discrete control space
+            'discrete_acc': [-3.0, 0.0, 3.0],       # discrete value of accelerations
+            'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
+            'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
+            'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
+            'max_episode_step': 500,                # maximum timesteps per episode
+            'max_waypt': 12,                        # maximum number of waypoints
+            'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
+            'out_lane_thres': 4,                    # threshold for out of lane (meter)
+            'desired_speed': 8,                     # desired speed (m/s)
+            'display_route': True,                  # whether to render the desired route
+            'pixor_size': 64,                       # size of the pixor labels
+            'pixor': False,                         # whether to output PIXOR observation
+            'image_sz': 1024,                       # TODO: move to config of od scenario
+        }
 
         # pass info from scenario to agent
         agent_config['mode'] = scenario_config['mode']
@@ -84,14 +104,19 @@ class CarlaRunner:
         if not self.render:
             flag = flag | pygame.HIDDEN
         if self.scenario_type != 'od': 
-            self.display = pygame.display.set_mode((self.display_size * 3, self.display_size * num_envs), flag)
+            # [bird-eye view, Lidar, front view] or [bird-eye view, front view]
+            if self.env_params['disable_lidar']:
+                window_size = (self.env_params['display_size'] * 2, self.env_params['display_size'] * num_envs)
+            else:
+                window_size = (self.env_params['display_size'] * 3, self.env_params['display_size'] * num_envs)
         else:
-            self.display = pygame.display.set_mode((self.display_size, self.display_size * num_envs), flag)
-        
-        pixels_per_meter = self.display_size / self.obs_range
-        pixels_ahead_vehicle = (self.obs_range / 2 - self.d_behind) * pixels_per_meter
+            window_size = (self.env_params['display_size'], self.env_params['display_size'] * num_envs)
+
+        self.display = pygame.display.set_mode(window_size, flag)
+        pixels_per_meter = self.env_params['display_size'] / self.env_params['obs_range']
+        pixels_ahead_vehicle = (self.env_params['obs_range'] / 2 - self.env_params['d_behind']) * pixels_per_meter
         self.birdeye_params = {
-            'screen_size': [self.display_size, self.display_size],
+            'screen_size': [self.env_params['display_size'], self.env_params['display_size']],
             'pixels_per_meter': pixels_per_meter,
             'pixels_ahead_vehicle': pixels_ahead_vehicle,
         }
@@ -157,7 +182,7 @@ class CarlaRunner:
             self._init_renderer(self.num_scenario)
 
             # create scenarios within the vectorized wrapper
-            env = VectorWrapper(self.agent_config, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger, self.scenario_type)
+            env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
 
             # prepare data loader
             data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)

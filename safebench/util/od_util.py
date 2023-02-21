@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from moviepy.video.io.ffmpeg_writer import FFMPEG_VideoWriter
 
+
 def save_image(fp, img):
     cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     cv2.imwrite(fp, img)

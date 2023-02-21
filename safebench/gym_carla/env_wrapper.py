@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 20:30:35
+LastEditTime: 2023-02-20 23:23:15
 Description: 
 '''
 
@@ -14,23 +14,19 @@ from safebench.gym_carla.buffer import ReplayBuffer
 
 class VectorWrapper():
     """ The interface to control a list of environments"""
-    def __init__(self, agent_config, scenario_config, world, birdeye_render, display, logger, scenario_type):
+    def __init__(self, env_params, scenario_config, world, birdeye_render, display, logger):
         self.world = world
         self.num_scenario = scenario_config['num_scenario']
         self.ROOT_DIR = scenario_config['ROOT_DIR']
-        self.frame_skip = scenario_config['frame_skip']
-        self.obs_type = agent_config['obs_type']   # the observation type is determined by the ego agent
+        self.frame_skip = scenario_config['frame_skip']  
         self.render = scenario_config['render']
-        self.scenario_type = scenario_type
+        self.scenario_type = env_params['scenario_type']
         self.replay_buffer = None
 
         self.env_list = []
         self.action_space_list = []
         for i in range(self.num_scenario):
-            if i == 0:
-                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, logger=logger, scenario_type=scenario_type, first_env=True)
-            else:
-                env = carla_env(self.obs_type, birdeye_render=birdeye_render, display=display, world=world, ROOT_DIR=self.ROOT_DIR, logger=logger, scenario_type=scenario_type)
+            env = carla_env(env_params, birdeye_render=birdeye_render, display=display, world=world, logger=logger, first_env=not i)
             self.env_list.append(env)
             self.action_space_list.append(env.action_space)
 
@@ -50,6 +46,7 @@ class VectorWrapper():
         if scenario_type is None:
             scenario_type = self.scenario_type
         self.replay_buffer = ReplayBuffer(self.num_scenario)
+        
         # create scenarios and ego vehicles
         obs_list = []
         for s_i in range(len(scenario_configs)):
@@ -225,40 +222,16 @@ class EnvWrapper(gym.Wrapper):
         return action
 
 
-params = {
-    'display_size': 256,                    # screen size of bird-eye render
-    'max_past_step': 1,                     # the number of past steps to draw
-    'discrete': False,                      # whether to use discrete control space
-    'discrete_acc': [-3.0, 0.0, 3.0],       # discrete value of accelerations
-    'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
-    'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
-    'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-    'max_episode_step': 500,                # maximum timesteps per episode
-    'max_waypt': 12,                        # maximum number of waypoints
-    'obs_range': 32,                        # observation range (meter)
-    'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
-    'd_behind': 12,                         # distance behind the ego vehicle (meter)
-    'out_lane_thres': 4,                    # threshold for out of lane (meter)
-    'desired_speed': 8,                     # desired speed (m/s)
-    'display_route': True,                  # whether to render the desired route
-    'pixor_size': 64,                       # size of the pixor labels
-    'pixor': False,                         # whether to output PIXOR observation
-    'image_sz': 1024,
-}
-
-
-def carla_env(obs_type, birdeye_render=None, display=None, world=None, ROOT_DIR=None, scenario_type=None, logger=None, first_env=False):
+def carla_env(env_params, birdeye_render=None, display=None, world=None, logger=None, first_env=False):
     return EnvWrapper(
         gym.make(
             'carla-v0', 
-            params=params, 
+            env_params=env_params, 
             birdeye_render=birdeye_render,
             display=display, 
             world=world, 
-            ROOT_DIR=ROOT_DIR, 
-            scenario_type=scenario_type,
             logger=logger,
             first_env=first_env
         ), 
-        obs_type=obs_type
+        obs_type=env_params['obs_type']
     )
