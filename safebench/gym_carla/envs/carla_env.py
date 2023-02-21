@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 23:41:42
+LastEditTime: 2023-02-20 23:49:25
 Description: 
 '''
 
@@ -79,7 +79,6 @@ class CarlaEnv(gym.Env):
         self.lidar_bin = env_params['lidar_bin']
         self.out_lane_thres = env_params['out_lane_thres']
         self.desired_speed = env_params['desired_speed']
-        self.display_route = env_params['display_route']
         self.acc_max = env_params['continuous_accel_range'][1]
         self.steering_max = env_params['continuous_steer_range'][1]
 
@@ -265,20 +264,19 @@ class CarlaEnv(gym.Env):
         pass
 
     def step_before_tick(self, ego_action):
-        # TODO: input an action into the scenario
         if self.world:
             snapshot = self.world.get_snapshot()
             if snapshot:
                 timestamp = snapshot.timestamp
+                # TODO: input an action into the scenario
                 self.scenario_manager.get_update(timestamp)
+                self.is_running = self.scenario_manager._running
                 if isinstance(ego_action, dict):
                     world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
                     fov = self.camera_bp.get_attribute('fov').as_float()
                     image_w, image_h = self.obs_size, self.obs_size
                     self.scenario_manager.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
                     ego_action = ego_action['ego_action']
-
-                self.is_running = self.scenario_manager._running
 
                 # Calculate acceleration and steering
                 if self.discrete:
@@ -351,18 +349,9 @@ class CarlaEnv(gym.Env):
         # Update timesteps
         self.time_step += 1
         self.total_step += 1
-
         return (self._get_obs(), self._get_reward(), self._terminal(), copy.deepcopy(info))
 
     def _create_vehicle_bluepprint(self, actor_filter, color=None, number_of_wheels=[4]):
-        """ Create the blueprint for a specific actor type.
-
-            Args:
-                actor_filter: a string indicating the actor type, e.g, 'vehicle.lincoln*'.
-
-            Returns:
-                bp: the blueprint object of carla.
-        """
         blueprints = self.world.get_blueprint_library().filter(actor_filter)
         blueprint_library = []
         for nw in number_of_wheels:
@@ -406,7 +395,6 @@ class CarlaEnv(gym.Env):
             actor_acceleration_dict[actor.id] = actor.get_acceleration()
             actor_angular_velocity_dict[actor.id] = actor.get_angular_velocity()
             actor_velocity_dict[actor.id] = actor.get_velocity()
-
         return actor_trajectory_dict, actor_acceleration_dict, actor_angular_velocity_dict, actor_velocity_dict
 
     def _get_obs(self):
@@ -419,9 +407,7 @@ class CarlaEnv(gym.Env):
             self.birdeye_render.waypoints = self.waypoints
 
             # render birdeye image with the birdeye_render
-            birdeye_render_types = ['roadmap', 'actors']
-            if self.display_route:
-                birdeye_render_types.append('waypoints')
+            birdeye_render_types = ['roadmap', 'actors', 'waypoints']
             birdeye_surface = self.birdeye_render.render(birdeye_render_types)
             birdeye_surface = pygame.surfarray.array3d(birdeye_surface)
             center = (int(birdeye_surface.shape[0]/2), int(birdeye_surface.shape[1]/2))
@@ -452,8 +438,7 @@ class CarlaEnv(gym.Env):
                 # Get the final lidar image
                 lidar = np.concatenate((lidar, wayptimg), axis=2)
                 lidar = np.flip(lidar, axis=1)
-                lidar = np.rot90(lidar, 1)
-                lidar = lidar * 255
+                lidar = np.rot90(lidar, 1) * 255
 
                 # display birdeye image
                 birdeye_surface = rgb_to_display_surface(birdeye, self.display_size)
@@ -551,9 +536,7 @@ class CarlaEnv(gym.Env):
         v = self.ego.get_velocity()
 
         # TODO: reward for collision, there should be a signal from scenario
-        r_collision = 0
-        if len(self.collision_hist) > 0:
-            r_collision = -1
+        r_collision = -1 if len(self.collision_hist) > 0 else 0
 
         # reward for steering:
         r_steer = -self.ego.get_control().steer ** 2
@@ -561,18 +544,14 @@ class CarlaEnv(gym.Env):
         # reward for out of lane
         ego_x, ego_y = get_pos(self.ego)
         dis, w = get_lane_dis(self.waypoints, ego_x, ego_y)
-        r_out = 0
-        if abs(dis) > self.out_lane_thres:
-            r_out = -1
+        r_out = -1 if abs(dis) > self.out_lane_thres else 0
 
         # longitudinal speed
         lspeed = np.array([v.x, v.y])
         lspeed_lon = np.dot(lspeed, w)
 
         # cost for too fast
-        r_fast = 0
-        if lspeed_lon > self.desired_speed:
-            r_fast = -1
+        r_fast = -1 if lspeed_lon > self.desired_speed else 0
 
         # cost for lateral acceleration
         r_lat = -abs(self.ego.get_control().steer) * lspeed_lon**2
@@ -588,8 +567,7 @@ class CarlaEnv(gym.Env):
         return r_collision
 
     def _terminal(self):
-        # the max step critie is included in scenario_manager
-        return not self.scenario_manager._running
+        return not self.scenario_manager._running # the max step critie is included in scenario_manager
 
     def _remove_sensor(self):
         if self.collision_sensor is not None:

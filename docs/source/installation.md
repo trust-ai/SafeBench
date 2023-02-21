@@ -2,44 +2,52 @@
  * @Author: Wenhao Ding
  * @Email: wenhaod@andrew.cmu.edu
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2021-07-23 14:16:30
+ * @LastEditTime: 2023-02-21 13:35:50
  * @Description: 
 -->
 
-# Quick start
+# Installation
 
-* __[Environment Settings](#environment-settings)__  
-    * [Docker Installation](#docker-installation)  
-	* [Image Download](#image-download)  
-	* [Source Code Download](#source-code-download)  
-	* [Run the Docker Container](#run-the-docker-container)  
-	* [Run the Platform](#run-the-platform)  
+We provide a detailed instruction of how to install Safebench. The installation does not require docker or ROS.
 
----
+## Step 1. Setup Safebench
 
-Firstly, make sure you already install the NVIDIA driver on your mechine. All environment settings are store in a docker image, please follow the instructions below to install all things.
+We recommand using anaconda for creating a clean environment.
+```
+conda create -n safebench python=3.8
+conda activate safebench
+```
 
-## Environment Settings
+Then, clone the code from github in an appropriate folder with
+```
+git clone git@github.com:trust-ai/SafeBench_v2.git
+```
 
-### Docker Installation
-1. Install Docker by following [this link](https://docs.docker.com/engine/install/ubuntu/).
-2. Install NVIDIA-Docker2 by following [this link](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker).
+Enter the folder of safebench and install some necessary packages
+```
+cd SafeBench_v2
+pip install -r requirements.txt
+pip install -e .
+```
 
-### Image Download
-Pull the [Docker image](https://hub.docker.com/r/gilgameshd/platform): `docker pull gilgameshd/platform`
+## Step 2. Setup Carla
 
-### Source Code Download
-Download the source code from this repo: 
-`git clone https://github.com/trust-ai/Evaluation-Platform.git`
+Download our built [CARLA_0.9.13](https://drive.google.com/file/d/1Ta5qtEIrOnpsToQfJ-j0cdRiF7xCbLM3/view?usp=share_link) and extract it to your folder with
+```
+mkdir carla && cd carla
+tar -zxvf CARLA_0.9.13-2-g0c41f167c-dirty.tar.gz
+```
 
-### Run the Docker Container
-The command of running the container is in `run_docker.sh`, you just need to run this script. After running it, a window of the Carla Simulator will show up.
+Add the Python API of Carla to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
+```
+export CARLA_ROOT={path/to/your/carla}
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.8-linux-x86_64.egg
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
+```
 
-### Run the Platform
-1. Open a new terminal window and run the script `run_bash.sh` to access the bash of container.
-2. Change directory: `cd Evaluation`
-3. Complile all files with ROS tools: `catkin_make`
-4. Set up environment: `. ./devel/setup.bash`
-5. launch platform: `roslaunch manager manager.launch`
+## Potential Issue
 
-Finally, you should be able to see that the Carla window changes the map and spawns an ego vehicle. Another window of pygame will also show up for controlling the ego vehicle.
+Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
+

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 23:23:15
+LastEditTime: 2023-02-20 23:50:54
 Description: 
 '''
 
@@ -45,6 +45,8 @@ class VectorWrapper():
     def reset(self, scenario_configs, scenario_type=None):
         if scenario_type is None:
             scenario_type = self.scenario_type
+        
+        # TODO: move buffer out of env
         self.replay_buffer = ReplayBuffer(self.num_scenario)
         
         # create scenarios and ego vehicles
@@ -176,20 +178,18 @@ class EnvWrapper(gym.Wrapper):
 
     def _build_obs_space(self):
         if self.obs_type == 0:
-            # 4 state space
             obs_dim = 4
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
             self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)
         elif self.obs_type == 1:
-            # 11 state space
             obs_dim = 11
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
             self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)
         elif self.obs_type == 2 or self.obs_type == 3:
             # 4 state space + bev
-            obs_dim = 256  # TODO: Tune here
+            obs_dim = 256  # TODO: should be the same as display_size
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
             self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)

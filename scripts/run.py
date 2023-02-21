@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-15 14:11:02
+LastEditTime: 2023-02-20 23:49:59
 Description: 
 '''
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')
     parser.add_argument('--continue_agent_training', '-cat', type=bool, default=False)
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
-    parser.add_argument('--port', type=int, default=2000)
+    parser.add_argument('--port', type=int, default=2000, help='port to communicate with carla')
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
     parser.add_argument('--num_scenario', type=int, default=2, help='num of scenarios we run in one episode')
     parser.add_argument('--num_episode', type=int, default=1, help='number of episode')

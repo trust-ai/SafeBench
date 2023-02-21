@@ -2,27 +2,16 @@
  * @Author: Shuai Wang
  * @Email: shuaiwa2@andrew.cmu.edu
  * @Date: 2022-11-09 11:22:05
- * @LastEditTime: 2022-11-09 11:22:05
+ * @LastEditTime: 2023-02-21 13:49:45
  * @Description: 
 -->
-# Main Files and Main Functions
+
+# Functions and API
 In this section we summarize some important files and functions, for developer's reference
 
-## Info Flow Structure
-```
-manager.py
- ├── run.py
- │     └── carla_runner.py
- |     └── carla_env.py
- │     └── env_wrapper.py
- |
- ├── scenario_runner.py
-       ├── scenario_manager_dynamic.py
-       └── basic_scenario_dynamic.py
- 
-```
 
-## Manger Node
+## Carla Runner
+
 ### /src/manager/src/manager.py
 This file is responsible for creating manager node, scenario node and gym node, parameters like scenario_id, route_id, obs_type, etc are coming from SafeBench/src/manager/launch/manager.launch
 * \__main\__(): initialize manager node
@@ -31,7 +20,10 @@ This file is responsible for creating manager node, scenario node and gym node, 
   like route_id, scenario_id come from manager node class
     * roslaunch create gym node, arguments like policy, obs_type, mode come from manager node class variables
 
-## Gym Node
+## Agent Module
+
+## Gym module
+
 ### /src/agent/gym_node/src/planning/run.py
 This file is the entrance of the gym node, main work is creating the carla runner
 object and running with the chosen mode
@@ -56,7 +48,8 @@ The real carla environment
 all the ego cluster, return observations get from carla world
 * _get_obs(): get the observations from the world
 
-## Scenario Node
+## Scenario Module
+
 ### /pkgs/scenario_runner/scenario_runner.py
 This file is the highest level file for scenario runner, mainly responsible for initializing,
 running and stopping a single or a list of scenarios. Scenarios can run in parallel mode in multiple threads

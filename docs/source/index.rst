@@ -1,28 +1,32 @@
 **************************
-Documentation of Platform
+Documentation of Safebench
 **************************
 
-
 .. toctree::
-   :caption: Introduction
+   :caption: Overview
    :maxdepth: 2
 
-   introduction
+   components
+   tracks
+   reference
    
 .. toctree::
-   :caption: Instruction
+   :caption: Getting Started
    :maxdepth: 2
 
-   instruction
+   installation
+   run_example
 
 .. toctree::
-    :maxdepth: 2
-    :caption: Main Files
+   :maxdepth: 2
+   :caption: Challenge Submission
 
-    main_files
+   self_defined_agent
+   self_defined_scenario
+   submission
 
 .. toctree::
-    :maxdepth: 2
-    :caption: Self-defined Scenario
+   :maxdepth: 2
+   :caption: API Functions
 
-    self_defined_scenario
+   main_files
