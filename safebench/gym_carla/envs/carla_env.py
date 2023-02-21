@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 23:29:09
+LastEditTime: 2023-02-20 23:41:42
 Description: 
 '''
 
@@ -89,32 +89,12 @@ class CarlaEnv(gym.Env):
 
         if self.scenario_type in ['dev', 'benign', 'standard']:
             self.obs_size = int(self.obs_range / self.lidar_bin)
-
-            if 'pixor' in env_params.keys():
-                self.pixor = env_params['pixor']
-                self.pixor_size = env_params['pixor_size']
-            else:
-                self.pixor = False
-
-            # Get pixel grid points
-            if self.pixor:
-                x, y = np.meshgrid(np.arange(self.pixor_size), np.arange(self.pixor_size))  # make a canvas with coordinates
-                x, y = x.flatten(), y.flatten()
-                self.pixel_grid = np.vstack((x, y)).T
-
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'lidar': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'birdeye': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'state': spaces.Box(np.array([-2, -1, -5, 0]), np.array([2, 1, 30, 1]), dtype=np.float32)
             }
-            if self.pixor:
-                observation_space_dict.update({
-                    'roadmap': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
-                    'vh_clas': spaces.Box(low=0, high=1, shape=(self.pixor_size, self.pixor_size, 1), dtype=np.float32),
-                    'vh_regr': spaces.Box(low=-5, high=5, shape=(self.pixor_size, self.pixor_size, 6), dtype=np.float32),
-                    'pixor_state': spaces.Box(np.array([-1000, -1000, -1, -1, -5]), np.array([1000, 1000, 1, 1, 20]), dtype=np.float32)
-                })
         elif self.scenario_type in ['od']:
             self.obs_size = env_params['image_sz']
             observation_space_dict = {
@@ -449,21 +429,6 @@ class CarlaEnv(gym.Env):
             birdeye = birdeye_surface[center[0]-width:center[0]+width, center[1]-height:center[1]+height]
             birdeye = display_to_rgb(birdeye, self.obs_size)
 
-            # Roadmap
-            if self.pixor:
-                roadmap_render_types = ['roadmap']
-                if self.display_route:
-                    roadmap_render_types.append('waypoints')
-                self.birdeye_render.render(roadmap_render_types)
-                roadmap = pygame.surfarray.array3d(self.display)
-                roadmap = roadmap[0:self.display_size, :, :]
-                roadmap = display_to_rgb(roadmap, self.obs_size)
-                # Add ego vehicle
-                for i in range(self.obs_size):
-                    for j in range(self.obs_size):
-                        if abs(birdeye[i, j, 0] - 255) < 20 and abs(birdeye[i, j, 1] - 0) < 20 and abs(birdeye[i, j, 0] - 255) < 20:
-                            roadmap[i, j, :] = birdeye[i, j, :]
-
             if not self.disable_lidar:
                 # get Lidar image
                 point_cloud = np.copy(np.frombuffer(self.lidar_data.raw_data, dtype=np.dtype('f4')))
@@ -530,42 +495,6 @@ class CarlaEnv(gym.Env):
             acceleration = np.sqrt(acc.x**2 + acc.y**2)
             state = np.array([lateral_dis, -delta_yaw, speed, self.vehicle_front])
 
-            if self.pixor:
-                ## Vehicle classification and regression maps (requires further normalization)
-                vh_clas = np.zeros((self.pixor_size, self.pixor_size))
-                vh_regr = np.zeros((self.pixor_size, self.pixor_size, 6))
-
-                # Generate the PIXOR image. Note in CARLA it is using left-hand coordinate
-                # Get the 6-dim geom parametrization in PIXOR, here we use pixel coordinate
-                for actor in self.world.get_actors().filter('vehicle.*'):
-                    x, y, yaw, l, w = get_info(actor)
-                    x_local, y_local, yaw_local = get_local_pose((x, y, yaw), (ego_x, ego_y, ego_yaw))
-                    if actor.id != self.ego.id:
-                        if abs(y_local) < self.obs_range / 2 + 1 and x_local < self.obs_range - self.d_behind + 1 and x_local > -self.d_behind - 1:
-                            x_pixel, y_pixel, yaw_pixel, l_pixel, w_pixel = get_pixel_info(
-                                local_info=(x_local, y_local, yaw_local, l, w),
-                                d_behind=self.d_behind,
-                                obs_range=self.obs_range,
-                                image_size=self.pixor_size
-                            )
-                            cos_t = np.cos(yaw_pixel)
-                            sin_t = np.sin(yaw_pixel)
-                            logw = np.log(w_pixel)
-                            logl = np.log(l_pixel)
-                            pixels = get_pixels_inside_vehicle(pixel_info=(x_pixel, y_pixel, yaw_pixel, l_pixel, w_pixel), pixel_grid=self.pixel_grid)
-                            for pixel in pixels:
-                                vh_clas[pixel[0], pixel[1]] = 1
-                                dx = x_pixel - pixel[0]
-                                dy = y_pixel - pixel[1]
-                                vh_regr[pixel[0], pixel[1], :] = np.array([cos_t, sin_t, dx, dy, logw, logl])
-
-                # Flip the image matrix so that the origin is at the left-bottom
-                vh_clas = np.flip(vh_clas, axis=0)
-                vh_regr = np.flip(vh_regr, axis=0)
-
-                # Pixor state, [x, y, cos(yaw), sin(yaw), speed]
-                pixor_state = [ego_x, ego_y, np.cos(ego_yaw), np.sin(ego_yaw), speed]
-
             #forward_vector = self.ego.get_transform().get_forward_vector()
             #node_forward = self.current_waypoint.transform.get_forward_vector()
             #target_forward = self.target_waypoint.transform.get_forward_vector()
@@ -584,14 +513,6 @@ class CarlaEnv(gym.Env):
                 # 'node_forward': np.array([node_forward.x, node_forward.y]),
                 # 'target_forward': np.array([target_forward.x, target_forward.y]),
             }
-
-            if self.pixor:
-                obs.update({
-                    'roadmap': roadmap.astype(np.uint8),
-                    'vh_clas': np.expand_dims(vh_clas, -1).astype(np.float32),
-                    'vh_regr': vh_regr.astype(np.float32),
-                    'pixor_state': pixor_state,
-                })
         else:
             """ Get the observations for object detection. """
 

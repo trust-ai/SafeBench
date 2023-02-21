@@ -60,8 +60,6 @@ class CarlaRunner:
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
             'desired_speed': 8,                     # desired speed (m/s)
             'display_route': True,                  # whether to render the desired route
-            'pixor_size': 64,                       # size of the pixor labels
-            'pixor': False,                         # whether to output PIXOR observation
             'image_sz': 1024,                       # TODO: move to config of od scenario
         }
 
