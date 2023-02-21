@@ -1,6 +1,6 @@
-type_dir: 'safebench/scenario/config/scenario_type_new_map'
+type_dir: 'safebench/scenario/config/scenario_type'
 type_name: 'standard.json'
-route_dir: 'safebench/scenario/scenario_data/route_new_map'
+route_dir: 'safebench/scenario/scenario_data/route'
 method: null
 scenario_id: null
 route_id: null

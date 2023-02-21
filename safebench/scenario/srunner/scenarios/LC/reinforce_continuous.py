@@ -1,8 +1,8 @@
 '''
-@Author: Wenhao Ding
-@Email: wenhaod@andrew.cmu.edu
+@Author: 
+@Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-13 15:38:03
+LastEditTime: 2023-02-20 20:45:23
 @Description: 
 '''
 
@@ -12,8 +12,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-import torch.nn.utils as utils
 from torch.autograd import Variable
 import torch.nn.init as init
 
@@ -66,9 +64,9 @@ def normal(x, mu, sigma_sq):
     return a*b
 
 
-class HD_Autoregressive_Policy(nn.Module):
+class Autoregressive_Policy(nn.Module):
     def __init__(self, standard_action=True):
-        super(HD_Autoregressive_Policy, self).__init__()
+        super(Autoregressive_Policy, self).__init__()
         self.standard_action = standard_action
         input_size = 30*2+1
         hidden_size_1 = 32
@@ -172,14 +170,6 @@ class HD_Autoregressive_Policy(nn.Module):
             normal_d = self.fc_action_d(state_sample_a_b_c)
             _, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
 
-        #print('================================================== Test Action space ==================================================')
-        #print('normal A: {} {}'.format(mu_a, sigma_a))
-        #print('normal B: {} {}'.format(mu_b, sigma_b))
-        #print('normal C: {} {}'.format(mu_c, sigma_c))
-        #if self.standard_action:
-        #    print('normal D: {} {}'.format(mu_d, sigma_d))
-        #print('======================================================================================================================')
-
         # output the mean value to be the deterministic action
         if self.standard_action:
             return mu_a[0][0], mu_b[0][0], mu_c[0][0], mu_d[0][0]
@@ -192,7 +182,7 @@ class REINFORCE:
     def __init__(self, config):
         assert len(config) == 2  # [load, standard_action]
         self.standard_action = config[1]
-        self.model = CUDA(HD_Autoregressive_Policy(self.standard_action))
+        self.model = CUDA(Autoregressive_Policy(self.standard_action))
         self.model.apply(kaiming_init)
         self.model.eval()
         if config[0] != '':
@@ -248,7 +238,7 @@ class REINFORCE:
 
     def load_model(self, filepath):
         if os.path.isfile(filepath):
-            print('Loading lc model:', filepath)
+            print('Loading LC model:', filepath)
             with open(filepath, 'rb') as f:
                 checkpoint = torch.load(f)
             self.model.load_state_dict(checkpoint['parameters'])

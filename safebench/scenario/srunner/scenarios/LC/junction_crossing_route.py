@@ -5,11 +5,13 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""
-@Author: Shuai Wang
-@e-mail: ws199807@outlook.com
-All intersection related scenarios that are part of a route.
-"""
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-20 20:46:12
+Description: 
+'''
 
 from __future__ import print_function
 import carla
