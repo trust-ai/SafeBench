@@ -1,5 +1,5 @@
 gym==0.23.1
-numpy
+numpy==1.23.1
 pygame
 scikit-image
 tqdm

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 23:50:54
+LastEditTime: 2023-02-21 19:20:53
 Description: 
 '''
 
@@ -48,7 +48,7 @@ class VectorWrapper():
         
         # TODO: move buffer out of env
         self.replay_buffer = ReplayBuffer(self.num_scenario)
-        
+
         # create scenarios and ego vehicles
         obs_list = []
         for s_i in range(len(scenario_configs)):
@@ -61,7 +61,6 @@ class VectorWrapper():
         self.finished_env = [False] * self.num_scenario
         for s_i in range(len(scenario_configs), self.num_scenario):
             self.finished_env[s_i] = True
-
 
         # return obs
         return self.obs_postprocess(obs_list)

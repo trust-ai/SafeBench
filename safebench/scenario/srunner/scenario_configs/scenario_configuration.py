@@ -5,21 +5,14 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""
-This module provides the key configuration parameters for an XML-based scenario
-"""
-
 import carla
 
 
 class ActorConfigurationData(object):
-
     """
     This is a configuration base class to hold model and transform attributes
     """
-
-    def __init__(self, model, transform, rolename='other', speed=0, autopilot=False,
-                 random=False, color=None, category="car", args=None):
+    def __init__(self, model, transform, rolename='other', speed=0, autopilot=False, random=False, color=None, category="car", args=None):
         self.model = model
         self.rolename = rolename
         self.transform = transform
@@ -44,9 +37,7 @@ class ActorConfigurationData(object):
         yaw = float(node.attrib.get('yaw', 0))
 
         transform = carla.Transform(carla.Location(x=pos_x, y=pos_y, z=pos_z), carla.Rotation(yaw=yaw))
-
         rolename = node.attrib.get('rolename', rolename)
-
         speed = node.attrib.get('speed', 0)
 
         autopilot = False

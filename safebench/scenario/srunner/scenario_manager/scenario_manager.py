@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-14 12:07:32
+LastEditTime: 2023-02-21 19:59:33
 Description: 
 '''
 
@@ -15,16 +15,13 @@ class ScenarioManager(object):
     """
         Dynamic version scenario manager class. This class holds all functionality
         required to initialize, trigger, update and stop a scenario.
-
-        The user must not modify this class.
-            To use the ScenarioManager:
-            1. Create an object via manager = ScenarioManager()
-            2. Load a scenario via manager.load_scenario()
-            4. Trigger a result evaluation with manager.analyze_scenario()
-            5. If needed, cleanup with manager.stop_scenario()
     """
 
     def __init__(self, logger):
+        self.logger = logger
+        self._reset()
+
+    def _reset(self):
         self.scenario = None
         self.scenario_tree = None
         self.scenario_class = None
@@ -32,10 +29,6 @@ class ScenarioManager(object):
         self.other_actors = None
         self.scenario_list = None
         self.triggered_scenario = None
-        self.logger = logger
-        self._reset()
-
-    def _reset(self):
         self._running = False
         self._timestamp_last_run = 0.0
         self.running_record = []
@@ -65,7 +58,7 @@ class ScenarioManager(object):
     def _init_scenarios(self):
         # spawn background actors
         self.scenario_class.initialize_actors()
-        # spawn actors for each scenario
+        # spawn actors for each scenario along this route
         for i in range(len(self.scenario_list)):
             self.scenario_list[i].initialize_actors()
             self.scenario_class.other_actors += self.scenario_list[i].other_actors
@@ -105,14 +98,9 @@ class ScenarioManager(object):
             self.update_running_status()
 
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
-        # try:
+        # TODO: move to OD scenario
         bbox_pred = ego_action['od_result']
         self.scenario_class.get_bbox(world_2_camera, image_w, image_h, fov)
         bbox_label = self.scenario_class.ground_truth_bbox
         self.scenario_class.eval(bbox_pred, bbox_label)
         self.scenario_class.save_img_label(obs, bbox_label)
-        # print(bbox_pred, bbox_label)
-        print('evaluate finished') # TODO
-        # except:
-        #     print('evaluate errors!')
-        #     pass

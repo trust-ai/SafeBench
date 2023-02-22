@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-15 14:10:21
+LastEditTime: 2023-02-21 19:15:32
 Description: 
 '''
 
@@ -16,7 +16,13 @@ import xml.etree.ElementTree as ET
 
 from safebench.scenario.srunner.scenario_manager.timer import GameTime
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.srunner.scenario_manager.scenarioatomics.atomic_criteria import (
+
+from safebench.scenario.srunner.scenario_configs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
+from safebench.scenario.srunner.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
+from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
+
+from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
+from safebench.scenario.srunner.scenarios.scenario_atomics.atomic_criteria import (
     Status,
     CollisionTest,
     DrivenDistanceTest,
@@ -29,12 +35,6 @@ from safebench.scenario.srunner.scenario_manager.scenarioatomics.atomic_criteria
     RunningStopTest,
     ActorSpeedAboveThresholdTest
 )
-
-from safebench.scenario.srunner.scenarioconfigs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
-from safebench.scenario.srunner.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
-from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
-
-from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
 
 # standard
 from safebench.scenario.srunner.scenarios.standard.object_crash_vehicle_dynamic import DynamicObjectCrossing
@@ -290,7 +290,7 @@ class RouteScenario(BasicScenario):
         if len_trajectory == 0:
             len_spawn_points = len(self.vehicle_spawn_points)
             idx = random.choice(list(range(len_spawn_points)))
-            print('choosing spawn point {} from {} points'.format(idx, len_spawn_points))
+            print('>> Choosing spawn point {} from {} points'.format(idx, len_spawn_points))
             random_transform = self.vehicle_spawn_points[idx]
             gps_route, route = interpolate_trajectory(world, [random_transform])
         else:

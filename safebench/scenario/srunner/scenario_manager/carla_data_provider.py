@@ -29,7 +29,7 @@ def calculate_velocity(actor):
     return math.sqrt(velocity_squared)
 
 
-class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
+class CarlaDataProvider(object): 
 
     """
     This class provides access to various data of all registered actors
@@ -68,20 +68,17 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         If actor already exists, throw an exception
         """
         if actor in CarlaDataProvider._actor_velocity_map:
-            raise KeyError(
-                "Vehicle '{}' already registered. Cannot register twice!".format(actor.id))
+            raise KeyError("Vehicle '{}' already registered. Cannot register twice!".format(actor.id))
         else:
             CarlaDataProvider._actor_velocity_map[actor] = 0.0
 
         if actor in CarlaDataProvider._actor_location_map:
-            raise KeyError(
-                "Vehicle '{}' already registered. Cannot register twice!".format(actor.id))
+            raise KeyError("Vehicle '{}' already registered. Cannot register twice!".format(actor.id))
         else:
             CarlaDataProvider._actor_location_map[actor] = None
 
         if actor in CarlaDataProvider._actor_transform_map:
-            raise KeyError(
-                "Vehicle '{}' already registered. Cannot register twice!".format(actor.id))
+            raise KeyError("Vehicle '{}' already registered. Cannot register twice!".format(actor.id))
         else:
             CarlaDataProvider._actor_transform_map[actor] = None
 
@@ -339,11 +336,13 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
                 prev_green_time = light.get_green_time()
                 prev_red_time = light.get_red_time()
                 prev_yellow_time = light.get_yellow_time()
-                reset_params.append({'light': light,
-                                     'state': prev_state,
-                                     'green_time': prev_green_time,
-                                     'red_time': prev_red_time,
-                                     'yellow_time': prev_yellow_time})
+                reset_params.append({
+                    'light': light, 
+                    'state': prev_state, 
+                    'green_time': prev_green_time, 
+                    'red_time': prev_red_time, 
+                    'yellow_time': prev_yellow_time
+                })
 
                 light.set_state(states[state])
                 if freeze:
@@ -533,9 +532,11 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         return actors
 
     @staticmethod
-    def request_new_actor(model, spawn_point, rolename='scenario', autopilot=False,
-                          random_location=False, color=None, actor_category="car",
-                          safe_blueprint=False, tick=True):
+    def request_new_actor(
+        model, spawn_point, rolename='scenario', autopilot=False,
+        random_location=False, color=None, actor_category="car",
+        safe_blueprint=False, tick=True
+    ):
         """
         This method tries to create a new actor, returning it if successful (None otherwise).
         """
@@ -546,7 +547,6 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
             while not actor:
                 spawn_point = CarlaDataProvider._rng.choice(CarlaDataProvider._spawn_points)
                 actor = CarlaDataProvider._world.try_spawn_actor(blueprint, spawn_point)
-
         else:
             # slightly lift the actor to avoid collisions with ground when spawning the actor
             # DO NOT USE spawn_point directly, as this will modify spawn_point permanently
@@ -589,19 +589,16 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         - actor_list: list of ActorConfigurationData
         """
 
-        SpawnActor = carla.command.SpawnActor                      # pylint: disable=invalid-name
-        PhysicsCommand = carla.command.SetSimulatePhysics          # pylint: disable=invalid-name
-        FutureActor = carla.command.FutureActor                    # pylint: disable=invalid-name
-        ApplyTransform = carla.command.ApplyTransform              # pylint: disable=invalid-name
-        SetAutopilot = carla.command.SetAutopilot                  # pylint: disable=invalid-name
-        SetVehicleLightState = carla.command.SetVehicleLightState  # pylint: disable=invalid-name
+        SpawnActor = carla.command.SpawnActor                     
+        PhysicsCommand = carla.command.SetSimulatePhysics         
+        FutureActor = carla.command.FutureActor                   
+        ApplyTransform = carla.command.ApplyTransform              
+        SetAutopilot = carla.command.SetAutopilot                 
+        SetVehicleLightState = carla.command.SetVehicleLightState  
 
         batch = []
-
         CarlaDataProvider.generate_spawn_points()
-
         for actor in actor_list:
-
             # Get the blueprint
             blueprint = CarlaDataProvider.create_blueprint(
                 actor.model, actor.rolename, actor.color, actor.category, safe_blueprint)
@@ -613,7 +610,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
                     print("No more spawn points to use")
                     break
                 else:
-                    _spawn_point = CarlaDataProvider._spawn_points[CarlaDataProvider._spawn_index]  # pylint: disable=unsubscriptable-object
+                    _spawn_point = CarlaDataProvider._spawn_points[CarlaDataProvider._spawn_index]  
                     CarlaDataProvider._spawn_index += 1
 
             else:
@@ -693,9 +690,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
                     break
 
             if spawn_point:
-                batch.append(SpawnActor(blueprint, spawn_point).then(
-                    SetAutopilot(FutureActor, autopilot,
-                                 CarlaDataProvider._traffic_manager_port)))
+                batch.append(SpawnActor(blueprint, spawn_point).then(SetAutopilot(FutureActor, autopilot, CarlaDataProvider._traffic_manager_port)))
 
         actors = CarlaDataProvider.handle_actor_batch(batch, tick)
         for actor in actors:

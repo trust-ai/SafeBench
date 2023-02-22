@@ -26,7 +26,7 @@ def discount_cumsum(x, discount):
     return scipy.signal.lfilter([1], [1, float(-discount)], x[::-1], axis=0)[::-1]
 
 
-def seed_torch(seed=1029):
+def set_seed(seed=1029):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
@@ -38,7 +38,7 @@ def seed_torch(seed=1029):
     torch.backends.cudnn.deterministic = True
 
 
-def set_torch_variable_env(device):
+def set_torch_variable(device):
     device = device.lower()
     use_cpu = device == 'cpu'
     use_gpu = device.split(':')[0] == 'cuda'
@@ -50,9 +50,6 @@ def set_torch_variable_env(device):
 
 
 def get_torch_device():
-    '''
-    Return the torch.device class based on environment variable 'MODEL_DEVICE'.
-    '''
     device_name = os.environ.get("MODEL_DEVICE")
     try:
         return torch.device(device_name)
@@ -61,9 +58,6 @@ def get_torch_device():
 
 
 def get_device_name():
-    '''
-    Return the environment variable 'MODEL_DEVICE'
-    '''
     return os.environ.get("MODEL_DEVICE")
 
 
@@ -75,18 +69,6 @@ def to_tensor(
         transform_scalar: bool = True,
         squeeze=False
     ) -> torch.Tensor:
-    r"""
-    Overview:
-        Change `numpy.ndarray`, sequence of scalars to torch.Tensor, and keep other data types unchanged.
-    Arguments:
-        - item (:obj:`Any`): the item to be changed
-        - dtype (:obj:`type`): the type of wanted tensor
-    Returns:
-        - item (:obj:`torch.Tensor`): the change tensor
-    .. note:
-
-        Now supports item type: :obj:`dict`, :obj:`list`, :obj:`tuple` and :obj:`None`
-    """
     device = get_torch_device() if device is None else device
 
     def squeeze_tensor(d):
@@ -101,53 +83,30 @@ def to_tensor(
             if k in ignore_keys:
                 new_data[k] = v
             else:
-                new_data[k] = to_tensor(v,
-                                        dtype,
-                                        device,
-                                        ignore_keys,
-                                        transform_scalar,
-                                        squeeze=squeeze)
+                new_data[k] = to_tensor(v, dtype, device, ignore_keys, transform_scalar, squeeze=squeeze)
         return new_data
-
     elif isinstance(item, list) or isinstance(item, tuple):
         if len(item) == 0:
             return None
         return squeeze_tensor(item)
-
     elif isinstance(item, np.ndarray):
         return squeeze_tensor(item)
-
     elif isinstance(item, bool) or isinstance(item, str):
         return item
-
     elif np.isscalar(item):
         if transform_scalar:
             return torch.as_tensor(item, device=device).to(dtype)
         else:
             return item
-
     elif item is None:
         return None
-
     elif isinstance(item, torch.Tensor):
         return item.to(dtype)
     else:
         raise TypeError("not support item type: {}".format(type(item)))
 
 
-def to_ndarray(item: Any, dtype: np.dtype = None) -> np.ndarray:
-    r"""
-    Overview:
-        Change `torch.Tensor`, sequence of scalars to ndarray, and keep other data types unchanged.
-    Arguments:
-        - item (:obj:`object`): the item to be changed
-        - dtype (:obj:`type`): the type of wanted ndarray
-    Returns:
-        - item (:obj:`object`): the changed ndarray
-    .. note:
-
-        Now supports item type: :obj:`torch.Tensor`,  :obj:`dict`, :obj:`list`, :obj:`tuple` and :obj:`None`
-    """
+def to_ndarray(item: Any, dtype: np.dtype=None) -> np.ndarray:
     def transform(d):
         if dtype is None:
             return np.array(d)
@@ -191,22 +150,7 @@ def to_ndarray(item: Any, dtype: np.dtype = None) -> np.ndarray:
         raise TypeError("not support item type: {}".format(type(item)))
 
 
-def to_device(item: Any, device: str = None, ignore_keys: list = []) -> Any:
-    r"""
-    Overview:
-        Transfer data to certain device
-    Arguments:
-        - item (:obj:`Any`): the item to be transferred
-        - device (:obj:`str`): the device wanted, could be get_torch_device()
-        - ignore_keys (:obj:`list`): the keys to be ignored in transfer, defalut set to empty
-    Returns:
-        - item (:obj:`Any`): the transferred item
-    .. note:
-
-        Now supports item type: :obj:`torch.nn.Module`, :obj:`torch.Tensor`, \
-            :obj:`dict`, :obj:`np.ndarray`, :obj:`str` and :obj:`None`.
-
-    """
+def to_device(item: Any, device: str=None, ignore_keys: list = []) -> Any:
     if device is None:
         device = get_device_name()
     if isinstance(item, torch.nn.Module):
@@ -234,18 +178,6 @@ def to_device(item: Any, device: str = None, ignore_keys: list = []) -> Any:
 
 
 def to_dtype(item: Any, dtype: type) -> Any:
-    r"""
-    Overview:
-        Change data to certain dtype
-    Arguments:
-        - item (:obj:`Any`): the item to be dtype changed
-        - dtype (:obj:`type`): the type wanted
-    Returns:
-        - item (:obj:`object`): the dtype changed item
-    .. note:
-
-        Now supports item type: :obj:`torch.Tensor`, :obj:`dict`
-    """
     if isinstance(item, torch.Tensor):
         return item.to(dtype=dtype)
     elif isinstance(item, dict):

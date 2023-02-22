@@ -5,14 +5,10 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""
-This module provides the key configuration parameters for a route-based scenario
-"""
-
 import carla
-from agents.navigation.local_planner import RoadOption
 
-from safebench.scenario.srunner.scenarioconfigs.scenario_configuration import ScenarioConfiguration
+from agents.navigation.local_planner import RoadOption
+from safebench.scenario.srunner.scenario_configs.scenario_configuration import ScenarioConfiguration
 
 
 class RouteConfiguration(object):
@@ -41,11 +37,9 @@ class RouteConfiguration(object):
 
 
 class RouteScenarioConfiguration(ScenarioConfiguration):
-
     """
     Basic configuration of a RouteScenario
     """
-
     trajectory = None
     scenario_file = None
     scenario_config = None
