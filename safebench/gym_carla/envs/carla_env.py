@@ -130,7 +130,7 @@ class CarlaEnv(gym.Env):
             self.lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
             self.lidar_bp.set_attribute('channels', '16')
             self.lidar_bp.set_attribute('range', '1000')
-
+        
         # camera sensor
         self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8) # TODO: Haohong
         self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
