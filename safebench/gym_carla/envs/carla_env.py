@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-21 19:50:35
+LastEditTime: 2023-02-21 19:59:51
 Description: 
 '''
 
@@ -61,9 +61,8 @@ class CarlaEnv(gym.Env):
         self.lidar_data = None
         self.lidar_height = 2.1
         
-        # for scenario runner
-        self.scenario = None
-        self.scenario_manager = None
+        # scenario manager
+        self.scenario_manager = ScenarioManager(self.logger)
 
         # for birdeye view and front view visualization
         self.display_size = env_params['display_size']
@@ -140,7 +139,7 @@ class CarlaEnv(gym.Env):
     def _create_scenario(self, config, env_id):
         # create scenario accoridng to different types
         if self.scenario_type in ['od']:
-            self.scenario = ObjectDetectionScenario(
+            scenario = ObjectDetectionScenario(
                 world=self.world, 
                 config=config, 
                 ROOT_DIR=self.ROOT_DIR, 
@@ -149,7 +148,7 @@ class CarlaEnv(gym.Env):
                 first_env=self.first_env
             )
         elif self.scenario_type in ['dev', 'standard', 'benign']:
-            self.scenario = RouteScenario(
+            scenario = RouteScenario(
                 world=self.world, 
                 config=config, 
                 ego_id=env_id, 
@@ -159,10 +158,9 @@ class CarlaEnv(gym.Env):
         else:
             raise NotImplementedError(f'{self.scenario_type} scenario is not implemented.')
 
-        # init scenario and manager
-        self.ego = self.scenario.ego_vehicles[0]
-        self.scenario_manager = ScenarioManager(self.logger)
-        self.scenario_manager.load_scenario(self.scenario)
+        # init scenario
+        self.ego = scenario.ego_vehicles[0]
+        self.scenario_manager.load_scenario(scenario)
         self.scenario_manager.run_scenario()
 
     def reset(self, config, env_id, scenario_type):
