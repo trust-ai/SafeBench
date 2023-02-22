@@ -1,7 +1,7 @@
 type_dir: 'safebench/scenario/config/scenario_type_old_map'
 type_name: 'dev.json'
 route_dir: 'safebench/scenario/scenario_data/route'
-method: 'advibm'
+method: 'advfm'
 scenario_id: 5
 route_id: null
 
