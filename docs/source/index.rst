@@ -27,6 +27,6 @@ Documentation of Safebench
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Functions
+   :caption: Functions and API
 
    main_files
