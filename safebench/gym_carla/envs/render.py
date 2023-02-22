@@ -495,9 +495,10 @@ class BirdeyeRender(object):
             color = pygame.Color(0,0,255) # blue
         corners = []
         for p in waypoints:
-            corners.append(carla.Location(x=p[0],y=p[1]))
+            corners.append(carla.Location(x=p[0], y=p[1]))
         corners = [world_to_pixel(p) for p in corners]
-        pygame.draw.lines(surface, color, False, corners, 20)
+        route_width = 10
+        pygame.draw.lines(surface, color, False, corners, route_width)
 
     def render_actors(self, surface, vehicles, walkers):
         self._render_hist_actors(surface, vehicles, 'vehicle', self.map_image.world_to_pixel, 10)

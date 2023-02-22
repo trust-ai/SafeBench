@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 23:49:59
+LastEditTime: 2023-02-21 18:20:42
 Description: 
 '''
 
@@ -12,7 +12,7 @@ import os.path as osp
 import torch 
 
 from safebench.util.run_util import load_config
-from safebench.util.torch_util import seed_torch, set_torch_variable_env
+from safebench.util.torch_util import set_seed, set_torch_variable
 from safebench.carla_runner import CarlaRunner
 
 
@@ -41,9 +41,9 @@ if __name__ == '__main__':
     args_dict = vars(args)
 
     # set global parameters
-    set_torch_variable_env(args.device)
+    set_torch_variable(args.device)
     torch.set_num_threads(args.threads)
-    seed_torch(args.seed)
+    set_seed(args.seed)
 
     # load agent config
     agent_config_path = osp.join(args.ROOT_DIR, 'safebench/agent/config', args.agent_cfg)

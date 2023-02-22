@@ -2,12 +2,13 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 23:49:25
+LastEditTime: 2023-02-21 19:50:35
 Description: 
 '''
 
 import copy
 import random
+import time
 
 import numpy as np
 import pygame
@@ -22,8 +23,6 @@ from safebench.gym_carla.envs.misc import (
     rgb_to_display_surface, 
     get_lane_dis, 
     get_pos, 
-    get_info,
-    get_local_pose,
     get_preview_lane_dis,
     get_pixels_inside_vehicle,
     get_pixel_info,
@@ -92,7 +91,7 @@ class CarlaEnv(gym.Env):
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'lidar': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'birdeye': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
-                'state': spaces.Box(np.array([-2, -1, -5, 0]), np.array([2, 1, 30, 1]), dtype=np.float32)
+                'state': spaces.Box(np.array([-2, -1, -5, 0], dtype=np.float32), np.array([2, 1, 30, 1], dtype=np.float32), dtype=np.float32)
             }
         elif self.scenario_type in ['od']:
             self.obs_size = env_params['image_sz']
@@ -113,12 +112,8 @@ class CarlaEnv(gym.Env):
         if self.discrete:
             self.action_space = spaces.Discrete(self.n_acc * self.n_steer)
         else:
-            # TODO: we assume the output of NN is -1 to 1
-            self.action_space = spaces.Box(
-                np.array([env_params['continuous_accel_range'][0], env_params['continuous_steer_range'][0]]),
-                np.array([env_params['continuous_accel_range'][1], env_params['continuous_steer_range'][1]]),
-                dtype=np.float32
-            )  # acc, steer
+            # assume the output of NN is from -1 to 1
+            self.action_space = spaces.Box(np.array([-1, -1], dtype=np.float32), np.array([1, 1], dtype=np.float32), dtype=np.float32)  # acc, steer
 
     def _create_sensors(self):
         # collision sensor
@@ -222,11 +217,6 @@ class CarlaEnv(gym.Env):
         def get_camera_img(data):            
             array = np.frombuffer(data.raw_data, dtype=np.dtype("uint8"))
             array = np.reshape(array, (data.height, data.width, 4))
-            # array = debug_bbox(array, self.obs_size, 
-            #         fov=self.camera_bp.get_attribute('fov').as_float(),
-            #         camera_sensor=self.camera_sensor, 
-            #         world=self.world, 
-            #         ego=self.ego)
             array = array[:, :, :3]
             array = array[:, :, ::-1]
             self.camera_img = array
@@ -398,6 +388,25 @@ class CarlaEnv(gym.Env):
         return actor_trajectory_dict, actor_acceleration_dict, actor_angular_velocity_dict, actor_velocity_dict
 
     def _get_obs(self):
+        # State observation
+        ego_trans = self.ego.get_transform()
+        ego_x = ego_trans.location.x
+        ego_y = ego_trans.location.y
+        ego_yaw = ego_trans.rotation.yaw / 180 * np.pi
+        lateral_dis, w = get_preview_lane_dis(self.waypoints, ego_x, ego_y)
+        yaw = np.array([np.cos(ego_yaw), np.sin(ego_yaw)])
+        delta_yaw = np.arcsin(np.cross(w, yaw))
+
+        v = self.ego.get_velocity()
+        speed = np.sqrt(v.x**2 + v.y**2)
+        acc = self.ego.get_acceleration()
+        acceleration = np.sqrt(acc.x**2 + acc.y**2)
+        state = np.array([lateral_dis, -delta_yaw, speed, self.vehicle_front])
+
+        #forward_vector = self.ego.get_transform().get_forward_vector()
+        #node_forward = self.current_waypoint.transform.get_forward_vector()
+        #target_forward = self.target_waypoint.transform.get_forward_vector()
+
         if self.scenario_type != 'od': # dev, benign, standard
             """ Get the observations. """
             # set ego information for birdeye_render
@@ -465,25 +474,6 @@ class CarlaEnv(gym.Env):
             # show image on window (move outside of env)
             #pygame.display.flip()
 
-            # State observation
-            ego_trans = self.ego.get_transform()
-            ego_x = ego_trans.location.x
-            ego_y = ego_trans.location.y
-            ego_yaw = ego_trans.rotation.yaw / 180 * np.pi
-            lateral_dis, w = get_preview_lane_dis(self.waypoints, ego_x, ego_y)
-            yaw = np.array([np.cos(ego_yaw), np.sin(ego_yaw)])
-            delta_yaw = np.arcsin(np.cross(w, yaw))
-
-            v = self.ego.get_velocity()
-            speed = np.sqrt(v.x**2 + v.y**2)
-            acc = self.ego.get_acceleration()
-            acceleration = np.sqrt(acc.x**2 + acc.y**2)
-            state = np.array([lateral_dis, -delta_yaw, speed, self.vehicle_front])
-
-            #forward_vector = self.ego.get_transform().get_forward_vector()
-            #node_forward = self.current_waypoint.transform.get_forward_vector()
-            #target_forward = self.target_waypoint.transform.get_forward_vector()
-
             obs = {
                 'camera': camera.astype(np.uint8),
                 'lidar': None if self.disable_lidar else lidar.astype(np.uint8),
@@ -500,7 +490,6 @@ class CarlaEnv(gym.Env):
             }
         else:
             """ Get the observations for object detection. """
-
             # display camera image
             camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
             camera_surface = rgb_to_display_surface(camera, self.display_size)
@@ -508,21 +497,6 @@ class CarlaEnv(gym.Env):
 
             # show image on window
             #pygame.display.flip()
-
-            # State observation
-            ego_trans = self.ego.get_transform()
-            ego_x = ego_trans.location.x
-            ego_y = ego_trans.location.y
-            ego_yaw = ego_trans.rotation.yaw / 180 * np.pi
-            lateral_dis, w = get_preview_lane_dis(self.waypoints, ego_x, ego_y)
-            yaw = np.array([np.cos(ego_yaw), np.sin(ego_yaw)])
-            delta_yaw = np.arcsin(np.cross(w, yaw))
-
-            v = self.ego.get_velocity()
-            speed = np.sqrt(v.x**2 + v.y**2)
-            acc = self.ego.get_acceleration()
-            acceleration = np.sqrt(acc.x**2 + acc.y**2)
-            state = np.array([lateral_dis, -delta_yaw, speed, self.vehicle_front])
 
             obs = {
                 'camera': camera.astype(np.uint8),

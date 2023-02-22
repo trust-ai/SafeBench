@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-14 12:07:32
+LastEditTime: 2023-02-21 18:30:40
 Description: 
 '''
 
@@ -15,13 +15,6 @@ class ScenarioManager(object):
     """
         Dynamic version scenario manager class. This class holds all functionality
         required to initialize, trigger, update and stop a scenario.
-
-        The user must not modify this class.
-            To use the ScenarioManager:
-            1. Create an object via manager = ScenarioManager()
-            2. Load a scenario via manager.load_scenario()
-            4. Trigger a result evaluation with manager.analyze_scenario()
-            5. If needed, cleanup with manager.stop_scenario()
     """
 
     def __init__(self, logger):
@@ -111,8 +104,4 @@ class ScenarioManager(object):
         bbox_label = self.scenario_class.ground_truth_bbox
         self.scenario_class.eval(bbox_pred, bbox_label)
         self.scenario_class.save_img_label(obs, bbox_label)
-        # print(bbox_pred, bbox_label)
         print('evaluate finished') # TODO
-        # except:
-        #     print('evaluate errors!')
-        #     pass

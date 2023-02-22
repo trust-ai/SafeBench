@@ -3,10 +3,6 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""
-Module used to parse all the route and scenario configuration parameters.
-"""
-
 import json
 import math
 import xml.etree.ElementTree as ET
@@ -18,7 +14,7 @@ import carla
 # from tools.carla_common.transforms import carla_transform_to_ros_pose
 # from scenario_runner.srunner.tools.carla_common.transforms import carla_transform_to_ros_pose
 from agents.navigation.local_planner import RoadOption
-from safebench.scenario.srunner.scenarioconfigs.route_scenario_configuration import RouteScenarioConfiguration
+from safebench.scenario.srunner.scenario_configs.route_scenario_configuration import RouteScenarioConfiguration
 
 # TODO  check this threshold, it could be a bit larger but not so large that we cluster scenarios.
 TRIGGER_THRESHOLD = 2.0  # Threshold to say if a trigger position is new or repeated, works for matching positions
@@ -26,11 +22,9 @@ TRIGGER_ANGLE_THRESHOLD = 10  # Threshold to say if two angles can be considerin
 
 
 class RouteParser(object):
-
     """
     Pure static class used to parse all the route and scenario configuration parameters.
     """
-
     @staticmethod
     def parse_annotations_file(annotation_filename):
         """
@@ -43,7 +37,6 @@ class RouteParser(object):
             annotation_dict = json.loads(f.read())
 
         final_dict = {}
-
         for town_dict in annotation_dict['available_scenarios']:
             final_dict.update(town_dict)
 
@@ -81,19 +74,15 @@ class RouteParser(object):
                     x = float(waypoint.attrib['x'])
                     y = float(waypoint.attrib['y'])
                     z = float(waypoint.attrib['z']) + 2.0  # avoid collision to the ground
-                    initial_pose = carla.Transform(carla.Location(x, y, z),
-                                                   carla.Rotation(roll=roll, pitch=pitch, yaw=yaw))
+                    initial_pose = carla.Transform(carla.Location(x, y, z), carla.Rotation(roll=roll, pitch=pitch, yaw=yaw))
                     new_config.initial_transform = initial_pose
                     # initial_pose = trans.carla_transform_to_ros_pose(initial_pose)
                     # initial_pose = carla_transform_to_ros_pose(initial_pose)
                     new_config.initial_pose = initial_pose
-                waypoint_list.append(carla.Location(x=float(waypoint.attrib['x']),
-                                                    y=float(waypoint.attrib['y']),
-                                                    z=float(waypoint.attrib['z'])))
+                waypoint_list.append(carla.Location(x=float(waypoint.attrib['x']), y=float(waypoint.attrib['y']), z=float(waypoint.attrib['z'])))
 
             new_config.trajectory = waypoint_list
             new_config.initialize_background_actors = True if len(waypoint_list) == 0 else False
-
             list_route_descriptions.append(new_config)
 
         return list_route_descriptions
@@ -107,13 +96,10 @@ class RouteParser(object):
 
         route_weather = route.find("weather")
         if route_weather is None:
-
             weather = carla.WeatherParameters(sun_altitude_angle=70)
-
         else:
             weather = carla.WeatherParameters()
             for weather_attrib in route.iter("weather"):
-
                 if 'cloudiness' in weather_attrib.attrib:
                     weather.cloudiness = float(weather_attrib.attrib['cloudiness'])
                 if 'precipitation' in weather_attrib.attrib:
@@ -151,8 +137,7 @@ class RouteParser(object):
             distance = math.sqrt(dx * dx + dy * dy)
 
             dyaw = (trigger['yaw'] - new_trigger['yaw']) % 360
-            if distance < TRIGGER_THRESHOLD \
-                    and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD)):
+            if distance < TRIGGER_THRESHOLD and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD)):
                 return trigger_id
 
         return None
@@ -185,8 +170,7 @@ class RouteParser(object):
 
             dyaw = (float(waypoint1['yaw']) - wtransform.rotation.yaw) % 360
             # print(">>>>>>>>>>", dpos, dyaw, float(waypoint1['yaw']), wtransform.rotation.yaw)
-            return dpos < TRIGGER_THRESHOLD \
-                and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD))
+            return dpos < TRIGGER_THRESHOLD and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD))
 
         match_position = 0
         # TODO this function can be optimized to run on Log(N) time
@@ -321,21 +305,17 @@ class RouteParser(object):
                     match_position = RouteParser.match_world_location_to_route(
                         waypoint, trajectory)
                     if match_position is not None:
-
                         matched_triggers.append([waypoint['x'], waypoint['y'], waypoint['z']])
 
                         # We match a location for this scenario, create a scenario object so this scenario
                         # can be instantiated later
-
                         if 'other_actors' in event:
                             other_vehicles = event['other_actors']
                         else:
                             other_vehicles = None
-                        scenario_subtype = RouteParser.get_scenario_type(scenario_name, match_position,
-                                                                         trajectory)
+                        scenario_subtype = RouteParser.get_scenario_type(scenario_name, match_position, trajectory)
 
                         # TODO: check trigger location
-
                         if scenario_subtype is None:
                             continue
                         scenario_description = {
@@ -354,7 +334,6 @@ class RouteParser(object):
                             trigger_id = latest_trigger_id
                             # Increment the latest trigger
                             latest_trigger_id += 1
-
                         possible_scenarios[trigger_id].append(scenario_description)
 
         return possible_scenarios, existent_triggers, triggers, matched_triggers

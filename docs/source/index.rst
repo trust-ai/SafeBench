@@ -19,7 +19,7 @@ Documentation of Safebench
 
 .. toctree::
    :maxdepth: 2
-   :caption: Challenge Submission
+   :caption: Submission Guidance
 
    self_defined_agent
    self_defined_scenario
