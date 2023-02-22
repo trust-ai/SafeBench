@@ -97,9 +97,13 @@ You can use the TurboVNC client on your local machine to connect to the virtual 
 ```
 # Use the built-in SSH client of TurboVNC Viewer
 /opt/TurboVNC/bin/vncviewer -via user@host localhost:n
+```
 
-# Or manually forward connections to the remote server
+Or you can manually forward connections to the remote server by
+```
+# run on server
 ssh -L fp:localhost:5900+n user@host
+# run on local machine
 /opt/TurboVNC/bin/vncviewer localhost::fp
 ```
 where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
