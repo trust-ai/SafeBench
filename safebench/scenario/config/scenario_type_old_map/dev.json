@@ -4426,5 +4426,845 @@
         "route_id": 9,
         "risk_level": 2,
         "parameters": "safebench/scenario/scenario_data/models/advtraj/8/1.json"
+    },
+    {
+        "data_id": 91,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 1,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 92,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 2,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 93,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 2,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 94,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 3,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 95,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 3,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 96,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 4,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 97,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 4,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 98,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 5,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 99,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 6,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 100,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 6,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 101,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 7,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 102,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 7,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 103,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 8,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 104,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 8,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 105,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 9,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/0.json"
+    },
+    {
+        "data_id": 106,
+        "method": "advmaddpg",
+        "scenario_id": 1,
+        "route_id": 9,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/1/1.json"
+    },
+    {
+        "data_id": 107,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 0,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/1.json"
+    },
+    {
+        "data_id": 108,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 1,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/1.json"
+    },
+    {
+        "data_id": 109,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 2,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/1.json"
+    },
+    {
+        "data_id": 110,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 3,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/0.json"
+    },
+    {
+        "data_id": 111,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 3,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/1.json"
+    },
+    {
+        "data_id": 112,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 7,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/1.json"
+    },
+    {
+        "data_id": 113,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 8,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/0.json"
+    },
+    {
+        "data_id": 114,
+        "method": "advmaddpg",
+        "scenario_id": 2,
+        "route_id": 9,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/2/1.json"
+    },
+    {
+        "data_id": 115,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 0,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 116,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 0,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 117,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 1,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 118,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 1,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 119,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 2,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 120,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 2,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 121,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 3,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 122,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 3,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 123,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 4,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 124,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 4,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 125,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 5,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 126,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 5,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 127,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 6,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 128,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 6,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 129,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 7,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 130,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 7,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 131,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 8,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 132,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 8,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 133,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 9,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/0.json"
+    },
+    {
+        "data_id": 134,
+        "method": "advmaddpg",
+        "scenario_id": 3,
+        "route_id": 9,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/3/1.json"
+    },
+    {
+        "data_id": 135,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 0,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 136,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 0,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 137,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 1,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 138,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 1,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 139,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 2,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 140,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 2,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 141,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 3,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 142,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 3,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 143,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 4,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 144,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 4,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 145,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 5,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 146,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 5,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 147,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 6,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 148,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 6,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 149,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 7,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 150,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 7,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 151,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 8,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 152,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 8,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 153,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 9,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/0.json"
+    },
+    {
+        "data_id": 154,
+        "method": "advmaddpg",
+        "scenario_id": 4,
+        "route_id": 9,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/4/1.json"
+    },
+    {
+        "data_id": 155,
+        "method": "advmaddpg",
+        "scenario_id": 5,
+        "route_id": 2,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/5/0.json"
+    },
+    {
+        "data_id": 156,
+        "method": "advmaddpg",
+        "scenario_id": 5,
+        "route_id": 6,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/5/0.json"
+    },
+    {
+        "data_id": 157,
+        "method": "advmaddpg",
+        "scenario_id": 5,
+        "route_id": 6,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/5/1.json"
+    },
+    {
+        "data_id": 158,
+        "method": "advmaddpg",
+        "scenario_id": 5,
+        "route_id": 7,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/5/0.json"
+    },
+    {
+        "data_id": 159,
+        "method": "advmaddpg",
+        "scenario_id": 5,
+        "route_id": 9,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/5/0.json"
+    },
+    {
+        "data_id": 160,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 0,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 161,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 1,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/0.json"
+    },
+    {
+        "data_id": 162,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 1,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 163,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 2,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 164,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 3,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/0.json"
+    },
+    {
+        "data_id": 165,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 3,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 166,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 4,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/0.json"
+    },
+    {
+        "data_id": 167,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 4,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 168,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 6,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/0.json"
+    },
+    {
+        "data_id": 169,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 6,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 170,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 7,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/0.json"
+    },
+    {
+        "data_id": 171,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 7,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 172,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 8,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/0.json"
+    },
+    {
+        "data_id": 173,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 8,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 174,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 9,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/0.json"
+    },
+    {
+        "data_id": 175,
+        "method": "advmaddpg",
+        "scenario_id": 6,
+        "route_id": 9,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/6/1.json"
+    },
+    {
+        "data_id": 176,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 1,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 177,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 1,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/1.json"
+    },
+    {
+        "data_id": 178,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 2,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 179,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 2,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/1.json"
+    },
+    {
+        "data_id": 180,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 3,
+        "risk_level": 4,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 181,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 3,
+        "risk_level": 3,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/1.json"
+    },
+    {
+        "data_id": 182,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 4,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 183,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 4,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/1.json"
+    },
+    {
+        "data_id": 184,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 5,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 185,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 6,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 186,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 6,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/1.json"
+    },
+    {
+        "data_id": 187,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 7,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 188,
+        "method": "advmaddpg",
+        "scenario_id": 7,
+        "route_id": 9,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/7/0.json"
+    },
+    {
+        "data_id": 189,
+        "method": "advmaddpg",
+        "scenario_id": 8,
+        "route_id": 0,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/8/0.json"
+    },
+    {
+        "data_id": 190,
+        "method": "advmaddpg",
+        "scenario_id": 8,
+        "route_id": 1,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/8/0.json"
+    },
+    {
+        "data_id": 191,
+        "method": "advmaddpg",
+        "scenario_id": 8,
+        "route_id": 1,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/8/1.json"
+    },
+    {
+        "data_id": 192,
+        "method": "advmaddpg",
+        "scenario_id": 8,
+        "route_id": 2,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/8/1.json"
+    },
+    {
+        "data_id": 193,
+        "method": "advmaddpg",
+        "scenario_id": 8,
+        "route_id": 3,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/8/1.json"
+    },
+    {
+        "data_id": 194,
+        "method": "advmaddpg",
+        "scenario_id": 8,
+        "route_id": 8,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/8/1.json"
+    },
+    {
+        "data_id": 195,
+        "method": "advmaddpg",
+        "scenario_id": 8,
+        "route_id": 9,
+        "risk_level": 2,
+        "parameters": "safebench/scenario/scenario_data/models/advmaddpg/8/0.json"
     }
 ]

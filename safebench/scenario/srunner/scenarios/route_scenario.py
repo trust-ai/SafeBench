@@ -96,6 +96,15 @@ from safebench.scenario.srunner.scenarios.advsim.junction_crossing_route import 
 from safebench.scenario.srunner.scenarios.advsim.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advsim
 from safebench.scenario.srunner.scenarios.advsim.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advsim
 
+# AdvMADDGP
+from safebench.scenario.srunner.scenarios.advmaddpg.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advmaddpg
+from safebench.scenario.srunner.scenarios.advmaddpg.object_crash_intersection import VehicleTurningRoute as scenario_04_advmaddpg
+from safebench.scenario.srunner.scenarios.advmaddpg.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advmaddpg
+from safebench.scenario.srunner.scenarios.advmaddpg.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advmaddpg
+from safebench.scenario.srunner.scenarios.advmaddpg.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advmaddpg
+from safebench.scenario.srunner.scenarios.advmaddpg.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advmaddpg
+from safebench.scenario.srunner.scenarios.advmaddpg.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advmaddpg
+from safebench.scenario.srunner.scenarios.advmaddpg.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advmaddpg
 
 SECONDS_GIVEN_PER_METERS = 1
 
@@ -159,6 +168,16 @@ SCENARIO_CLASS_MAPPING = {
         "Scenario8": scenario_08_advsim,
         "Scenario9": scenario_09_advsim,
         "Scenario10": scenario_10_advsim,
+    },
+    'advmaddpg': {
+    "Scenario3": scenario_03_advmaddpg,
+    "Scenario4": scenario_04_advmaddpg,
+    "Scenario5": scenario_05_advmaddpg,
+    "Scenario6": scenario_06_advmaddpg,
+    "Scenario7": scenario_07_advmaddpg,
+    "Scenario8": scenario_08_advmaddpg,
+    "Scenario9": scenario_09_advmaddpg,
+    "Scenario10": scenario_10_advmaddpg,
     },
 }
 
