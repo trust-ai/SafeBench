@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-21 19:20:53
+LastEditTime: 2023-02-22 20:08:41
 Description: 
 '''
 
@@ -65,9 +65,10 @@ class VectorWrapper():
         # return obs
         return self.obs_postprocess(obs_list)
 
-    def step(self, ego_actions, critic_value=None, log_prob=None):
+    def step(self, ego_actions, critic_value=None, log_prob=None, scenario_actions=None):
         """
             ego_actions: [num_alive_scenario, ego_action_dim]
+            scenario_actions: [num_alive_scenario, scenario_action_dim]
         """
         # apply action
         action_idx = 0  # action idx should match the env that is not finished
@@ -75,7 +76,9 @@ class VectorWrapper():
             if not self.finished_env[e_i]:
                 self.replay_buffer.save_current_action(e_i, ego_actions[action_idx])
                 processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
-                self.env_list[e_i].step_before_tick(processed_action)
+                # TODO: pre-process scenario action
+                scenario_action = scenario_actions[action_idx] if scenario_actions else None
+                self.env_list[e_i].step_before_tick(processed_action, scenario_action)
                 action_idx += 1
 
         # tick all scenarios

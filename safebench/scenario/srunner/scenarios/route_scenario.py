@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-21 19:15:32
+LastEditTime: 2023-02-23 13:55:14
 Description: 
 '''
 
@@ -466,22 +466,8 @@ class RouteScenario(BasicScenario):
         Set other_actors to the superset of all scenario actors
         """
         config = self.config
-        # Create the background activity of the route
-        town_amount = {
-            'Town01': 120,
-            'Town02': 100,
-            'Town03': 120,
-            'Town04': 200,
-            'Town05': 120,
-            'Town06': 150,
-            'Town07': 110,
-            'Town08': 180,
-            'Town09': 300,
-            'Town10': 120,
-        }
-
         if config.initialize_background_actors:
-            amount = town_amount[config.town] if config.town in town_amount else 0
+            amount = 10
         else:
             amount = 0
 
@@ -495,12 +481,6 @@ class RouteScenario(BasicScenario):
         # Add all the actors of the specific scenarios to self.other_actors
         for scenario in self.list_scenarios:
             self.other_actors.extend(scenario.other_actors)
-
-    def update_behavior(self):
-        """
-            This route scenario doesn't define updating rules for actors in small scenarios
-        """
-        pass
 
     def get_running_status(self, running_record):
         running_status = {

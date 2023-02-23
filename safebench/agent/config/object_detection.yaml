@@ -1,4 +1,4 @@
-agent_type: 'object_detection'
+policy_type: 'object_detection'
 model_path: ''
 results_folder_path: ''
 obs_type: 3

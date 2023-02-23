@@ -1,4 +1,4 @@
-agent_type: 'rl'
+policy_type: 'rl'
 obs_type: 0
 
 ###################### env configs ######################

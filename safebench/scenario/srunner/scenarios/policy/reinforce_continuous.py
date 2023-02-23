@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-20 20:45:23
+LastEditTime: 2023-02-22 20:20:32
 @Description: 
 '''
 
@@ -177,10 +177,12 @@ class Autoregressive_Policy(nn.Module):
             return mu_a[0][0], mu_b[0][0], mu_c[0][0]
 
 
-class REINFORCE:
+class REINFORCE(object):
     # def __init__(self, lr, gamma, model_id=0, model_path='./model', hd_model=True, standard_action=True):
-    def __init__(self, config):
+    def __init__(self, config, logger):
         assert len(config) == 2  # [load, standard_action]
+
+        self.logger = logger
         self.standard_action = config[1]
         self.model = CUDA(Autoregressive_Policy(self.standard_action))
         self.model.apply(kaiming_init)

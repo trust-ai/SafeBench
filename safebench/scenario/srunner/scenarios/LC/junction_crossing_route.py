@@ -9,11 +9,10 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-20 20:46:12
+LastEditTime: 2023-02-23 14:28:32
 Description: 
 '''
 
-from __future__ import print_function
 import carla
 import numpy as np
 
@@ -95,7 +94,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         y = constraint(actions[0], -1, 1) * y_scale + y_mean
         yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
         dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
-
         return [y, yaw, dist]
 
     def initialize_actors(self):
@@ -104,8 +102,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         """
         config = self.config
         self._other_actor_transform = config.other_actors[0].transform
-        print(self._other_actor_transform)
-        print(self.trigger_distance_threshold)
         forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
         self._other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
@@ -139,7 +135,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
             for i in range(len(self.other_actors)):
                 self.scenario_operation.go_straight(self.actor_speed, i)
 
-    def _create_behavior(self):
+    def create_behavior(self, scenario_init_action):
         pass
 
     def check_stop_condition(self):

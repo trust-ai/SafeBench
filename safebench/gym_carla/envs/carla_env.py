@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-21 19:59:51
+LastEditTime: 2023-02-23 14:26:26
 Description: 
 '''
 
@@ -136,7 +136,7 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-    def _create_scenario(self, config, env_id):
+    def _create_scenario(self, config, env_id, scenario_init_action):
         # create scenario accoridng to different types
         if self.scenario_type in ['od']:
             scenario = ObjectDetectionScenario(
@@ -161,16 +161,16 @@ class CarlaEnv(gym.Env):
         # init scenario
         self.ego = scenario.ego_vehicles[0]
         self.scenario_manager.load_scenario(scenario)
-        self.scenario_manager.run_scenario()
+        self.scenario_manager.run_scenario(scenario_init_action)
 
-    def reset(self, config, env_id, scenario_type):
+    def reset(self, config, env_id, scenario_type, scenario_init_action=None):
         self.scenario_type = scenario_type
         self.logger.log(">> Create sensors for scenario " + str(env_id))
         self._create_sensors()
 
         self.logger.log(">> Loading scenario " + str(env_id) + ' ' + str(scenario_type))
         self.env_id = env_id
-        self._create_scenario(config, env_id)
+        self._create_scenario(config, env_id, scenario_init_action)
 
         # change view point
         #location = carla.Location(x=100, y=100, z=300)
@@ -251,13 +251,13 @@ class CarlaEnv(gym.Env):
         # TODO: load scenario policy model
         pass
 
-    def step_before_tick(self, ego_action):
+    def step_before_tick(self, ego_action, scenario_action):
         if self.world:
             snapshot = self.world.get_snapshot()
             if snapshot:
                 timestamp = snapshot.timestamp
                 # TODO: input an action into the scenario
-                self.scenario_manager.get_update(timestamp)
+                self.scenario_manager.get_update(timestamp, scenario_action)
                 self.is_running = self.scenario_manager._running
                 if isinstance(ego_action, dict):
                     world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())

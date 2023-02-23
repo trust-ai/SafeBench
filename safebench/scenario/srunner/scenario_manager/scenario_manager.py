@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-21 19:59:33
+LastEditTime: 2023-02-23 14:18:18
 Description: 
 '''
 
@@ -23,60 +23,59 @@ class ScenarioManager(object):
 
     def _reset(self):
         self.scenario = None
-        self.scenario_tree = None
-        self.scenario_class = None
+        self.background_scenario = None
         self.ego_vehicles = None
-        self.other_actors = None
         self.scenario_list = None
-        self.triggered_scenario = None
+        self.triggered_scenario = set()
         self._running = False
         self._timestamp_last_run = 0.0
         self.running_record = []
         GameTime.restart()
 
     def cleanup(self):
-        if self.scenario_class is not None:
-            self.scenario_class.__del__()
+        if self.background_scenario is not None:
+            self.background_scenario.__del__()
 
     def load_scenario(self, scenario):
         self._reset()
-        self.scenario_class = scenario
+        self.background_scenario = scenario
         self.scenario = scenario.scenario
-        self.scenario_tree = self.scenario.scenario_tree
         self.ego_vehicles = scenario.ego_vehicles
-        self.other_actors = scenario.other_actors
-
         # all spawned scenarios on route
         self.scenario_list = scenario.list_scenarios
-        # triggered scenario set
-        self.triggered_scenario = set()
 
-    def run_scenario(self):
+    def run_scenario(self, scenario_init_action=None):
         self._running = True
-        self._init_scenarios()
+        self._init_scenarios(scenario_init_action)
 
-    def _init_scenarios(self):
+    def _init_scenarios(self, scenario_init_action):
         # spawn background actors
-        self.scenario_class.initialize_actors()
+        self.background_scenario.initialize_actors()
+
         # spawn actors for each scenario along this route
-        for i in range(len(self.scenario_list)):
-            self.scenario_list[i].initialize_actors()
-            self.scenario_class.other_actors += self.scenario_list[i].other_actors
+        for running_scenario in self.scenario_list:
+            # init actors
+            running_scenario.initialize_actors()
+            # some scenario passes actions when creating behavior
+            running_scenario.create_behavior(scenario_init_action)
+            self.background_scenario.other_actors += running_scenario.other_actors
 
     def stop_scenario(self):
         self._running = False
 
     def update_running_status(self):
-        record, stop = self.scenario_class.get_running_status(self.running_record)
+        record, stop = self.background_scenario.get_running_status(self.running_record)
         self.running_record.append(record)
         if stop:
             self._running = False
 
-    def get_update(self, timestamp):
+    def get_update(self, timestamp, scenario_action):
         if self._timestamp_last_run < timestamp.elapsed_seconds and self._running:
             self._timestamp_last_run = timestamp.elapsed_seconds
             GameTime.on_carla_tick(timestamp)
             CarlaDataProvider.on_carla_tick()
+            
+            # check whether the scenario should be triggered
             for spawned_scenario in self.scenario_list:
                 ego_location = CarlaDataProvider.get_location(self.ego_vehicles[0])
                 cur_distance = None
@@ -91,16 +90,17 @@ class ScenarioManager(object):
                         self.logger.log(">> Trigger scenario: " + spawned_scenario.name)
                         self.triggered_scenario.add(spawned_scenario)
 
-            for running_scenario in self.triggered_scenario.copy(): # why using copy?
-                #TODO: update behavior of agents in scenario
-                running_scenario.update_behavior()
+            # update behavior of triggered scenarios
+            for running_scenario in self.triggered_scenario: 
+                # update behavior of agents in scenario
+                running_scenario.update_behavior(scenario_action)
 
             self.update_running_status()
 
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
         # TODO: move to OD scenario
         bbox_pred = ego_action['od_result']
-        self.scenario_class.get_bbox(world_2_camera, image_w, image_h, fov)
-        bbox_label = self.scenario_class.ground_truth_bbox
-        self.scenario_class.eval(bbox_pred, bbox_label)
-        self.scenario_class.save_img_label(obs, bbox_label)
+        self.background_scenario.get_bbox(world_2_camera, image_w, image_h, fov)
+        bbox_label = self.background_scenario.ground_truth_bbox
+        self.background_scenario.eval(bbox_pred, bbox_label)
+        self.background_scenario.save_img_label(obs, bbox_label)

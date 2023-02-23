@@ -1,4 +1,4 @@
-agent_type: 'dummy'
+policy_type: 'dummy'
 model_path: ''
 results_folder_path: ''
 obs_type: 0

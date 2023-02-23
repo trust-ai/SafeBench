@@ -5,13 +5,14 @@
 # This work is licensed under the terms of the MIT license.
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
-"""
-@Author: Shuai Wang
-@e-mail: ws199807@outlook.com
-All intersection related scenarios that are part of a route.
-"""
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-02-23 13:50:47
+Description: 
+'''
 
-from __future__ import print_function
 import carla
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -29,8 +30,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=180):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=180):
         """
         Setup all relevant parameters and create scenario
         and instantiate scenario manager
@@ -38,7 +38,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
 
         # Timeout of scenario in seconds
         self.timeout = timeout
-
         self.actor_speed = 10
 
         super(OppositeVehicleRunningRedLight, self).__init__(
@@ -76,9 +75,11 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         config = self.config
         self._other_actor_transform = config.other_actors[0].transform
         first_vehicle_transform = carla.Transform(
-            carla.Location(config.other_actors[0].transform.location.x,
-                           config.other_actors[0].transform.location.y,
-                           config.other_actors[0].transform.location.z),
+            carla.Location(
+                config.other_actors[0].transform.location.x,
+                config.other_actors[0].transform.location.y,
+                config.other_actors[0].transform.location.z
+            ),
             config.other_actors[0].transform.rotation)
 
         self.other_actor_transform.append(first_vehicle_transform)
@@ -95,7 +96,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
             traffic_light_other.set_state(carla.TrafficLightState.Red)
             traffic_light_other.set_red_time(self.timeout)
 
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
         cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
         if cur_ego_speed and cur_ego_speed > 0.5:
             self.trigger = True
@@ -107,8 +108,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         """
         small scenario stops when actor runs a specific distance
         """
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]),
-                                                     self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
         if cur_distance >= self._actor_distance:
             return True
         return False
@@ -122,8 +122,7 @@ class SignalizedJunctionLeftTurn(BasicScenario):
     Oncoming actor
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=80):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=80):
         """
             Setup all relevant parameters and create scenario
         """
@@ -136,12 +135,14 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         # self._ego_distance = 110
         self._actor_distance = 100
         self._traffic_light = None
-        super(SignalizedJunctionLeftTurn, self).__init__("TurnLeftAtSignalizedJunctionDynamic",
-                                                         ego_vehicles,
-                                                         config,
-                                                         world,
-                                                         debug_mode,
-                                                         criteria_enable=criteria_enable)
+        super(SignalizedJunctionLeftTurn, self).__init__(
+            "TurnLeftAtSignalizedJunctionDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
         # traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0], True)
         if self._traffic_light is None:
@@ -161,9 +162,11 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         """
         config = self.config
         first_vehicle_transform = carla.Transform(
-            carla.Location(config.other_actors[0].transform.location.x,
-                           config.other_actors[0].transform.location.y,
-                           config.other_actors[0].transform.location.z),
+            carla.Location(
+                config.other_actors[0].transform.location.x,
+                config.other_actors[0].transform.location.y,
+                config.other_actors[0].transform.location.z
+            ),
             config.other_actors[0].transform.rotation)
         self.other_actor_transform.append(first_vehicle_transform)
         # self.actor_type_list.append("vehicle.diamondback.century")
@@ -205,8 +208,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
     Oncoming actor
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=80):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
         """
             Setup all relevant parameters and create scenario
         """
@@ -218,12 +220,14 @@ class SignalizedJunctionRightTurn(BasicScenario):
         # self._ego_distance = 110
         self._actor_distance = 100
         self._traffic_light = None
-        super(SignalizedJunctionRightTurn, self).__init__("TurnRightAtSignalizedJunctionDynamic",
-                                                          ego_vehicles,
-                                                          config,
-                                                          world,
-                                                          debug_mode,
-                                                          criteria_enable=criteria_enable)
+        super(SignalizedJunctionRightTurn, self).__init__(
+            "TurnRightAtSignalizedJunctionDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
         # traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0], True)
         if self._traffic_light is None:
@@ -244,9 +248,11 @@ class SignalizedJunctionRightTurn(BasicScenario):
         """
         config = self.config
         first_vehicle_transform = carla.Transform(
-            carla.Location(config.other_actors[0].transform.location.x,
-                           config.other_actors[0].transform.location.y,
-                           config.other_actors[0].transform.location.z),
+            carla.Location(
+                config.other_actors[0].transform.location.x,
+                config.other_actors[0].transform.location.y,
+                config.other_actors[0].transform.location.z
+            ),
             config.other_actors[0].transform.rotation)
         self.other_actor_transform.append(first_vehicle_transform)
         self.actor_type_list.append("vehicle.audi.tt")
@@ -284,12 +290,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
 
 
 class NoSignalJunctionCrossingRoute(BasicScenario):
-    """
-
-    """
-
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
@@ -298,12 +299,14 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
 
         self.actor_speed = 10
 
-        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossing",
-                                                            ego_vehicles,
-                                                            config,
-                                                            world,
-                                                            debug_mode,
-                                                            criteria_enable=criteria_enable)
+        super(NoSignalJunctionCrossingRoute, self).__init__(
+            "NoSignalJunctionCrossing",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable
+        )
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
         self.trigger_distance_threshold = 35
@@ -316,15 +319,16 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
         config = self.config
         self._other_actor_transform = config.other_actors[0].transform
         first_vehicle_transform = carla.Transform(
-            carla.Location(config.other_actors[0].transform.location.x,
-                           config.other_actors[0].transform.location.y,
-                           config.other_actors[0].transform.location.z),
+            carla.Location(
+                config.other_actors[0].transform.location.x,
+                config.other_actors[0].transform.location.y,
+                config.other_actors[0].transform.location.z
+            ),
             config.other_actors[0].transform.rotation)
 
         self.other_actor_transform.append(first_vehicle_transform)
         self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
 
     def update_behavior(self):
@@ -342,8 +346,7 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
         """
         small scenario stops when actor runs a specific distance
         """
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]),
-                                                     self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
         if cur_distance >= self._actor_distance:
             return True
         return False

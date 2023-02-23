@@ -90,7 +90,6 @@ def is_lane_a_parking(waypoint):
             # Followed by a Sidewalk
             if wp_next_next is not None and wp_next_next.lane_type == carla.LaneType.Sidewalk:
                 return True
-
     return False
 
 
@@ -105,8 +104,7 @@ class VehicleTurningRoute(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
@@ -121,16 +119,17 @@ class VehicleTurningRoute(BasicScenario):
 
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRouteDynamic",
-                                                  ego_vehicles,
-                                                  config,
-                                                  world,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable,
-                                                  terminate_on_failure=True)
+        super(VehicleTurningRoute, self).__init__(
+            "VehicleTurningRouteDynamic",
+            ego_vehicles,
+            config,
+            world,
+            debug_mode,
+            criteria_enable=criteria_enable,
+            terminate_on_failure=True
+        )
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-
         self.actor_type_list.append('vehicle.diamondback.century')
 
         self.reference_actor = None
@@ -153,19 +152,17 @@ class VehicleTurningRoute(BasicScenario):
         added_dist = self._num_lane_changes
 
         _other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
-
         self.other_actor_transform.append(_other_actor_transform)
 
         try:
-            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                              self.actor_type_list)
+            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         except:
             raise SpawnOtherActorError
 
         """Also need to specify reference actor"""
         self.reference_actor = self.other_actors[0]
 
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
         for i in range(len(self.other_actors)):
             self.scenario_operation.go_straight(self._other_actor_target_velocity, i)
 
@@ -173,9 +170,7 @@ class VehicleTurningRoute(BasicScenario):
         """
         This condition is just for small scenarios
         """
-
         return False
-
 
     def _create_behavior(self):
         pass

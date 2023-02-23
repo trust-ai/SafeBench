@@ -5,13 +5,15 @@ import pygame
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
 
+from safebench.agent import AGENT_POLICY_LIST
+from safebench.agent.safe_rl.agent_trainer import AgentTrainer # TODO: move to safebench.agent
+
+from safebench.scenario.scenario_trainer import ScenarioTrainer
+from safebench.scenario import SCENARIO_POLICY_LIST
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.srunner.scenario_manager.scenario_trainer import ScenarioTrainer
 from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
 from safebench.scenario.scenario_data_loader import ScenarioDataLoader
 
-from safebench.agent import AGENT_LIST
-from safebench.agent.safe_rl.agent_trainer import AgentTrainer
 from safebench.util.logger import EpochLogger, setup_logger_kwargs
 from safebench.util.run_util import save_video
 
@@ -72,16 +74,19 @@ class CarlaRunner:
         if self.mode == 'eval':
             self.logger = EpochLogger(eval_mode=True)
         elif self.mode == 'train_scenario':
-            self.logger = EpochLogger(eval_mode=True)
-            self.trainer = ScenarioTrainer()
+            logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
+            self.logger = EpochLogger(**logger_kwargs)
+            self.logger.save_config(scenario_config)
+            self.scenario_trainer = ScenarioTrainer(scenario_config, self.logger)
         elif self.mode == 'train_agent':
             logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
             self.logger = EpochLogger(**logger_kwargs)
             self.logger.save_config(agent_config)
-            self.trainer = AgentTrainer(agent_config, self.logger)
+            self.agent_trainer = AgentTrainer(agent_config, self.logger)
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
-        self.agent = AGENT_LIST[agent_config['agent_type']](agent_config, logger=self.logger)
+        self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
+        self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_type](scenario_config, logger=self.logger)
 
     def _init_world(self, town):
         self.logger.log(">> Initializing carla world")
@@ -138,10 +143,10 @@ class CarlaRunner:
                     break
 
                 # get action from ego agent (assume using one batch)
-                ego_actions = self.agent.get_action(obss)
+                ego_actions = self.agent_policy.get_action(obss)
 
                 # apply action to env and get obs
-                obss, rewards, _, infos = env.step(ego_actions=ego_actions)
+                obss, rewards, _, infos = env.step(ego_actions=ego_actions, scenario_actions=None)
 
                 if self.save_video:
                     one_frame = pygame.surfarray.array3d(self.display)
@@ -184,11 +189,15 @@ class CarlaRunner:
             # prepare data loader
             data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)
 
+            # run with different modes
             if self.mode == 'eval':
                 self.eval(env, data_loader)
-            elif self.mode in ['train_scenario', 'train_agent']:
-                self.trainer.set_environment(env, self.agent, data_loader)
-                self.trainer.train()
+            elif self.mode == 'train_agent':
+                self.agent_trainer.set_environment(env, self.agent_policy, data_loader)
+                self.agent_trainer.train()
+            elif self.mode ==  'train_scenario':
+                self.scenario_trainer.set_environment(env, self.scenario_policy, data_loader)
+                self.scenario_trainer.train()
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 

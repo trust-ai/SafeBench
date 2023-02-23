@@ -24,7 +24,6 @@ from safebench.scenario.srunner.scenarios.LC.reinforce_continuous import REINFOR
 
 
 class DynamicObjectCrossing(BasicScenario):
-
     """
     This class holds everything required for a simple object crash
     without prior vehicle action involving a vehicle and a cyclist/pedestrian,
@@ -58,29 +57,22 @@ class DynamicObjectCrossing(BasicScenario):
 
         self._wmap = CarlaDataProvider.get_map()
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
-        # ego vehicle parameters
-        # self._ego_vehicle_distance_driven = 40
         # other vehicle parameters
         self._other_actor_target_velocity = 2.5
-        # self._other_actor_max_brake = 1.0
-        # self._time_to_reach = 10
         self._adversary_type = adversary_type  # flag to select either pedestrian (False) or cyclist (True)
-        # self._walker_yaw = 0
         self._num_lane_changes = 1
         # Note: transforms for walker and blocker
         self.transform = None
         self.transform2 = None
         self.timeout = timeout
         self._trigger_location = config.trigger_points[0].location
-        # Total Number of attempts to relocate a vehicle before spawning
-        self._number_of_attempts = 20
-        # Number of attempts made so far
-        self._spawn_attempted = 0
+        self._number_of_attempts = 20  # Total Number of attempts to relocate a vehicle before spawning
+        self._spawn_attempted = 0  # Number of attempts made so far
 
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
         super(DynamicObjectCrossing, self).__init__(
-            "DynamicObjectCrossingDynamic",
+            "DynamicObjectCrossing",
             ego_vehicles,
             config,
             world,
@@ -109,7 +101,6 @@ class DynamicObjectCrossing(BasicScenario):
         return [y, yaw, dist]
 
     def _calculate_base_transform(self, _start_distance, waypoint):
-
         lane_width = waypoint.lane_width
 
         # Patches false junctions
