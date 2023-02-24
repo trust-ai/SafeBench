@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-24 15:42:44
+LastEditTime: 2023-02-24 17:27:08
 @Description: 
 '''
 
@@ -170,8 +170,10 @@ class REINFORCE(BasePolicy):
     def __init__(self, scenario_config, logger):
         self.logger = logger
         self.standard_action = scenario_config['standard_action']
+        self.num_scenario = scenario_config['num_scenario']
         self.model = CUDA(AutoregressiveModel(self.standard_action))
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
+        self.num_waypoint = 30
 
     def eval(self):
         self.model.eval()
@@ -179,28 +181,37 @@ class REINFORCE(BasePolicy):
     def train(self):
         self.model.train()
 
-    def proceess_init_state(self):
-        pass
+    def proceess_init_state(self, state):
+        route = state['route']
+        target_speed = state['target_speed']
+
+        index = np.linspace(1, len(route) - 1, self.num_waypoint).tolist()
+        index = [int(i) for i in index]
+        route_norm = normalize_routes(route[index])
+        processed_state = np.concatenate((route_norm, [[target_speed]]), axis=0).astype('float32')
+        return processed_state
 
     def get_action(self, state):
-        return None
+        return [None] * self.num_scenario
 
-    def get_init_action(self, state, deterministic=False):
+    def get_init_action(self, state, deterministic=True):
+        # the state should be a sequence of route waypoints
+        processed_state = self.proceess_init_state(state)
+        processed_state = CUDA(Variable(torch.from_numpy(processed_state)))
+
         if deterministic:
             with torch.no_grad():
-                state = CUDA(Variable(torch.from_numpy(state)))
                 if self.standard_action:
-                    action_a, action_b, action_c, action_d = self.model.deterministic_forward(state)
+                    action_a, action_b, action_c, action_d = self.model.deterministic_forward(processed_state)
                 else:
-                    action_a, action_b, action_c = self.model.deterministic_forward(state)
+                    action_a, action_b, action_c = self.model.deterministic_forward(processed_state)
 
             if self.standard_action:
                 return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy(), action_d.cpu().numpy()]
             else:
                 return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy()]
         else:
-            state = CUDA(Variable(torch.from_numpy(state)))
-            mu_bag, sigma_bag, action_bag = self.model(state)
+            mu_bag, sigma_bag, action_bag = self.model(processed_state)
 
             # calculate the probability that this distribution outputs this action
             prob_a = normal(action_bag[0], mu_bag[0], sigma_bag[0])

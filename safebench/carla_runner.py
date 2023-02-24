@@ -87,6 +87,9 @@ class CarlaRunner:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
         # define agent and scenario
+        self.logger.log('>> Agent policy: ' + agent_config['policy_type'])
+        self.logger.log('>> Scenario policy: ' + self.scenario_type)
+        self.logger.log('---------------------------------')
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_type](scenario_config, logger=self.logger)
 
@@ -136,8 +139,7 @@ class CarlaRunner:
             num_finished_scenario += num_sampled_scenario
             
             # reset envs with init action from scenario policy
-            scenario_init_actions = self.scenario_policy.get_init_action(sampled_scenario_configs)
-            obss = env.reset(sampled_scenario_configs, scenario_init_actions)
+            obss = env.reset(sampled_scenario_configs, self.scenario_policy)
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while True:

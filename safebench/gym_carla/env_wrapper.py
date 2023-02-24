@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 00:51:01
+LastEditTime: 2023-02-24 15:49:21
 Description: 
 '''
 
@@ -42,7 +42,7 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, scenario_configs, scenario_init_actions, scenario_type=None):
+    def reset(self, scenario_configs, scenario_policy, scenario_type=None):
         if scenario_type is None:
             scenario_type = self.scenario_type
         
@@ -53,7 +53,7 @@ class VectorWrapper():
         obs_list = []
         for s_i in range(len(scenario_configs)):
             config = scenario_configs[s_i]
-            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_init_action=scenario_init_actions[s_i], scenario_type=scenario_type)
+            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_policy=scenario_policy, scenario_type=scenario_type)
             obs_list.append(obs)
             self.replay_buffer.save_init_obs(s_i, obs)
 

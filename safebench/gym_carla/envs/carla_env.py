@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 15:29:26
+LastEditTime: 2023-02-24 17:36:37
 Description: 
 '''
 
@@ -126,7 +126,7 @@ class CarlaEnv(gym.Env):
             self.lidar_bp.set_attribute('range', '1000')
         
         # camera sensor
-        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8) # TODO: Haohong
+        self.camera_img = np.zeros((self.obs_size, self.obs_size, 3), dtype=np.uint8) 
         self.camera_trans = carla.Transform(carla.Location(x=0.8, z=1.7))
         self.camera_bp = self.world.get_blueprint_library().find('sensor.camera.rgb')
         # Modify the attributes of the blueprint to set image resolution and field of view.
@@ -163,13 +163,40 @@ class CarlaEnv(gym.Env):
         self.scenario_manager.load_scenario(scenario)
         self.scenario_manager.run_scenario(scenario_init_action)
 
-    def reset(self, config, env_id, scenario_init_action, scenario_type):
+    def reset(self, config, env_id, scenario_policy, scenario_type):
         self.scenario_type = scenario_type
-        self.logger.log(">> Create sensors for scenario " + str(env_id))
+        self.logger.log(">> Create sensors for scenario id: " + str(env_id))
         self._create_sensors()
 
-        self.logger.log(">> Loading scenario " + str(env_id) + ' ' + str(scenario_type))
+        self.logger.log(">> Loading scenario id: " + str(env_id) + ', type: ' + str(scenario_type))
         self.env_id = env_id
+
+        # interp waypoints as init waypoints
+        origin_waypoints_loc = []
+        for loc in config.trajectory:
+            origin_waypoints_loc.append(loc)
+        _, route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
+
+        # TODO: efficiency can be improved since we transform waypoints to location, and back to waypoints
+        init_waypoints = []
+        carla_map = self.world.get_map()
+        for node in route:
+            loc = node[0].location
+            waypoint = carla_map.get_waypoint(loc, project_to_road=True, lane_type=carla.LaneType.Driving)
+            init_waypoints.append(waypoint)
+
+        # get [x, y] along the route
+        waypoint_xy = []
+        for transform_tuple in route:
+            waypoint_xy.append([transform_tuple[0].location.x, transform_tuple[0].location.y])
+
+        # get init action from scenario policy
+        # TODO: get init action inside of reset() is not elegent, maybe find a better place
+        state = {
+            'route': np.array(waypoint_xy),   # [n, 2]
+            'target_speed': self.desired_speed,
+        }
+        scenario_init_action = scenario_policy.get_init_action(state)
         self._create_scenario(config, env_id, scenario_init_action)
 
         # change view point
@@ -223,19 +250,7 @@ class CarlaEnv(gym.Env):
         self.time_step = 0
         self.reset_step += 1
 
-        # interp waypoints as init waypoints
-        m = self.world.get_map()
-        origin_waypoints_loc = []
-        for loc in config.trajectory:
-            origin_waypoints_loc.append(loc)
-
-        _, route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
-
-        # TODO: efficiency can be improved since we transform waypoints to location, and back to waypoints
-        init_waypoints = []
-        for node in route:
-            loc = node[0].location
-            init_waypoints.append(m.get_waypoint(loc, project_to_road=True, lane_type=carla.LaneType.Driving))
+        # route planner for ego vehicle
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
         self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
 

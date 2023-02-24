@@ -9,19 +9,18 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 15:03:01
+LastEditTime: 2023-02-24 16:58:21
 Description: 
 '''
 
 import carla
-import numpy as np
 
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_utils import calculate_distance_transforms
 
-from safebench.scenario.scenario_policy.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.scenario_policy.reinforce_continuous import constraint
 
 
 class OppositeVehicleRunningRedLight(BasicScenario):
@@ -87,21 +86,8 @@ class OppositeVehicleRunningRedLight(BasicScenario):
             traffic_light_other.set_red_time(self.timeout)
 
     def create_behavior(self, scenario_init_action):
-        # TODO: move to REINFORCE model
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-        target_speed = 0.4
-        route = []
-        for point in self._ego_route:
-            route.append([point[0].x, point[0].y])
-        route = np.array(route)
-        index = np.linspace(1, len(route) - 1, 30).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
-        route_norm = route_norm.astype('float32')
-
-        self.actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
+        actions = self.convert_actions(scenario_init_action)
+        self.x, delta_v, delta_dist = actions  # [0, 0, 0]
         self.actor_speed = 10 + delta_v
         self.trigger_distance_threshold = 35 + delta_dist
 
@@ -187,21 +173,8 @@ class SignalizedJunctionLeftTurn(BasicScenario):
             self.scenario_operation.go_straight(self._target_vel, i)
 
     def create_behavior(self, scenario_init_action):
-        # move to REINFORCE
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-        target_speed = 0.4
-        route = []
-        for point in self._ego_route:
-            route.append([point[0].x, point[0].y])
-        route = np.array(route)
-        index = np.linspace(1, len(route) - 1, 30).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
-        route_norm = route_norm.astype('float32')
-
-        self.actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
+        actions = self.convert_actions(scenario_init_action)
+        self.x, delta_v, delta_dist = actions  
         self._target_vel = 12.0 + delta_v
         self.trigger_distance_threshold = 45 + delta_dist
 
@@ -275,18 +248,6 @@ class SignalizedJunctionRightTurn(BasicScenario):
             traffic_light_other.set_green_time(self.timeout)
 
     def create_behavior(self, scenario_init_action):
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-        target_speed = 0.4
-        route = []
-        for point in self._ego_route:
-            route.append([point[0].x, point[0].y])
-        route = np.array(route)
-        index = np.linspace(1, len(route) - 1, 30).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
-        route_norm = route_norm.astype('float32')
-
         actions = self.convert_actions(scenario_init_action)
         self.x, delta_v, delta_dist = actions  # [0, 0, 0]
         self._target_vel = 12 + delta_v
@@ -359,18 +320,6 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
                 self.scenario_operation.go_straight(self.actor_speed, i)
 
     def create_behavior(self, scenario_init_action):
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-        target_speed = 0.4
-        route = []
-        for point in self._ego_route:
-            route.append([point[0].x, point[0].y])
-        route = np.array(route)
-        index = np.linspace(1, len(route) - 1, 30).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
-        route_norm = route_norm.astype('float32')
-
         actions = self.convert_actions(scenario_init_action)
         self.x, delta_v, delta_dist = actions  # [0, 0, 0]
         self.actor_speed = 10 + delta_v

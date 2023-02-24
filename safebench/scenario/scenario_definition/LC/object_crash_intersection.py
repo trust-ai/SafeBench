@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import math
-import numpy as np
 
 import carla
 
@@ -16,7 +15,7 @@ from safebench.scenario.tools.scenario_helper import (
     get_junction_topology
 )
 
-from safebench.scenario.scenario_policy.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.scenario_policy.reinforce_continuous import constraint
 
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):
@@ -50,11 +49,10 @@ def get_opponent_transform(added_dist, waypoint, trigger_location):
 
 def get_right_driving_lane(waypoint):
     """
-    Gets the driving / parking lane that is most to the right of the waypoint
-    as well as the number of lane changes done
+        Gets the driving / parking lane that is most to the right of the waypoint as well as the number of lane changes done
     """
-    lane_changes = 0
 
+    lane_changes = 0
     while True:
         wp_next = waypoint.get_right_lane()
         lane_changes += 1
@@ -75,9 +73,9 @@ def get_right_driving_lane(waypoint):
 
 def is_lane_a_parking(waypoint):
     """
-    This function filters false negative Shoulder which are in reality Parking lanes.
-    These are differentiated from the others because, similar to the driving lanes,
-    they have, on the right, a small Shoulder followed by a Sidewalk.
+        This function filters false negative Shoulder which are in reality Parking lanes.
+        These are differentiated from the others because, similar to the driving lanes,
+        they have, on the right, a small Shoulder followed by a Sidewalk.
     """
 
     # Parking are wide lanes
@@ -97,56 +95,16 @@ def is_lane_a_parking(waypoint):
 
 class VehicleTurningRoute(BasicScenario):
     """
-    This class holds everything required for a simple object crash
-    with prior vehicle action involving a vehicle and a cyclist.
-    The ego vehicle is passing through a road and encounters
-    a cyclist after taking a turn. This is the version used when the ego vehicle
-    is following a given route. (Traffic Scenario 4)
-    This is a single ego vehicle scenario
+        The ego vehicle is passing through a road and encounters a cyclist after taking a turn. 
     """
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
-        """
-        Setup all relevant parameters and create scenario
-        """
-        self.agent = REINFORCE(config=config.parameters)
-        self._wmap = CarlaDataProvider.get_map()
+
+    def __init__(self, world, ego_vehicles, config, timeout=60):
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute", ego_vehicles, config, world)
         self.timeout = timeout
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
-        target_speed = 0.4
-
-        route = []
-        for point in self._ego_route:
-            route.append([point[0].x, point[0].y])
-        route = np.array(route)
-        index = np.linspace(1, len(route) - 1, 30).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
-        route_norm = route_norm.astype('float32')
-
-        actions = self.agent.deterministic_action(route_norm)
-        self.actions = actions
-        print([i.item() for i in actions])
         self.running_distance = 10
 
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
-        # define scenario actions with scanerio modle agent
-        # self.actions = actions
-
-        super(VehicleTurningRoute, self).__init__(
-            "VehicleTurningRouteDynamic",
-            ego_vehicles,
-            config,
-            world,
-            debug_mode,
-            criteria_enable=criteria_enable,
-            terminate_on_failure=True
-        )
-
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-
         self.actor_type_list.append('vehicle.diamondback.century')
 
         self.reference_actor = None
@@ -172,9 +130,6 @@ class VehicleTurningRoute(BasicScenario):
         return [x, y, yaw, dist]
 
     def initialize_actors(self):
-        """
-        Custom initialization
-        """
         cross_location = get_crossing_point(self.ego_vehicles[0])
         cross_waypoint = CarlaDataProvider.get_map().get_waypoint(cross_location)
         entry_wps, exit_wps = get_junction_topology(cross_waypoint.get_junction())
@@ -196,8 +151,6 @@ class VehicleTurningRoute(BasicScenario):
         y_mean = y
 
         x, y, yaw, self.trigger_distance_threshold = self.convert_actions(self.actions, max_x_scale, max_y_scale, x_mean, y_mean)
-        # x, y, yaw, self.trigger_distance_threshold = self.convert_action(self.actions)
-
         _other_actor_transform = carla.Transform(carla.Location(x, y, 0), carla.Rotation(yaw=yaw))
         self.other_actor_transform.append(_other_actor_transform)
         try:
@@ -205,20 +158,16 @@ class VehicleTurningRoute(BasicScenario):
         except:
             raise SpawnOtherActorError
 
-        """Also need to specify reference actor"""
         self.reference_actor = self.other_actors[0]
 
-    def update_behavior(self):
+    def create_behavior(self, scenario_init_action):
+        self.actions = scenario_init_action
+
+    def update_behavior(self, scenario_action):
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
         for i in range(len(self.other_actors)):
             cur_actor_target_speed = 10
             self.scenario_operation.go_straight(cur_actor_target_speed, i)
 
     def check_stop_condition(self):
-        """
-        This condition is just for small scenarios
-        """
-
         return False
-
-    def _create_behavior(self):
-        pass

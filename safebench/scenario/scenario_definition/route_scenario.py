@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 15:01:42
+LastEditTime: 2023-02-24 17:17:47
 Description: 
 '''
 
@@ -139,7 +139,7 @@ SCENARIO_CLASS_MAPPING = {
         "Scenario9": scenario_09_carla_challenge,
         "Scenario10": scenario_10_carla_challenge,
     },
-    'lc': {
+    'LC': {
         "Scenario3": scenario_03_lc,
         "Scenario4": scenario_04_lc,
         "Scenario5": scenario_05_lc,
