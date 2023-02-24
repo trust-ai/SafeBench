@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-23 14:18:18
+LastEditTime: 2023-02-23 14:39:16
 Description: 
 '''
 
@@ -54,10 +54,10 @@ class ScenarioManager(object):
 
         # spawn actors for each scenario along this route
         for running_scenario in self.scenario_list:
-            # init actors
-            running_scenario.initialize_actors()
             # some scenario passes actions when creating behavior
             running_scenario.create_behavior(scenario_init_action)
+            # init actors after passing in init actions
+            running_scenario.initialize_actors()
             self.background_scenario.other_actors += running_scenario.other_actors
 
     def stop_scenario(self):

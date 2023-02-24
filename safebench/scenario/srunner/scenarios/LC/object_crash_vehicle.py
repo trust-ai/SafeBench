@@ -7,8 +7,6 @@ The scenario realizes the user controlled ego vehicle
 moving along the road and encountering a cyclist ahead.
 """
 
-from __future__ import print_function
-
 import math
 import numpy as np
 import carla
@@ -16,11 +14,10 @@ import carla
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.srunner.scenario_manager.timer import TimeOut
 from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
 from safebench.scenario.srunner.tools.scenario_helper import get_location_in_distance_from_wp
 
-from safebench.scenario.srunner.scenarios.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.srunner.scenarios.policy.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 
 class DynamicObjectCrossing(BasicScenario):

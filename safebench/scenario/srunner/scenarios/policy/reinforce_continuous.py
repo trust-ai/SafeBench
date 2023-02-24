@@ -2,18 +2,21 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-22 20:20:32
+LastEditTime: 2023-02-23 23:09:41
 @Description: 
 '''
 
 import os
 import math
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 import torch.nn.init as init
+
+from safebench.scenario.srunner.scenarios.policy.base_policy import BasePolicy
 
 
 def constraint(x, x_min, x_max):
@@ -177,7 +180,7 @@ class Autoregressive_Policy(nn.Module):
             return mu_a[0][0], mu_b[0][0], mu_c[0][0]
 
 
-class REINFORCE(object):
+class REINFORCE(BasePolicy):
     # def __init__(self, lr, gamma, model_id=0, model_path='./model', hd_model=True, standard_action=True):
     def __init__(self, config, logger):
         assert len(config) == 2  # [load, standard_action]
@@ -190,53 +193,56 @@ class REINFORCE(object):
         if config[0] != '':
             self.load_model(config[0])
 
-    def select_action(self, state):
-        state = CUDA(Variable(torch.from_numpy(state)))
-        mu_bag, sigma_bag, action_bag = self.model(state)
+    def get_action(self, state):
+        return None
 
-        # calculate the probability that this distribution outputs this action
-        prob_a = normal(action_bag[0], mu_bag[0], sigma_bag[0])
-        prob_b = normal(action_bag[1], mu_bag[1], sigma_bag[1])
-        prob_c = normal(action_bag[2], mu_bag[2], sigma_bag[2])
-        if self.standard_action:
-            prob_d = normal(action_bag[3], mu_bag[3], sigma_bag[3])
-            log_prob = prob_a.log() + prob_b.log() + prob_c.log() + prob_d.log()
-        else:
-            log_prob = prob_a.log() + prob_b.log() + prob_c.log()
+    def get_init_action(self, state, deterministic=False):
+        if deterministic:
+            with torch.no_grad():
+                state = CUDA(Variable(torch.from_numpy(state)))
+                if self.standard_action:
+                    action_a, action_b, action_c, action_d = self.model.deterministic_forward(state)
+                else:
+                    action_a, action_b, action_c = self.model.deterministic_forward(state)
 
-        # calculate the entropy
-        entropy_a = -0.5*((sigma_bag[0]+2*pi.expand_as(sigma_bag[0])).log()+1)
-        entropy_b = -0.5*((sigma_bag[1]+2*pi.expand_as(sigma_bag[1])).log()+1)
-        entropy_c = -0.5*((sigma_bag[2]+2*pi.expand_as(sigma_bag[2])).log()+1)
-        if self.standard_action:
-            entropy_d = -0.5*((sigma_bag[2]+2*pi.expand_as(sigma_bag[2])).log()+1)
-            entropy = entropy_a + entropy_b + entropy_c + entropy_d
-        else:
-            entropy = entropy_a + entropy_b + entropy_c
-
-        a_1 = action_bag[0][0].detach().cpu().numpy()
-        a_2 = action_bag[1][0].detach().cpu().numpy()
-        a_3 = action_bag[2][0].detach().cpu().numpy()
-        if self.standard_action:
-            a_4 = action_bag[3][0].detach().cpu().numpy()
-
-        if self.standard_action:
-            return [a_1, a_2, a_3, a_4], log_prob, entropy
-        else:
-            return [a_1, a_2, a_3], log_prob, entropy
-
-    def deterministic_action(self, state):
-        with torch.no_grad():
-            state = CUDA(Variable(torch.from_numpy(state)))
             if self.standard_action:
-                action_a, action_b, action_c, action_d = self.model.deterministic_forward(state)
+                return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy(), action_d.cpu().numpy()]
             else:
-                action_a, action_b, action_c = self.model.deterministic_forward(state)
-
-        if self.standard_action:
-            return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy(), action_d.cpu().numpy()]
+                return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy()]
         else:
-            return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy()]
+            state = CUDA(Variable(torch.from_numpy(state)))
+            mu_bag, sigma_bag, action_bag = self.model(state)
+
+            # calculate the probability that this distribution outputs this action
+            prob_a = normal(action_bag[0], mu_bag[0], sigma_bag[0])
+            prob_b = normal(action_bag[1], mu_bag[1], sigma_bag[1])
+            prob_c = normal(action_bag[2], mu_bag[2], sigma_bag[2])
+            if self.standard_action:
+                prob_d = normal(action_bag[3], mu_bag[3], sigma_bag[3])
+                log_prob = prob_a.log() + prob_b.log() + prob_c.log() + prob_d.log()
+            else:
+                log_prob = prob_a.log() + prob_b.log() + prob_c.log()
+
+            # calculate the entropy
+            entropy_a = -0.5*((sigma_bag[0]+2*pi.expand_as(sigma_bag[0])).log()+1)
+            entropy_b = -0.5*((sigma_bag[1]+2*pi.expand_as(sigma_bag[1])).log()+1)
+            entropy_c = -0.5*((sigma_bag[2]+2*pi.expand_as(sigma_bag[2])).log()+1)
+            if self.standard_action:
+                entropy_d = -0.5*((sigma_bag[2]+2*pi.expand_as(sigma_bag[2])).log()+1)
+                entropy = entropy_a + entropy_b + entropy_c + entropy_d
+            else:
+                entropy = entropy_a + entropy_b + entropy_c
+
+            a_1 = action_bag[0][0].detach().cpu().numpy()
+            a_2 = action_bag[1][0].detach().cpu().numpy()
+            a_3 = action_bag[2][0].detach().cpu().numpy()
+            if self.standard_action:
+                a_4 = action_bag[3][0].detach().cpu().numpy()
+
+            if self.standard_action:
+                return [a_1, a_2, a_3, a_4], log_prob, entropy
+            else:
+                return [a_1, a_2, a_3], log_prob, entropy
 
     def load_model(self, filepath):
         if os.path.isfile(filepath):

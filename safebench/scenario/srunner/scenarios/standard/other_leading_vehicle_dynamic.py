@@ -1,19 +1,10 @@
-#!/usr/bin/env python
-
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
-"""
-Other Leading Vehicle scenario:
-
-The scenario realizes a common driving behavior, in which the
-user-controlled ego vehicle follows a leading car driving down
-a given road. At some point the leading car has to decelerate.
-The ego vehicle has to react accordingly by changing lane to avoid a
-collision and follow the leading car in other lane. The scenario ends
-either via a timeout, or if the ego vehicle drives some distance.
-"""
+'''
+Author: 
+Email:
+Date: 2023-02-16 11:20:54
+LastEditTime: 2023-02-23 23:51:39
+Description: 
+'''
 
 import carla
 
@@ -25,19 +16,15 @@ from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
 
 
 class OtherLeadingVehicle(BasicScenario):
-
     """
-    This class holds everything required for a simple "Other Leading Vehicle"
-    scenario involving a user controlled vehicle and two other actors.
-    Traffic Scenario 05
-
-    This is a single ego vehicle scenario
+        Ego vehicle follows a leading car driving down a given road. At some point the leading car has to decelerate.
+        The ego vehicle has to react accordingly by changing lane to avoid a collision and follow the leading car in other lane. 
+        The scenario ends either via a timeout, or if the ego vehicle drives some distance. (Traffic Scenario 05)
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=80):
-        """
-        Setup all relevant parameters and create scenario
-        """
+    def __init__(self, world, ego_vehicles, config, timeout=60):
+        super(OtherLeadingVehicle, self).__init__("VehicleDeceleratingInMultiLaneSetUp", ego_vehicles, config, world)
+
         self._world = world
         self._map = CarlaDataProvider.get_map()
         self._first_vehicle_location = 35
@@ -49,22 +36,11 @@ class OtherLeadingVehicle(BasicScenario):
         self._other_actor_max_brake = 1.0
         self._first_actor_transform = None
         self._second_actor_transform = None
-        # Timeout of scenario in seconds
         self.timeout = timeout
 
         self.dece_distance = 5
         self.dece_target_speed = 2  # 3 will be safe
-
         self.need_decelerate = False
-
-        super(OtherLeadingVehicle, self).__init__(
-            "VehicleDeceleratingInMultiLaneSetUpDynamic",
-            ego_vehicles,
-            config,
-            world,
-            debug_mode,
-            criteria_enable=criteria_enable
-        )
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.actor_type_list.append('vehicle.nissan.patrol')
@@ -90,29 +66,24 @@ class OtherLeadingVehicle(BasicScenario):
         self.reference_actor = self.other_actors[0]
         self._first_actor_transform = first_vehicle_transform
 
+    def create_behavior(self, scenario_init_action):
+        assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
     def update_behavior(self, scenario_action):
         """
-        Just make two vehicles move forward with specific speed
-        At specific point, vehicle in front of ego will decelerate
-        other_actors[0] is the vehicle before the ego
+            Just make two vehicles move forward with specific speed
+            At specific point, vehicle in front of ego will decelerate other_actors[0] is the vehicle before the ego
         """
-        cur_distance = calculate_distance_transforms(
-            self.other_actor_transform[0],
-            CarlaDataProvider.get_transform(self.other_actors[0])
-        )
-
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+        
+        cur_distance = calculate_distance_transforms(self.other_actor_transform[0], CarlaDataProvider.get_transform(self.other_actors[0]))
         if cur_distance > self.dece_distance:
             self.need_decelerate = True
         for i in range(len(self.other_actors)):
             if i == 0 and self.need_decelerate:
-                # print("start to decelerate")
-                # print("cur actor speed: ", CarlaDataProvider.get_velocity(self.other_actors[i]))
                 self.scenario_operation.go_straight(self.dece_target_speed, i)
             else:
                 self.scenario_operation.go_straight(self.other_actor_speed[i], i)
-
-    def _create_behavior(self):
-        pass
 
     def check_stop_condition(self):
         pass

@@ -20,20 +20,14 @@ from safebench.scenario.srunner.tools.scenario_helper import get_location_in_dis
 
 
 class DynamicObjectCrossing(BasicScenario):
-
     """
-    This class holds everything required for a simple object crash
-    without prior vehicle action involving a vehicle and a cyclist/pedestrian,
-    The ego vehicle is passing through a road,
-    And encounters a cyclist/pedestrian crossing the road.
-
-    This is a single ego vehicle scenario
+        A a simple object crash without prior vehicle action involving a vehicle and a cyclist/pedestrian.
+        The ego vehicle is passing through a road, and encounters a cyclist/pedestrian crossing the road.
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, adversary_type=False, timeout=60):
-        """
-        Setup all relevant parameters and create scenario
-        """
+    def __init__(self, world, ego_vehicles, config, adversary_type=False, timeout=60):
+        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing", ego_vehicles, config, world)
+
         self._wmap = CarlaDataProvider.get_map()
 
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
@@ -57,15 +51,6 @@ class DynamicObjectCrossing(BasicScenario):
         self._spawn_attempted = 0
 
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
-        super(DynamicObjectCrossing, self).__init__(
-            "DynamicObjectCrossingDynamic",
-            ego_vehicles,
-            config,
-            world,
-            debug_mode,
-            criteria_enable=criteria_enable
-        )
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.trigger_distance_threshold = 20
         self.actor_type_list.append('walker.*')
@@ -117,8 +102,8 @@ class DynamicObjectCrossing(BasicScenario):
 
     def initialize_actors(self):
         """
-        Set a blocker that blocks ego's view on the walker
-        Request a walker walk through the street when ego come
+            Set a blocker that blocks ego's view on the walker
+            Request a walker walk through the street when ego come
         """
         # cyclist transform
         _start_distance = 45
@@ -173,24 +158,19 @@ class DynamicObjectCrossing(BasicScenario):
         self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
 
+    def create_behavior(self, scenario_init_action):
+        assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
     def update_behavior(self, scenario_action):
-        """
-        the walker starts crossing the road
-        """
-        # print("walker v: ", CarlaDataProvider.get_velocity(self.other_actors[0]))
-        # self.scenario_operation.go_straight(self._other_actor_target_velocity, 0, throttle_value=5.0)
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
+        # the walker starts crossing the road
         self.scenario_operation.walker_go_straight(self._other_actor_target_velocity, 0)
 
     def check_stop_condition(self):
-        """
-        Now use distance actor[0] runs
-        """
         lane_width = self._reference_waypoint.lane_width
         lane_width = lane_width + (1.25 * lane_width * self._num_lane_changes)
         cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.transform)
         if cur_distance > 0.6 * lane_width:
             return True
         return False
-
-    def _create_behavior(self):
-        pass

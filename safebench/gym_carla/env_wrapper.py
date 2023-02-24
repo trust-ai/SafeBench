@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-22 20:08:41
+LastEditTime: 2023-02-24 00:51:01
 Description: 
 '''
 
@@ -42,7 +42,7 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, scenario_configs, scenario_type=None):
+    def reset(self, scenario_configs, scenario_init_actions, scenario_type=None):
         if scenario_type is None:
             scenario_type = self.scenario_type
         
@@ -53,7 +53,7 @@ class VectorWrapper():
         obs_list = []
         for s_i in range(len(scenario_configs)):
             config = scenario_configs[s_i]
-            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_type=scenario_type)
+            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_init_action=scenario_init_actions[s_i], scenario_type=scenario_type)
             obs_list.append(obs)
             self.replay_buffer.save_init_obs(s_i, obs)
 
@@ -65,7 +65,7 @@ class VectorWrapper():
         # return obs
         return self.obs_postprocess(obs_list)
 
-    def step(self, ego_actions, critic_value=None, log_prob=None, scenario_actions=None):
+    def step(self, ego_actions, scenario_actions, critic_value=None, log_prob=None):
         """
             ego_actions: [num_alive_scenario, ego_action_dim]
             scenario_actions: [num_alive_scenario, scenario_action_dim]
@@ -77,8 +77,7 @@ class VectorWrapper():
                 self.replay_buffer.save_current_action(e_i, ego_actions[action_idx])
                 processed_action = self.env_list[e_i]._postprocess_action(ego_actions[action_idx])
                 # TODO: pre-process scenario action
-                scenario_action = scenario_actions[action_idx] if scenario_actions else None
-                self.env_list[e_i].step_before_tick(processed_action, scenario_action)
+                self.env_list[e_i].step_before_tick(processed_action, scenario_actions[action_idx])
                 action_idx += 1
 
         # tick all scenarios
@@ -168,8 +167,8 @@ class EnvWrapper(gym.Wrapper):
         obs = super().reset(**kwargs)
         return self._preprocess_obs(obs)
 
-    def step_before_tick(self, ego_action):
-        self._env.step_before_tick(ego_action=ego_action)
+    def step_before_tick(self, ego_action, scenario_action):
+        self._env.step_before_tick(ego_action=ego_action, scenario_action=scenario_action)
 
     def step_after_tick(self):
         obs, reward, done, info = self._env.step_after_tick()

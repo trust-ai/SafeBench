@@ -13,30 +13,21 @@ class SpawnOtherActorError(Exception):
 
 class BasicScenario(object):
     """
-    Base class for user-defined scenario
+        Base class for user-defined scenario
     """
-    def __init__(self, name, ego_vehicles, config, world, debug_mode=False, terminate_on_failure=False, criteria_enable=False, first_env=False):
-        """
-        Setup all relevant parameters and create scenario
-        and instantiate scenario manager
-        """
+    def __init__(self, name, ego_vehicles, config, world, first_env=False):
         self.world = world
         self.other_actors = []
         self.actor_type_list = []
         self.other_actor_transform = []
-        """for triggering"""
+
         self.trigger_distance_threshold = None
         self.reference_actor = None
-
-        if not self.timeout: 
-            self.timeout = 60    # If no timeout was provided, set it to 60 seconds
-
-        self.scenario = None
 
         self.ego_vehicles = ego_vehicles
         self.name = name
         self.config = config
-        self.terminate_on_failure = terminate_on_failure
+
         if first_env:
             self._initialize_environment(world)
 
@@ -45,24 +36,17 @@ class BasicScenario(object):
         else:
             world.wait_for_tick()
 
-        # Setup scenario
-        if debug_mode:
-            py_trees.logging.level = py_trees.logging.Level.DEBUG
-
-        behavior = self._create_behavior()
-
+        behavior = self.create_behavior()
         behavior_seq = py_trees.composites.Sequence()
-
         if behavior is not None:
             behavior_seq.add_child(behavior)
             behavior_seq.name = behavior.name
-
-        self.scenario = ScenarioDynamic(behavior_seq, self.name, self.timeout, self.terminate_on_failure)
+        self.scenario = ScenarioDynamic(behavior_seq, self.name)
 
     def _initialize_environment(self, world):
         """
-        Default initialization of weather and road friction.
-        Override this method in child class to provide custom initialization.
+            Default initialization of weather and road friction.
+            Override this method in child class to provide custom initialization.
         """
 
         # Set the appropriate weather conditions
@@ -82,32 +66,28 @@ class BasicScenario(object):
             transform.location = carla.Location(-10000.0, -10000.0, 0.0)
             world.spawn_actor(friction_bp, transform)
 
-    def _create_behavior(self):
+    def create_behavior(self):
         """
-        This method just for background defination in route scenaio
+            This method just for background defination in route scenaio
         """
         raise NotImplementedError(
-            "This function is re-implemented by all scenarios"
-            "If this error becomes visible the class hierarchy is somehow broken")
+            "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
     def initialize_actors(self):
         raise NotImplementedError(
-                "This function is re-implemented by all scenarios"
-                "If this error becomes visible the class hierarchy is somehow broken")
+                "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
     def update_behavior(self):
         raise NotImplementedError(
-                "This function is re-implemented by all scenarios"
-                "If this error becomes visible the class hierarchy is somehow broken")
+                "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
     def check_stop_condition(self):
         raise NotImplementedError(
-            "This function is re-implemented by all scenarios"
-            "If this error becomes visible the class hierarchy is somehow broken")
+            "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
     def remove_all_actors(self):
         """
-        Remove all actors
+            Remove all actors
         """
         for i, _ in enumerate(self.other_actors):
             if self.other_actors[i] is not None:
@@ -121,22 +101,22 @@ class BasicScenario(object):
 
 class ScenarioDynamic(object):
     """
-    Basic scenario class. This class holds the behavior_tree describing the
-    scenario and the test criteria.
+        Basic scenario class. This class holds the behavior_tree describing the
+        scenario and the test criteria.
 
-    The scenario_tree is for the whole world, not for the specific actors in scenarios
+        The scenario_tree is for the whole world, not for the specific actors in scenarios
 
-    Maintaining scenario_tree is for background ticking
+        Maintaining scenario_tree is for background ticking
 
-    The user must not modify this class.
+        The user must not modify this class.
 
-    Important parameters:
-    - behavior: User defined scenario with py_tree
-    - timeout (default = 60s): Timeout of the scenario in seconds
-    - terminate_on_failure: Terminate scenario on first failure
+        Important parameters:
+        - behavior: User defined scenario with py_tree
+        - timeout (default = 60s): Timeout of the scenario in seconds
+        - terminate_on_failure: Terminate scenario on first failure
     """
 
-    def __init__(self, behavior, name, timeout=60, terminate_on_failure=False):
+    def __init__(self, behavior, name, timeout=60):
         self.behavior = behavior
         self.timeout = timeout
         self.name = name
@@ -147,7 +127,7 @@ class ScenarioDynamic(object):
         self.timeout_node = TimeOut(self.timeout, name="TimeOut")
 
         # Create overall py_tree
-        """This scenario_tree is for whole world"""
+        # TODO: remove py_tree
         self.scenario_tree = py_trees.composites.Parallel(name, policy=py_trees.common.ParallelPolicy.SuccessOnOne)
         if behavior is not None:
             self.scenario_tree.add_child(self.behavior)

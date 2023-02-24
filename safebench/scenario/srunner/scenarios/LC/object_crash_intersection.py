@@ -7,16 +7,16 @@ import carla
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario, SpawnOtherActorError
-from safebench.scenario.srunner.tools.scenario_helper import (generate_target_waypoint,
-                                           generate_target_waypoint_in_route,
-                                           get_crossing_point,
-                                           get_junction_topology)
 
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
-from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
-from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_locations
+from safebench.scenario.srunner.tools.scenario_helper import (
+    generate_target_waypoint,
+    generate_target_waypoint_in_route,
+    get_crossing_point,
+    get_junction_topology
+)
 
-from safebench.scenario.srunner.scenarios.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.srunner.scenarios.policy.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):

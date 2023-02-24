@@ -18,7 +18,7 @@ from safebench.scenario.srunner.tools.scenario_helper import get_waypoint_in_dis
 from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
 
-from safebench.scenario.srunner.scenarios.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.srunner.scenarios.policy.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 
 class ManeuverOppositeDirection(BasicScenario):

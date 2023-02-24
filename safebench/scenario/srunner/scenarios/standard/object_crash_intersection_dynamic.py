@@ -1,23 +1,11 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-Object crash with prior vehicle action scenario:
-The scenario realizes the user controlled ego vehicle
-moving along the road and encounters a cyclist ahead after taking a right or left turn.
-"""
-
-from __future__ import print_function
-
 import math
 import carla
 
 from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario, SpawnOtherActorError
-from safebench.scenario.srunner.tools.scenario_helper import generate_target_waypoint, generate_target_waypoint_in_route
 
+from safebench.scenario.srunner.tools.scenario_helper import generate_target_waypoint_in_route
 from safebench.scenario.srunner.tools.scenario_operation import ScenarioOperation
-from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
-from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_locations
 
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):
@@ -49,8 +37,7 @@ def get_opponent_transform(added_dist, waypoint, trigger_location):
 
 def get_right_driving_lane(waypoint):
     """
-    Gets the driving / parking lane that is most to the right of the waypoint
-    as well as the number of lane changes done
+        Gets the driving / parking lane that is most to the right of the waypoint as well as the number of lane changes done
     """
     lane_changes = 0
 
@@ -74,9 +61,8 @@ def get_right_driving_lane(waypoint):
 
 def is_lane_a_parking(waypoint):
     """
-    This function filters false negative Shoulder which are in reality Parking lanes.
-    These are differentiated from the others because, similar to the driving lanes,
-    they have, on the right, a small Shoulder followed by a Sidewalk.
+        This function filters false negative Shoulder which are in reality Parking lanes.
+        These are differentiated from the others because, similar to the driving lanes, they have, on the right, a small Shoulder followed by a Sidewalk.
     """
 
     # Parking are wide lanes
@@ -94,20 +80,15 @@ def is_lane_a_parking(waypoint):
 
 
 class VehicleTurningRoute(BasicScenario):
-
     """
-    This class holds everything required for a simple object crash
-    with prior vehicle action involving a vehicle and a cyclist.
-    The ego vehicle is passing through a road and encounters
-    a cyclist after taking a turn. This is the version used when the ego vehicle
-    is following a given route. (Traffic Scenario 4)
-    This is a single ego vehicle scenario
+        A simple object crash with prior vehicle action involving a vehicle and a cyclist.
+        The ego vehicle is passing through a road and encounters a cyclist after taking a turn.
+        This is the version used when the ego vehicle is following a given route. (Traffic Scenario 4)
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
-        """
-        Setup all relevant parameters and create scenario
-        """
+    def __init__(self, world, ego_vehicles, config, timeout=60):
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute", ego_vehicles, config, world)
+
         self._wmap = CarlaDataProvider.get_map()
         self.timeout = timeout
         self._other_actor_target_velocity = 10
@@ -116,18 +97,7 @@ class VehicleTurningRoute(BasicScenario):
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
         self._num_lane_changes = 0
-
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
-        super(VehicleTurningRoute, self).__init__(
-            "VehicleTurningRouteDynamic",
-            ego_vehicles,
-            config,
-            world,
-            debug_mode,
-            criteria_enable=criteria_enable,
-            terminate_on_failure=True
-        )
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.actor_type_list.append('vehicle.diamondback.century')
@@ -137,9 +107,6 @@ class VehicleTurningRoute(BasicScenario):
         self.ego_max_driven_distance = 180
 
     def initialize_actors(self):
-        """
-        Custom initialization
-        """
         waypoint = generate_target_waypoint_in_route(self._reference_waypoint, self._ego_route)
 
         # Move a certain distance to the front
@@ -159,18 +126,16 @@ class VehicleTurningRoute(BasicScenario):
         except:
             raise SpawnOtherActorError
 
-        """Also need to specify reference actor"""
         self.reference_actor = self.other_actors[0]
 
+    def create_behavior(self, scenario_init_action):
+        assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
     def update_behavior(self, scenario_action):
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
         for i in range(len(self.other_actors)):
             self.scenario_operation.go_straight(self._other_actor_target_velocity, i)
 
     def check_stop_condition(self):
-        """
-        This condition is just for small scenarios
-        """
         return False
-
-    def _create_behavior(self):
-        pass

@@ -24,7 +24,7 @@ from safebench.scenario.srunner.scenario_manager.carla_data_provider import Carl
 from safebench.scenario.srunner.tools.scenario_helper import get_waypoint_in_distance
 from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
 
-from safebench.scenario.srunner.scenarios.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.srunner.scenarios.policy.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 
 class OtherLeadingVehicle(BasicScenario):

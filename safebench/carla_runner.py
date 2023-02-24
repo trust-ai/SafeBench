@@ -70,21 +70,23 @@ class CarlaRunner:
         agent_config['ego_state_dim'] = scenario_config['ego_state_dim']
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
-        # prepare ego agent
+        # prepare trainer
         if self.mode == 'eval':
             self.logger = EpochLogger(eval_mode=True)
-        elif self.mode == 'train_scenario':
-            logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
-            self.logger = EpochLogger(**logger_kwargs)
-            self.logger.save_config(scenario_config)
-            self.scenario_trainer = ScenarioTrainer(scenario_config, self.logger)
         elif self.mode == 'train_agent':
             logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
             self.logger = EpochLogger(**logger_kwargs)
             self.logger.save_config(agent_config)
             self.agent_trainer = AgentTrainer(agent_config, self.logger)
+        elif self.mode == 'train_scenario':
+            logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
+            self.logger = EpochLogger(**logger_kwargs)
+            self.logger.save_config(scenario_config)
+            self.scenario_trainer = ScenarioTrainer(scenario_config, self.logger)
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
+
+        # define agent and scenario
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_type](scenario_config, logger=self.logger)
 
@@ -113,8 +115,9 @@ class CarlaRunner:
                 window_size = (self.env_params['display_size'] * 3, self.env_params['display_size'] * num_envs)
         else:
             window_size = (self.env_params['display_size'], self.env_params['display_size'] * num_envs)
-
         self.display = pygame.display.set_mode(window_size, flag)
+
+        # initialize the render for genrating observation and visualization
         pixels_per_meter = self.env_params['display_size'] / self.env_params['obs_range']
         pixels_ahead_vehicle = (self.env_params['obs_range'] / 2 - self.env_params['d_behind']) * pixels_per_meter
         self.birdeye_params = {
@@ -122,8 +125,6 @@ class CarlaRunner:
             'pixels_per_meter': pixels_per_meter,
             'pixels_ahead_vehicle': pixels_ahead_vehicle,
         }
-
-        # initialize the render for genrating observation and visualization
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
     
     def eval(self, env, data_loader):
@@ -133,8 +134,10 @@ class CarlaRunner:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
             num_finished_scenario += num_sampled_scenario
-            # reset envs
-            obss = env.reset(sampled_scenario_configs)
+            
+            # reset envs with init action from scenario policy
+            scenario_init_actions = self.scenario_policy.get_init_action(sampled_scenario_configs)
+            obss = env.reset(sampled_scenario_configs, scenario_init_actions)
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while True:
@@ -142,11 +145,12 @@ class CarlaRunner:
                     self.logger.log(">> All scenarios are completed. Prepare for exiting")
                     break
 
-                # get action from ego agent (assume using one batch)
+                # get action from agent policy and scenario policy (assume using one batch)
                 ego_actions = self.agent_policy.get_action(obss)
+                scenario_actions = self.scenario_policy.get_action(obss)
 
                 # apply action to env and get obs
-                obss, rewards, _, infos = env.step(ego_actions=ego_actions, scenario_actions=None)
+                obss, rewards, _, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
 
                 if self.save_video:
                     one_frame = pygame.surfarray.array3d(self.display)
@@ -191,12 +195,16 @@ class CarlaRunner:
 
             # run with different modes
             if self.mode == 'eval':
+                self.agent_policy.load_model()
+                self.scenario_policy.load_model()
                 self.eval(env, data_loader)
             elif self.mode == 'train_agent':
-                self.agent_trainer.set_environment(env, self.agent_policy, data_loader)
+                self.scenario_policy.load_model()
+                self.agent_trainer.set_environment(env, self.agent_policy, self.scenario_policy, data_loader)
                 self.agent_trainer.train()
             elif self.mode ==  'train_scenario':
-                self.scenario_trainer.set_environment(env, self.scenario_policy, data_loader)
+                self.agent_policy.load_model()
+                self.scenario_trainer.set_environment(env, self.agent_policy, self.scenario_policy, data_loader)
                 self.scenario_trainer.train()
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")

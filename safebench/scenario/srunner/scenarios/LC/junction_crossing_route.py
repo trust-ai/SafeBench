@@ -9,7 +9,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-23 14:28:32
+LastEditTime: 2023-02-23 23:59:45
 Description: 
 '''
 
@@ -21,7 +21,7 @@ from safebench.scenario.srunner.scenario_manager.carla_data_provider import Carl
 from safebench.scenario.srunner.scenarios.basic_scenario import BasicScenario
 from safebench.scenario.srunner.tools.scenario_utils import calculate_distance_transforms
 
-from safebench.scenario.srunner.scenarios.LC.reinforce_continuous import REINFORCE, constraint, normalize_routes
+from safebench.scenario.srunner.scenarios.policy.reinforce_continuous import REINFORCE, constraint, normalize_routes
 
 
 class OppositeVehicleRunningRedLight(BasicScenario):
@@ -32,35 +32,13 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=180):
+    def __init__(self, world, ego_vehicles, config, debug_mode=False, criteria_enable=True, timeout=60):
         """
         Setup all relevant parameters and create scenario
         and instantiate scenario manager
         """
-        self.agent = REINFORCE(config=config.parameters)
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
-        target_speed = 0.4
-
-        route = []
-        for point in self._ego_route:
-            route.append([point[0].x, point[0].y])
-        route = np.array(route)
-        index = np.linspace(1, len(route) - 1, 30).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
-        route_norm = route_norm.astype('float32')
-
-        actions = self.agent.deterministic_action(route_norm)
-
-        self.actions = self.convert_actions(actions)
-        self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
-
-        # Timeout of scenario in seconds
+        self.logger = None
         self.timeout = timeout
-        self.actor_speed = 10 + delta_v
-
         super(OppositeVehicleRunningRedLight, self).__init__(
             "OppositeVehicleRunningRedLightDynamic",
             ego_vehicles,
@@ -71,7 +49,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         )
 
         self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
-
         if self._traffic_light is None:
             print(">> No traffic light for the given location of the ego vehicle found")
         else:
@@ -80,7 +57,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
 
         self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
         self.reference_actor = None
-        self.trigger_distance_threshold = 35 + delta_dist
         self.trigger = False
         self._actor_distance = 110
         self.ego_max_driven_distance = 150
@@ -100,8 +76,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         """
         Custom initialization
         """
-        config = self.config
-        self._other_actor_transform = config.other_actors[0].transform
+        self._other_actor_transform = self.config.other_actors[0].transform
         forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
         self._other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
@@ -119,7 +94,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         self.reference_actor = self.other_actors[0]
 
         # other vehicle's traffic light
-        traffic_light_other = CarlaDataProvider.get_next_traffic_light(config.other_actors[0].transform, False, True)
+        traffic_light_other = CarlaDataProvider.get_next_traffic_light(self._other_actor_transform, False, True)
 
         if traffic_light_other is None:
             print(">> No traffic light for the given location of the other vehicle found")
@@ -136,12 +111,31 @@ class OppositeVehicleRunningRedLight(BasicScenario):
                 self.scenario_operation.go_straight(self.actor_speed, i)
 
     def create_behavior(self, scenario_init_action):
-        pass
+        # TODO: move to the REINFORCE model
+        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
+        target_speed = 0.4
+        route = []
+        for point in self._ego_route:
+            route.append([point[0].x, point[0].y])
+        route = np.array(route)
+        index = np.linspace(1, len(route) - 1, 30).tolist()
+        index = [int(i) for i in index]
+        route_norm = normalize_routes(route[index])
+        route_norm = np.concatenate((route_norm, [[target_speed]]), axis=0)
+        route_norm = route_norm.astype('float32')
+
+        # get action from a pre-trained model
+        # TODO: remove
+        agent = REINFORCE(config=self.config.parameters, logger=self.logger)
+        actions = agent.get_init_action(route_norm)
+
+        self.actions = self.convert_actions(actions)
+        self.x, delta_v, delta_dist = self.actions  # [0, 0, 0]
+        self.actor_speed = 10 + delta_v
+        self.trigger_distance_threshold = 35 + delta_dist
 
     def check_stop_condition(self):
-        """
-            Small scenario stops when actor runs a specific distance
-        """
+        # stop when actor runs a specific distance
         cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
         if cur_distance >= self._actor_distance:
             return True

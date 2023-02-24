@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-23 13:55:14
+LastEditTime: 2023-02-24 01:19:28
 Description: 
 '''
 
@@ -170,21 +170,21 @@ SCENARIO_CLASS_MAPPING = {
         "Scenario10": scenario_10_advsim,
     },
     'advmaddpg': {
-    "Scenario3": scenario_03_advmaddpg,
-    "Scenario4": scenario_04_advmaddpg,
-    "Scenario5": scenario_05_advmaddpg,
-    "Scenario6": scenario_06_advmaddpg,
-    "Scenario7": scenario_07_advmaddpg,
-    "Scenario8": scenario_08_advmaddpg,
-    "Scenario9": scenario_09_advmaddpg,
-    "Scenario10": scenario_10_advmaddpg,
+        "Scenario3": scenario_03_advmaddpg,
+        "Scenario4": scenario_04_advmaddpg,
+        "Scenario5": scenario_05_advmaddpg,
+        "Scenario6": scenario_06_advmaddpg,
+        "Scenario7": scenario_07_advmaddpg,
+        "Scenario8": scenario_08_advmaddpg,
+        "Scenario9": scenario_09_advmaddpg,
+        "Scenario10": scenario_10_advmaddpg,
     },
 }
 
 
 def convert_json_to_transform(actor_dict):
     """
-    Convert a JSON string to a CARLA transform
+        Convert a JSON string to a CARLA transform
     """
     return carla.Transform(
         location=carla.Location(x=float(actor_dict['x']), y=float(actor_dict['y']), z=float(actor_dict['z'])),
@@ -194,7 +194,7 @@ def convert_json_to_transform(actor_dict):
 
 def convert_json_to_actor(actor_dict):
     """
-    Convert a JSON string to an ActorConfigurationData dictionary
+        Convert a JSON string to an ActorConfigurationData dictionary
     """
     node = ET.Element('waypoint')
     node.set('x', actor_dict['x'])
@@ -207,7 +207,7 @@ def convert_json_to_actor(actor_dict):
 
 def convert_transform_to_location(transform_vec):
     """
-    Convert a vector of transforms to a vector of locations
+        Convert a vector of transforms to a vector of locations
     """
     location_vec = []
     for transform_tuple in transform_vec:
@@ -218,7 +218,7 @@ def convert_transform_to_location(transform_vec):
 
 def compare_scenarios(scenario_choice, existent_scenario):
     """
-    Compare function for scenarios based on distance of the scenario start position
+        Compare function for scenarios based on distance of the scenario start position
     """
 
     def transform_to_pos_vec(scenario):
@@ -258,10 +258,7 @@ class RouteScenario(BasicScenario):
         along which several smaller scenarios are triggered
     """
 
-    def __init__(self, world, config, ego_id, logger, max_running_step, criteria_enable=True):
-        """
-        Setup all relevant parameters and create scenarios along route
-        """
+    def __init__(self, world, config, ego_id, logger, max_running_step):
         self.world = world
         self.logger = logger
         self.config = config
@@ -269,6 +266,7 @@ class RouteScenario(BasicScenario):
         self.ego_id = ego_id
         self.sampled_scenarios_definitions = None
         self.max_running_step = max_running_step
+        self.timeout = 60
 
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
         self._update_route(world, config)
@@ -283,18 +281,9 @@ class RouteScenario(BasicScenario):
             weather=config.weather
         )
 
-        super(RouteScenario, self).__init__(
-            name=config.name,
-            ego_vehicles=[ego_vehicle],
-            config=config,
-            world=world,
-            debug_mode=False,
-            terminate_on_failure=False,
-            criteria_enable=criteria_enable
-        )
+        super(RouteScenario, self).__init__(name=config.name, ego_vehicles=[ego_vehicle], config=config, world=world)
         self.ego_idx = 0
         self.other_idx = 1 if config.scenario_id in [3, 4] else 0
-
         self.criteria = self._create_criteria()
 
     def _update_route(self, world, config, timeout=None):
@@ -382,9 +371,6 @@ class RouteScenario(BasicScenario):
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
     def _update_ego_vehicle(self):
-        """
-            Set/Update the start position of the ego_vehicle
-        """
         # move ego to correct position
         elevate_transform = self.route[0][0]
 
@@ -434,7 +420,7 @@ class RouteScenario(BasicScenario):
             scenario_configuration.route_var_name = route_var_name
 
             try:
-                scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration, criteria_enable=False, timeout=timeout)
+                scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration, timeout=timeout)
                 # Do a tick every once in a while to avoid spawning everything at the same time
                 if scenario_number % scenarios_per_tick == 0:
                     if CarlaDataProvider.is_sync_mode():
@@ -453,10 +439,6 @@ class RouteScenario(BasicScenario):
         return scenario_instance_vec
 
     def _get_actors_instances(self, list_of_antagonist_actors):
-        """
-            Get the full list of actor instances.
-        """
-
         def get_actors_from_list(list_of_actor_def):
             """
                 Receives a list of actor definitions and creates an actual list of ActorConfigurationObjects

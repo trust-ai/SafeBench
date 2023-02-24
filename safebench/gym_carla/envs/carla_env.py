@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-23 14:26:26
+LastEditTime: 2023-02-24 00:51:51
 Description: 
 '''
 
@@ -163,7 +163,7 @@ class CarlaEnv(gym.Env):
         self.scenario_manager.load_scenario(scenario)
         self.scenario_manager.run_scenario(scenario_init_action)
 
-    def reset(self, config, env_id, scenario_type, scenario_init_action=None):
+    def reset(self, config, env_id, scenario_init_action, scenario_type):
         self.scenario_type = scenario_type
         self.logger.log(">> Create sensors for scenario " + str(env_id))
         self._create_sensors()
