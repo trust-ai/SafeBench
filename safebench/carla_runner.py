@@ -8,10 +8,10 @@ from safebench.gym_carla.envs.render import BirdeyeRender
 from safebench.agent import AGENT_POLICY_LIST
 from safebench.agent.safe_rl.agent_trainer import AgentTrainer # TODO: move to safebench.agent
 
-from safebench.scenario.scenario_trainer import ScenarioTrainer
 from safebench.scenario import SCENARIO_POLICY_LIST
-from safebench.scenario.srunner.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.srunner.tools.scenario_utils import scenario_parse
+from safebench.scenario.scenario_trainer import ScenarioTrainer
+from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
+from safebench.scenario.tools.scenario_utils import scenario_parse
 from safebench.scenario.scenario_data_loader import ScenarioDataLoader
 
 from safebench.util.logger import EpochLogger, setup_logger_kwargs
@@ -196,14 +196,20 @@ class CarlaRunner:
             # run with different modes
             if self.mode == 'eval':
                 self.agent_policy.load_model()
+                self.agent_policy.eval()
                 self.scenario_policy.load_model()
+                self.scenario_policy.eval()
                 self.eval(env, data_loader)
             elif self.mode == 'train_agent':
+                self.agent_policy.train()
                 self.scenario_policy.load_model()
+                self.scenario_policy.eval()
                 self.agent_trainer.set_environment(env, self.agent_policy, self.scenario_policy, data_loader)
                 self.agent_trainer.train()
             elif self.mode ==  'train_scenario':
                 self.agent_policy.load_model()
+                self.agent_policy.eval()
+                self.scenario_policy.train()
                 self.scenario_trainer.set_environment(env, self.agent_policy, self.scenario_policy, data_loader)
                 self.scenario_trainer.train()
             else:

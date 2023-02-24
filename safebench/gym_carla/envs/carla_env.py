@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 00:51:51
+LastEditTime: 2023-02-24 15:29:26
 Description: 
 '''
 
@@ -28,10 +28,10 @@ from safebench.gym_carla.envs.misc import (
     get_pixel_info,
     debug_bbox
 )
-from safebench.scenario.srunner.scenarios.route_scenario import RouteScenario
-from safebench.scenario.srunner.scenarios.object_detection_scenario import ObjectDetectionScenario
-from safebench.scenario.srunner.scenario_manager.scenario_manager import ScenarioManager
-from safebench.scenario.srunner.tools.route_manipulation import interpolate_trajectory
+from safebench.scenario.scenario_definition.route_scenario import RouteScenario
+from safebench.scenario.scenario_definition.object_detection_scenario import ObjectDetectionScenario
+from safebench.scenario.scenario_manager.scenario_manager import ScenarioManager
+from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 
 
 class CarlaEnv(gym.Env):
@@ -84,7 +84,7 @@ class CarlaEnv(gym.Env):
         self.ROOT_DIR = env_params['ROOT_DIR']
         self.scenario_type = env_params['scenario_type']
 
-        if self.scenario_type in ['dev', 'benign', 'standard']:
+        if self.scenario_type in ['dev', 'benign', 'standard', 'LC']:
             self.obs_size = int(self.obs_range / self.lidar_bin)
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
@@ -147,7 +147,7 @@ class CarlaEnv(gym.Env):
                 logger=self.logger,
                 first_env=self.first_env
             )
-        elif self.scenario_type in ['dev', 'standard', 'benign']:
+        elif self.scenario_type in ['dev', 'standard', 'benign', 'LC']:
             scenario = RouteScenario(
                 world=self.world, 
                 config=config, 

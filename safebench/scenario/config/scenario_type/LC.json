@@ -1,0 +1,258 @@
+[
+  {
+    "data_id": 0,
+    "method": "LC",
+    "scenario_id": 1,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 1,
+    "method": "LC",
+    "scenario_id": 1,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 2,
+    "method": "LC",
+    "scenario_id": 1,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 3,
+    "method": "LC",
+    "scenario_id": 1,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 4,
+    "method": "LC",
+    "scenario_id": 2,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 5,
+    "method": "LC",
+    "scenario_id": 2,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 6,
+    "method": "LC",
+    "scenario_id": 2,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 7,
+    "method": "LC",
+    "scenario_id": 2,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 8,
+    "method": "LC",
+    "scenario_id": 3,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 9,
+    "method": "LC",
+    "scenario_id": 3,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 10,
+    "method": "LC",
+    "scenario_id": 3,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 11,
+    "method": "LC",
+    "scenario_id": 3,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 12,
+    "method": "LC",
+    "scenario_id": 4,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 13,
+    "method": "LC",
+    "scenario_id": 4,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 14,
+    "method": "LC",
+    "scenario_id": 4,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 15,
+    "method": "LC",
+    "scenario_id": 4,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 16,
+    "method": "LC",
+    "scenario_id": 5,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 17,
+    "method": "LC",
+    "scenario_id": 5,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 18,
+    "method": "LC",
+    "scenario_id": 5,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 19,
+    "method": "LC",
+    "scenario_id": 5,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 20,
+    "method": "LC",
+    "scenario_id": 6,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 21,
+    "method": "LC",
+    "scenario_id": 6,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 22,
+    "method": "LC",
+    "scenario_id": 6,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 23,
+    "method": "LC",
+    "scenario_id": 6,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 24,
+    "method": "LC",
+    "scenario_id": 7,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 25,
+    "method": "LC",
+    "scenario_id": 7,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 26,
+    "method": "LC",
+    "scenario_id": 7,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 27,
+    "method": "LC",
+    "scenario_id": 7,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 28,
+    "method": "LC",
+    "scenario_id": 8,
+    "route_id": 0,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 29,
+    "method": "LC",
+    "scenario_id": 8,
+    "route_id": 1,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 30,
+    "method": "LC",
+    "scenario_id": 8,
+    "route_id": 2,
+    "risk_level": null,
+    "parameters": null
+  },
+  {
+    "data_id": 31,
+    "method": "LC",
+    "scenario_id": 8,
+    "route_id": 3,
+    "risk_level": null,
+    "parameters": null
+  }
+]
