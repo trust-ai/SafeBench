@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 17:17:47
+LastEditTime: 2023-02-26 20:48:40
 Description: 
 '''
 
@@ -37,14 +37,14 @@ from safebench.scenario.scenario_definition.atomic_criteria import (
 )
 
 # standard
-from safebench.scenario.scenario_definition.standard.object_crash_vehicle_dynamic import DynamicObjectCrossing
-from safebench.scenario.scenario_definition.standard.object_crash_intersection_dynamic import VehicleTurningRoute
-from safebench.scenario.scenario_definition.standard.other_leading_vehicle_dynamic import OtherLeadingVehicle
-from safebench.scenario.scenario_definition.standard.maneuver_opposite_direction_dynamic import ManeuverOppositeDirection
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import OppositeVehicleRunningRedLight
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import SignalizedJunctionLeftTurn
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurn
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRoute
+from safebench.scenario.scenario_definition.standard.object_crash_vehicle_dynamic import DynamicObjectCrossing as scenario_03_standard
+from safebench.scenario.scenario_definition.standard.object_crash_intersection_dynamic import VehicleTurningRoute as scenario_04_standard
+from safebench.scenario.scenario_definition.standard.other_leading_vehicle_dynamic import OtherLeadingVehicle as scenario_05_standard
+from safebench.scenario.scenario_definition.standard.maneuver_opposite_direction_dynamic import ManeuverOppositeDirection as scenario_06_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import OppositeVehicleRunningRedLight as scenario_07_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import SignalizedJunctionLeftTurn as scenario_08_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurn as scenario_09_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRoute as scenario_10_standard
 
 # Benign
 from safebench.scenario.scenario_definition.benign.object_crash_vehicle import DynamicObjectCrossing as scenario_03_benign
@@ -110,14 +110,14 @@ SECONDS_GIVEN_PER_METERS = 1
 
 SCENARIO_CLASS_MAPPING = {
     "standard": {
-        "Scenario3": DynamicObjectCrossing,
-        "Scenario4": VehicleTurningRoute,
-        "Scenario5": OtherLeadingVehicle,
-        "Scenario6": ManeuverOppositeDirection,
-        "Scenario7": OppositeVehicleRunningRedLight,
-        "Scenario8": SignalizedJunctionLeftTurn,
-        "Scenario9": SignalizedJunctionRightTurn,
-        "Scenario10": NoSignalJunctionCrossingRoute,
+        "Scenario3": scenario_03_standard,
+        "Scenario4": scenario_04_standard,
+        "Scenario5": scenario_05_standard,
+        "Scenario6": scenario_06_standard,
+        "Scenario7": scenario_07_standard,
+        "Scenario8": scenario_08_standard,
+        "Scenario9": scenario_09_standard,
+        "Scenario10": scenario_10_standard,
     },
     'benign': {
         "Scenario3": scenario_03_benign,
@@ -515,20 +515,18 @@ class RouteScenario(BasicScenario):
         if running_status['collision'] == Status.FAILURE:
             stop = True
             self.logger.log('>> Stop due to collision', color='yellow')
-        if self.route_length > 1:  # only check when evaluating
-            if running_status['route_complete'] == 100:
+        if running_status['route_complete'] == 100:
+            stop = True
+            self.logger.log('>> Stop due to route completion', color='yellow') 
+        if running_status['speed_above_threshold'] == Status.FAILURE:
+            if running_status['route_complete'] == 0:
+                raise RuntimeError("Agent not moving")
+            else:
                 stop = True
-                self.logger.log('>> Stop due to route completion', color='yellow') 
-            if running_status['speed_above_threshold'] == Status.FAILURE:
-                if running_status['route_complete'] == 0:
-                    raise RuntimeError("Agent not moving")
-                else:
-                    stop = True
-                    self.logger.log('>> Stop due to low speed', color='yellow') 
-        else:
-            if len(running_record) >= self.max_running_step:  # stop at max step when training
-                stop = True
-                self.logger.log('>> Stop due to max steps', color='yellow') 
+                self.logger.log('>> Stop due to low speed', color='yellow') 
+        if len(running_record) >= self.max_running_step:  # stop at max step when training
+            stop = True
+            self.logger.log('>> Stop due to max steps', color='yellow') 
 
         for scenario in self.list_scenarios:
             # print(running_status['driven_distance'])

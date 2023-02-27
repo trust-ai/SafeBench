@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-21 18:20:42
+LastEditTime: 2023-02-26 20:34:46
 Description: 
 '''
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
     parser.add_argument('--save_video', type=bool, default=False)
     parser.add_argument('--render', type=bool, default=True)
-    parser.add_argument('--frame_skip', '-fs', type=int, default=4, help='skip of frame in each step')
+    parser.add_argument('--frame_skip', '-fs', type=int, default=1, help='skip of frame in each step')
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument('--threads', type=int, default=4)
     parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -32,8 +32,7 @@ if __name__ == '__main__':
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
     parser.add_argument('--port', type=int, default=2000, help='port to communicate with carla')
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
-    parser.add_argument('--num_scenario', type=int, default=2, help='num of scenarios we run in one episode')
-    parser.add_argument('--num_episode', type=int, default=1, help='number of episode')
+    parser.add_argument('--num_scenario', '-ns', type=int, default=2, help='num of scenarios we run in one episode')
     parser.add_argument('--agent_cfg', type=str, default='dummy.yaml')
     parser.add_argument('--scenario_cfg', type=str, default='example.yaml')
     parser.add_argument('--ROOT_DIR', type=str, default=osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__)))))
@@ -54,6 +53,7 @@ if __name__ == '__main__':
     scenario_config = load_config(scenario_config_path)
 
     # main entry with a selected mode
+    agent_config.update(args_dict)
     scenario_config.update(args_dict)
     runner = CarlaRunner(agent_config, scenario_config)
     try:

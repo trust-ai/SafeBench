@@ -4,9 +4,9 @@ from safebench.agent.safe_rl.worker.buffer import OnPolicyBuffer
 
 
 class OnPolicyWorker:
-    r'''
+    """
     Collect data based on the policy and env, and store the interaction data to data buffer.
-    '''
+    """
     def __init__(self, config, logger):
         self.env = None
         self.policy = None
@@ -99,10 +99,7 @@ class OnPolicyWorker:
                         cost_value = 0
                     self.buffer.finish_path(value, cost_value)
                     if i < self.interact_steps - 1:
-                        self.logger.store(EpRet=ep_reward,
-                                          EpLen=ep_len,
-                                          EpCost=ep_cost,
-                                          tab="worker")
+                        self.logger.store(EpRet=ep_reward, EpLen=ep_len, EpCost=ep_cost, tab="worker")
                     self.cost_list.append(ep_cost)
 
         return self.interact_steps
@@ -137,10 +134,7 @@ class OnPolicyWorker:
                     ep_cost += cost
                 ep_reward += reward
                 ep_len += 1
-            self.logger.store(TestEpRet=ep_reward,
-                              TestEpLen=ep_len,
-                              TestEpCost=ep_cost,
-                              tab="eval")
+            self.logger.store(TestEpRet=ep_reward, TestEpLen=ep_len, TestEpCost=ep_cost, tab="eval")
 
     def get_sample(self):
         data = self.buffer.get()

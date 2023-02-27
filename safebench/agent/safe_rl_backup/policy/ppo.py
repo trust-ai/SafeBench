@@ -78,8 +78,7 @@ class PPO(Policy):
             _, a, logp_a = self.actor_forward(obs, deterministic=deterministic)
             v = self.critic_forward(self.critic, obs)
         # squeeze them to the right shape
-        a, v, logp_a = np.squeeze(to_ndarray(a), axis=0), np.squeeze(
-            to_ndarray(v)), np.squeeze(to_ndarray(logp_a))
+        a, v, logp_a = np.squeeze(to_ndarray(a), axis=0), np.squeeze(to_ndarray(v)), np.squeeze(to_ndarray(logp_a))
         return a, v, logp_a
 
     def learn_on_batch(self, data: dict):
@@ -112,11 +111,7 @@ class PPO(Policy):
         return pi, a, logp
 
     def _update_actor(self, data):
-        '''
-        Update the actor network
-        '''
-        obs, act, adv, logp_old = to_tensor(data['obs']), to_tensor(
-            data['act']), to_tensor(data['adv']), to_tensor(data['logp'])
+        obs, act, adv, logp_old = to_tensor(data['obs']), to_tensor(data['act']), to_tensor(data['adv']), to_tensor(data['logp'])
 
         def policy_loss():
             pi, _, logp = self.actor_forward(obs, act)
@@ -163,9 +158,6 @@ class PPO(Policy):
         )
 
     def _update_critic(self, critic, obs, ret, critic_optimizer):
-        '''
-        Update the critic network
-        '''
         obs, ret = to_tensor(obs), to_tensor(ret)
 
         def critic_loss():
@@ -193,5 +185,4 @@ class PPO(Policy):
         self.critic.load_state_dict(critic_state_dict)
         self.critic.eval()
         self._ac_training_setup(self.actor, self.critic)
-        # Set up model saving
         self.save_model()

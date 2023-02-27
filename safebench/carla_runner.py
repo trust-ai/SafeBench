@@ -1,18 +1,27 @@
+'''
+Author: 
+Email: 
+Date: 2023-02-16 11:20:54
+LastEditTime: 2023-02-26 21:13:06
+Description: 
+'''
+
+import copy
+
 import numpy as np
 import carla
 import pygame
 
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
+from safebench.gym_carla.replay_buffer import ReplayBuffer
 
 from safebench.agent import AGENT_POLICY_LIST
-from safebench.agent.safe_rl.agent_trainer import AgentTrainer # TODO: move to safebench.agent
-
 from safebench.scenario import SCENARIO_POLICY_LIST
-from safebench.scenario.scenario_trainer import ScenarioTrainer
+
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.tools.scenario_utils import scenario_parse
 from safebench.scenario.scenario_data_loader import ScenarioDataLoader
+from safebench.scenario.tools.scenario_utils import scenario_parse
 
 from safebench.util.logger import EpochLogger, setup_logger_kwargs
 from safebench.util.run_util import save_video
@@ -29,7 +38,6 @@ class CarlaRunner:
 
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
-        self.num_episode = scenario_config['num_episode']
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
         self.scenario_type = scenario_config['type_name'].split('.')[0]
 
@@ -56,7 +64,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 500,                # maximum timesteps per episode
+            'max_episode_step': 300,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -70,26 +78,30 @@ class CarlaRunner:
         agent_config['ego_state_dim'] = scenario_config['ego_state_dim']
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
-        # prepare trainer
+        # define logger
+        logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
+        self.logger = EpochLogger(**logger_kwargs)
+        
+        # prepare parameters
         if self.mode == 'eval':
             self.logger = EpochLogger(eval_mode=True)
         elif self.mode == 'train_agent':
-            logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
-            self.logger = EpochLogger(**logger_kwargs)
-            self.logger.save_config(agent_config)
-            self.agent_trainer = AgentTrainer(agent_config, self.logger)
+            self.buffer_capacity = agent_config['buffer_capacity']
+            self.eval_in_train_freq = agent_config['eval_in_train_freq']
+            self.train_episode = agent_config['train_episode']
+            #self.logger.save_config(agent_config)
         elif self.mode == 'train_scenario':
-            logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
-            self.logger = EpochLogger(**logger_kwargs)
-            self.logger.save_config(scenario_config)
-            self.scenario_trainer = ScenarioTrainer(scenario_config, self.logger)
+            self.buffer_capacity = scenario_config['buffer_capacity']
+            self.eval_in_train_freq = scenario_config['eval_in_train_freq']
+            self.train_episode = scenario_config['train_episode']
+            #self.logger.save_config(scenario_config)
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
         # define agent and scenario
-        self.logger.log('>> Agent policy: ' + agent_config['policy_type'])
-        self.logger.log('>> Scenario policy: ' + self.scenario_type)
-        self.logger.log('---------------------------------')
+        self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
+        self.logger.log('>> Scenario Policy: ' + self.scenario_type)
+        self.logger.log('-' * 40)
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_type](scenario_config, logger=self.logger)
 
@@ -130,6 +142,49 @@ class CarlaRunner:
         }
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
     
+    def train(self, env, data_loader):
+        # general buffer for both agent and scenario
+        replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
+
+        for e_i in range(self.train_episode):
+            # sample scenarios
+            sampled_scenario_configs, _ = data_loader.sampler()
+            # TODO: to restart the data loader, reset the index counter every time
+            data_loader.reset_idx_counter()
+
+            # reset envs with init action from scenario policy
+            obs = env.reset(sampled_scenario_configs, self.scenario_policy)
+            while not env.all_scenario_done():
+                # get action from agent policy and scenario policy (assume using one batch)
+                ego_actions = self.agent_policy.get_action(obs)
+                scenario_actions = self.scenario_policy.get_action(obs)
+
+                # apply action to env and get obs
+                next_obs, rewards, dones, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
+                replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones, infos])
+                obs = copy.deepcopy(next_obs)
+
+                # train on-policy agent or scenario
+                if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':
+                    self.agent_policy.train(replay_buffer)
+                elif self.mode == 'train_scenario' and self.scenario_policy.type == 'onpolicy':
+                    self.scenario_policy.train(replay_buffer)
+
+            # end up environment
+            env.clean_up()
+            replay_buffer.finish_one_episode()
+            
+            # train off-policy agent or scenario
+            if self.mode == 'train_agent' and self.agent_policy.type == 'offpolicy':
+                self.agent_policy.train(replay_buffer)
+            elif self.mode == 'train_scenario' and self.scenario_policy.type == 'offpolicy':
+                self.scenario_policy.train(replay_buffer)
+
+            # eval during training
+            if (e_i+1) % self.eval_in_train_freq == 0:
+                #self.eval(env, data_loader)
+                self.logger.log('>> ' + '-' * 40)
+
     def eval(self, env, data_loader):
         num_finished_scenario = 0
         video_count = 0
@@ -139,24 +194,20 @@ class CarlaRunner:
             num_finished_scenario += num_sampled_scenario
             
             # reset envs with init action from scenario policy
-            obss = env.reset(sampled_scenario_configs, self.scenario_policy)
+            obs = env.reset(sampled_scenario_configs, self.scenario_policy)
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
-            while True:
-                if env.all_scenario_done():
-                    self.logger.log(">> All scenarios are completed. Prepare for exiting")
-                    break
-
+            while not env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
-                ego_actions = self.agent_policy.get_action(obss)
-                scenario_actions = self.scenario_policy.get_action(obss)
+                ego_actions = self.agent_policy.get_action(obs)
+                scenario_actions = self.scenario_policy.get_action(oss)
 
                 # apply action to env and get obs
-                obss, rewards, _, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
+                obs, rewards, _, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
 
+                # save video
                 if self.save_video:
-                    one_frame = pygame.surfarray.array3d(self.display)
-                    frame_list.append(one_frame.transpose(1, 0, 2))
+                    frame_list.append(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
 
                 # accumulate reward to corresponding scenario
                 reward_idx = 0
@@ -165,14 +216,13 @@ class CarlaRunner:
                     reward_idx += 1
 
             # clean up all things
-            self.logger.log('>> Clearning up all actors')
+            self.logger.log(">> All scenarios are completed. Clearning up all actors")
             env.clean_up()
 
             # save video
             if self.save_video:
                 self.logger.log('>> Saving video')
-                video_name = './video/video_' + str(video_count) + '.gif'
-                save_video(frame_list, video_name)
+                save_video(frame_list, './video/video_' + str(video_count) + '.gif')
                 video_count += 1
 
             # calculate episode reward and print
@@ -186,34 +236,33 @@ class CarlaRunner:
         for town in maps_data.keys():
             # initialize town
             self._init_world(town)
-            # initialize the renderer
+
+            # initialize renderer
             self._init_renderer(self.num_scenario)
 
             # create scenarios within the vectorized wrapper
             env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
 
-            # prepare data loader
+            # prepare data loader and buffer
             data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)
 
             # run with different modes
             if self.mode == 'eval':
                 self.agent_policy.load_model()
-                self.agent_policy.eval()
+                self.agent_policy.set_mode('eval')
                 self.scenario_policy.load_model()
-                self.scenario_policy.eval()
+                self.scenario_policy.set_mode('eval')
                 self.eval(env, data_loader)
             elif self.mode == 'train_agent':
-                self.agent_policy.train()
+                self.agent_policy.set_mode('train')
                 self.scenario_policy.load_model()
-                self.scenario_policy.eval()
-                self.agent_trainer.set_environment(env, self.agent_policy, self.scenario_policy, data_loader)
-                self.agent_trainer.train()
+                self.scenario_policy.set_mode('eval')
+                self.train(env, data_loader)
             elif self.mode ==  'train_scenario':
                 self.agent_policy.load_model()
-                self.agent_policy.eval()
-                self.scenario_policy.train()
-                self.scenario_trainer.set_environment(env, self.agent_policy, self.scenario_policy, data_loader)
-                self.scenario_trainer.train()
+                self.agent_policy.set_mode('eval')
+                self.scenario_policy.set_mode('train')
+                self.train(env, data_loader)
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 

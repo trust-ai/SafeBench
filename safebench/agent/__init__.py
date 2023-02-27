@@ -2,17 +2,25 @@
 Author: 
 Email: 
 Date: 2023-02-04 16:30:08
-LastEditTime: 2023-02-22 19:59:28
+LastEditTime: 2023-02-26 17:43:37
 Description: 
 '''
 
 from .dummy_agent.dummy import DummyEgo
+
 from .object_detection.detector import ObjectDetection
-from .safe_rl.rl_agent import RLAgent
+
+from .rl.SAC import SAC
+# from .rl.DDPG import DDPG
+# from .rl.PPO_GAE import PPO_GAE
+# from .rl.MBRL import MBRL
 
 
 AGENT_POLICY_LIST = {
     'dummy': DummyEgo,
     'object_detection': ObjectDetection,
-    'rl': RLAgent
+    'sac': SAC,
+    #'ddpg': DDPG,
+    #'ppo': PPO_GAE,
+    #'mbrl': MBRL,
 }

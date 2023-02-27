@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-24 17:27:08
+LastEditTime: 2023-02-26 20:36:09
 @Description: 
 '''
 
@@ -167,6 +167,9 @@ class AutoregressiveModel(nn.Module):
 
 
 class REINFORCE(BasePolicy):
+    name = 'reinforce'
+    type = 'init'
+
     def __init__(self, scenario_config, logger):
         self.logger = logger
         self.standard_action = scenario_config['standard_action']
@@ -175,11 +178,17 @@ class REINFORCE(BasePolicy):
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
         self.num_waypoint = 30
 
-    def eval(self):
-        self.model.eval()
-    
-    def train(self):
-        self.model.train()
+    def train(self, replay_buffer):
+        pass
+
+    def set_mode(self, mode):
+        self.mode = mode
+        if mode == 'train':
+            self.model.train()
+        elif mode == 'eval':
+            self.model.eval()
+        else:
+            raise ValueError(f'Unknown mode {mode}')
 
     def proceess_init_state(self, state):
         route = state['route']

@@ -1,5 +1,12 @@
+'''
+Author: 
+Email:
+Date: 2023-01-30 22:30:20
+LastEditTime: 2023-02-26 00:48:48
+Description: 
+'''
+
 from abc import ABC, abstractclassmethod
-import torch
 
 
 class Policy(ABC):
@@ -11,8 +18,7 @@ class Policy(ABC):
         Inline method, check if the config file contain certain key params.
         '''
         for key in keys:
-            assert key in config.keys(), \
-                "missing %s parameter in the config!" % key
+            assert key in config.keys(), "missing %s parameter in the config!" % key
 
     def _config_to_attr(self, config):
         '''

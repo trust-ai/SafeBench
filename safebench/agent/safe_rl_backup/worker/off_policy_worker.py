@@ -6,9 +6,10 @@ from safebench.util.torch_util import to_tensor
 
 
 class OffPolicyWorker:
-    r'''
-    Collect data based on the policy and env, and store the interaction data to data buffer.
-    '''
+    """
+        Collect data based on the policy and env, and store the interaction data to data buffer.
+    """
+
     def __init__(self, config, logger):
         self.env = None
         self.policy = None
@@ -47,11 +48,6 @@ class OffPolicyWorker:
                 'dtype': np.float32,
             }
         }
-        # if "Safe" in env.spec.id:
-        #     self.SAFE_RL_ENV = True
-        #     env_dict["cost"] = {'dtype': np.float32}
-        # else:
-        #     self.SAFE_RL_ENV = False
         self.cpp_buffer = ReplayBuffer(config['buffer_size'], env_dict)
 
     def set_environment(self, env, agent, data_loader):
@@ -72,8 +68,8 @@ class OffPolicyWorker:
         epoch_steps = 0
         range_instance = tqdm(
             range(self.sample_episode_num // self.data_loader.num_scenario),
-            desc='Collecting trajectories') if self.verbose else range(
-                self.sample_episode_num // self.data_loader.num_scenario)
+            desc='Collecting trajectories'
+        ) if self.verbose else range(self.sample_episode_num // self.data_loader.num_scenario)
         for i in range_instance:
             steps = self.work()
             epoch_steps += steps

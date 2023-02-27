@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-01-30 22:30:20
-LastEditTime: 2023-02-06 19:41:21
+LastEditTime: 2023-02-26 00:37:49
 Description: 
 '''
 
@@ -10,6 +10,7 @@ import numpy as np
 
 from safebench.util.run_util import setup_eval_configs
 from safebench.agent.safe_rl.policy import DDPG, PPO, SAC, TD3
+from safebench.agent.safe_rl.worker import OffPolicyWorker, OnPolicyWorker
 
 
 # a list of implemented algorithms
@@ -19,6 +20,15 @@ POLICY_LIST = {
     "td3": TD3,
     "ddpg": DDPG,
 }
+
+
+WORKER_LIST = {
+    "ppo": OnPolicyWorker,
+    "sac": OffPolicyWorker,
+    "td3": OffPolicyWorker,
+    "ddpg": OffPolicyWorker,
+}
+
 
 class RLAgent:
     """ 

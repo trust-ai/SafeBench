@@ -14,9 +14,9 @@ class ScenarioDataLoader:
         self.num_scenario = num_scenario
         self.config_lists = config_lists
         self.num_total_scenario = len(config_lists)
-        self._reset_idx_counter()
+        self.reset_idx_counter()
 
-    def _reset_idx_counter(self):
+    def reset_idx_counter(self):
         self.scenario_idx = list(range(self.num_total_scenario))
 
     def _check_overlap(self):

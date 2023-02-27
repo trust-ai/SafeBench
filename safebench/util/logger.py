@@ -1,10 +1,3 @@
-"""
-
-Some simple logging functionality, inspired by rllab's logging.
-
-Logs to a tab-separated-values file (path/to/output_directory/progress.txt)
-
-"""
 import atexit
 import json
 import os
@@ -23,62 +16,14 @@ from tensorboardX import SummaryWriter
 IS_MAIN_PROC = True
 
 # Where experiment outputs are saved by default:
-DEFAULT_DATA_DIR = osp.join(
-    osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__)))), 'data')
+DEFAULT_DATA_DIR = osp.join(osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__)))), 'data')
 
 # Whether to automatically insert a date and time stamp into the names of
 # save directories:
 FORCE_DATESTAMP = False
 
 
-def setup_logger_kwargs(
-    exp_name,
-    seed=None,
-    data_dir=None,
-    datestamp=False,
-    use_tensor_board=True,
-):
-    """
-    Sets up the output_dir for a logger and returns a dict for logger kwargs.
-
-    If no seed is given and datestamp is false, 
-
-    ::
-
-        output_dir = data_dir/exp_name
-
-    If a seed is given and datestamp is false,
-
-    ::
-
-        output_dir = data_dir/exp_name/exp_name_s[seed]
-
-    If datestamp is true, amend to
-
-    ::
-
-        output_dir = data_dir/YY-MM-DD_exp_name/YY-MM-DD_HH-MM-SS_exp_name_s[seed]
-
-    You can force datestamp=True by setting ``FORCE_DATESTAMP=True`` in 
-    ``spinup/user_config.py``. 
-
-    Args:
-
-        exp_name (string): Name for experiment.
-
-        seed (int): Seed for random number generators used by experiment.
-
-        data_dir (string): Path to folder where results should be saved.
-            Default is the ``DEFAULT_DATA_DIR``.
-
-        datestamp (bool): Whether to include a date and timestamp in the
-            name of the save directory.
-
-    Returns:
-
-        logger_kwargs, a dict containing output_dir and exp_name.
-    """
-
+def setup_logger_kwargs(exp_name, seed=None, data_dir=None, datestamp=False, use_tensor_board=True):
     # Datestamp forcing
     datestamp = datestamp or FORCE_DATESTAMP
 
@@ -99,9 +44,7 @@ def setup_logger_kwargs(
         data_dir = osp.join(DEFAULT_DATA_DIR, data_dir)
     else:
         data_dir = DEFAULT_DATA_DIR
-    logger_kwargs = dict(output_dir=osp.join(data_dir, relpath),
-                         exp_name=exp_name,
-                         use_tensor_board=use_tensor_board)
+    logger_kwargs = dict(output_dir=osp.join(data_dir, relpath), exp_name=exp_name, use_tensor_board=use_tensor_board)
     return logger_kwargs
 
 
@@ -120,21 +63,14 @@ def convert_json(obj):
     else:
         if isinstance(obj, dict):
             return {convert_json(k): convert_json(v) for k, v in obj.items()}
-
         elif isinstance(obj, tuple):
             return (convert_json(x) for x in obj)
-
         elif isinstance(obj, list):
             return [convert_json(x) for x in obj]
-
         elif hasattr(obj, '__name__') and not ('lambda' in obj.__name__):
             return convert_json(obj.__name__)
-
         elif hasattr(obj, '__dict__') and obj.__dict__:
-            obj_dict = {
-                convert_json(k): convert_json(v)
-                for k, v in obj.__dict__.items()
-            }
+            obj_dict = {convert_json(k): convert_json(v) for k, v in obj.__dict__.items()}
             return {str(obj): obj_dict}
 
         return str(obj)
@@ -157,15 +93,17 @@ def statistics_scalar(x, with_min_and_max=False):
     return mean, std
 
 
-color2num = dict(gray=30,
-                 red=31,
-                 green=32,
-                 yellow=33,
-                 blue=34,
-                 magenta=35,
-                 cyan=36,
-                 white=37,
-                 crimson=38)
+color2num = dict(
+    gray=30,
+    red=31,
+    green=32,
+    yellow=33,
+    blue=34,
+    magenta=35,
+    cyan=36,
+    white=37,
+    crimson=38
+)
 
 
 def colorize(string, color, bold=False, highlight=False):

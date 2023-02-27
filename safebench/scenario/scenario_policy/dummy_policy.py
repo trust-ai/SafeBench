@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-24 15:12:04
+LastEditTime: 2023-02-26 20:36:49
 @Description: 
 '''
 
@@ -18,17 +18,17 @@ class DummyAgent(BasePolicy):
         self.logger.log('>> This scenario does not require policy model, using a dummy one', color='yellow')
         self.num_scenario = config['num_scenario']
 
-    def eval(self):
+    def train(self, replay_buffer):
         pass
 
-    def train(self):
-        pass
+    def set_mode(self, mode):
+        self.mode = mode
 
     def get_action(self, state):
         return [None] * self.num_scenario
-    
+
     def get_init_action(self, scenario_config):
-        return [None] * self.num_scenario
+        return None
 
     def load_model(self):
         return None
