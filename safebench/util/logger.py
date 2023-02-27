@@ -16,7 +16,7 @@ from tensorboardX import SummaryWriter
 IS_MAIN_PROC = True
 
 # Where experiment outputs are saved by default:
-DEFAULT_DATA_DIR = osp.join(osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__)))), 'data')
+DEFAULT_DATA_DIR = osp.join(osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__)))), 'log')
 
 # Whether to automatically insert a date and time stamp into the names of
 # save directories:
@@ -149,13 +149,12 @@ class Logger:
         if IS_MAIN_PROC and not eval_mode:
             self.output_dir = output_dir or "/tmp/experiments/%i" % int(time.time())
             if osp.exists(self.output_dir):
-                print("Warning: Log dir %s already exists! Storing info there anyway." % self.output_dir)
+                self.log(">> Log path %s already exists! Storing info there anyway." % self.output_dir, 'yellow')
             else:
                 os.makedirs(self.output_dir)
             self.output_file = open(osp.join(self.output_dir, output_fname), 'a')
             atexit.register(self.output_file.close)
-            print(
-                colorize("Logging data to %s" % self.output_file.name, 'green', bold=True))
+            print(colorize(">> Logging data to %s" % self.output_file.name, 'green', bold=True))
             # Setup tensor board logging if enabled and MPI root process
             self.summary_writer = SummaryWriter(os.path.join(self.output_dir, 'tb')) if use_tensor_board else None
         else:
@@ -426,6 +425,5 @@ class EpochLogger(Logger):
         Lets an algorithm ask the logger for mean/std/min/max of a diagnostic.
         """
         v = self.epoch_dict[key]
-        vals = np.concatenate(v) if isinstance(
-            v[0], np.ndarray) and len(v[0].shape) > 0 else v
+        vals = np.concatenate(v) if isinstance(v[0], np.ndarray) and len(v[0].shape) > 0 else v
         return statistics_scalar(vals)

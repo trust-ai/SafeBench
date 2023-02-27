@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 14:59:50
+LastEditTime: 2023-02-27 01:11:51
 Description: 
 '''
 
@@ -32,9 +32,9 @@ class ScenarioManager(object):
         self.running_record = []
         GameTime.restart()
 
-    def cleanup(self):
+    def clean_up(self):
         if self.background_scenario is not None:
-            self.background_scenario.__del__()
+            self.background_scenario.clean_up()
 
     def load_scenario(self, scenario):
         self._reset()
@@ -58,7 +58,6 @@ class ScenarioManager(object):
             running_scenario.create_behavior(scenario_init_action)
             # init actors after passing in init actions
             running_scenario.initialize_actors()
-            self.background_scenario.other_actors += running_scenario.other_actors
 
     def stop_scenario(self):
         self._running = False

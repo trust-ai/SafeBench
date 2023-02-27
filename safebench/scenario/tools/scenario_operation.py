@@ -1,6 +1,10 @@
-from __future__ import print_function
-
-import math
+'''
+Author: 
+Email: 
+Date: 2023-01-30 22:30:39
+LastEditTime: 2023-02-27 01:02:18
+Description: 
+'''
 
 import carla
 
@@ -8,52 +12,32 @@ from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataPro
 from safebench.scenario.tools.ActorController import VehiclePIDController
 from safebench.scenario.tools.scenario_utils import calculate_distance_locations
 
-Pi = 3.1415927
-
-"""
-This class defines some atomic operation for actors
-All actor's behaviors should be combination of these operations
-Next step is define combination for each scenario
-"""
 
 class ScenarioOperation(object):
-    def __init__(self, ego_vehicles, other_actors, timeout=2.0):
+    """
+        This class defines some atomic operation for actors. All actor's behaviors should be combination of these operations
+    """
+
+    def __init__(self, ego_vehicles, other_actors):
         self.ego_vehicles = ego_vehicles
         self.other_actors = other_actors
         self.need_accelerated = False
         self.vehicle_controller = {}
 
-    def initialize_vehicle_actors(self, actor_transform_list, other_actor_list, actor_type_list):
-        # @note:these three lists should have same length
-        # actor_type_list should be list of strings, contains vehicle type,
-        if (len(actor_type_list) != len(actor_transform_list) or len(actor_type_list) == 0):
+    def initialize_vehicle_actors(self, actor_transform_list, actor_type_list):
+        other_actor_list = []
+        if len(actor_type_list) != len(actor_transform_list):
             print("Error caused by length match")
         else:
             for i in range(len(actor_type_list)):
-                # comment: if actor is vehicle
-                if(actor_type_list[i].startswith('vehicle')):
-                    cur_vehicle_transform = actor_transform_list[i]
-                    cur_vehicle = CarlaDataProvider.request_new_actor(actor_type_list[i], cur_vehicle_transform)
-                    cur_vehicle.set_simulate_physics(enabled=True)
-                    other_actor_list.append(cur_vehicle)
-                elif(actor_type_list[i].startswith('walker')):
-                    actor = CarlaDataProvider.request_new_actor(actor_type_list[i], actor_transform_list[i])
-                    actor.set_simulate_physics(enabled=True)
-                    other_actor_list.append(actor)
-                    # actor = world.spawn_actor(actor_type_list[i], actor_transform_list[i])
-                    # controller_bp = world.get_blueprint_library().find('controller.ai.walker')
-                    # # AI controller
-                    # controller = world.spawn_actor(controller_bp, carla.Transform(), actor)
-                elif(actor_type_list[i].startswith('static')):
-                    actor = CarlaDataProvider.request_new_actor(actor_type_list[i], actor_transform_list[i])
-                    actor.set_simulate_physics(enabled=False)
-                    other_actor_list.append(actor)
+                actor = CarlaDataProvider.request_new_actor(actor_type_list[i], actor_transform_list[i])
+                actor.set_simulate_physics(enabled=True)
+                other_actor_list.append(actor)
 
         self.other_actors = other_actor_list
         self._init_vehicle_controller()
 
     def _init_vehicle_controller(self):
-        # note: VehiclePIDController class just need one actor each time
         _dt = 1.0 / 20.0
         _args_lateral_dict = {'K_P': 1.95, 'K_I': 0.05, 'K_D': 0.2, 'dt': _dt}
         _args_longitudinal_dict = {'K_P': 1.0, 'K_I': 0.05, 'K_D': 0, 'dt': _dt}
@@ -85,8 +69,8 @@ class ScenarioOperation(object):
         # control.throttle = 1.0
         self.other_actors[i].apply_control(control)
 
-    # note:'i' represents id/order of specific actor in other_actors list
     def drive_to_target_followlane(self, i ,target_transform, target_speed):
+        # 'i' represents id/order of specific actor in other_actors list
         cur_vehicle_control = self.vehicle_controller.get(self.other_actors[i].id)
         control = cur_vehicle_control.run_step(target_speed, target_transform)
         self.other_actors[i].apply_control(control)
@@ -114,15 +98,3 @@ class ScenarioOperation(object):
 
     def roll_over(self):
         pass
-
-
-
-
-
-
-
-
-
-
-
-

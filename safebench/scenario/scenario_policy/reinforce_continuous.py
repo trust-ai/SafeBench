@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-26 20:36:09
+LastEditTime: 2023-02-26 21:20:28
 @Description: 
 '''
 
@@ -200,7 +200,7 @@ class REINFORCE(BasePolicy):
         processed_state = np.concatenate((route_norm, [[target_speed]]), axis=0).astype('float32')
         return processed_state
 
-    def get_action(self, state):
+    def get_action(self, state, deterministic):
         return [None] * self.num_scenario
 
     def get_init_action(self, state, deterministic=True):

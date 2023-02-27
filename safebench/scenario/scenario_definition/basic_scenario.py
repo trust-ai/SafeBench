@@ -15,7 +15,7 @@ class BasicScenario(object):
     """
         Base class for user-defined scenario
     """
-    def __init__(self, name, ego_vehicles, config, world, first_env=False):
+    def __init__(self, name, config, world, first_env=False):
         self.world = world
         self.other_actors = []
         self.actor_type_list = []
@@ -24,7 +24,6 @@ class BasicScenario(object):
         self.trigger_distance_threshold = None
         self.reference_actor = None
 
-        self.ego_vehicles = ego_vehicles
         self.name = name
         self.config = config
 
@@ -87,17 +86,16 @@ class BasicScenario(object):
         raise NotImplementedError(
             "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
-    def remove_all_actors(self):
+    def clean_up(self):
         """
             Remove all actors
         """
-        for i, _ in enumerate(self.other_actors):
-            if self.other_actors[i] is not None:
-                if self.other_actors[i].type_id.startswith('vehicle'):
-                    self.other_actors[i].set_autopilot(enabled=False)
-                if CarlaDataProvider.actor_id_exists(self.other_actors[i].id):
-                    CarlaDataProvider.remove_actor_by_id(self.other_actors[i].id)
-                self.other_actors[i] = None
+        # TODO: destroy collision sensors before destroying actors
+        for s_i in range(len(self.other_actors)):
+            if self.other_actors[s_i].type_id.startswith('vehicle'):
+                self.other_actors[s_i].set_autopilot(enabled=False)
+            if CarlaDataProvider.actor_id_exists(self.other_actors[s_i].id):
+                CarlaDataProvider.remove_actor_by_id(self.other_actors[s_i].id)
         self.other_actors = []
 
 

@@ -365,8 +365,7 @@ def generate_target_waypoint(waypoint, turn=0):
 
 def generate_target_waypoint_in_route(waypoint, route):
     """
-    This method follow waypoints to a junction
-    @returns a waypoint list according to turn input
+        This method follow waypoints to a junction and returns a waypoint list according to turn input
     """
     wmap = CarlaDataProvider.get_map()
     reached_junction = False

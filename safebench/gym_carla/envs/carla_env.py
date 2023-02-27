@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-26 20:32:55
+LastEditTime: 2023-02-26 23:48:34
 Description: 
 '''
 
@@ -519,9 +519,6 @@ class CarlaEnv(gym.Env):
 
     def _get_reward(self):
         """ Calculate the step reward. """
-        # reward for speed tracking
-        v = self.ego.get_velocity()
-
         # TODO: reward for collision, there should be a signal from scenario
         r_collision = -1 if len(self.collision_hist) > 0 else 0
 
@@ -533,17 +530,19 @@ class CarlaEnv(gym.Env):
         dis, w = get_lane_dis(self.waypoints, ego_x, ego_y)
         r_out = -1 if abs(dis) > self.out_lane_thres else 0
 
-        # longitudinal speed
-        lspeed = np.array([v.x, v.y])
-        lspeed_lon = np.dot(lspeed, w)
+        # reward for speed tracking
+        v = self.ego.get_velocity()
 
         # cost for too fast
+        lspeed = np.array([v.x, v.y])
+        lspeed_lon = np.dot(lspeed, w)
         r_fast = -1 if lspeed_lon > self.desired_speed else 0
 
         # cost for lateral acceleration
         r_lat = -abs(self.ego.get_control().steer) * lspeed_lon**2
-        r = 1 * r_collision + 1 * lspeed_lon + 10 * r_fast + 1 * r_out + r_steer * 5 + 0.2 * r_lat + 0.1
 
+        # combine all rewards
+        r = 1 * r_collision + 1 * lspeed_lon + 10 * r_fast + 1 * r_out + r_steer * 5 + 0.2 * r_lat
         return r
 
     def _get_cost(self):
@@ -579,3 +578,4 @@ class CarlaEnv(gym.Env):
     def clean_up(self):
         self._remove_sensor()
         self._remove_ego()
+        self.scenario_manager.clean_up()

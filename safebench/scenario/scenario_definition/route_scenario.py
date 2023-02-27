@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-26 20:48:40
+LastEditTime: 2023-02-27 01:16:47
 Description: 
 '''
 
@@ -252,15 +252,17 @@ def compare_scenarios(scenario_choice, existent_scenario):
     return False
 
 
-class RouteScenario(BasicScenario):
+class RouteScenario():
     """
         Implementation of a RouteScenario, i.e. a scenario that consists of driving along a pre-defined route,
         along which several smaller scenarios are triggered
     """
 
     def __init__(self, world, config, ego_id, logger, max_running_step):
+        #super(RouteScenario, self).__init__(name=config.name, config=config, world=world)
         self.world = world
         self.logger = logger
+
         self.config = config
         self.route = None
         self.ego_id = ego_id
@@ -271,6 +273,9 @@ class RouteScenario(BasicScenario):
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
         self._update_route(world, config)
         ego_vehicle = self._update_ego_vehicle()
+        self.ego_vehicles = [ego_vehicle]
+        self.ego_idx = 0
+        self.other_actors = []
 
         self.list_scenarios = self._build_scenario_instances(
             world,
@@ -280,10 +285,6 @@ class RouteScenario(BasicScenario):
             timeout=self.timeout,
             weather=config.weather
         )
-
-        super(RouteScenario, self).__init__(name=config.name, ego_vehicles=[ego_vehicle], config=config, world=world)
-        self.ego_idx = 0
-        self.other_idx = 1 if config.scenario_id in [3, 4] else 0
         self.criteria = self._create_criteria()
 
     def _update_route(self, world, config, timeout=None):
@@ -378,7 +379,7 @@ class RouteScenario(BasicScenario):
         success = False
         while not success:
             try:
-                role_name = 'ego_vehicle'+str(self.ego_id)
+                role_name = 'ego_vehicle' + str(self.ego_id)
                 ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
                 if ego_vehicle is not None:
                     success = True
@@ -435,14 +436,11 @@ class RouteScenario(BasicScenario):
                 continue
 
             scenario_instance_vec.append(scenario_instance)
-
         return scenario_instance_vec
 
     def _get_actors_instances(self, list_of_antagonist_actors):
         def get_actors_from_list(list_of_actor_def):
-            """
-                Receives a list of actor definitions and creates an actual list of ActorConfigurationObjects
-            """
+            # Receives a list of actor definitions and creates an actual list of ActorConfigurationObjects
             sublist_of_actors = []
             for actor_def in list_of_actor_def:
                 sublist_of_actors.append(convert_json_to_actor(actor_def))
@@ -459,15 +457,13 @@ class RouteScenario(BasicScenario):
 
         if 'right' in list_of_antagonist_actors:
             list_of_actors += get_actors_from_list(list_of_antagonist_actors['right'])
-
         return list_of_actors
 
     def initialize_actors(self):
         """
-        Set other_actors to the superset of all scenario actors
+            Set other_actors to the superset of all scenario actors
         """
-        config = self.config
-        if config.initialize_background_actors:
+        if self.config.initialize_background_actors:
             amount = 10
         else:
             amount = 0
@@ -475,13 +471,10 @@ class RouteScenario(BasicScenario):
         new_actors = CarlaDataProvider.request_new_batch_actors('vehicle.*', amount, carla.Transform(), autopilot=True, random_location=True, rolename='background')
         if new_actors is None:
             raise Exception("Error: Unable to add the background activity, all spawn points were occupied")
-
+        
         for _actor in new_actors:
+            print('background', _actor.type_id)
             self.other_actors.append(_actor)
-
-        # Add all the actors of the specific scenarios to self.other_actors
-        for scenario in self.list_scenarios:
-            self.other_actors.extend(scenario.other_actors)
 
     def get_running_status(self, running_record):
         running_status = {
@@ -495,16 +488,6 @@ class RouteScenario(BasicScenario):
             'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.roll,
             'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.pitch,
             'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.yaw,
-            'adv_velocity': CarlaDataProvider.get_velocity(self.other_actors[self.other_idx]),
-            'adv_acceleration_x': self.other_actors[self.other_idx].get_acceleration().x,
-            'adv_acceleration_y': self.other_actors[self.other_idx].get_acceleration().y,
-            'adv_acceleration_z': self.other_actors[self.other_idx].get_acceleration().z,
-            'adv_x': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).location.x,
-            'adv_y': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).location.y,
-            'adv_z': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).location.z,
-            'adv_roll': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).rotation.roll,
-            'adv_pitch': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).rotation.pitch,
-            'adv_yaw': CarlaDataProvider.get_transform(self.other_actors[self.other_idx]).rotation.yaw,
             'current_game_time': GameTime.get_time()
         }
 
@@ -541,17 +524,6 @@ class RouteScenario(BasicScenario):
 
         return running_status, stop
 
-    def _create_behavior(self):
-        """
-            Basic behavior do nothing, i.e. Idle. We need this method for background. We keep pytrees just for background
-        """
-        behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SuccessOnOne)
-        subbehavior = py_trees.composites.Parallel(name="Behavior", policy=py_trees.common.ParallelPolicy.SuccessOnAll)
-
-        # subbehavior.add_child(Idle())  # The behaviours cannot make the route scenario stop
-        behavior.add_child(subbehavior)
-        return behavior
-
     def _create_criteria(self):
         criteria = {}
         route = convert_transform_to_location(self.route)
@@ -574,14 +546,19 @@ class RouteScenario(BasicScenario):
             criteria['route_complete'] = RouteCompletionTest(self.ego_vehicles[self.ego_idx], route=route)
         return criteria
 
-    def __del__(self):
-        """
-        Remove all actors upon deletion
-        """
+    def clean_up(self):
+        # stop 
         for criterion_name, criterion in self.criteria.items():
             criterion.terminate()
         
         # each scenario remove its own actors
         for scenario in self.list_scenarios:
-            scenario.remove_all_actors()
-        self.remove_all_actors()
+            scenario.clean_up()
+
+        # remove background vehicles
+        for s_i in range(len(self.other_actors)):
+            if self.other_actors[s_i].type_id.startswith('vehicle'):
+                self.other_actors[s_i].set_autopilot(enabled=False)
+            if CarlaDataProvider.actor_id_exists(self.other_actors[s_i].id):
+                CarlaDataProvider.remove_actor_by_id(self.other_actors[s_i].id)
+        self.other_actors = []

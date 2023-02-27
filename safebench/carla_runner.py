@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-26 21:13:06
+LastEditTime: 2023-02-27 01:13:50
 Description: 
 '''
 
@@ -64,7 +64,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 300,                # maximum timesteps per episode
+            'max_episode_step': 30,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -156,8 +156,8 @@ class CarlaRunner:
             obs = env.reset(sampled_scenario_configs, self.scenario_policy)
             while not env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
-                ego_actions = self.agent_policy.get_action(obs)
-                scenario_actions = self.scenario_policy.get_action(obs)
+                ego_actions = self.agent_policy.get_action(obs, deterministic=False)
+                scenario_actions = self.scenario_policy.get_action(obs, deterministic=False)
 
                 # apply action to env and get obs
                 next_obs, rewards, dones, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
@@ -188,6 +188,7 @@ class CarlaRunner:
     def eval(self, env, data_loader):
         num_finished_scenario = 0
         video_count = 0
+        data_loader.reset_idx_counter()
         while len(data_loader) > 0:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
@@ -199,8 +200,8 @@ class CarlaRunner:
             frame_list = []
             while not env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
-                ego_actions = self.agent_policy.get_action(obs)
-                scenario_actions = self.scenario_policy.get_action(oss)
+                ego_actions = self.agent_policy.get_action(obs, deterministic=True)
+                scenario_actions = self.scenario_policy.get_action(obs, deterministic=True)
 
                 # apply action to env and get obs
                 obs, rewards, _, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)

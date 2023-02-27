@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-04 16:30:08
-LastEditTime: 2023-02-26 17:43:37
+LastEditTime: 2023-02-26 22:16:32
 Description: 
 '''
 
@@ -10,7 +10,7 @@ from .dummy_agent.dummy import DummyEgo
 
 from .object_detection.detector import ObjectDetection
 
-from .rl.SAC import SAC
+from .rl.sac import SAC
 # from .rl.DDPG import DDPG
 # from .rl.PPO_GAE import PPO_GAE
 # from .rl.MBRL import MBRL

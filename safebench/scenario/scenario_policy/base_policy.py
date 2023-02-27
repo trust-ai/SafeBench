@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-26 20:36:43
+LastEditTime: 2023-02-26 21:20:21
 @Description: 
 '''
 
@@ -18,7 +18,7 @@ class BasePolicy:
     def set_mode(self, mode):
         raise NotImplementedError()
 
-    def get_action(self, state):
+    def get_action(self, state, deterministic):
         raise NotImplementedError()
     
     def get_init_action(self, scenario_config):

@@ -1,9 +1,10 @@
 import math
+import traceback
+
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario, SpawnOtherActorError
-
 from safebench.scenario.tools.scenario_helper import generate_target_waypoint_in_route
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 
@@ -87,19 +88,17 @@ class VehicleTurningRoute(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicles, config, timeout=60):
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute", ego_vehicles, config, world)
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute", config, world)
 
-        self._wmap = CarlaDataProvider.get_map()
+        self._map = CarlaDataProvider.get_map()
         self.timeout = timeout
         self._other_actor_target_velocity = 10
-        self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._trigger_location = config.trigger_points[0].location
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
         self._num_lane_changes = 0
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
+        self.scenario_operation = ScenarioOperation(ego_vehicles, self.other_actors)
         self.actor_type_list.append('vehicle.diamondback.century')
 
         self.reference_actor = None
@@ -121,11 +120,13 @@ class VehicleTurningRoute(BasicScenario):
         _other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
         self.other_actor_transform.append(_other_actor_transform)
 
+        # try to initialize other actors
         try:
-            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
+            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.actor_type_list)
+            self.other_actors = self.scenario_operation.other_actors
         except:
+            traceback.print_exc()
             raise SpawnOtherActorError
-
         self.reference_actor = self.other_actors[0]
 
     def create_behavior(self, scenario_init_action):

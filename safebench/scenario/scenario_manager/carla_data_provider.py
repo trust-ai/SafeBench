@@ -531,9 +531,15 @@ class CarlaDataProvider(object):
 
     @staticmethod
     def request_new_actor(
-        model, spawn_point, rolename='scenario', autopilot=False,
-        random_location=False, color=None, actor_category="car",
-        safe_blueprint=False, tick=True
+        model, 
+        spawn_point, 
+        rolename='scenario', 
+        autopilot=False,
+        random_location=False, 
+        color=None, 
+        actor_category="car",
+        safe_blueprint=False, 
+        tick=True
     ):
         """
         This method tries to create a new actor, returning it if successful (None otherwise).
@@ -586,7 +592,6 @@ class CarlaDataProvider(object):
         param:
         - actor_list: list of ActorConfigurationData
         """
-
         SpawnActor = carla.command.SpawnActor                     
         PhysicsCommand = carla.command.SetSimulatePhysics         
         FutureActor = carla.command.FutureActor                   
@@ -598,8 +603,7 @@ class CarlaDataProvider(object):
         CarlaDataProvider.generate_spawn_points()
         for actor in actor_list:
             # Get the blueprint
-            blueprint = CarlaDataProvider.create_blueprint(
-                actor.model, actor.rolename, actor.color, actor.category, safe_blueprint)
+            blueprint = CarlaDataProvider.create_blueprint(actor.model, actor.rolename, actor.color, actor.category, safe_blueprint)
 
             # Get the spawn point
             transform = actor.transform
@@ -610,7 +614,6 @@ class CarlaDataProvider(object):
                 else:
                     _spawn_point = CarlaDataProvider._spawn_points[CarlaDataProvider._spawn_index]  
                     CarlaDataProvider._spawn_index += 1
-
             else:
                 _spawn_point = carla.Transform()
                 _spawn_point.rotation = transform.rotation
@@ -650,25 +653,29 @@ class CarlaDataProvider(object):
         return actors
 
     @staticmethod
-    def request_new_batch_actors(model, amount, spawn_points, autopilot=False,
-                                 random_location=False, rolename='scenario',
-                                 safe_blueprint=False, tick=True):
+    def request_new_batch_actors(
+        model, 
+        amount, 
+        spawn_points, 
+        autopilot=False,
+        random_location=False, 
+        rolename='scenario',
+        safe_blueprint=False, 
+        tick=True
+    ):
         """
-        Simplified version of "request_new_actors". This method also create several actors in batch.
-        Instead of needing a list of ActorConfigurationData, an "amount" parameter is used.
-        This makes actor spawning easier but reduces the amount of configurability.
-        Some parameters are the same for all actors (rolename, autopilot and random location)
-        while others are randomized (color)
+            Simplified version of "request_new_actors". This method also create several actors in batch.
+            Instead of needing a list of ActorConfigurationData, an "amount" parameter is used.
+            This makes actor spawning easier but reduces the amount of configurability.
+            Some parameters are the same for all actors (rolename, autopilot and random location) while others are randomized (color)
         """
 
         SpawnActor = carla.command.SpawnActor      # pylint: disable=invalid-name
         SetAutopilot = carla.command.SetAutopilot  # pylint: disable=invalid-name
         FutureActor = carla.command.FutureActor    # pylint: disable=invalid-name
-
         CarlaDataProvider.generate_spawn_points()
 
         batch = []
-
         for i in range(amount):
             # Get vehicle by model
             blueprint = CarlaDataProvider.create_blueprint(model, rolename, safe=safe_blueprint)
@@ -696,7 +703,6 @@ class CarlaDataProvider(object):
                 continue
             CarlaDataProvider._carla_actor_pool[actor.id] = actor
             CarlaDataProvider.register_actor(actor)
-
         return actors
 
     @staticmethod

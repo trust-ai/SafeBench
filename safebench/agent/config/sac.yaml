@@ -7,7 +7,7 @@ obs_type: 0
 train_episode: 100
 eval_in_train_freq: 1
 save_freq: 1
-buffer_capacity: 5000
+buffer_capacity: 10000
 buffer_start_training: 100
 
 lr: 5.0e-4
