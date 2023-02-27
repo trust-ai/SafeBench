@@ -41,7 +41,7 @@ class ReplayBuffer:
         infos = data_list[6]
         self.buffer_len += len(infos)
 
-        # seperate trajectories according to infos
+        # separate trajectories according to infos
         for s_i in range(len(infos)):
             sid = infos[s_i]['scenario_id']
             self.buffer_ego_actions[sid].append(ego_actions[s_i])
@@ -82,10 +82,10 @@ class ReplayBuffer:
         else:
             action = np.stack(prepared_scenario_actions)[sample_index]  # action of scenario
         batch = {
-            'action': action,                                        # action
-            'state': np.stack(prepared_obs)[sample_index, :],        # state
-            'n_state': np.stack(prepared_next_obs)[sample_index, :], # next state
-            'reward': np.stack(prepared_rewards)[sample_index],      # reward
-            'done': np.stack(prepared_dones)[sample_index],          # done
+            'action': action,                                         # action
+            'state': np.stack(prepared_obs)[sample_index, :],         # state
+            'n_state': np.stack(prepared_next_obs)[sample_index, :],  # next state
+            'reward': np.stack(prepared_rewards)[sample_index],       # reward
+            'done': np.stack(prepared_dones)[sample_index],           # done
         }
         return batch

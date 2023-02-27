@@ -63,6 +63,7 @@ class ScenarioConfiguration(object):
     - type is the class of scenario (e.g. ControlLoss)
     """
 
+    num_scenario = None
     trigger_points = []
     ego_vehicles = []
     other_actors = []

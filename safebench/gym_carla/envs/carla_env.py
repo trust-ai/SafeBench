@@ -84,7 +84,7 @@ class CarlaEnv(gym.Env):
         self.ROOT_DIR = env_params['ROOT_DIR']
         self.scenario_type = env_params['scenario_type']
 
-        if self.scenario_type in ['dev', 'benign', 'standard', 'LC']:
+        if self.scenario_type in ['dev', 'benign', 'standard', 'LC', 'rl_training']:
             self.obs_size = int(self.obs_range / self.lidar_bin)
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
@@ -147,7 +147,7 @@ class CarlaEnv(gym.Env):
                 logger=self.logger,
                 first_env=self.first_env
             )
-        elif self.scenario_type in ['dev', 'standard', 'benign', 'LC']:
+        elif self.scenario_type in ['dev', 'standard', 'benign', 'LC', 'rl_training']:
             scenario = RouteScenario(
                 world=self.world, 
                 config=config, 

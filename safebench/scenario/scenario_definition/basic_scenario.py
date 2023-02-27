@@ -15,7 +15,7 @@ class BasicScenario(object):
     """
         Base class for user-defined scenario
     """
-    def __init__(self, name, config, world, first_env=False):
+    def __init__(self, name, ego_vehicles, config, world, first_env=False):
         self.world = world
         self.other_actors = []
         self.actor_type_list = []
@@ -24,6 +24,7 @@ class BasicScenario(object):
         self.trigger_distance_threshold = None
         self.reference_actor = None
 
+        self.ego_vehicles = ego_vehicles
         self.name = name
         self.config = config
 
@@ -67,7 +68,7 @@ class BasicScenario(object):
             transform.location = carla.Location(-10000.0, -10000.0, 0.0)
             world.spawn_actor(friction_bp, transform)
 
-    def create_behavior(self):
+    def create_behavior(self, scenario_init_action):
         """
             This method just for background defination in route scenaio
         """
@@ -78,7 +79,7 @@ class BasicScenario(object):
         raise NotImplementedError(
                 "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
         raise NotImplementedError(
                 "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 

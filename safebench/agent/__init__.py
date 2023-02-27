@@ -10,7 +10,7 @@ from .dummy_agent.dummy import DummyEgo
 
 from .object_detection.detector import ObjectDetection
 
-from .rl.sac import SAC
+from .rl.SAC import SAC
 # from .rl.DDPG import DDPG
 # from .rl.PPO_GAE import PPO_GAE
 # from .rl.MBRL import MBRL

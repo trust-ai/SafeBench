@@ -64,7 +64,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 30,                # maximum timesteps per episode
+            'max_episode_step': 300,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -88,11 +88,13 @@ class CarlaRunner:
         elif self.mode == 'train_agent':
             self.buffer_capacity = agent_config['buffer_capacity']
             self.eval_in_train_freq = agent_config['eval_in_train_freq']
+            self.save_freq = agent_config['save_freq']
             self.train_episode = agent_config['train_episode']
             #self.logger.save_config(agent_config)
         elif self.mode == 'train_scenario':
             self.buffer_capacity = scenario_config['buffer_capacity']
             self.eval_in_train_freq = scenario_config['eval_in_train_freq']
+            self.save_freq = scenario_config['save_freq']
             self.train_episode = scenario_config['train_episode']
             #self.logger.save_config(scenario_config)
         else:
@@ -106,7 +108,7 @@ class CarlaRunner:
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_type](scenario_config, logger=self.logger)
 
     def _init_world(self, town):
-        self.logger.log(">> Initializing carla world")
+        self.logger.log(f">> Initializing carla world: {town}")
         self.world = self.client.load_world(town)
         settings = self.world.get_settings()
         settings.synchronous_mode = True
@@ -132,7 +134,7 @@ class CarlaRunner:
             window_size = (self.env_params['display_size'], self.env_params['display_size'] * num_envs)
         self.display = pygame.display.set_mode(window_size, flag)
 
-        # initialize the render for genrating observation and visualization
+        # initialize the render for generating observation and visualization
         pixels_per_meter = self.env_params['display_size'] / self.env_params['obs_range']
         pixels_ahead_vehicle = (self.env_params['obs_range'] / 2 - self.env_params['d_behind']) * pixels_per_meter
         self.birdeye_params = {
@@ -184,6 +186,13 @@ class CarlaRunner:
             if (e_i+1) % self.eval_in_train_freq == 0:
                 #self.eval(env, data_loader)
                 self.logger.log('>> ' + '-' * 40)
+
+            # save checkpoints
+            if (e_i+1) % self.save_freq == 0:
+                if self.mode == 'train_agent':
+                    self.agent_policy.save_model()
+                if self.mode == 'train_scenario':
+                    self.scenario_policy.save_model()  # TODO
 
     def eval(self, env, data_loader):
         num_finished_scenario = 0
@@ -259,7 +268,7 @@ class CarlaRunner:
                 self.scenario_policy.load_model()
                 self.scenario_policy.set_mode('eval')
                 self.train(env, data_loader)
-            elif self.mode ==  'train_scenario':
+            elif self.mode == 'train_scenario':
                 self.agent_policy.load_model()
                 self.agent_policy.set_mode('eval')
                 self.scenario_policy.set_mode('train')

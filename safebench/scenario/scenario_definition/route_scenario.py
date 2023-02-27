@@ -36,6 +36,9 @@ from safebench.scenario.scenario_definition.atomic_criteria import (
     ActorSpeedAboveThresholdTest
 )
 
+# normal training scenario
+from safebench.scenario.scenario_definition.training.normal import NormalTrainingScenario
+
 # standard
 from safebench.scenario.scenario_definition.standard.object_crash_vehicle_dynamic import DynamicObjectCrossing as scenario_03_standard
 from safebench.scenario.scenario_definition.standard.object_crash_intersection_dynamic import VehicleTurningRoute as scenario_04_standard
@@ -109,6 +112,9 @@ from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route im
 SECONDS_GIVEN_PER_METERS = 1
 
 SCENARIO_CLASS_MAPPING = {
+    "training": {
+        "Scenario0": NormalTrainingScenario,
+    },
     "standard": {
         "Scenario3": scenario_03_standard,
         "Scenario4": scenario_04_standard,
@@ -271,8 +277,9 @@ class RouteScenario():
         self.timeout = 60
 
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
-        self._update_route(world, config)
-        ego_vehicle = self._update_ego_vehicle()
+        # self._update_route(world, config)
+        # ego_vehicle = self._update_ego_vehicle()
+        ego_vehicle = self._update_route_and_ego(world, config)
         self.ego_vehicles = [ego_vehicle]
         self.ego_idx = 0
         self.other_actors = []
@@ -287,7 +294,7 @@ class RouteScenario():
         )
         self.criteria = self._create_criteria()
 
-    def _update_route(self, world, config, timeout=None):
+    def _update_route_and_ego(self, world, config, timeout=None):
         # Transform the scenario file into a dictionary
         if config.scenario_file is not None:
             world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
@@ -295,19 +302,21 @@ class RouteScenario():
             world_annotations = config.scenario_config
 
         # prepare route's trajectory (interpolate and add the GPS route)
-        len_trajectory = len(config.trajectory)
-        if len_trajectory == 0:
-            len_spawn_points = len(self.vehicle_spawn_points)
-            idx = random.choice(list(range(len_spawn_points)))
-            print('>> Choosing spawn point {} from {} points'.format(idx, len_spawn_points))
-            random_transform = self.vehicle_spawn_points[idx]
-            gps_route, route = interpolate_trajectory(world, [random_transform])
+        ego_vehicle = None
+        if self.config.scenario_id == 0:
+            vehicle_spawn_points = self.world.get_map().get_spawn_points()
+            random.shuffle(vehicle_spawn_points)
+            for random_transform in vehicle_spawn_points:
+                gps_route, route = interpolate_trajectory(world, [random_transform])
+                ego_vehicle = self._spawn_ego_vehicle(route[0][0])
+                if ego_vehicle is not None:
+                    break
         else:
             gps_route, route = interpolate_trajectory(world, config.trajectory)
+            ego_vehicle = self._spawn_ego_vehicle(route[0][0])
 
-        potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
+        potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations, scenario_id=self.config.scenario_id)
         self.route = route
-        self.route_length = len(route)
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
         CarlaDataProvider.set_scenario_config(config)
 
@@ -319,6 +328,8 @@ class RouteScenario():
 
         # Timeout of scenario in seconds
         self.timeout = self._estimate_route_timeout() if timeout is None else timeout
+
+        return ego_vehicle
 
     def _scenario_sampling(self, potential_scenarios_definitions):
         """
@@ -371,14 +382,14 @@ class RouteScenario():
 
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
-    def _update_ego_vehicle(self):
-        # move ego to correct position
-        elevate_transform = self.route[0][0]
-
+    def _spawn_ego_vehicle(self, elevate_transform):
         # gradually increase the height of ego vehicle
         success = False
+        start_z = elevate_transform.location.z
         while not success:
             try:
+                if elevate_transform.location.z - start_z > 0.5:
+                    return None
                 role_name = 'ego_vehicle' + str(self.ego_id)
                 ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
                 if ego_vehicle is not None:
@@ -412,6 +423,7 @@ class RouteScenario():
             scenario_configuration.trigger_points = [egoactor_trigger_position]
             scenario_configuration.subtype = definition['scenario_type']
             scenario_configuration.parameters = self.config.parameters
+            scenario_configuration.num_scenario = self.config.num_scenario
 
             if weather is not None:
                 scenario_configuration.weather = weather
@@ -464,7 +476,7 @@ class RouteScenario():
             Set other_actors to the superset of all scenario actors
         """
         if self.config.initialize_background_actors:
-            amount = 10
+            amount = 0  # 10
         else:
             amount = 0
 
@@ -498,25 +510,28 @@ class RouteScenario():
         if running_status['collision'] == Status.FAILURE:
             stop = True
             self.logger.log('>> Stop due to collision', color='yellow')
-        if running_status['route_complete'] == 100:
-            stop = True
-            self.logger.log('>> Stop due to route completion', color='yellow') 
-        if running_status['speed_above_threshold'] == Status.FAILURE:
-            if running_status['route_complete'] == 0:
-                raise RuntimeError("Agent not moving")
-            else:
+        if self.config.scenario_id != 0:  # only check when evaluating
+            if running_status['route_complete'] == 100:
                 stop = True
-                self.logger.log('>> Stop due to low speed', color='yellow') 
-        if len(running_record) >= self.max_running_step:  # stop at max step when training
-            stop = True
-            self.logger.log('>> Stop due to max steps', color='yellow') 
+                self.logger.log('>> Stop due to route completion', color='yellow')
+            if running_status['speed_above_threshold'] == Status.FAILURE:
+                if running_status['route_complete'] == 0:
+                    raise RuntimeError("Agent not moving")
+                else:
+                    stop = True
+                    self.logger.log('>> Stop due to low speed', color='yellow')
+        else:
+            if len(running_record) >= self.max_running_step:  # stop at max step when training
+                stop = True
+                self.logger.log('>> Stop due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
             # print(running_status['driven_distance'])
-            if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
-                stop = True
-                self.logger.log('>> Stop due to max driven distance', color='yellow') 
-                break
+            if self.config.scenario_id != 0:  # only check when evaluating
+                if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
+                    stop = True
+                    self.logger.log('>> Stop due to max driven distance', color='yellow')
+                    break
             if running_status['current_game_time'] >= scenario.timeout:
                 stop = True
                 self.logger.log('>> Stop due to timeout', color='yellow') 
@@ -535,7 +550,7 @@ class RouteScenario():
         criteria['collision'] = CollisionTest(actor=self.ego_vehicles[self.ego_idx], terminate_on_failure=True)
         # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicles[self.ego_idx])
         criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicles[self.ego_idx])
-        if self.route_length > 1:  # only check when evaluating
+        if self.config.scenario_id != 0:  # only check when evaluating
             criteria['distance_to_route'] = InRouteTest(self.ego_vehicles[self.ego_idx], route=route, offroad_max=30)
             criteria['speed_above_threshold'] = ActorSpeedAboveThresholdTest(
                 actor=self.ego_vehicles[self.ego_idx],

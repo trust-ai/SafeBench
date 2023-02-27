@@ -267,7 +267,7 @@ class RouteParser(object):
         return subtype
 
     @staticmethod
-    def scan_route_for_scenarios(route_name, trajectory, world_annotations):
+    def scan_route_for_scenarios(route_name, trajectory, world_annotations, scenario_id=None):
         """
         Just returns a plain list of possible scenarios that can happen in this route by matching
         the locations from the scenario into the route description
@@ -297,13 +297,22 @@ class RouteParser(object):
                 scenario_name = scenario["scenario_type"]
                 for event in scenario["available_event_configurations"]:
                     waypoint = event['transform']  # trigger point of this scenario
+                    if scenario_id == 0:
+                        waypoint = {
+                            "pitch": trajectory[0][0].rotation.pitch,
+                            "x": trajectory[0][0].location.x,
+                            "y": trajectory[0][0].location.y,
+                            "yaw": trajectory[0][0].rotation.yaw,
+                            "z": trajectory[0][0].location.z
+                        }
                     RouteParser.convert_waypoint_float(waypoint)
                     # We match trigger point to the  route, now we need to check if the route affects
 
                     triggers.append([waypoint['x'], waypoint['y'], waypoint['z']])
 
-                    match_position = RouteParser.match_world_location_to_route(
-                        waypoint, trajectory)
+                    match_position = RouteParser.match_world_location_to_route(waypoint, trajectory)
+                    if scenario_id == 0:
+                        assert match_position == 0
                     if match_position is not None:
                         matched_triggers.append([waypoint['x'], waypoint['y'], waypoint['z']])
 
@@ -336,4 +345,4 @@ class RouteParser(object):
                             latest_trigger_id += 1
                         possible_scenarios[trigger_id].append(scenario_description)
 
-        return possible_scenarios, existent_triggers, triggers, matched_triggers
+        return possible_scenarios, existent_triggers
