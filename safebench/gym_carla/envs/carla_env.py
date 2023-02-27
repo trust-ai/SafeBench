@@ -113,6 +113,8 @@ class CarlaEnv(gym.Env):
         else:
             # assume the output of NN is from -1 to 1
             self.action_space = spaces.Box(np.array([-1, -1], dtype=np.float32), np.array([1, 1], dtype=np.float32), dtype=np.float32)  # acc, steer
+        
+        # self._init_traffic_light()
 
     def _create_sensors(self):
         # collision sensor
@@ -353,7 +355,15 @@ class CarlaEnv(gym.Env):
         self.time_step += 1
         self.total_step += 1
         return (self._get_obs(), self._get_reward(), self._terminal(), copy.deepcopy(info))
-
+    
+    def _init_traffic_light(self):
+        actor_list = self.world.get_actors()
+        for actor in actor_list:
+            if isinstance(actor, carla.TrafficLight):
+                actor.set_red_time(3)
+                actor.set_green_time(3)
+                actor.set_yellow_time(1)
+        
     def _create_vehicle_bluepprint(self, actor_filter, color=None, number_of_wheels=[4]):
         blueprints = self.world.get_blueprint_library().filter(actor_filter)
         blueprint_library = []

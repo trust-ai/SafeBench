@@ -256,7 +256,7 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', type=str, default='Town_Safebench')
+    parser.add_argument('--map', type=str, default='Town_Safebench_Light')
     # parser.add_argument('--save_dir', type=str, default="scenario_data/route_new_map")
     parser.add_argument('--scenario', type=int, required=True)
     parser.add_argument('--route', type=int, default=-1)

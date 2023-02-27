@@ -3,6 +3,13 @@ import numpy as np
 import cv2
 from moviepy.video.io.ffmpeg_writer import FFMPEG_VideoWriter
 
+def CPU(x):
+    return x.detach().cpu().numpy()
+
+def CUDA(x):
+    if isinstance(x, np.ndarray):
+        x = torch.from_numpy(x)
+    return x.cuda()
 
 def save_image(fp, img):
     cv2.cvtColor(img, cv2.COLOR_BGR2RGB)

@@ -140,7 +140,7 @@ def _get_batch_centers(x_num, y_num):
 
 
 def get_map_centers(map_name):
-    if map_name == "Town_Safebench" or map_name == 'town_4intersection_2lane':
+    if map_name == "Town_Safebench_Light" or map_name == 'town_4intersection_2lane':
         centers = np.asarray([[100, 100]])
     elif map_name == "town_4intersection_2lane_4x4":
         centers = _get_batch_centers(4, 4)
@@ -199,7 +199,7 @@ def copy_routes_and_scenarios(old_map_name, new_map_name):
 
 
 if __name__ == '__main__':
-    copy_routes_and_scenarios("town_4intersection_2lane", "Town_Safebench")
+    copy_routes_and_scenarios("town_4intersection_2lane", "Town_Safebench_Light")
     # import matplotlib.pyplot as plt
     #
     # a = np.load('map_waypoints/town_4intersection_2lane/sparse.npy')

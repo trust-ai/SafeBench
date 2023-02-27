@@ -11,7 +11,6 @@ from safebench.scenario.scenario_definition.route_scenario import *
 from safebench.util.od_util import *
 
 
-
 class ObjectDetectionScenario(BasicScenario):
     """
     This class creates scenario where ego vehicle 
@@ -65,10 +64,10 @@ class ObjectDetectionScenario(BasicScenario):
         )
         self.criteria = self._create_criteria()
         # TODO: make save dir, add flag
-        # os.makedirs('online_data/', exist_ok=True)
-        # os.makedirs('online_data/images', exist_ok=True)
-        # os.makedirs('online_data/labels', exist_ok=True)
-        # self.video_writer = xverse_video_writer('online_data/images/debug.mp4', 1024, 1024)
+        os.makedirs('online_data/', exist_ok=True)
+        os.makedirs('online_data/images', exist_ok=True)
+        os.makedirs('online_data/labels', exist_ok=True)
+        self.video_writer = xverse_video_writer('online_data/images/debug.mp4', 1024, 1024)
 
     def _initialize_environment(self, world): # TODO: image from dict or parameter?
         settings = world.get_settings()
@@ -449,7 +448,7 @@ class ObjectDetectionScenario(BasicScenario):
                     continue
     
     def save_img_label(self, obs, label):
-        # self.video_writer.write_frame(obs)
+        self.video_writer.write_frame(obs)
 
         saved_list = []
         for k in label.keys():
@@ -459,11 +458,15 @@ class ObjectDetectionScenario(BasicScenario):
                 box_save = xyxy2xywhn(get_xyxy(box_true)[None, :])[0]
                 saved_list.append(np.concatenate([np.array([cls]), box_save.numpy()], axis=0))
         # print(self.n_step, obs.shape)
-        # np.savetxt('online_data/labels/'+str(self.n_step)+'.txt', np.array(saved_list), delimiter=' ')
         # save_image('online_data/images/'+str(self.n_step)+'.jpg', obs)
+        print('saved: ', self.n_step)
+        np.savetxt('online_data/labels/'+str(self.n_step)+'.txt', np.array(saved_list), delimiter=' ')
         self.n_step += 1
         pass
 
     def __del__(self):
-        # self.video_writer.release()
-        return super().__del__()
+        self.video_writer.release()
+        for scenario in self.list_scenarios:
+            scenario.remove_all_actors()
+        self.remove_all_actors()
+        

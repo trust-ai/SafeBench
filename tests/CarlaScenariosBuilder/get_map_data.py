@@ -37,7 +37,7 @@ def main():
         help='TCP port to listen to (default: 2000)')
     argparser.add_argument(
         '--map',
-        default="Town_Safebench",
+        default="Town_Safebench_Light",
         type=str,)
 
     args = argparser.parse_args()
