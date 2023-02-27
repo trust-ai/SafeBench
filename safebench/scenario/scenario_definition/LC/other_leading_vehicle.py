@@ -1,5 +1,4 @@
 import carla
-import numpy as np
 
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.tools.scenario_utils import calculate_distance_transforms
@@ -18,10 +17,10 @@ class OtherLeadingVehicle(BasicScenario):
         or if the ego vehicle drives some distance. (Traffic Scenario 05)
     """
 
-    def __init__(self, world, ego_vehicles, config, timeout=60):
-        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle", ego_vehicles, config, world)
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle-LC", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
-        self._world = world
 
         self._map = CarlaDataProvider.get_map()
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
@@ -33,13 +32,8 @@ class OtherLeadingVehicle(BasicScenario):
         self.dece_target_speed = 2  # 3 will be safe
         self.need_decelerate = False
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.actor_type_list.append('vehicle.nissan.patrol')
-        self.actor_type_list.append('vehicle.audi.tt')
+        self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 35
-        self.other_actor_speed = []
-        self.other_actor_speed.append(self._first_vehicle_speed)
-        self.other_actor_speed.append(self._second_vehicle_speed)
         self.ego_max_driven_distance = 200
 
     def convert_actions(self, actions):
@@ -77,22 +71,17 @@ class OtherLeadingVehicle(BasicScenario):
         second_vehicle_waypoint = second_vehicle_waypoint.get_left_lane()
         first_vehicle_transform = carla.Transform(first_vehicle_waypoint.transform.location, first_vehicle_waypoint.transform.rotation)
         second_vehicle_transform = carla.Transform(second_vehicle_waypoint.transform.location, second_vehicle_waypoint.transform.rotation)
-
-        self.other_actor_transform.append(first_vehicle_transform)
-        self.other_actor_transform.append(second_vehicle_transform)
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        # self.reference_actor = self.other_actors[1]
-        self.reference_actor = self.other_actors[0]
-
-        self._first_actor_transform = first_vehicle_transform
-        # self.second_vehicle_transform = carla.Transform(second_vehicle_waypoint.transform.location, second_vehicle_waypoint.transform.rotation)
+        
+        self.actor_type_list = ['vehicle.nissan.patrol', 'vehicle.audi.tt']
+        self.actor_transform_list = [first_vehicle_transform, second_vehicle_transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
     def update_behavior(self, scenario_action):
         assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 
         # At specific point, vehicle in front of ego will decelerate other_actors[0] is the vehicle before the ego
         # cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.ego_vehicles[0]), CarlaDataProvider.get_transform(self.other_actors[1]))
-        cur_distance = calculate_distance_transforms(self.other_actor_transform[0], CarlaDataProvider.get_transform(self.other_actors[0]))
+        cur_distance = calculate_distance_transforms(self.actor_transform_list[0], CarlaDataProvider.get_transform(self.other_actors[0]))
         if cur_distance > self.dece_distance:
             self.need_decelerate = True
         for i in range(len(self.other_actors)):
@@ -109,6 +98,7 @@ class OtherLeadingVehicle(BasicScenario):
         # self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
         self._first_vehicle_speed = v1
         self._second_vehicle_speed = v2
+        self.other_actor_speed = [v1, v2]
 
     def check_stop_condition(self):
         pass

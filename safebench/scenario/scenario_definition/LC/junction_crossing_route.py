@@ -1,16 +1,12 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2018-2020 Intel Corporation
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
-
 '''
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-24 16:58:21
+LastEditTime: 2023-02-27 15:17:25
 Description: 
+    Copyright (c) 2018-2020 Intel Corporation.
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>.
 '''
 
 import carla
@@ -29,20 +25,19 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         by running a red traffic light (while the ego vehicle has green).
     """
 
-    def __init__(self, world, ego_vehicles, config, timeout=60):
-        self.logger = None
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-LC", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
-        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-LC", ego_vehicles, config, world)
 
-        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
+        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicle, False)
         if self._traffic_light is None:
             print(">> No traffic light for the given location of the ego vehicle found")
         else:
             self._traffic_light.set_state(carla.TrafficLightState.Green)
             self._traffic_light.set_green_time(self.timeout)
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.reference_actor = None
+        self.scenario_operation = ScenarioOperation()
         self.trigger = False
         self._actor_distance = 110
         self.ego_max_driven_distance = 150
@@ -52,33 +47,26 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         yaw_scale = 5
         d_scale = 5
         y_mean = yaw_mean = dist_mean = 0
-
         y = constraint(actions[0], -1, 1) * y_scale + y_mean
         yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
         dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
         return [y, yaw, dist]
 
     def initialize_actors(self):
-        self._other_actor_transform = self.config.other_actors[0].transform
-        forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
-        self._other_actor_transform.location += forward_vector
+        other_actor_transform = self.config.other_actors[0].transform
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(
-                self._other_actor_transform.location.x, 
-                self._other_actor_transform.location.y, 
-                self._other_actor_transform.location.z
-            ),
-            self._other_actor_transform.rotation
+            carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
+            other_actor_transform.rotation
         )
 
-        self.other_actor_transform.append(first_vehicle_transform)
-        self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        self.reference_actor = self.other_actors[0]
+        self.actor_transform_list = [first_vehicle_transform]
+        self.actor_type_list = ["vehicle.audi.tt"]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
         # other vehicle's traffic light
-        traffic_light_other = CarlaDataProvider.get_next_traffic_light(self._other_actor_transform, False, True)
-
+        traffic_light_other = CarlaDataProvider.get_next_traffic_light(other_actor_transform, False, True)
         if traffic_light_other is None:
             print(">> No traffic light for the given location of the other vehicle found")
         else:
@@ -87,14 +75,14 @@ class OppositeVehicleRunningRedLight(BasicScenario):
 
     def create_behavior(self, scenario_init_action):
         actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = actions  # [0, 0, 0]
+        self.x, delta_v, delta_dist = actions  
         self.actor_speed = 10 + delta_v
         self.trigger_distance_threshold = 35 + delta_dist
 
     def update_behavior(self, scenario_action):
         assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
+        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
         if cur_ego_speed and cur_ego_speed > 0.5:
             self.trigger = True
         if self.trigger:
@@ -103,7 +91,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
 
     def check_stop_condition(self):
         # stop when actor runs a specific distance
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.actor_transform_list[0])
         if cur_distance >= self._actor_distance:
             return True
         return False
@@ -111,19 +99,20 @@ class OppositeVehicleRunningRedLight(BasicScenario):
 
 class SignalizedJunctionLeftTurn(BasicScenario):
     """
-        Vehicle turning left at signalized junction scenario. An actor has higher priority, ego needs to yield to oncoming actor
+        Vehicle turning left at signalized junction scenario. 
+        An actor has higher priority, ego needs to yield to oncoming actor.
     """
 
-    def __init__(self, world, ego_vehicles, config, timeout=60):
-        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-LC", ego_vehicles, config, world)
-        self._world = world
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-LC", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
         # self._brake_value = 0.5
         # self._ego_distance = 110
         self._actor_distance = 100
         self._traffic_light = None
-        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
+        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicle, False)
         if self._traffic_light is None:
             print(">> No traffic light for the given location found")
         else:
@@ -131,7 +120,7 @@ class SignalizedJunctionLeftTurn(BasicScenario):
             self._traffic_light.set_green_time(self.timeout)
 
         # other vehicle's traffic light
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
+        self.scenario_operation = ScenarioOperation()
         self.reference_actor = None
         self.ego_max_driven_distance = 150
 
@@ -147,19 +136,18 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         return [y, yaw, dist]
 
     def initialize_actors(self):
-        self._other_actor_transform = self.config.other_actors[0].transform
-        forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
-        self._other_actor_transform.location += forward_vector
+        other_actor_transform = self.config.other_actors[0].transform
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x, self._other_actor_transform.location.y, self._other_actor_transform.location.z),
-            self._other_actor_transform.rotation
+            carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
+            other_actor_transform.rotation
         )
-        self.other_actor_transform.append(first_vehicle_transform)
-        self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        self.reference_actor = self.other_actors[0]
+        self.actor_transform_list = [first_vehicle_transform]
+        self.actor_type_list = ["vehicle.audi.tt"]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
-        traffic_light_other = CarlaDataProvider.get_next_traffic_light(self._other_actor_transform, False, True)
+        traffic_light_other = CarlaDataProvider.get_next_traffic_light(other_actor_transform, False, True)
         if traffic_light_other is None:
             print(">> No traffic light for the given location found")
         else:
@@ -179,7 +167,7 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         self.trigger_distance_threshold = 45 + delta_dist
 
     def check_stop_condition(self):
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.actor_transform_list[0])
         if cur_distance >= self._actor_distance:
             return True
         return False
@@ -190,25 +178,23 @@ class SignalizedJunctionRightTurn(BasicScenario):
         Vehicle turning right at signalized junction scenario an actor has higher priority, ego needs to yield to oncoming actor
     """
 
-    def __init__(self, world, ego_vehicles, config, timeout=60):
-        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn", ego_vehicles, config, world)
-        self._world = world
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn-LC", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
         # self._brake_value = 0.5
         # self._ego_distance = 110
         self._actor_distance = 100
         self._traffic_light = None
-        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicles[0], False)
+        self._traffic_light = CarlaDataProvider.get_next_traffic_light(self.ego_vehicle, False)
         if self._traffic_light is None:
             print(">> No traffic light for the given location found")
         else:
             self._traffic_light.set_state(carla.TrafficLightState.Red)
             self._traffic_light.set_green_time(self.timeout)
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.reference_actor = None
-
+        self.scenario_operation = ScenarioOperation()
         self.trigger = False
         self.ego_max_driven_distance = 150
 
@@ -224,23 +210,18 @@ class SignalizedJunctionRightTurn(BasicScenario):
         return [y, yaw, dist]
 
     def initialize_actors(self):
-        self._other_actor_transform = self.config.other_actors[0].transform
-        forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
-        self._other_actor_transform.location += forward_vector
+        other_actor_transform = self.config.other_actors[0].transform
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(
-                self._other_actor_transform.location.x, 
-                self._other_actor_transform.location.y, 
-                self._other_actor_transform.location.z
-            ),
-            self._other_actor_transform.rotation
+            carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
+            other_actor_transform.rotation
         )
-        self.other_actor_transform.append(first_vehicle_transform)
-        self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        self.reference_actor = self.other_actors[0]
+        self.actor_transform_list = [first_vehicle_transform]
+        self.actor_type_list = ["vehicle.audi.tt"]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
-        traffic_light_other = CarlaDataProvider.get_next_traffic_light(self._other_actor_transform, False, True)
+        traffic_light_other = CarlaDataProvider.get_next_traffic_light(other_actor_transform, False, True)
         if traffic_light_other is None:
             print(">> No traffic light for the given location found")
         else:
@@ -249,14 +230,14 @@ class SignalizedJunctionRightTurn(BasicScenario):
 
     def create_behavior(self, scenario_init_action):
         actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = actions  # [0, 0, 0]
+        self.x, delta_v, delta_dist = actions  
         self._target_vel = 12 + delta_v
         self.trigger_distance_threshold = 35 + delta_dist
 
     def update_behavior(self, scenario_action):
         assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
+        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
         if cur_ego_speed and cur_ego_speed > 0.5:
             self.trigger = True
         if self.trigger:
@@ -265,19 +246,19 @@ class SignalizedJunctionRightTurn(BasicScenario):
 
     def check_stop_condition(self):
         # stop when actor runs a specific distance
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.actor_transform_list[0])
         if cur_distance >= self._actor_distance:
             return True
         return False
 
 
 class NoSignalJunctionCrossingRoute(BasicScenario):
-    def __init__(self, world, ego_vehicles, config, timeout=60):
-        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-LC", ego_vehicles, config, world)
-        self._world = world
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-LC", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
+        self.scenario_operation = ScenarioOperation()
         self.reference_actor = None
         
         self.trigger = False
@@ -296,23 +277,21 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
         return [y, yaw, dist]
 
     def initialize_actors(self):
-        config = self.config
-        self._other_actor_transform = config.other_actors[0].transform
-        forward_vector = self._other_actor_transform.rotation.get_forward_vector() * self.x
-        self._other_actor_transform.location += forward_vector
+        other_actor_transform = self.config.other_actors[0].transform
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x, self._other_actor_transform.location.y, self._other_actor_transform.location.z),
-            self._other_actor_transform.rotation
+            carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
+            other_actor_transform.rotation
         )
-        self.other_actor_transform.append(first_vehicle_transform)
-        self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        self.reference_actor = self.other_actors[0]
+        self.actor_transform_list = [first_vehicle_transform]
+        self.actor_type_list = ["vehicle.audi.tt"]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
     def update_behavior(self, scenario_action):
         assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicles[0])
+        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
         if cur_ego_speed and cur_ego_speed > 0.5:
             self.trigger = True
         if self.trigger:
@@ -327,7 +306,7 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
 
     def check_stop_condition(self):
         # stop when actor runs a specific distance
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.actor_transform_list[0])
         if cur_distance >= self._actor_distance:
             return True
         return False

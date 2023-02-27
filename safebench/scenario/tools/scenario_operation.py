@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-01-30 22:30:39
-LastEditTime: 2023-02-27 01:02:18
+LastEditTime: 2023-02-27 14:13:24
 Description: 
 '''
 
@@ -18,9 +18,8 @@ class ScenarioOperation(object):
         This class defines some atomic operation for actors. All actor's behaviors should be combination of these operations
     """
 
-    def __init__(self, ego_vehicles, other_actors):
-        self.ego_vehicles = ego_vehicles
-        self.other_actors = other_actors
+    def __init__(self):
+        self.other_actors = []
         self.need_accelerated = False
         self.vehicle_controller = {}
 
@@ -36,6 +35,7 @@ class ScenarioOperation(object):
 
         self.other_actors = other_actor_list
         self._init_vehicle_controller()
+        return self.other_actors
 
     def _init_vehicle_controller(self):
         _dt = 1.0 / 20.0

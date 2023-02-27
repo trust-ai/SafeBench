@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 01:16:47
+LastEditTime: 2023-02-27 12:50:17
 Description: 
 '''
 
@@ -10,7 +10,6 @@ import math
 import traceback
 
 from numpy import random
-import py_trees
 import carla
 import xml.etree.ElementTree as ET
 
@@ -21,7 +20,6 @@ from safebench.scenario.scenario_configs.scenario_configuration import ScenarioC
 from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 
-from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.scenario_definition.atomic_criteria import (
     Status,
     CollisionTest,
@@ -36,8 +34,8 @@ from safebench.scenario.scenario_definition.atomic_criteria import (
     ActorSpeedAboveThresholdTest
 )
 
-# normal training scenario
-from safebench.scenario.scenario_definition.training.normal import NormalTrainingScenario
+# ordinary scenario (for training)
+from safebench.scenario.scenario_definition.ordinary.autopolit_background_vehicle import AutopolitBackgroundVehicle
 
 # standard
 from safebench.scenario.scenario_definition.standard.object_crash_vehicle_dynamic import DynamicObjectCrossing as scenario_03_standard
@@ -109,11 +107,11 @@ from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route im
 from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advmaddpg
 from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advmaddpg
 
-SECONDS_GIVEN_PER_METERS = 1
 
+SECONDS_GIVEN_PER_METERS = 1
 SCENARIO_CLASS_MAPPING = {
-    "training": {
-        "Scenario0": NormalTrainingScenario,
+    "ordinary": {
+        "Scenario0": AutopolitBackgroundVehicle,
     },
     "standard": {
         "Scenario3": scenario_03_standard,
@@ -265,7 +263,6 @@ class RouteScenario():
     """
 
     def __init__(self, world, config, ego_id, logger, max_running_step):
-        #super(RouteScenario, self).__init__(name=config.name, config=config, world=world)
         self.world = world
         self.logger = logger
 
@@ -328,7 +325,6 @@ class RouteScenario():
 
         # Timeout of scenario in seconds
         self.timeout = self._estimate_route_timeout() if timeout is None else timeout
-
         return ego_vehicle
 
     def _scenario_sampling(self, potential_scenarios_definitions):
@@ -365,9 +361,6 @@ class RouteScenario():
         return sampled_scenarios
 
     def _estimate_route_timeout(self):
-        """
-        Estimate the duration of the route
-        """
         route_length = 0.0  # in meters
         min_length = 100.0
 
@@ -398,7 +391,6 @@ class RouteScenario():
                     elevate_transform.location.z += 0.1
             except RuntimeError:
                 elevate_transform.location.z += 0.1
-
         return ego_vehicle
 
     def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions, scenarios_per_tick=5, timeout=300, weather=None):
@@ -407,16 +399,16 @@ class RouteScenario():
         """
         scenario_instance_vec = []
         for scenario_number, definition in enumerate(scenario_definitions):
-            # Get the class possibilities for this scenario number
+            # get the class possibilities for this scenario number
             scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
 
-            # Create the other actors that are going to appear
+            # create the other actors that are going to appear
             if definition['other_actors'] is not None:
                 list_of_actor_conf_instances = self._get_actors_instances(definition['other_actors'])
             else:
                 list_of_actor_conf_instances = []
-            # Create an actor configuration for the ego-vehicle trigger position
 
+            # create an actor configuration for the ego-vehicle trigger position
             egoactor_trigger_position = convert_json_to_transform(definition['trigger_position'])
             scenario_configuration = ScenarioConfiguration()
             scenario_configuration.other_actors = list_of_actor_conf_instances
@@ -434,7 +426,7 @@ class RouteScenario():
 
             try:
                 scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration, timeout=timeout)
-                # Do a tick every once in a while to avoid spawning everything at the same time
+                # tick every once in a while to avoid spawning everything at the same time
                 if scenario_number % scenarios_per_tick == 0:
                     if CarlaDataProvider.is_sync_mode():
                         world.tick()
@@ -452,11 +444,10 @@ class RouteScenario():
 
     def _get_actors_instances(self, list_of_antagonist_actors):
         def get_actors_from_list(list_of_actor_def):
-            # Receives a list of actor definitions and creates an actual list of ActorConfigurationObjects
+            # receives a list of actor definitions and creates an actual list of ActorConfigurationObjects
             sublist_of_actors = []
             for actor_def in list_of_actor_def:
                 sublist_of_actors.append(convert_json_to_actor(actor_def))
-
             return sublist_of_actors
 
         list_of_actors = []
@@ -475,8 +466,9 @@ class RouteScenario():
         """
             Set other_actors to the superset of all scenario actors
         """
+        # TODO: totally remove background vehicle
         if self.config.initialize_background_actors:
-            amount = 0  # 10
+            amount = 0 
         else:
             amount = 0
 
@@ -562,8 +554,8 @@ class RouteScenario():
         return criteria
 
     def clean_up(self):
-        # stop 
-        for criterion_name, criterion in self.criteria.items():
+        # stop criterion
+        for _, criterion in self.criteria.items():
             criterion.terminate()
         
         # each scenario remove its own actors

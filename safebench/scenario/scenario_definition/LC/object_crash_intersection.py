@@ -1,31 +1,23 @@
-from __future__ import print_function
-
 import math
 
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.scenario_definition.basic_scenario import BasicScenario, SpawnOtherActorError
+from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
-from safebench.scenario.tools.scenario_helper import (
-    generate_target_waypoint,
-    generate_target_waypoint_in_route,
-    get_crossing_point,
-    get_junction_topology
-)
+from safebench.scenario.tools.scenario_helper import get_crossing_point, get_junction_topology
 
 from safebench.scenario.scenario_policy.reinforce_continuous import constraint
 
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):
     """
-    Calculate the transform of the adversary
+        Calculate the transform of the adversary
     """
     lane_width = waypoint.lane_width
 
     offset = {"orientation": 270, "position": 90, "k": 1.0}
-    # offset = {"orientation": 270, "position": 190, "k": 1.0}
     _wp = waypoint.next(added_dist)
     if _wp:
         _wp = _wp[-1]
@@ -51,7 +43,6 @@ def get_right_driving_lane(waypoint):
     """
         Gets the driving / parking lane that is most to the right of the waypoint as well as the number of lane changes done
     """
-
     lane_changes = 0
     while True:
         wp_next = waypoint.get_right_lane()
@@ -67,7 +58,6 @@ def get_right_driving_lane(waypoint):
             break
         else:
             waypoint = wp_next
-
     return waypoint, lane_changes
 
 
@@ -89,7 +79,6 @@ def is_lane_a_parking(waypoint):
             # Followed by a Sidewalk
             if wp_next_next is not None and wp_next_next.lane_type == carla.LaneType.Sidewalk:
                 return True
-
     return False
 
 
@@ -98,16 +87,13 @@ class VehicleTurningRoute(BasicScenario):
         The ego vehicle is passing through a road and encounters a cyclist after taking a turn. 
     """
 
-    def __init__(self, world, ego_vehicles, config, timeout=60):
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute", ego_vehicles, config, world)
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-LC", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
         self.running_distance = 10
-
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.actor_type_list.append('vehicle.diamondback.century')
-
-        self.reference_actor = None
+        self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 20
         self.ego_max_driven_distance = 180
 
@@ -126,39 +112,32 @@ class VehicleTurningRoute(BasicScenario):
         y = constraint(actions[1], -1, 1) * y_scale + y_mean
         yaw = constraint(actions[2], -1, 1) * yaw_scale + yaw_mean
         dist = constraint(actions[3], -1, 1) * d_scale + dist_mean
-
         return [x, y, yaw, dist]
 
     def initialize_actors(self):
-        cross_location = get_crossing_point(self.ego_vehicles[0])
+        cross_location = get_crossing_point(self.ego_vehicle)
         cross_waypoint = CarlaDataProvider.get_map().get_waypoint(cross_location)
         entry_wps, exit_wps = get_junction_topology(cross_waypoint.get_junction())
         assert len(entry_wps) == len(exit_wps)
-        x = y = 0
+        x_mean = y_mean = 0
         max_x_scale = max_y_scale = 0
         for i in range(len(entry_wps)):
-            x += entry_wps[i].transform.location.x + exit_wps[i].transform.location.x
-            y += entry_wps[i].transform.location.y + exit_wps[i].transform.location.y
-        x /= len(entry_wps) * 2
-        y /= len(entry_wps) * 2
+            x_mean += entry_wps[i].transform.location.x + exit_wps[i].transform.location.x
+            y_mean += entry_wps[i].transform.location.y + exit_wps[i].transform.location.y
+        x_mean /= len(entry_wps) * 2
+        y_mean /= len(entry_wps) * 2
         for i in range(len(entry_wps)):
-            max_x_scale = max(max_x_scale, abs(entry_wps[i].transform.location.x - x), abs(exit_wps[i].transform.location.x - x))
-            max_y_scale = max(max_y_scale, abs(entry_wps[i].transform.location.y - y), abs(exit_wps[i].transform.location.y - y))
+            max_x_scale = max(max_x_scale, abs(entry_wps[i].transform.location.x - x_mean), abs(exit_wps[i].transform.location.x - x_mean))
+            max_y_scale = max(max_y_scale, abs(entry_wps[i].transform.location.y - y_mean), abs(exit_wps[i].transform.location.y - y_mean))
         max_x_scale *= 0.8
         max_y_scale *= 0.8
-        center_transform = carla.Transform(carla.Location(x=x, y=y, z=0), carla.Rotation(pitch=0, yaw=0, roll=0))
-        x_mean = x
-        y_mean = y
-
+        #center_transform = carla.Transform(carla.Location(x=x_mean, y=y_mean, z=0), carla.Rotation(pitch=0, yaw=0, roll=0))
         x, y, yaw, self.trigger_distance_threshold = self.convert_actions(self.actions, max_x_scale, max_y_scale, x_mean, y_mean)
-        _other_actor_transform = carla.Transform(carla.Location(x, y, 0), carla.Rotation(yaw=yaw))
-        self.other_actor_transform.append(_other_actor_transform)
-        try:
-            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        except:
-            raise SpawnOtherActorError
-
-        self.reference_actor = self.other_actors[0]
+        other_actor_transform = carla.Transform(carla.Location(x, y, 0), carla.Rotation(yaw=yaw))
+        
+        self.actor_transform_list = [other_actor_transform]
+        self.actor_type_list = ['vehicle.diamondback.century']
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
     def create_behavior(self, scenario_init_action):
         self.actions = scenario_init_action

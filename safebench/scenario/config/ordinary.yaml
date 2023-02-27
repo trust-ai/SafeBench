@@ -1,5 +1,5 @@
 type_dir: 'safebench/scenario/config/scenario_type'
-type_name: 'rl_training.json'
+type_name: 'ordinary.json'
 route_dir: 'safebench/scenario/scenario_data/route'
 method: null
 scenario_id: 0

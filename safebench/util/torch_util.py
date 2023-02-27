@@ -211,3 +211,16 @@ def kaiming_init(m):
         m.weight.data.fill_(1)
         if m.bias is not None:
             m.bias.data.fill_(0)
+
+
+def hidden_init(layer):
+    fan_in = layer.weight.data.size()[0]
+    lim = 1. / np.sqrt(fan_in)
+    return (-lim, lim)
+
+
+def normal(x, mu, sigma_sq):
+    pi = CUDA(Variable(torch.FloatTensor([np.pi])))
+    a = (-1*(CUDA(Variable(x))-mu).pow(2)/(2*sigma_sq)).exp()
+    b = 1/(2*sigma_sq*pi.expand_as(sigma_sq)).sqrt()
+    return a*b

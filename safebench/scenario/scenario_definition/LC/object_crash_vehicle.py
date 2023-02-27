@@ -17,28 +17,27 @@ class DynamicObjectCrossing(BasicScenario):
         and encounters a cyclist/pedestrian crossing the road.
     """
 
-    def __init__(self, world, ego_vehicles, config, adversary_type=False, timeout=60):
-        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing", ego_vehicles, config, world)
-        self._wmap = CarlaDataProvider.get_map()
-        self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing-LC", config, world)
+        self.ego_vehicle = ego_vehicle
+        self.timeout = timeout
         
+        self._map = CarlaDataProvider.get_map()
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
+
         # other vehicle parameters
         self._other_actor_target_velocity = 2.5
-        self._adversary_type = adversary_type  # flag to select either pedestrian (False) or cyclist (True)
         self._num_lane_changes = 1
-        
+
         # Note: transforms for walker and blocker
         self.transform = None
         self.transform2 = None
-        self.timeout = timeout
         self._trigger_location = config.trigger_points[0].location
         self._number_of_attempts = 20  # Total Number of attempts to relocate a vehicle before spawning
         self._spawn_attempted = 0  # Number of attempts made so far
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
+        self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 20
-        self.actor_type_list.append('walker.*')
-        self.actor_type_list.append('static.prop.vendingmachine')
         self.ego_max_driven_distance = 150
 
     def convert_actions(self, actions):
@@ -66,7 +65,7 @@ class DynamicObjectCrossing(BasicScenario):
             stop_at_junction = True
 
         location, _ = get_location_in_distance_from_wp(waypoint, _start_distance, stop_at_junction)
-        waypoint = self._wmap.get_waypoint(location)
+        waypoint = self._map.get_waypoint(location)
         offset = {"orientation": 270, "position": 90, "z": 0.6, "k": 1.0}
         position_yaw = waypoint.transform.rotation.yaw + offset['position']
         orientation_yaw = waypoint.transform.rotation.yaw + offset['orientation']
@@ -90,7 +89,7 @@ class DynamicObjectCrossing(BasicScenario):
         y_cycle = transform.location.y
         x_static = x_ego + shift * (x_cycle - x_ego)
         y_static = y_ego + shift * (y_cycle - y_ego)
-        spawn_point_wp = self.ego_vehicles[0].get_world().get_map().get_waypoint(transform.location)
+        spawn_point_wp = self.ego_vehicle.get_world().get_map().get_waypoint(transform.location)
 
         #Note: if need to change tranform for blocker, here
         self.transform2 = carla.Transform(
@@ -160,10 +159,9 @@ class DynamicObjectCrossing(BasicScenario):
             self.transform2.rotation
         )
 
-        self.other_actor_transform.append(disp_transform)
-        self.other_actor_transform.append(prop_disp_transform)
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        self.reference_actor = self.other_actors[0]
+        self.actor_type_list = ['walker.*', 'static.prop.vendingmachine']
+        self.actor_transform_list = [disp_transform, prop_disp_transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
     def create_behavior(self, scenario_init_action):
         self.actions = self.convert_actions(scenario_init_action)
