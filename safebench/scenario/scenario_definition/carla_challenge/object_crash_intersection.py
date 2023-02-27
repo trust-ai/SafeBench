@@ -1,18 +1,8 @@
-"""
-@author: Shuai Wang
-@e-mail: ws199807@outlook.com
-Object crash with prior vehicle action scenario:
-The scenario realizes the user controlled ego vehicle
-moving along the road and encounters a cyclist ahead after taking a right or left turn.
-"""
-
-from __future__ import print_function
-
 import math
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.scenario_definition.basic_scenario import BasicScenario, SpawnOtherActorError
+from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 
 from safebench.scenario.tools.scenario_helper import generate_target_waypoint, generate_target_waypoint_in_route
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
@@ -20,7 +10,7 @@ from safebench.scenario.tools.scenario_operation import ScenarioOperation
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):
     """
-    Calculate the transform of the adversary
+        Calculate the transform of the adversary
     """
     lane_width = waypoint.lane_width
 
@@ -41,7 +31,6 @@ def get_opponent_transform(added_dist, waypoint, trigger_location):
     location += offset_location
     location.z = trigger_location.z
     transform = carla.Transform(location, carla.Rotation(yaw=orientation_yaw))
-
     return transform
 
 
@@ -66,7 +55,6 @@ def get_right_driving_lane(waypoint):
             break
         else:
             waypoint = wp_next
-
     return waypoint, lane_changes
 
 
@@ -88,60 +76,35 @@ def is_lane_a_parking(waypoint):
             # Followed by a Sidewalk
             if wp_next_next is not None and wp_next_next.lane_type == carla.LaneType.Sidewalk:
                 return True
-
     return False
 
 
 class VehicleTurningRoute(BasicScenario):
-
     """
-    This class holds everything required for a simple object crash
-    with prior vehicle action involving a vehicle and a cyclist.
-    The ego vehicle is passing through a road and encounters
-    a cyclist after taking a turn. This is the version used when the ego vehicle
-    is following a given route. (Traffic Scenario 4)
-    This is a single ego vehicle scenario
+        The scenario realizes the user controlled ego vehicle moving along the road and encounters 
+        a cyclist ahead after taking a right or left turn. (Traffic Scenario 4)
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
-        """
-        Setup all relevant parameters and create scenario
-        """
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-CC", ego_vehicle, config, world)
+        self.ego_vehicle = ego_vehicle
+
         # parameters = [self._other_actor_target_velocity, self.trigger_distance_threshold, start_distance]
         # parameters = [10, 17, 8]
         self.parameters = config.parameters
-        self._wmap = CarlaDataProvider.get_map()
+        self._map = CarlaDataProvider.get_map()
         self.timeout = timeout
         self._other_actor_target_velocity = self.parameters[0]
-        self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._trigger_location = config.trigger_points[0].location
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
         self._num_lane_changes = 0
 
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRouteDynamic",
-                                                  ego_vehicles,
-                                                  config,
-                                                  world,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable,
-                                                  terminate_on_failure=True)
-
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-
-        self.actor_type_list.append('vehicle.diamondback.century')
-
-        self.reference_actor = None
+        self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = self.parameters[1]
         self.ego_max_driven_distance = 180
 
     def initialize_actors(self):
-        """
-        Custom initialization
-        """
         waypoint = generate_target_waypoint_in_route(self._reference_waypoint, self._ego_route)
 
         # Move a certain distance to the front
@@ -153,30 +116,20 @@ class VehicleTurningRoute(BasicScenario):
         # And for synchrony purposes, move to the front a bit
         added_dist = self._num_lane_changes
 
-        _other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
+        other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
 
-        self.other_actor_transform.append(_other_actor_transform)
+        self.actor_transform_list = [other_actor_transform]
+        self.actor_type_list = ['vehicle.diamondback.century']
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
-        try:
-            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                              self.actor_type_list)
-        except:
-            raise SpawnOtherActorError
+    def create_behavior(self, scenario_init_action):
+        assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 
-        """Also need to specify reference actor"""
-        self.reference_actor = self.other_actors[0]
+    def update_behavior(self, scenario_action):
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 
-    def update_behavior(self):
         for i in range(len(self.other_actors)):
             self.scenario_operation.go_straight(self._other_actor_target_velocity, i)
 
     def check_stop_condition(self):
-        """
-        This condition is just for small scenarios
-        """
-
         return False
-
-
-    def _create_behavior(self):
-        pass

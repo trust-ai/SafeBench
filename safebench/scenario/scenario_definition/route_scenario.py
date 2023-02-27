@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 12:50:17
+LastEditTime: 2023-02-27 16:45:21
 Description: 
 '''
 
@@ -47,7 +47,7 @@ from safebench.scenario.scenario_definition.standard.junction_crossing_route_dyn
 from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurn as scenario_09_standard
 from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRoute as scenario_10_standard
 
-# Benign
+# benign
 from safebench.scenario.scenario_definition.benign.object_crash_vehicle import DynamicObjectCrossing as scenario_03_benign
 from safebench.scenario.scenario_definition.benign.object_crash_intersection import VehicleTurningRoute as scenario_04_benign
 from safebench.scenario.scenario_definition.benign.other_leading_vehicle import OtherLeadingVehicle as scenario_05_benign
@@ -57,7 +57,7 @@ from safebench.scenario.scenario_definition.benign.junction_crossing_route impor
 from safebench.scenario.scenario_definition.benign.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_benign
 from safebench.scenario.scenario_definition.benign.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_benign
 
-# Carla challenge
+# carla challenge
 from safebench.scenario.scenario_definition.carla_challenge.object_crash_vehicle import DynamicObjectCrossing as scenario_03_carla_challenge
 from safebench.scenario.scenario_definition.carla_challenge.object_crash_intersection import VehicleTurningRoute as scenario_04_carla_challenge
 from safebench.scenario.scenario_definition.carla_challenge.other_leading_vehicle import OtherLeadingVehicle as scenario_05_carla_challenge

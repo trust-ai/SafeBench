@@ -1,5 +1,5 @@
-from __future__ import print_function
 import carla
+
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
@@ -8,16 +8,10 @@ from safebench.scenario.tools.scenario_utils import calculate_distance_transform
 
 class OppositeVehicleRunningRedLight(BasicScenario):
     """
-    This class holds everything required for a scenario,
-    in which an other vehicle takes priority from the ego
-    vehicle, by running a red traffic light (while the ego
-    vehicle has green)
-
-    This is a single ego vehicle scenario
+        An other vehicle takes priority from the ego vehicle, by running a red traffic light (while the ego vehicle has green)
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=180):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=180):
         """
         Setup all relevant parameters and create scenario
         and instantiate scenario manager
