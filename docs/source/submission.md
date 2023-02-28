@@ -204,4 +204,5 @@ evalai push <image>:<tag> --phase <phase_name>
 At this point, the challenge configuration has been submitted for review and the EvalAI team has been notified. They will review and approve the challenge.
 
 <br>
+
 # How to Submit Results
