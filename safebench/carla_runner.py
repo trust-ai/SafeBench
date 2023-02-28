@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 18:57:47
+LastEditTime: 2023-02-27 20:45:58
 Description: 
 '''
 
@@ -64,7 +64,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 300,                # maximum timesteps per episode
+            'max_episode_step': 100,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -90,13 +90,13 @@ class CarlaRunner:
             self.eval_in_train_freq = agent_config['eval_in_train_freq']
             self.save_freq = agent_config['save_freq']
             self.train_episode = agent_config['train_episode']
-            #self.logger.save_config(agent_config)
+            self.logger.save_config(agent_config)
         elif self.mode == 'train_scenario':
             self.buffer_capacity = scenario_config['buffer_capacity']
             self.eval_in_train_freq = scenario_config['eval_in_train_freq']
             self.save_freq = scenario_config['save_freq']
             self.train_episode = scenario_config['train_episode']
-            #self.logger.save_config(scenario_config)
+            self.logger.save_config(scenario_config)
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
@@ -154,8 +154,13 @@ class CarlaRunner:
             # TODO: to restart the data loader, reset the index counter every time
             data_loader.reset_idx_counter()
 
-            # reset envs with init action from scenario policy
-            obs = env.reset(sampled_scenario_configs, self.scenario_policy)
+            # get static obs and then reset with init action 
+            static_obs = env.get_static_obs(sampled_scenario_configs)
+            scenario_init_action = self.scenario_policy.get_init_action(static_obs)
+            obs = env.reset(sampled_scenario_configs, scenario_init_action)
+            replay_buffer.store_init([static_obs, scenario_init_action])
+
+            # start loop
             while not env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
                 ego_actions = self.agent_policy.get_action(obs, deterministic=False)
@@ -202,9 +207,12 @@ class CarlaRunner:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
             num_finished_scenario += num_sampled_scenario
-            
-            # reset envs with init action from scenario policy
-            obs = env.reset(sampled_scenario_configs, self.scenario_policy)
+
+            # reset envs with new config, get init action from scenario policy, and run scenario
+            static_obs = env.get_static_obs(sampled_scenario_configs)
+            scenario_init_action = self.scenario_policy.get_init_action(static_obs)
+            obs = env.reset(sampled_scenario_configs, scenario_init_action)
+
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while not env.all_scenario_done():

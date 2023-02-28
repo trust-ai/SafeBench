@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 00:40:31
+LastEditTime: 2023-02-27 20:31:46
 Description: 
 '''
 
@@ -34,24 +34,30 @@ class VectorWrapper():
         # flags for env list 
         self.finished_env = [False] * self.num_scenario
 
-    def load_model(self):
-        for e_i in range(self.num_scenario):
-            self.env_list[e_i].load_model()
-
     def obs_postprocess(self, obs_list):
         # assume all variables are array
         obs_list = np.array(obs_list)
         return obs_list
 
-    def reset(self, scenario_configs, scenario_policy, scenario_type=None):
-        if scenario_type is None:
-            scenario_type = self.scenario_type
+    def static_obs_postprocess(self, static_obs_list):
+        # assume all variables are array
+        static_obs_list = np.array(static_obs_list)
+        return static_obs_list
 
+    def get_static_obs(self, scenario_configs):
+        static_obs_list = []
+        for s_i in range(len(scenario_configs)):
+            if not self.finished_env[s_i]:
+                static_obs = self.env_list[s_i].get_static_obs(scenario_configs[s_i])
+                static_obs_list.append(static_obs)
+        return static_obs_list
+
+    def reset(self, scenario_configs, scenario_init_action):
         # create scenarios and ego vehicles
         obs_list = []
         for s_i in range(len(scenario_configs)):
             config = scenario_configs[s_i]
-            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_policy=scenario_policy, scenario_type=scenario_type)
+            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_init_action=scenario_init_action[s_i])
             obs_list.append(obs)
 
         # sometimes not all scenarios are used
@@ -146,11 +152,14 @@ class EnvWrapper(gym.Wrapper):
     def create_ego_object(self):
         self._env.create_ego_object()
 
+    def get_static_obs(self, config):
+        self._env.get_static_obs(config)
+
     def clear_up(self):
         self._env.clear_up()
 
     def reset(self, **kwargs):
-        obs = super().reset(**kwargs)
+        obs = self._env.reset(**kwargs)
         return self._preprocess_obs(obs)
 
     def step_before_tick(self, ego_action, scenario_action):

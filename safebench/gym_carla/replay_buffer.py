@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-26 21:04:05
+LastEditTime: 2023-02-27 20:05:11
 Description: 
 '''
 
@@ -29,6 +29,7 @@ class ReplayBuffer:
         self.buffer_dones = [[] for _ in range(num_scenario)]
 
     def finish_one_episode(self):
+        # TODO: summarize the data of the entire trajectory, e.g., total reward
         pass
 
     def store(self, data_list):
@@ -50,6 +51,10 @@ class ReplayBuffer:
             self.buffer_next_obs[sid].append(next_obs[s_i])
             self.buffer_rewards[sid].append(rewards[s_i])
             self.buffer_dones[sid].append(dones[s_i])
+
+    def store_init(self, data_list):
+        static_obs = data_list[0]
+        scenario_init_action = data_list[1]
 
     def sample(self, batch_size):
         # prepare concatenated list

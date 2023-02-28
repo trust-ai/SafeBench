@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-01-30 22:30:20
-LastEditTime: 2023-02-24 15:16:04
+LastEditTime: 2023-02-27 20:44:10
 Description: 
 '''
 
@@ -15,14 +15,12 @@ class DummyEgo(object):
         self.logger = logger
         self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
-
-    def eval(self):
-        self.mode = 'eval'
-
-    def train(self):
         self.mode = 'train'
 
-    def get_action(self, obs):
+    def set_mode(self, mode):
+        self.mode = mode
+
+    def get_action(self, obs, deterministic=False):
         # the input should be formed into a batch, the return action should also be a batch
         batch_size = len(obs)
         action = np.random.randn(batch_size, self.ego_action_dim)

@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-26 21:20:14
+LastEditTime: 2023-02-27 20:07:21
 @Description: 
 '''
 
@@ -28,7 +28,7 @@ class DummyAgent(BasePolicy):
         return [None] * self.num_scenario
 
     def get_init_action(self, scenario_config):
-        return None
+        return [None] * self.num_scenario
 
     def load_model(self):
         return None

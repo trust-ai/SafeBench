@@ -2,7 +2,7 @@ type_dir: 'safebench/scenario/config/scenario_type'
 type_name: 'standard.json'
 route_dir: 'safebench/scenario/scenario_data/route'
 method: null
-scenario_id: 4
+scenario_id: 2
 route_id: null
 
 ego_action_dim: 2

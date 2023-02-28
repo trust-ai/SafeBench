@@ -2,13 +2,12 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 18:55:49
+LastEditTime: 2023-02-27 20:38:24
 Description: 
 '''
 
 import copy
 import random
-import time
 
 import numpy as np
 import pygame
@@ -23,10 +22,7 @@ from safebench.gym_carla.envs.misc import (
     rgb_to_display_surface, 
     get_lane_dis, 
     get_pos, 
-    get_preview_lane_dis,
-    get_pixels_inside_vehicle,
-    get_pixel_info,
-    debug_bbox
+    get_preview_lane_dis
 )
 from safebench.scenario.scenario_definition.route_scenario import RouteScenario
 from safebench.scenario.scenario_definition.object_detection_scenario import ObjectDetectionScenario
@@ -113,8 +109,6 @@ class CarlaEnv(gym.Env):
         else:
             # assume the output of NN is from -1 to 1
             self.action_space = spaces.Box(np.array([-1, -1], dtype=np.float32), np.array([1, 1], dtype=np.float32), dtype=np.float32)  # acc, steer
-        
-        # self._init_traffic_light()
 
     def _create_sensors(self):
         # collision sensor
@@ -138,7 +132,9 @@ class CarlaEnv(gym.Env):
         # Set the time in seconds between sensor captures
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
-    def _create_scenario(self, config, env_id, scenario_init_action):
+    def _create_scenario(self, config, env_id):
+        self.logger.log(">> Loading scenario id: " + str(env_id) + ', type: ' + str(self.scenario_type))
+
         # create scenario accoridng to different types
         if self.scenario_type in ['od']:
             scenario = ObjectDetectionScenario(
@@ -163,49 +159,67 @@ class CarlaEnv(gym.Env):
         # init scenario
         self.ego = scenario.ego_vehicle
         self.scenario_manager.load_scenario(scenario)
+
+    def _run_scenario(self, scenario_init_action):
         self.scenario_manager.run_scenario(scenario_init_action)
 
-    def reset(self, config, env_id, scenario_policy, scenario_type):
-        self.scenario_type = scenario_type
-        self.logger.log(">> Create sensors for scenario id: " + str(env_id))
-        self._create_sensors()
-
-        self.logger.log(">> Loading scenario id: " + str(env_id) + ', type: ' + str(scenario_type))
-        self.env_id = env_id
-
+    def _parse_route(self, config):
         # interp waypoints as init waypoints
         origin_waypoints_loc = []
         for loc in config.trajectory:
             origin_waypoints_loc.append(loc)
         _, route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
 
-        # TODO: efficiency can be improved since we transform waypoints to location, and back to waypoints
+        # TODO: these waypoints can be directly got from scenario
         init_waypoints = []
         carla_map = self.world.get_map()
         for node in route:
             loc = node[0].location
             waypoint = carla_map.get_waypoint(loc, project_to_road=True, lane_type=carla.LaneType.Driving)
             init_waypoints.append(waypoint)
+        return init_waypoints
+
+    def get_static_obs(self, config):
+        """
+            This function returns static observation used for static scenario generation
+        """
+        # get route
+        origin_waypoints_loc = []
+        for loc in config.trajectory:
+            origin_waypoints_loc.append(loc)
+        _, route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
 
         # get [x, y] along the route
         waypoint_xy = []
         for transform_tuple in route:
             waypoint_xy.append([transform_tuple[0].location.x, transform_tuple[0].location.y])
-
-        # get init action from scenario policy
-        # TODO: get init action inside of reset() is not elegent, maybe find a better place
+        
+        # combine state obs    
         state = {
             'route': np.array(waypoint_xy),   # [n, 2]
             'target_speed': self.desired_speed,
         }
-        scenario_init_action = scenario_policy.get_init_action(state)
-        self._create_scenario(config, env_id, scenario_init_action)
+        return state
+
+    def reset(self, config, env_id, scenario_init_action):
+        self.env_id = env_id
+
+        # create sensors, load and run scenarios
+        self._create_sensors()
+        self._create_scenario(config, env_id)
+        self._run_scenario(scenario_init_action)
+        self._attack_sensor()
+
+        # route planner for ego vehicle
+        init_waypoints = self._parse_route(config)
+        self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
+        self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
 
         # change view point
         #location = carla.Location(x=100, y=100, z=300)
         #spectator = self.world.get_spectator()
         #spectator.set_transform(carla.Transform(location, carla.Rotation(yaw=270.0, pitch=-90.0)))
-
+    
         # Get actors polygon list (for visualization)
         self.vehicle_polygons = [self._get_actor_polygons('vehicle.*')]
         self.walker_polygons = [self._get_actor_polygons('walker.*')]
@@ -217,6 +231,17 @@ class CarlaEnv(gym.Env):
         self.vehicle_angular_velocities = [vehicle_info_dict_list[2]]
         self.vehicle_velocities = [vehicle_info_dict_list[3]]
 
+        # Update timesteps
+        self.time_step = 0
+        self.reset_step += 1
+
+        # applying setting can tick the world and get data from sensros
+        # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
+        self.settings = self.world.get_settings()
+        self.world.apply_settings(self.settings)
+        return self._get_obs()
+
+    def _attack_sensor(self):
         # Add collision sensor
         self.collision_sensor = self.world.spawn_actor(self.collision_bp, carla.Transform(), attach_to=self.ego)
         self.collision_sensor.listen(lambda event: get_collision_hist(event))
@@ -247,26 +272,6 @@ class CarlaEnv(gym.Env):
             array = array[:, :, :3]
             array = array[:, :, ::-1]
             self.camera_img = array
-
-        # Update timesteps
-        self.time_step = 0
-        self.reset_step += 1
-
-        # route planner for ego vehicle
-        self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
-        self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
-
-        # applying setting can tick the world and get data from sensros
-        # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
-        self.settings = self.world.get_settings()
-        self.world.apply_settings(self.settings)
-
-        #self.scenario_manager._running = True
-        return self._get_obs()
-
-    def load_model(self):
-        # TODO: load scenario policy model
-        pass
 
     def step_before_tick(self, ego_action, scenario_action):
         if self.world:
