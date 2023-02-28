@@ -18,7 +18,7 @@ class AutopolitBackgroundVehicle(BasicScenario):
         self.world = world
 
         self.timeout = timeout
-        self.number_of_vehicles = int(100 / config.num_scenario)
+        self.number_of_vehicles = int(80 / config.num_scenario)
         self.number_of_walkers = 0
 
     def initialize_actors(self):
