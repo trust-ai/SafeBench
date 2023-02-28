@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 01:41:22
+LastEditTime: 2023-02-28 13:47:44
 Description: 
 '''
 
@@ -134,7 +134,7 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def _create_scenario(self, config, env_id):
-        self.logger.log(">> Loading scenario id: " + str(env_id) + ', type: ' + str(self.scenario_category))
+        self.logger.log(">> Loading scenario id: " + str(env_id))
 
         # create scenario accoridng to different types
         if self.scenario_category == 'perception':

@@ -2,16 +2,16 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-28 02:15:24
+LastEditTime: 2023-02-28 14:41:30
 Description: 
 '''
 
 import copy
+import os
 
 import numpy as np
 import carla
 import pygame
-import os
 import joblib
 from tqdm import tqdm
 
@@ -69,7 +69,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 100,                # maximum timesteps per episode
+            'max_episode_step': 30,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -84,7 +84,7 @@ class CarlaRunner:
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
         # define logger
-        logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'])
+        logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], self.output_dir, scenario_config['seed'])
         self.logger = EpochLogger(**logger_kwargs)
         
         # prepare parameters
@@ -161,9 +161,9 @@ class CarlaRunner:
 
             # get static obs and then reset with init action 
             static_obs = env.get_static_obs(sampled_scenario_configs)
-            scenario_init_action = self.scenario_policy.get_init_action(static_obs)
+            scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
             obs = env.reset(sampled_scenario_configs, scenario_init_action)
-            replay_buffer.store_init([static_obs, scenario_init_action])
+            replay_buffer.store_init([static_obs, scenario_init_action], additional_dict=additional_dict)
 
             # start loop
             while not env.all_scenario_done():
@@ -185,7 +185,7 @@ class CarlaRunner:
             # end up environment
             env.clean_up()
             replay_buffer.finish_one_episode()
-            
+
             # train off-policy agent or scenario
             if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':
                 self.agent_policy.train(replay_buffer)
@@ -208,14 +208,16 @@ class CarlaRunner:
         num_finished_scenario = 0
         video_count = 0
         data_loader.reset_idx_counter()
+
+        # setup result path
         result_dir = os.path.join(self.output_dir, 'eval_results')
         os.makedirs(result_dir, exist_ok=True)
         result_file = os.path.join(self.output_dir, 'eval_results/results.pkl')
+        eval_results = {}
         if os.path.exists(result_file):
             print('loading previous evaluation results from', result_file)
             eval_results = joblib.load(result_file)
-        else:
-            eval_results = {}
+
         while len(data_loader) > 0:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
@@ -223,7 +225,7 @@ class CarlaRunner:
 
             # reset envs with new config, get init action from scenario policy, and run scenario
             static_obs = env.get_static_obs(sampled_scenario_configs)
-            scenario_init_action = self.scenario_policy.get_init_action(static_obs)
+            scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
             obs = env.reset(sampled_scenario_configs, scenario_init_action)
 
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
@@ -315,7 +317,6 @@ class CarlaRunner:
         for actor_filter in actor_filters:
             for actor in self.world.get_actors().filter(actor_filter):
                 self.logger.log('>> Removing agent: ' + str(actor.type_id) + '-' + str(actor.id))
-                if actor.is_alive:
-                    if actor.type_id.split('.')[0] in ['controller', 'sensor']:
-                        actor.stop()
-                    actor.destroy()
+                if actor.type_id.split('.')[0] in ['controller', 'sensor']:
+                    actor.stop()
+                actor.destroy()

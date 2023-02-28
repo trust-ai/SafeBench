@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-28 01:55:41
+LastEditTime: 2023-02-28 16:15:04
 @Description: 
 '''
 
@@ -149,7 +149,7 @@ class AutoregressiveModel(nn.Module):
 
 class REINFORCE(BasePolicy):
     name = 'reinforce'
-    type = 'onpolicy'
+    type = 'init_state'
 
     def __init__(self, scenario_config, logger):
         self.logger = logger
@@ -157,9 +157,7 @@ class REINFORCE(BasePolicy):
         self.num_scenario = scenario_config['num_scenario']
         self.batch_size = scenario_config['batch_size']
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
-        self.log_prob_buffer = []
-        self.entropy_buffer = []
-        self.entropy_weight = 0.0
+        self.entropy_weight = 0.0001
 
         self.model = CUDA(AutoregressiveModel(self.num_waypoint))
         self.optimizer = optim.Adam(self.model.parameters(), lr=scenario_config['lr'])
@@ -169,27 +167,27 @@ class REINFORCE(BasePolicy):
             return
 
         # get episode reward
-        action, rewards = replay_buffer.sample_init(self.batch_size, shuffle=False)
-        rewards = CUDA(torch.tensor(rewards, dtype=torch.float32))
+        batch = replay_buffer.sample_init(self.batch_size)
+        episode_reward = batch['episode_reward']
+        log_prob = batch['log_prob']
+        entropy = batch['entropy']
         
         # TODO: reward normalization
-
-        self.log_prob_buffer = CUDA(torch.stack(self.log_prob_buffer))
-        self.entropy_buffer = CUDA(torch.stack(self.entropy_buffer))
+        episode_reward = CUDA(torch.tensor(episode_reward, dtype=torch.float32))
+        episode_reward = -episode_reward # objective is to minimize the reward
 
         # we only have one step
-        loss = self.log_prob_buffer * rewards - self.entropy_buffer * self.entropy_weight
+        loss = log_prob * episode_reward - entropy * self.entropy_weight
         loss = loss.mean(dim=0)
 
         # optimize
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        self.logger.log('>> Training loss: {:.4f}'.format(loss.item()))
 
         # reset the buffer since this is a on-policy method
         replay_buffer.reset_init_buffer()
-        self.log_prob_buffer = []
-        self.entropy_buffer = []
 
     def set_mode(self, mode):
         self.mode = mode
@@ -222,9 +220,7 @@ class REINFORCE(BasePolicy):
         # the state should be a sequence of route waypoints
         processed_state = self.proceess_init_state(state)
         processed_state = CUDA(torch.from_numpy(processed_state))
-
-        with torch.no_grad():
-            mu, sigma, action = self.model.forward(processed_state, deterministic)
+        mu, sigma, action = self.model.forward(processed_state, deterministic)
 
         # calculate the probability that this distribution outputs this action
         action_dist = Normal(mu, sigma)
@@ -234,13 +230,10 @@ class REINFORCE(BasePolicy):
         action_entropy = 0.5*(2 * np.pi * sigma**2).log() + 0.5
         entropy = action_entropy.sum(dim=1) # [B]
 
-        # collect log_prob and entropy
-        self.log_prob_buffer.append(log_prob)
-        self.entropy_buffer.append(entropy)
-
         # clip the action to [-1, 1]
         action = np.clip(CPU(action), -1.0, 1.0)
-        return action
+        additional_info = {'log_prob': log_prob, 'entropy': entropy}
+        return action, additional_info
 
     def load_model(self):
         if os.path.exists(self.model_path):
@@ -253,7 +246,5 @@ class REINFORCE(BasePolicy):
 
     def save_model(self):
         self.logger.log(f'>> Saving LC model to {self.model_path}')
-        states = {'parameters': self.model.state_dict()}
-        filepath = os.path.join(self.model_path, 'model.'+str(self.model_id)+'.torch')
-        with open(filepath, 'wb+') as f:
-            torch.save(states, f)
+        with open(self.model_path, 'wb+') as f:
+            torch.save({'parameters': self.model.state_dict()}, f)

@@ -340,26 +340,23 @@ class MapImage(object):
         topology = carla_map.get_topology()
         draw_topology(topology, 0)
 
-        actors = carla_world.get_actors()
-
         # Draw Traffic Signs
-        font_size = world_to_pixel_width(1)
-        font = pygame.font.SysFont('Arial', font_size, True)
+        # font_size = world_to_pixel_width(1)
+        # font = pygame.font.SysFont('Arial', font_size, True)
 
-        stops = [actor for actor in actors if 'stop' in actor.type_id]
-        yields = [actor for actor in actors if 'yield' in actor.type_id]
+        # actors = carla_world.get_actors()
+        # stops = [actor for actor in actors if 'stop' in actor.type_id]
+        # yields = [actor for actor in actors if 'yield' in actor.type_id]
 
-        stop_font_surface = font.render("STOP", False, COLOR_ALUMINIUM_2)
-        stop_font_surface = pygame.transform.scale(stop_font_surface, (stop_font_surface.get_width(), stop_font_surface.get_height() * 2))
+        # stop_font_surface = font.render("STOP", False, COLOR_ALUMINIUM_2)
+        # stop_font_surface = pygame.transform.scale(stop_font_surface, (stop_font_surface.get_width(), stop_font_surface.get_height() * 2))
+        # yield_font_surface = font.render("YIELD", False, COLOR_ALUMINIUM_2)
+        # yield_font_surface = pygame.transform.scale(yield_font_surface, (yield_font_surface.get_width(), yield_font_surface.get_height() * 2))
 
-        yield_font_surface = font.render("YIELD", False, COLOR_ALUMINIUM_2)
-        yield_font_surface = pygame.transform.scale(yield_font_surface, (yield_font_surface.get_width(), yield_font_surface.get_height() * 2))
-
-        for ts_stop in stops:
-            draw_traffic_signs(map_surface, stop_font_surface, ts_stop, trigger_color=COLOR_SCARLET_RED_1)
-
-        for ts_yield in yields:
-            draw_traffic_signs(map_surface, yield_font_surface, ts_yield, trigger_color=COLOR_ORANGE_1)
+        # for ts_stop in stops:
+        #     draw_traffic_signs(map_surface, stop_font_surface, ts_stop, trigger_color=COLOR_SCARLET_RED_1)
+        # for ts_yield in yields:
+        #     draw_traffic_signs(map_surface, yield_font_surface, ts_yield, trigger_color=COLOR_ORANGE_1)
 
     def world_to_pixel(self, location, offset=(0, 0)):
         x = self.scale * self._pixels_per_meter * (location.x - self._world_offset[0])

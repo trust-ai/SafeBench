@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 21:48:13
+LastEditTime: 2023-02-28 16:03:11
 Description: 
 '''
 
@@ -498,7 +498,7 @@ class RouteScenario():
                 else:
                     stop = True
                     self.logger.log('>> Stop due to low speed', color='yellow')
-        else:
+
             if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
                 self.logger.log('>> Stop due to max steps', color='yellow')
@@ -540,10 +540,10 @@ class RouteScenario():
         return criteria
 
     def clean_up(self):
-        # stop criterion
+        # stop criterion and destroy sensors
         for _, criterion in self.criteria.items():
             criterion.terminate()
-        
+
         # each scenario remove its own actors
         for scenario in self.list_scenarios:
             scenario.clean_up()

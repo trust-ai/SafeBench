@@ -1,6 +1,10 @@
-import carla
-import random
-from tqdm import tqdm
+'''
+Author: 
+Email: 
+Date: 2023-02-28 13:21:56
+LastEditTime: 2023-02-28 13:58:52
+Description: 
+'''
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
@@ -30,8 +34,13 @@ class AutopolitBackgroundVehicle(BasicScenario):
         vehicle_spawn_points = get_valid_spawn_points(self.world)
         count = min(self.number_of_vehicles, len(vehicle_spawn_points))
         for spawn_point in vehicle_spawn_points:
-            vehicle = CarlaDataProvider.request_new_actor('vehicle.*', spawn_point=spawn_point, rolename='autopilot',
-                                                          autopilot=True, random_location=False)
+            vehicle = CarlaDataProvider.request_new_actor(
+                'vehicle.*', 
+                spawn_point=spawn_point, 
+                rolename='autopilot',
+                autopilot=True, 
+                random_location=False
+            )
             if vehicle is not None:
                 count -= 1
                 self.other_actors.append(vehicle)

@@ -16,14 +16,14 @@ from tensorboardX import SummaryWriter
 IS_MAIN_PROC = True
 
 # Where experiment outputs are saved by default:
-DEFAULT_DATA_DIR = osp.join(osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__)))), 'log')
+DEFAULT_DATA_DIR = osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__))))
 
 # Whether to automatically insert a date and time stamp into the names of
 # save directories:
 FORCE_DATESTAMP = False
 
 
-def setup_logger_kwargs(exp_name, seed=None, datestamp=False, use_tensor_board=True):
+def setup_logger_kwargs(exp_name, output_dir, seed=None, datestamp=False, use_tensor_board=True):
     # Datestamp forcing
     datestamp = datestamp or FORCE_DATESTAMP
 
@@ -37,10 +37,10 @@ def setup_logger_kwargs(exp_name, seed=None, datestamp=False, use_tensor_board=T
             hms_time = time.strftime("%Y-%m-%d_%H-%M-%S")
             subfolder = ''.join([hms_time, '-', exp_name, '_s', str(seed)])
         else:
-            subfolder = ''.join([exp_name, '_s', str(seed)])
+            subfolder = ''.join([exp_name, '_seed_', str(seed)])
         relpath = osp.join(relpath, subfolder)
 
-    data_dir = DEFAULT_DATA_DIR
+    data_dir = os.path.join(DEFAULT_DATA_DIR, output_dir)
     logger_kwargs = dict(output_dir=osp.join(data_dir, relpath), exp_name=exp_name, use_tensor_board=use_tensor_board)
     return logger_kwargs
 

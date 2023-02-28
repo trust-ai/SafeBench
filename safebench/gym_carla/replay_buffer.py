@@ -2,11 +2,12 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-28 02:15:55
+LastEditTime: 2023-02-28 15:44:40
 Description: 
 '''
 
 import numpy as np
+import torch
 
 
 class ReplayBuffer:
@@ -26,10 +27,26 @@ class ReplayBuffer:
         # buffers for init info
         self.reset_init_buffer()
 
+    def reset_buffer(self):
+        self.buffer_ego_actions = [[] for _ in range(self.num_scenario)]
+        self.buffer_scenario_actions = [[] for _ in range(self.num_scenario)]
+        self.buffer_obs = [[] for _ in range(self.num_scenario)]
+        self.buffer_next_obs = [[] for _ in range(self.num_scenario)]
+        self.buffer_rewards = [[] for _ in range(self.num_scenario)]
+        self.buffer_dones = [[] for _ in range(self.num_scenario)]
+        self.buffer_additional_dict = [{} for _ in range(self.num_scenario)]
+
+    def reset_init_buffer(self):
+        self.buffer_static_obs = []
+        self.buffer_init_action = []
+        self.buffer_episode_reward = []
+        self.buffer_init_additional_dict = {}
+        self.init_buffer_len = 0
+
     def finish_one_episode(self):
         # get total reward for episode
         for s_i in range(self.num_scenario):
-            dones = np.where(self.buffer_dones[s_i] == 1)
+            dones = np.where(self.buffer_dones[s_i])[0]
             start_ = dones[-2] if len(dones) > 1 else -1
             end_ = dones[-1]
             self.buffer_episode_reward.append(np.sum(self.buffer_rewards[s_i][start_+1:end_+1]))
@@ -54,31 +71,43 @@ class ReplayBuffer:
             self.buffer_rewards[sid].append(rewards[s_i])
             self.buffer_dones[sid].append(dones[s_i])
 
-    def store_init(self, data_list):
+        # TODO: allow storing additional information into self.buffer_additional_dict
+
+    def store_init(self, data_list, additional_dict=None):
         static_obs = data_list[0]
         scenario_init_action = data_list[1]
+        self.buffer_static_obs.append(static_obs)
         self.buffer_init_action.append(scenario_init_action)
         self.init_buffer_len += len(scenario_init_action)
 
-    def sample_init(self, batch_size, shuffle=False):
-        buffer_init_action = np.stack(self.buffer_init_action, axis=0)
-        buffer_episode_reward = np.stack(self.buffer_episode_reward, axis=0)
+        # store additional information in given dict
+        if additional_dict:
+            for key in additional_dict.keys():
+                if key not in self.buffer_init_additional_dict.keys():
+                    self.buffer_init_additional_dict[key] = []
+                self.buffer_init_additional_dict[key].append(additional_dict[key])
+
+    def sample_init(self, batch_size):
         num_trajectory = len(self.buffer_init_action)
-        start_idx = np.max([0, num_trajectory - batch_size]) 
-        return buffer_init_action[start_idx:], buffer_episode_reward[start_idx:]
+        start_idx = np.max([0, num_trajectory - self.buffer_capacity]) 
 
-    def reset_buffer(self):
-        self.buffer_ego_actions = [[] for _ in range(self.num_scenario)]
-        self.buffer_scenario_actions = [[] for _ in range(self.num_scenario)]
-        self.buffer_obs = [[] for _ in range(self.num_scenario)]
-        self.buffer_next_obs = [[] for _ in range(self.num_scenario)]
-        self.buffer_rewards = [[] for _ in range(self.num_scenario)]
-        self.buffer_dones = [[] for _ in range(self.num_scenario)]
+        # select up-to-date samples from buffer
+        prepared_init_action =  self.buffer_init_action[start_idx:]
+        prepared_episode_reward = self.buffer_episode_reward[start_idx:]
 
-    def reset_init_buffer(self):
-        self.buffer_init_action = []
-        self.buffer_episode_reward = []
-        self.init_buffer_len = 0
+        # sample action and episode reward
+        sample_index = np.random.randint(0, len(prepared_init_action), size=batch_size)
+        init_action = np.concatenate(prepared_init_action, axis=0)[sample_index]
+        episode_reward = np.array(prepared_episode_reward)[sample_index]
+        batch = {
+            'init_action': init_action,
+            'episode_reward': episode_reward,
+        }
+
+        # add additional information to the batch (assume with torch)
+        for key in self.buffer_init_additional_dict.keys():
+            batch[key] = torch.cat(self.buffer_init_additional_dict[key][start_idx:])[sample_index]
+        return batch
 
     def sample(self, batch_size):
         # prepare concatenated list

@@ -8,11 +8,10 @@ actors or environmental parameters. Hence, a termination is not required.
 
 import weakref
 import math
+
 import numpy as np
-# import py_trees.common.Status as Status
 from enum import Enum
 import shapely
-
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
@@ -75,19 +74,12 @@ class DrivenDistanceTest(Criterion):
 
     Important parameters:
     - actor: CARLA actor to be used for this test
-    - distance_success: If the actor's driven distance is more than this value (in meters),
-                        the test result is SUCCESS
-    - distance_acceptable: If the actor's driven distance is more than this value (in meters),
-                           the test result is ACCEPTABLE
+    - distance_success: If the actor's driven distance is more than this value (in meters), the test result is SUCCESS
+    - distance_acceptable: If the actor's driven distance is more than this value (in meters), the test result is ACCEPTABLE
     - optional [optional]: If True, the result is not considered for an overall pass/fail result
     """
 
-    def __init__(self,
-                 actor,
-                 distance_success,
-                 distance_acceptable=None,
-                 optional=False,
-                 name="CheckDrivenDistance"):
+    def __init__(self, actor, distance_success, distance_acceptable=None, optional=False,name="CheckDrivenDistance"):
         """
         Setup actor
         """
@@ -116,8 +108,7 @@ class DrivenDistanceTest(Criterion):
 
         if self.actual_value > self.expected_value_success:
             self.test_status = "SUCCESS"
-        elif (self.expected_value_acceptable is not None and
-              self.actual_value > self.expected_value_acceptable):
+        elif (self.expected_value_acceptable is not None and self.actual_value > self.expected_value_acceptable):
             self.test_status = "ACCEPTABLE"
         else:
             self.test_status = "RUNNING"
@@ -135,7 +126,6 @@ class DrivenDistanceTest(Criterion):
 
 
 class AverageVelocityTest(Criterion):
-
     """
     This class contains an atomic test for average velocity.
 
@@ -143,8 +133,7 @@ class AverageVelocityTest(Criterion):
     - actor: CARLA actor to be used for this test
     - avg_velocity_success: If the actor's average velocity is more than this value (in m/s),
                             the test result is SUCCESS
-    - avg_velocity_acceptable: If the actor's average velocity is more than this value (in m/s),
-                               the test result is ACCEPTABLE
+    - avg_velocity_acceptable: If the actor's average velocity is more than this value (in m/s), the test result is ACCEPTABLE
     - optional [optional]: If True, the result is not considered for an overall pass/fail result
     """
 
@@ -190,8 +179,7 @@ class AverageVelocityTest(Criterion):
 
         if self.actual_value > self.expected_value_success:
             self.test_status = "SUCCESS"
-        elif (self.expected_value_acceptable is not None and
-              self.actual_value > self.expected_value_acceptable):
+        elif (self.expected_value_acceptable is not None and self.actual_value > self.expected_value_acceptable):
             self.test_status = "ACCEPTABLE"
         else:
             self.test_status = "RUNNING"
@@ -426,6 +414,7 @@ class KeepLaneTest(Criterion):
         - actor: CARLA actor to be used for this test
         - optional [optional]: If True, the result is not considered for an overall pass/fail result
     """
+
     def __init__(self, actor, optional=False, name="CheckKeepLane"):
         """
             Construction with sensor setup
@@ -450,7 +439,6 @@ class KeepLaneTest(Criterion):
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
             new_status = Status.FAILURE
-
         return self.actual_value
 
     def terminate(self):
