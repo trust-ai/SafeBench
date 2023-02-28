@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-26 23:48:34
+LastEditTime: 2023-02-27 18:55:49
 Description: 
 '''
 
@@ -161,7 +161,7 @@ class CarlaEnv(gym.Env):
             raise NotImplementedError(f'{self.scenario_type} scenario is not implemented.')
 
         # init scenario
-        self.ego = scenario.ego_vehicles[0]
+        self.ego = scenario.ego_vehicle
         self.scenario_manager.load_scenario(scenario)
         self.scenario_manager.run_scenario(scenario_init_action)
 

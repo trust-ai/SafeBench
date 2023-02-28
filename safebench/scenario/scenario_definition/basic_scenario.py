@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 12:50:17
+LastEditTime: 2023-02-27 19:13:21
 Description: 
 '''
 
@@ -20,11 +20,12 @@ class BasicScenario(object):
         self.name = name
         self.config = config
 
+        self.ego_vehicles = None
+        self.reference_actor = None # the actor used for calculating trigger distance
         self.other_actors = []
-        self.actor_type_list = []
         self.other_actor_transform = []
         self.trigger_distance_threshold = None
-        self.ego_vehicles = None
+        self.ego_max_driven_distance = 200
 
         if first_env:
             self._initialize_environment(world)

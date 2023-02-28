@@ -1,10 +1,9 @@
 import math
-import traceback
 
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.scenario_definition.basic_scenario import BasicScenario, SpawnOtherActorError
+from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_helper import generate_target_waypoint_in_route
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 
@@ -100,8 +99,7 @@ class VehicleTurningRoute(BasicScenario):
         self._num_lane_changes = 0
 
         self.scenario_operation = ScenarioOperation()
-        self.reference_actor = None
-        self.trigger_distance_threshold = 17
+        self.trigger_distance_threshold = 20
         self.ego_max_driven_distance = 180
 
     def initialize_actors(self):
@@ -117,15 +115,10 @@ class VehicleTurningRoute(BasicScenario):
         added_dist = self._num_lane_changes
         other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
 
-        # try to initialize other actors
-        try:
-            self.actor_type_list = ['vehicle.diamondback.century']
-            self.actor_transform_list = [other_actor_transform]
-            self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
-        except:
-            traceback.print_exc()
-            raise SpawnOtherActorError
-        self.reference_actor = self.other_actors[0]
+        self.actor_type_list = ['vehicle.diamondback.century']
+        self.actor_transform_list = [other_actor_transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
+        self.reference_actor = self.other_actors[0] # used for triggering this scenario
 
     def create_behavior(self, scenario_init_action):
         assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-26 20:34:46
+LastEditTime: 2023-02-27 18:57:36
 Description: 
 '''
 
@@ -20,7 +20,6 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--exp_name', type=str, default='exp')
-    parser.add_argument('--data_dir', type=str, default='output')
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
     parser.add_argument('--save_video', type=bool, default=False)
     parser.add_argument('--render', type=bool, default=True)

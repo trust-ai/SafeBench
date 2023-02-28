@@ -32,7 +32,10 @@ class AutopolitBackgroundVehicle(BasicScenario):
             random_location=True, 
             rolename='autopilot'
         )
-        self.other_actors += actors
+        self.other_actors = actors
+
+        # the trigger distance will always be 0, trigger at the beginning
+        self.reference_actor = self.ego_vehicle 
 
     def create_behavior(self, scenario_init_action):
         pass

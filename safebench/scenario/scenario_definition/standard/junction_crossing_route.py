@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 14:18:54
+LastEditTime: 2023-02-27 18:47:16
 Description: 
 '''
 
@@ -55,7 +55,8 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         self.actor_type_list = ["vehicle.audi.tt"]
         self.actor_transform_list = [first_vehicle_transform]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
-
+        self.reference_actor = self.other_actors[0]
+        
         # other vehicle's traffic light
         traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
 
@@ -119,6 +120,7 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         self.actor_transform_list = [first_vehicle_transform]
         self.actor_type_list = ["vehicle.audi.tt"]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
+        self.reference_actor = self.other_actors[0]
 
         traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
         if traffic_light_other is None:
@@ -182,6 +184,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
         self.actor_transform_list = [first_vehicle_transform]
         self.actor_type_list = ["vehicle.audi.tt"]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
+        self.reference_actor = self.other_actors[0]
 
         # set traffic light
         traffic_light_other = CarlaDataProvider.get_next_traffic_light(self.other_actors[0], False)
@@ -238,6 +241,7 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
         self.actor_transform_list = [first_vehicle_transform]
         self.actor_type_list = ["vehicle.audi.tt"]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
+        self.reference_actor = self.other_actors[0]
 
     def update_behavior(self, scenario_action):
         assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'

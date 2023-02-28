@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 17:22:05
+LastEditTime: 2023-02-27 18:52:53
 Description: 
 '''
 
@@ -61,7 +61,8 @@ class OtherLeadingVehicle(BasicScenario):
         self.other_actor_speed = [self._first_vehicle_speed, self._second_vehicle_speed]
         self.actor_transform_list = [first_vehicle_transform, second_vehicle_transform]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
-
+        self.reference_actor = self.other_actors[0] # used for triggering this scenario
+        
     def create_behavior(self, scenario_init_action):
         assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 

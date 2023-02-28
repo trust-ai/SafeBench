@@ -5,7 +5,7 @@ import json
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.scenario_definition.basic_scenario import BasicScenario, SpawnOtherActorError
+from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_helper import generate_target_waypoint, generate_target_waypoint_in_route
 
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
@@ -171,18 +171,7 @@ class VehicleTurningRoute(BasicScenario):
                 carla.Location(self.actor_transform_list[i].location + right_vector * self.control_seq[i]),
                 self.other_actor_transform[0].rotation))
 
-        # print('other_actor_transform')
-        # for i in self.other_actor_transform:
-        #     print(i)
-        # print('perturbed_actor_transform_list')
-        # for i in self.perturbed_actor_transform_list:
-        #     print(i)
-
-        try:
-            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                              self.actor_type_list)
-        except:
-            raise SpawnOtherActorError
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
 
         """Also need to specify reference actor"""
         self.reference_actor = self.other_actors[0]

@@ -34,7 +34,6 @@ class OtherLeadingVehicle(BasicScenario):
 
         self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 35
-        self.ego_max_driven_distance = 200
 
     def convert_actions(self, actions):
         x_min = 30
@@ -62,7 +61,6 @@ class OtherLeadingVehicle(BasicScenario):
         y = constraint(actions[1], -1, 1) * y_scale + y_mean
         yaw = constraint(actions[2], -1, 1) * yaw_scale + yaw_mean
         dist = constraint(actions[3], -1, 1) * d_scale + dist_mean
-
         return [x, y, yaw, dist]
 
     def initialize_actors(self):
@@ -75,6 +73,7 @@ class OtherLeadingVehicle(BasicScenario):
         self.actor_type_list = ['vehicle.nissan.patrol', 'vehicle.audi.tt']
         self.actor_transform_list = [first_vehicle_transform, second_vehicle_transform]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
+        self.reference_actor = self.other_actors[0] # used for triggering this scenario
 
     def update_behavior(self, scenario_action):
         assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'

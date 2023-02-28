@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 01:11:51
+LastEditTime: 2023-02-27 18:48:43
 Description: 
 '''
 
@@ -24,7 +24,7 @@ class ScenarioManager(object):
     def _reset(self):
         #self.scenario = None
         self.background_scenario = None
-        self.ego_vehicles = None
+        self.ego_vehicle = None
         self.scenario_list = None
         self.triggered_scenario = set()
         self._running = False
@@ -39,9 +39,7 @@ class ScenarioManager(object):
     def load_scenario(self, scenario):
         self._reset()
         self.background_scenario = scenario
-        #self.scenario = scenario.scenario
-        self.ego_vehicles = scenario.ego_vehicles
-        # all spawned scenarios on route
+        self.ego_vehicle = scenario.ego_vehicle
         self.scenario_list = scenario.list_scenarios
 
     def run_scenario(self, scenario_init_action=None):
@@ -76,7 +74,7 @@ class ScenarioManager(object):
             
             # check whether the scenario should be triggered
             for spawned_scenario in self.scenario_list:
-                ego_location = CarlaDataProvider.get_location(self.ego_vehicles[0])
+                ego_location = CarlaDataProvider.get_location(self.ego_vehicle)
                 cur_distance = None
                 reference_location = None
                 if spawned_scenario.reference_actor:

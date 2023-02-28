@@ -46,7 +46,8 @@ class ManeuverOppositeDirection(BasicScenario):
         self.actor_transform_list = [first_actor_transform, second_actor_transform]
         self.actor_type_list = ['vehicle.nissan.micra', 'vehicle.nissan.micra']
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
-
+        self.reference_actor = self.other_actors[0] # used for triggering this scenario
+        
     def create_behavior(self, scenario_init_action):
         assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 

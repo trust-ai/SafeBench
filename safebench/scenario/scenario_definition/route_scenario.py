@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 16:45:21
+LastEditTime: 2023-02-27 19:10:54
 Description: 
 '''
 
@@ -38,14 +38,14 @@ from safebench.scenario.scenario_definition.atomic_criteria import (
 from safebench.scenario.scenario_definition.ordinary.autopolit_background_vehicle import AutopolitBackgroundVehicle
 
 # standard
-from safebench.scenario.scenario_definition.standard.object_crash_vehicle_dynamic import DynamicObjectCrossing as scenario_03_standard
-from safebench.scenario.scenario_definition.standard.object_crash_intersection_dynamic import VehicleTurningRoute as scenario_04_standard
-from safebench.scenario.scenario_definition.standard.other_leading_vehicle_dynamic import OtherLeadingVehicle as scenario_05_standard
-from safebench.scenario.scenario_definition.standard.maneuver_opposite_direction_dynamic import ManeuverOppositeDirection as scenario_06_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import OppositeVehicleRunningRedLight as scenario_07_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import SignalizedJunctionLeftTurn as scenario_08_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import SignalizedJunctionRightTurn as scenario_09_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route_dynamic import NoSignalJunctionCrossingRoute as scenario_10_standard
+from safebench.scenario.scenario_definition.standard.object_crash_vehicle import DynamicObjectCrossing as scenario_03_standard
+from safebench.scenario.scenario_definition.standard.object_crash_intersection import VehicleTurningRoute as scenario_04_standard
+from safebench.scenario.scenario_definition.standard.other_leading_vehicle import OtherLeadingVehicle as scenario_05_standard
+from safebench.scenario.scenario_definition.standard.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_standard
+from safebench.scenario.scenario_definition.standard.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_standard
 
 # benign
 from safebench.scenario.scenario_definition.benign.object_crash_vehicle import DynamicObjectCrossing as scenario_03_benign
@@ -274,16 +274,12 @@ class RouteScenario():
         self.timeout = 60
 
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
-        # self._update_route(world, config)
-        # ego_vehicle = self._update_ego_vehicle()
-        ego_vehicle = self._update_route_and_ego(world, config)
-        self.ego_vehicles = [ego_vehicle]
-        self.ego_idx = 0
+        self.ego_vehicle = self._update_route_and_ego(world, config)
         self.other_actors = []
 
         self.list_scenarios = self._build_scenario_instances(
             world,
-            ego_vehicle,
+            self.ego_vehicle,
             self.sampled_scenarios_definitions,
             scenarios_per_tick=5,
             timeout=self.timeout,
@@ -425,7 +421,7 @@ class RouteScenario():
             scenario_configuration.route_var_name = route_var_name
 
             try:
-                scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration, timeout=timeout)
+                scenario_instance = scenario_class(world, ego_vehicle, scenario_configuration, timeout=timeout)
                 # tick every once in a while to avoid spawning everything at the same time
                 if scenario_number % scenarios_per_tick == 0:
                     if CarlaDataProvider.is_sync_mode():
@@ -482,16 +478,16 @@ class RouteScenario():
 
     def get_running_status(self, running_record):
         running_status = {
-            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicles[self.ego_idx]),
-            'ego_acceleration_x': self.ego_vehicles[self.ego_idx].get_acceleration().x,
-            'ego_acceleration_y': self.ego_vehicles[self.ego_idx].get_acceleration().y,
-            'ego_acceleration_z': self.ego_vehicles[self.ego_idx].get_acceleration().z,
-            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).location.x,
-            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).location.y,
-            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).location.z,
-            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.roll,
-            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.pitch,
-            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicles[self.ego_idx]).rotation.yaw,
+            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicle),
+            'ego_acceleration_x': self.ego_vehicle.get_acceleration().x,
+            'ego_acceleration_y': self.ego_vehicle.get_acceleration().y,
+            'ego_acceleration_z': self.ego_vehicle.get_acceleration().z,
+            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicle).location.x,
+            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicle).location.y,
+            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicle).location.z,
+            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.roll,
+            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.pitch,
+            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.yaw,
             'current_game_time': GameTime.get_time()
         }
 
@@ -535,22 +531,22 @@ class RouteScenario():
         criteria = {}
         route = convert_transform_to_location(self.route)
 
-        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicles[self.ego_idx], distance_success=1e4, distance_acceptable=1e4, optional=True)
-        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicles[self.ego_idx], avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
-        criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicles[self.ego_idx], optional=True)
-        criteria['off_road'] = OffRoadTest(actor=self.ego_vehicles[self.ego_idx], optional=True)
-        criteria['collision'] = CollisionTest(actor=self.ego_vehicles[self.ego_idx], terminate_on_failure=True)
-        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicles[self.ego_idx])
-        criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicles[self.ego_idx])
+        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicle, distance_success=1e4, distance_acceptable=1e4, optional=True)
+        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicle, avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
+        criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicle, optional=True)
+        criteria['off_road'] = OffRoadTest(actor=self.ego_vehicle, optional=True)
+        criteria['collision'] = CollisionTest(actor=self.ego_vehicle, terminate_on_failure=True)
+        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicle)
+        criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicle)
         if self.config.scenario_id != 0:  # only check when evaluating
-            criteria['distance_to_route'] = InRouteTest(self.ego_vehicles[self.ego_idx], route=route, offroad_max=30)
+            criteria['distance_to_route'] = InRouteTest(self.ego_vehicle, route=route, offroad_max=30)
             criteria['speed_above_threshold'] = ActorSpeedAboveThresholdTest(
-                actor=self.ego_vehicles[self.ego_idx],
+                actor=self.ego_vehicle,
                 speed_threshold=0.1,
                 below_threshold_max_time=10,
                 terminate_on_failure=True
             )
-            criteria['route_complete'] = RouteCompletionTest(self.ego_vehicles[self.ego_idx], route=route)
+            criteria['route_complete'] = RouteCompletionTest(self.ego_vehicle, route=route)
         return criteria
 
     def clean_up(self):

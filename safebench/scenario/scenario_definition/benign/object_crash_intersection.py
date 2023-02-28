@@ -1,10 +1,8 @@
-from __future__ import print_function
-
 import math
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.scenario_definition.basic_scenario import BasicScenario, SpawnOtherActorError
+from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 
 from safebench.scenario.tools.scenario_helper import generate_target_waypoint_in_route
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
@@ -95,8 +93,7 @@ class VehicleTurningRoute(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
@@ -145,12 +142,7 @@ class VehicleTurningRoute(BasicScenario):
         _other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
 
         self.other_actor_transform.append(_other_actor_transform)
-
-        try:
-            self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                              self.actor_type_list)
-        except:
-            raise SpawnOtherActorError
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
 
         """Also need to specify reference actor"""
         self.reference_actor = self.other_actors[0]
@@ -165,7 +157,6 @@ class VehicleTurningRoute(BasicScenario):
         """
 
         return False
-
 
     def _create_behavior(self):
         pass

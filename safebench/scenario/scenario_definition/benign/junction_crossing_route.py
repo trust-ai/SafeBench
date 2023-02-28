@@ -11,63 +11,43 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         An other vehicle takes priority from the ego vehicle, by running a red traffic light (while the ego vehicle has green)
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=180):
-        """
-        Setup all relevant parameters and create scenario
-        and instantiate scenario manager
-        """
-
-        # Timeout of scenario in seconds
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-Benign", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
         self.actor_speed = 10
-
-        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLightDynamic",
-                                                             ego_vehicles,
-                                                             config,
-                                                             world,
-                                                             debug_mode,
-                                                             criteria_enable=criteria_enable)
-
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.reference_actor = None
+        self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 0
         self.trigger = False
         self._actor_distance = 110
         self.ego_max_driven_distance = 150
 
-
     def initialize_actors(self):
-        """
-        Custom initialization
-        """
-        config = self.config
-        self._other_actor_transform = config.other_actors[0].transform
         first_vehicle_transform = carla.Transform(
-            carla.Location(config.other_actors[0].transform.location.x,
-                           config.other_actors[0].transform.location.y,
-                           config.other_actors[0].transform.location.z),
-            config.other_actors[0].transform.rotation)
+            carla.Location(
+                self.config.other_actors[0].transform.location.x,
+                self.config.other_actors[0].transform.location.y,
+                self.config.other_actors[0].transform.location.z),
+            self.config.other_actors[0].transform.rotation)
 
         self.other_actor_transform.append(first_vehicle_transform)
         self.actor_type_list.append("vehicle.audi.tt")
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
-        self.reference_actor = self.other_actors[0]
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
+        self.reference_actor = self.other_actors[0] # used for triggering this scenario
         self.other_actors[0].set_autopilot()
 
-    def update_behavior(self):
+    def create_behavior(self):
         pass
 
-    def _create_behavior(self):
+    def update_behavior(self):
         pass
 
     def check_stop_condition(self):
         """
         small scenario stops when actor runs a specific distance
         """
-        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]),
-                                                     self.other_actor_transform[0])
+        cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.other_actor_transform[0])
         if cur_distance >= self._actor_distance:
             return True
         return False

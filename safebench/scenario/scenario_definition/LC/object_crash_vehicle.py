@@ -162,7 +162,8 @@ class DynamicObjectCrossing(BasicScenario):
         self.actor_type_list = ['walker.*', 'static.prop.vendingmachine']
         self.actor_transform_list = [disp_transform, prop_disp_transform]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
-
+        self.reference_actor = self.other_actors[0] # used for triggering this scenario
+        
     def create_behavior(self, scenario_init_action):
         self.actions = self.convert_actions(scenario_init_action)
 

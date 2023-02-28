@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 01:13:50
+LastEditTime: 2023-02-27 18:57:47
 Description: 
 '''
 
@@ -79,7 +79,7 @@ class CarlaRunner:
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
         # define logger
-        logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'], data_dir=scenario_config['data_dir'])
+        logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], scenario_config['seed'])
         self.logger = EpochLogger(**logger_kwargs)
         
         # prepare parameters

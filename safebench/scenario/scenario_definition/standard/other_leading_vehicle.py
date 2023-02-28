@@ -2,7 +2,7 @@
 Author: 
 Email:
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 14:32:56
+LastEditTime: 2023-02-27 19:12:32
 Description: 
 '''
 
@@ -37,6 +37,8 @@ class OtherLeadingVehicle(BasicScenario):
         self.dece_target_speed = 2  # 3 will be safe
         self.need_decelerate = False
         self.scenario_operation = ScenarioOperation()
+        self.trigger_distance_threshold = 35
+        self.ego_max_driven_distance = 200
 
     def initialize_actors(self):
         first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
@@ -50,7 +52,8 @@ class OtherLeadingVehicle(BasicScenario):
         self.actor_transform_list = [first_vehicle_transform, second_vehicle_transform]
         self.actor_speed_list = [12, 12]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
-
+        self.reference_actor = self.other_actors[0] # used for triggering this scenario
+        
     def create_behavior(self, scenario_init_action):
         assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
 

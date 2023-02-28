@@ -23,7 +23,7 @@ DEFAULT_DATA_DIR = osp.join(osp.abspath(osp.dirname(osp.dirname(osp.dirname(__fi
 FORCE_DATESTAMP = False
 
 
-def setup_logger_kwargs(exp_name, seed=None, data_dir=None, datestamp=False, use_tensor_board=True):
+def setup_logger_kwargs(exp_name, seed=None, datestamp=False, use_tensor_board=True):
     # Datestamp forcing
     datestamp = datestamp or FORCE_DATESTAMP
 
@@ -40,10 +40,7 @@ def setup_logger_kwargs(exp_name, seed=None, data_dir=None, datestamp=False, use
             subfolder = ''.join([exp_name, '_s', str(seed)])
         relpath = osp.join(relpath, subfolder)
 
-    if data_dir:
-        data_dir = osp.join(DEFAULT_DATA_DIR, data_dir)
-    else:
-        data_dir = DEFAULT_DATA_DIR
+    data_dir = DEFAULT_DATA_DIR
     logger_kwargs = dict(output_dir=osp.join(data_dir, relpath), exp_name=exp_name, use_tensor_board=use_tensor_board)
     return logger_kwargs
 
