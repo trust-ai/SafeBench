@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 16:17:23
+LastEditTime: 2023-02-28 17:42:30
 Description: 
 '''
 
@@ -29,7 +29,11 @@ if __name__ == '__main__':
     parser.add_argument('--scenario_cfg', type=str, default='standard.yaml')
     parser.add_argument('--continue_agent_training', '-cat', type=bool, default=False)
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
-    
+
+    parser.add_argument('--seed', '-s', type=int, default=0)
+    parser.add_argument('--threads', type=int, default=4)
+    parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')   
+
     parser.add_argument('--num_scenario', '-ns', type=int, default=2, help='num of scenarios we run in one episode')
     parser.add_argument('--save_video', type=bool, default=False)
     parser.add_argument('--render', type=bool, default=True)
