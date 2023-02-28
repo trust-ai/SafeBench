@@ -11,6 +11,9 @@ import copy
 import numpy as np
 import carla
 import pygame
+import os
+import joblib
+from tqdm import tqdm
 
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
@@ -32,6 +35,7 @@ class CarlaRunner:
         self.scenario_config = scenario_config
         self.agent_config = agent_config
 
+        self.output_dir = scenario_config['output_dir']
         self.save_video = scenario_config['save_video']
         self.mode = scenario_config['mode']
         assert not self.save_video or (self.save_video and self.mode == 'eval'), "only allowed saving video in eval mode"
@@ -149,7 +153,7 @@ class CarlaRunner:
         # general buffer for both agent and scenario
         replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
 
-        for e_i in range(self.train_episode):
+        for e_i in tqdm(range(self.train_episode)):
             # sample scenarios
             sampled_scenario_configs, _ = data_loader.sampler()
             # TODO: to restart the data loader, reset the index counter every time
@@ -204,6 +208,14 @@ class CarlaRunner:
         num_finished_scenario = 0
         video_count = 0
         data_loader.reset_idx_counter()
+        result_dir = os.path.join(self.output_dir, 'eval_results')
+        os.makedirs(result_dir, exist_ok=True)
+        result_file = os.path.join(self.output_dir, 'eval_results/results.pkl')
+        if os.path.exists(result_file):
+            print('loading previous evaluation results from', result_file)
+            eval_results = joblib.load(result_file)
+        else:
+            eval_results = {}
         while len(data_loader) > 0:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
@@ -234,14 +246,19 @@ class CarlaRunner:
                     rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
                     reward_idx += 1
 
+            eval_results.update(env.running_results)
+
             # clean up all things
             self.logger.log(">> All scenarios are completed. Clearning up all actors")
             env.clean_up()
 
+            self.logger.log('>> Saving evaluation results')
+            joblib.dump(eval_results, result_file)
+
             # save video
             if self.save_video:
                 self.logger.log('>> Saving video')
-                save_video(frame_list, './video/video_' + str(video_count) + '.gif')
+                save_video(frame_list, os.path.join(self.output_dir, 'video/video_{}.gif'.format(str(video_count))))
                 video_count += 1
 
             # calculate episode reward and print

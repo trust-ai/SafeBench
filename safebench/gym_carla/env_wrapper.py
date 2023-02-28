@@ -32,6 +32,7 @@ class VectorWrapper():
 
         # flags for env list 
         self.finished_env = [False] * self.num_scenario
+        self.running_results = {}
 
     def obs_postprocess(self, obs_list):
         # assume all variables are array
@@ -57,6 +58,7 @@ class VectorWrapper():
         self.finished_env = [False] * self.num_scenario
         for s_i in range(len(scenario_configs), self.num_scenario):
             self.finished_env[s_i] = True
+        self.running_results = {}
 
         # return obs
         return self.obs_postprocess(obs_list)
@@ -86,12 +88,14 @@ class VectorWrapper():
         info_list = []
         for e_i in range(self.num_scenario):
             if not self.finished_env[e_i]:
-                obs, reward, done, info = self.env_list[e_i].step_after_tick()
+                current_env = self.env_list[e_i]
+                obs, reward, done, info = current_env.step_after_tick()
                 info['scenario_id'] = e_i
 
                 # check if env is done
                 if done:
                     self.finished_env[e_i] = True
+                    self.running_results[current_env.config.data_id] = current_env.scenario_manager.running_record
 
                 # update infomation
                 obs_list.append(obs)

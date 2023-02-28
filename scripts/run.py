@@ -34,6 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_scenario', '-ns', type=int, default=2, help='num of scenarios we run in one episode')
     parser.add_argument('--agent_cfg', type=str, default='dummy.yaml')
     parser.add_argument('--scenario_cfg', type=str, default='standard.yaml')
+    parser.add_argument('--output_dir', type=str, default='output')
     parser.add_argument('--ROOT_DIR', type=str, default=osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__)))))
     args = parser.parse_args()
     args_dict = vars(args)
