@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 18:51:32
+LastEditTime: 2023-02-28 00:55:54
 Description: 
 '''
 
@@ -12,8 +12,6 @@ from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataPro
 from safebench.scenario.tools.scenario_helper import get_waypoint_in_distance
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
-
-from safebench.scenario.scenario_policy.reinforce_continuous import constraint
 
 
 class ManeuverOppositeDirection(BasicScenario):
@@ -56,10 +54,9 @@ class ManeuverOppositeDirection(BasicScenario):
         y_mean = (y_max + y_min)/2
         yaw_mean = (yaw_max + yaw_min)/2
 
-        x = constraint(actions[0], -1, 1) * x_scale + x_mean
-        y = constraint(actions[1], -1, 1) * y_scale + y_mean
-        yaw = constraint(actions[2], -1, 1) * yaw_scale + yaw_mean
-
+        x = actions[0] * x_scale + x_mean
+        y = actions[1] * y_scale + y_mean
+        yaw = actions[2] * yaw_scale + yaw_mean
         return [x, y, yaw]
 
     def initialize_actors(self):

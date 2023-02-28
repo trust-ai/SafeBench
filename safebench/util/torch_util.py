@@ -195,7 +195,7 @@ def CUDA(var):
 
 
 def CPU(var):
-    return var.cpu().detach()
+    return var.cpu().detach().numpy()
 
 
 def kaiming_init(m):

@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 20:05:11
+LastEditTime: 2023-02-28 02:15:55
 Description: 
 '''
 
@@ -20,17 +20,19 @@ class ReplayBuffer:
         self.num_scenario = num_scenario
         self.buffer_len = 0
 
-        # buffers for different data type
-        self.buffer_ego_actions = [[] for _ in range(num_scenario)]
-        self.buffer_scenario_actions = [[] for _ in range(num_scenario)]
-        self.buffer_obs = [[] for _ in range(num_scenario)]
-        self.buffer_next_obs = [[] for _ in range(num_scenario)]
-        self.buffer_rewards = [[] for _ in range(num_scenario)]
-        self.buffer_dones = [[] for _ in range(num_scenario)]
+        # buffers for step info
+        self.reset_buffer()
+
+        # buffers for init info
+        self.reset_init_buffer()
 
     def finish_one_episode(self):
-        # TODO: summarize the data of the entire trajectory, e.g., total reward
-        pass
+        # get total reward for episode
+        for s_i in range(self.num_scenario):
+            dones = np.where(self.buffer_dones[s_i] == 1)
+            start_ = dones[-2] if len(dones) > 1 else -1
+            end_ = dones[-1]
+            self.buffer_episode_reward.append(np.sum(self.buffer_rewards[s_i][start_+1:end_+1]))
 
     def store(self, data_list):
         ego_actions = data_list[0]
@@ -55,6 +57,28 @@ class ReplayBuffer:
     def store_init(self, data_list):
         static_obs = data_list[0]
         scenario_init_action = data_list[1]
+        self.buffer_init_action.append(scenario_init_action)
+        self.init_buffer_len += len(scenario_init_action)
+
+    def sample_init(self, batch_size, shuffle=False):
+        buffer_init_action = np.stack(self.buffer_init_action, axis=0)
+        buffer_episode_reward = np.stack(self.buffer_episode_reward, axis=0)
+        num_trajectory = len(self.buffer_init_action)
+        start_idx = np.max([0, num_trajectory - batch_size]) 
+        return buffer_init_action[start_idx:], buffer_episode_reward[start_idx:]
+
+    def reset_buffer(self):
+        self.buffer_ego_actions = [[] for _ in range(self.num_scenario)]
+        self.buffer_scenario_actions = [[] for _ in range(self.num_scenario)]
+        self.buffer_obs = [[] for _ in range(self.num_scenario)]
+        self.buffer_next_obs = [[] for _ in range(self.num_scenario)]
+        self.buffer_rewards = [[] for _ in range(self.num_scenario)]
+        self.buffer_dones = [[] for _ in range(self.num_scenario)]
+
+    def reset_init_buffer(self):
+        self.buffer_init_action = []
+        self.buffer_episode_reward = []
+        self.init_buffer_len = 0
 
     def sample(self, batch_size):
         # prepare concatenated list

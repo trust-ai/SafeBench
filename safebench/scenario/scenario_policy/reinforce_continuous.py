@@ -2,30 +2,21 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-27 21:49:13
+LastEditTime: 2023-02-28 01:55:41
 @Description: 
 '''
 
 import os
-import math
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
+import torch.optim as optim
+from torch.distributions.normal import Normal
 
 from safebench.scenario.scenario_policy.base_policy import BasePolicy
 from safebench.util.torch_util import CUDA, CPU
-
-
-def constraint(x, x_min, x_max):
-    if x < x_min:
-        return x_min
-    elif x > x_max:
-        return x_max
-    else:
-        return x
 
 
 def normalize_routes(routes):
@@ -41,118 +32,119 @@ def normalize_routes(routes):
     return route
 
 
-pi = CUDA(torch.FloatTensor([math.pi]))
-def normal(x, mu, sigma_sq):
-    a = (-1*(CUDA(x)-mu).pow(2)/(2*sigma_sq)).exp()
-    b = 1/(2*sigma_sq*pi.expand_as(sigma_sq)).sqrt()
-    return a*b
-
-
-class AutoregressiveModel(nn.Module):
-    def __init__(self, standard_action=True, num_waypoint=20):
-        super(AutoregressiveModel, self).__init__()
-        self.standard_action = standard_action
+class IndependantModel(nn.Module):
+    def __init__(self, num_waypoint=20):
+        super(IndependantModel, self).__init__()
         input_size = num_waypoint*2 + 1
-        hidden_size_1 = 32
+        hidden_size_1 = 64
 
         self.a_os = 1
         self.b_os = 1
         self.c_os = 1
+        self.d_os = 1
 
-        # TODO: remove this parameter
-        if self.standard_action:
-            self.d_os = 1
-
-        self.fc_input = nn.Sequential(
-            nn.Linear(input_size, hidden_size_1),
-            nn.ReLU(inplace=True)
-        )
-
+        self.relu = nn.ReLU()
+        self.fc_input = nn.Sequential(nn.Linear(input_size, hidden_size_1))
         self.fc_action_a = nn.Sequential(nn.Linear(hidden_size_1, self.a_os*2))
-
         self.fc_action_b = nn.Sequential(nn.Linear(1+hidden_size_1, self.b_os*2))
-
-        self.fc_action_c = nn.Sequential(
-            nn.Linear(1+1+hidden_size_1, self.c_os*2),
-        )
-
-        if self.standard_action:
-            self.fc_action_d = nn.Sequential(
-                nn.Linear(1+1+1+hidden_size_1, self.d_os*2),
-            )
+        self.fc_action_c = nn.Sequential(nn.Linear(1+1+hidden_size_1, self.c_os*2))
+        self.fc_action_d = nn.Sequential(nn.Linear(1+1+1+hidden_size_1, self.d_os*2))
 
     def sample_action(self, normal_action, action_os):
         # get the mu and sigma
-        #mu = torch.tanh(normal_action[:, :action_os])
         mu = normal_action[:, :action_os]
         sigma = F.softplus(normal_action[:, action_os:])
 
         # calculate the probability by mu and sigma of normal distribution
         eps = CUDA(Variable(torch.randn(mu.size())))
         action = (mu + sigma*eps)
-        # action = (mu + sigma.sqrt()*eps)
-
         return action, mu, sigma
 
-    def forward(self, x):
+    def forward(self, x, determinstic):
         # p(s)
         s = self.fc_input(x)
+        s = self.relu(s)
+
+        # p(a|s)
+        normal_a = self.fc_action_a(s)
+        action_a, mu_a, sigma_a = self.sample_action(normal_a, self.a_os)
+
+        # p(b|a,s) 
+        normal_b = self.fc_action_b(s)
+        action_b, mu_b, sigma_b = self.sample_action(normal_b, self.b_os)
+
+        # p(c|a,b,s)
+        normal_c = self.fc_action_c(s)
+        action_c, mu_c, sigma_c = self.sample_action(normal_c, self.c_os)
+
+        # p(d|a,b,c,s)
+        normal_d = self.fc_action_d(s)
+        action_d, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
+
+        # concate
+        action = torch.cat((action_a, action_b, action_c, action_d), dim=1) # [B, 4]
+        mu = torch.cat((mu_a, mu_b, mu_c, mu_d), dim=1)                     # [B, 4]
+        sigma = torch.cat((sigma_a, sigma_b, sigma_c, sigma_d), dim=1)      # [B, 4]
+        return mu, sigma, action
+
+
+class AutoregressiveModel(nn.Module):
+    def __init__(self, num_waypoint=20):
+        super(AutoregressiveModel, self).__init__()
+        input_size = num_waypoint*2 + 1
+        hidden_size_1 = 64
+
+        self.a_os = 1
+        self.b_os = 1
+        self.c_os = 1
+        self.d_os = 1
+
+        self.relu = nn.ReLU()
+        self.fc_input = nn.Sequential(nn.Linear(input_size, hidden_size_1))
+        self.fc_action_a = nn.Sequential(nn.Linear(hidden_size_1, self.a_os*2))
+        self.fc_action_b = nn.Sequential(nn.Linear(1+hidden_size_1, self.b_os*2))
+        self.fc_action_c = nn.Sequential(nn.Linear(1+1+hidden_size_1, self.c_os*2))
+        self.fc_action_d = nn.Sequential(nn.Linear(1+1+1+hidden_size_1, self.d_os*2))
+
+    def sample_action(self, normal_action, action_os):
+        # get the mu and sigma
+        mu = normal_action[:, :action_os]
+        sigma = F.softplus(normal_action[:, action_os:])
+
+        # calculate the probability by mu and sigma of normal distribution
+        eps = CUDA(torch.randn(mu.size()))
+        action = mu + sigma * eps
+        return action, mu, sigma
+
+    def forward(self, x, determinstic):
+        # p(s)
+        s = self.fc_input(x)
+        s = self.relu(s)
 
         # p(a|s)
         normal_a = self.fc_action_a(s)
         action_a, mu_a, sigma_a = self.sample_action(normal_a, self.a_os)
 
         # p(b|a,s)
-        state_sample_a = torch.cat((s, action_a), dim=1)
+        state_sample_a = torch.cat((s, mu_a), dim=1) if determinstic else torch.cat((s, action_a), dim=1) 
         normal_b = self.fc_action_b(state_sample_a)
         action_b, mu_b, sigma_b = self.sample_action(normal_b, self.b_os)
 
         # p(c|a,b,s)
-        state_sample_a_b = torch.cat((s, action_a, action_b), dim=1)
+        state_sample_a_b = torch.cat((s, mu_a, mu_b), dim=1) if determinstic else torch.cat((s, action_a, action_b), dim=1)
         normal_c = self.fc_action_c(state_sample_a_b)
         action_c, mu_c, sigma_c = self.sample_action(normal_c, self.c_os)
 
         # p(d|a,b,c,s)
-        if self.standard_action:
-            state_sample_a_b_c = torch.cat((s, action_a, action_b, action_c), dim=1)
-            normal_d = self.fc_action_d(state_sample_a_b_c)
-            action_d, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
+        state_sample_a_b_c = torch.cat((s, mu_a, mu_b, mu_c), dim=1) if determinstic else torch.cat((s, action_a, action_b, action_c), dim=1)
+        normal_d = self.fc_action_d(state_sample_a_b_c)
+        action_d, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
 
-        if self.standard_action:
-            return [mu_a, mu_b, mu_c, mu_d], [sigma_a, sigma_b, sigma_c, sigma_d], [action_a[0], action_b[0], action_c[0], action_d[0]]
-        else:
-            return [mu_a, mu_b, mu_c], [sigma_a, sigma_b, sigma_c], [action_a[0], action_b[0], action_c[0]]
-
-    # deterministic output
-    def deterministic_forward(self, x):
-        # p(s)
-        s = self.fc_input(x)
-
-        # p(a|s)
-        normal_a = self.fc_action_a(s)
-        _, mu_a, sigma_a = self.sample_action(normal_a, self.a_os)
-
-        # p(b|a,s)
-        state_sample_a = torch.cat((s, mu_a), dim=1)
-        normal_b = self.fc_action_b(state_sample_a)
-        _, mu_b, sigma_b = self.sample_action(normal_b, self.b_os)
-
-        # p(c|a,b,s)
-        state_sample_a_b = torch.cat((s, mu_a, mu_b), dim=1)
-        normal_c = self.fc_action_c(state_sample_a_b)
-        _, mu_c, sigma_c = self.sample_action(normal_c, self.c_os)
-
-        # p(d|a,b,c,s)
-        if self.standard_action:
-            state_sample_a_b_c = torch.cat((s, mu_a, mu_b, mu_c), dim=1)
-            normal_d = self.fc_action_d(state_sample_a_b_c)
-            _, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
-
-        # output the mean value to be the deterministic action
-        if self.standard_action:
-            return mu_a[0][0], mu_b[0][0], mu_c[0][0], mu_d[0][0]
-        else:
-            return mu_a[0][0], mu_b[0][0], mu_c[0][0]
+        # concate
+        action = torch.cat((action_a, action_b, action_c, action_d), dim=1) # [B, 4]
+        mu = torch.cat((mu_a, mu_b, mu_c, mu_d), dim=1)                     # [B, 4]
+        sigma = torch.cat((sigma_a, sigma_b, sigma_c, sigma_d), dim=1)      # [B, 4]
+        return mu, sigma, action
 
 
 class REINFORCE(BasePolicy):
@@ -162,13 +154,42 @@ class REINFORCE(BasePolicy):
     def __init__(self, scenario_config, logger):
         self.logger = logger
         self.num_waypoint = 20
-        self.standard_action = scenario_config['standard_action']
         self.num_scenario = scenario_config['num_scenario']
-        self.model = CUDA(AutoregressiveModel(self.standard_action, self.num_waypoint))
+        self.batch_size = scenario_config['batch_size']
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
+        self.log_prob_buffer = []
+        self.entropy_buffer = []
+        self.entropy_weight = 0.0
+
+        self.model = CUDA(AutoregressiveModel(self.num_waypoint))
+        self.optimizer = optim.Adam(self.model.parameters(), lr=scenario_config['lr'])
 
     def train(self, replay_buffer):
-        pass
+        if replay_buffer.init_buffer_len < self.batch_size:
+            return
+
+        # get episode reward
+        action, rewards = replay_buffer.sample_init(self.batch_size, shuffle=False)
+        rewards = CUDA(torch.tensor(rewards, dtype=torch.float32))
+        
+        # TODO: reward normalization
+
+        self.log_prob_buffer = CUDA(torch.stack(self.log_prob_buffer))
+        self.entropy_buffer = CUDA(torch.stack(self.entropy_buffer))
+
+        # we only have one step
+        loss = self.log_prob_buffer * rewards - self.entropy_buffer * self.entropy_weight
+        loss = loss.mean(dim=0)
+
+        # optimize
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        # reset the buffer since this is a on-policy method
+        replay_buffer.reset_init_buffer()
+        self.log_prob_buffer = []
+        self.entropy_buffer = []
 
     def set_mode(self, mode):
         self.mode = mode
@@ -194,58 +215,32 @@ class REINFORCE(BasePolicy):
         processed_state_list = np.stack(processed_state_list, axis=0)
         return processed_state_list
 
-    def get_action(self, state, deterministic):
+    def get_action(self, state, deterministic=False):
         return [None] * self.num_scenario
 
-    def get_init_action(self, state, deterministic=True):
+    def get_init_action(self, state, deterministic=False):
         # the state should be a sequence of route waypoints
         processed_state = self.proceess_init_state(state)
         processed_state = CUDA(torch.from_numpy(processed_state))
 
-        if deterministic:
-            with torch.no_grad():
-                if self.standard_action:
-                    action_a, action_b, action_c, action_d = self.model.deterministic_forward(processed_state)
-                else:
-                    action_a, action_b, action_c = self.model.deterministic_forward(processed_state)
+        with torch.no_grad():
+            mu, sigma, action = self.model.forward(processed_state, deterministic)
 
-            if self.standard_action:
-                return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy(), action_d.cpu().numpy()]
-            else:
-                return [action_a.cpu().numpy(), action_b.cpu().numpy(), action_c.cpu().numpy()]
-        else:
-            mu_bag, sigma_bag, action_bag = self.model(processed_state)
+        # calculate the probability that this distribution outputs this action
+        action_dist = Normal(mu, sigma)
+        log_prob = action_dist.log_prob(action).sum(dim=1) # [B]
 
-            # calculate the probability that this distribution outputs this action
-            prob_a = normal(action_bag[0], mu_bag[0], sigma_bag[0])
-            prob_b = normal(action_bag[1], mu_bag[1], sigma_bag[1])
-            prob_c = normal(action_bag[2], mu_bag[2], sigma_bag[2])
-            if self.standard_action:
-                prob_d = normal(action_bag[3], mu_bag[3], sigma_bag[3])
-                log_prob = prob_a.log() + prob_b.log() + prob_c.log() + prob_d.log()
-            else:
-                log_prob = prob_a.log() + prob_b.log() + prob_c.log()
+        # calculate the entropy
+        action_entropy = 0.5*(2 * np.pi * sigma**2).log() + 0.5
+        entropy = action_entropy.sum(dim=1) # [B]
 
-            # calculate the entropy
-            entropy_a = -0.5*((sigma_bag[0]+2*pi.expand_as(sigma_bag[0])).log()+1)
-            entropy_b = -0.5*((sigma_bag[1]+2*pi.expand_as(sigma_bag[1])).log()+1)
-            entropy_c = -0.5*((sigma_bag[2]+2*pi.expand_as(sigma_bag[2])).log()+1)
-            if self.standard_action:
-                entropy_d = -0.5*((sigma_bag[2]+2*pi.expand_as(sigma_bag[2])).log()+1)
-                entropy = entropy_a + entropy_b + entropy_c + entropy_d
-            else:
-                entropy = entropy_a + entropy_b + entropy_c
+        # collect log_prob and entropy
+        self.log_prob_buffer.append(log_prob)
+        self.entropy_buffer.append(entropy)
 
-            a_1 = action_bag[0][0].detach().cpu().numpy()
-            a_2 = action_bag[1][0].detach().cpu().numpy()
-            a_3 = action_bag[2][0].detach().cpu().numpy()
-            if self.standard_action:
-                a_4 = action_bag[3][0].detach().cpu().numpy()
-
-            if self.standard_action:
-                return [a_1, a_2, a_3, a_4], log_prob, entropy
-            else:
-                return [a_1, a_2, a_3], log_prob, entropy
+        # clip the action to [-1, 1]
+        action = np.clip(CPU(action), -1.0, 1.0)
+        return action
 
     def load_model(self):
         if os.path.exists(self.model_path):
@@ -258,5 +253,7 @@ class REINFORCE(BasePolicy):
 
     def save_model(self):
         self.logger.log(f'>> Saving LC model to {self.model_path}')
-        with open(self.model_path, 'wb') as f:
-            torch.save({'parameters': self.model.state_dict()}, f)
+        states = {'parameters': self.model.state_dict()}
+        filepath = os.path.join(self.model_path, 'model.'+str(self.model_id)+'.torch')
+        with open(filepath, 'wb+') as f:
+            torch.save(states, f)

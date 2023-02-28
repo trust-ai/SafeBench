@@ -8,8 +8,6 @@ from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.tools.scenario_helper import get_crossing_point, get_junction_topology
 
-from safebench.scenario.scenario_policy.reinforce_continuous import constraint
-
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):
     """
@@ -108,10 +106,10 @@ class VehicleTurningRoute(BasicScenario):
         d_scale = (d_max - d_min) / 2
         dist_mean = (d_max + d_min) / 2
 
-        x = constraint(actions[0], -1, 1) * x_scale + x_mean
-        y = constraint(actions[1], -1, 1) * y_scale + y_mean
-        yaw = constraint(actions[2], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[3], -1, 1) * d_scale + dist_mean
+        x = actions[0] * x_scale + x_mean
+        y = actions[1] * y_scale + y_mean
+        yaw = actions[2] * yaw_scale + yaw_mean
+        dist = actions[3] * d_scale + dist_mean
         return [x, y, yaw, dist]
 
     def initialize_actors(self):

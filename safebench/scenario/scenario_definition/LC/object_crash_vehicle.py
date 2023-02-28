@@ -1,5 +1,5 @@
 import math
-import numpy as np
+
 import carla
 
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
@@ -7,8 +7,6 @@ from safebench.scenario.tools.scenario_utils import calculate_distance_transform
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_helper import get_location_in_distance_from_wp
-
-from safebench.scenario.scenario_policy.reinforce_continuous import constraint
 
 
 class DynamicObjectCrossing(BasicScenario):
@@ -49,10 +47,9 @@ class DynamicObjectCrossing(BasicScenario):
         d_scale = (d_max - d_min) / 2
         dist_mean = (d_max + d_min)/2
 
-        y = constraint(actions[0], -1, 1) / 2 + 0.5
-        yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
-
+        y = actions[0] / 2 + 0.5
+        yaw = actions[1] * yaw_scale + yaw_mean
+        dist = actions[2] * d_scale + dist_mean
         return [y, yaw, dist]
 
     def _calculate_base_transform(self, _start_distance, waypoint):

@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 22:10:52
+LastEditTime: 2023-02-28 02:15:24
 Description: 
 '''
 
@@ -173,9 +173,9 @@ class CarlaRunner:
                 obs = copy.deepcopy(next_obs)
 
                 # train on-policy agent or scenario
-                if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':
+                if self.mode == 'train_agent' and self.agent_policy.type == 'offpolicy':
                     self.agent_policy.train(replay_buffer)
-                elif self.mode == 'train_scenario' and self.scenario_policy.type == 'onpolicy':
+                elif self.mode == 'train_scenario' and self.scenario_policy.type == 'offpolicy':
                     self.scenario_policy.train(replay_buffer)
 
             # end up environment
@@ -183,9 +183,9 @@ class CarlaRunner:
             replay_buffer.finish_one_episode()
             
             # train off-policy agent or scenario
-            if self.mode == 'train_agent' and self.agent_policy.type == 'offpolicy':
+            if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':
                 self.agent_policy.train(replay_buffer)
-            elif self.mode == 'train_scenario' and self.scenario_policy.type == 'offpolicy':
+            elif self.mode == 'train_scenario' and self.scenario_policy.type in ['init_state', 'onpolicy']:
                 self.scenario_policy.train(replay_buffer)
 
             # eval during training

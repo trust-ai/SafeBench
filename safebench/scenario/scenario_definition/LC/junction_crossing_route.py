@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 21:49:45
+LastEditTime: 2023-02-28 00:55:32
 Description: 
     Copyright (c) 2018-2020 Intel Corporation.
     This work is licensed under the terms of the MIT license.
@@ -15,8 +15,6 @@ from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_utils import calculate_distance_transforms
-
-from safebench.scenario.scenario_policy.reinforce_continuous import constraint
 
 
 class OppositeVehicleRunningRedLight(BasicScenario):
@@ -43,13 +41,15 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         self.ego_max_driven_distance = 150
 
     def convert_actions(self, actions):
+        """ Process the action from model. action is assumed in [-1, 1] """
         y_scale = 5
         yaw_scale = 5
         d_scale = 5
         y_mean = yaw_mean = dist_mean = 0
-        y = constraint(actions[0], -1, 1) * y_scale + y_mean
-        yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
+
+        y = actions[0] * y_scale + y_mean
+        yaw = actions[1] * yaw_scale + yaw_mean
+        dist = actions[2] * d_scale + dist_mean
         return [y, yaw, dist]
 
     def initialize_actors(self):
@@ -131,9 +131,9 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         d_scale = 5
         y_mean = yaw_mean = dist_mean = 0
 
-        y = constraint(actions[0], -1, 1) * y_scale + y_mean
-        yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
+        y = actions[0] * y_scale + y_mean
+        yaw = actions[1] * yaw_scale + yaw_mean
+        dist = actions[2] * d_scale + dist_mean
         return [y, yaw, dist]
 
     def initialize_actors(self):
@@ -206,9 +206,9 @@ class SignalizedJunctionRightTurn(BasicScenario):
         d_scale = 5
         y_mean = yaw_mean = dist_mean = 0
 
-        y = constraint(actions[0], -1, 1) * y_scale + y_mean
-        yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
+        y = actions[0] * y_scale + y_mean
+        yaw = actions[1] * yaw_scale + yaw_mean
+        dist = actions[2] * d_scale + dist_mean
         return [y, yaw, dist]
 
     def initialize_actors(self):
@@ -274,9 +274,9 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
         d_scale = 5
         y_mean = yaw_mean = dist_mean = 0
 
-        y = constraint(actions[0], -1, 1) * y_scale + y_mean
-        yaw = constraint(actions[1], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[2], -1, 1) * d_scale + dist_mean
+        y = actions[0] * y_scale + y_mean
+        yaw = actions[1] * yaw_scale + yaw_mean
+        dist = actions[2] * d_scale + dist_mean
         return [y, yaw, dist]
 
     def initialize_actors(self):

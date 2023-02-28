@@ -6,14 +6,13 @@ from safebench.scenario.tools.scenario_helper import get_waypoint_in_distance
 
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.scenario_policy.reinforce_continuous import constraint
 
 
 class OtherLeadingVehicle(BasicScenario):
     """
         The user-controlled ego vehicle follows a leading car driving down a given road. 
-        At some point the leading car has to decelerate. The ego vehicle has to react accordingly by 
-        changing lane to avoid a collision and follow the leading car in other lane. The scenario ends either via a timeout, 
+        At some point the leading car has to decelerate. The ego vehicle has to react accordingly by changing lane 
+        to avoid a collision and follow the leading car in other lane. The scenario ends either via a timeout, 
         or if the ego vehicle drives some distance. (Traffic Scenario 05)
     """
 
@@ -57,10 +56,10 @@ class OtherLeadingVehicle(BasicScenario):
         yaw_mean = (yaw_max + yaw_min)/2
         dist_mean = (d_max + d_min)/2
 
-        x = constraint(actions[0], -1, 1) * x_scale + x_mean
-        y = constraint(actions[1], -1, 1) * y_scale + y_mean
-        yaw = constraint(actions[2], -1, 1) * yaw_scale + yaw_mean
-        dist = constraint(actions[3], -1, 1) * d_scale + dist_mean
+        x = actions[0] * x_scale + x_mean
+        y = actions[1] * y_scale + y_mean
+        yaw = actions[2] * yaw_scale + yaw_mean
+        dist = actions[3] * d_scale + dist_mean
         return [x, y, yaw, dist]
 
     def initialize_actors(self):
