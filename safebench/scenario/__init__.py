@@ -13,6 +13,6 @@ from safebench.scenario.scenario_policy.reinforce_continuous import REINFORCE
 
 SCENARIO_POLICY_LIST = {
     'standard': DummyAgent,
-    'rl_training': DummyAgent,
+    'ordinary': DummyAgent,
     'LC': REINFORCE
 }

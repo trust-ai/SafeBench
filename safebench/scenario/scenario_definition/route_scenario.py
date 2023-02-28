@@ -372,21 +372,12 @@ class RouteScenario():
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
     def _spawn_ego_vehicle(self, elevate_transform):
-        # gradually increase the height of ego vehicle
-        success = False
-        start_z = elevate_transform.location.z
-        while not success:
-            try:
-                if elevate_transform.location.z - start_z > 0.5:
-                    return None
-                role_name = 'ego_vehicle' + str(self.ego_id)
-                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
-                if ego_vehicle is not None:
-                    success = True
-                else:
-                    elevate_transform.location.z += 0.1
-            except RuntimeError:
-                elevate_transform.location.z += 0.1
+        try:
+            role_name = 'ego_vehicle' + str(self.ego_id)
+            ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
+        except RuntimeError:
+            return None
+
         return ego_vehicle
 
     def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions, scenarios_per_tick=5, timeout=300, weather=None):
