@@ -1,8 +1,10 @@
 import carla
 import random
+from tqdm import tqdm
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
+from safebench.scenario.tools.scenario_utils import get_valid_spawn_points
 
 
 class AutopolitBackgroundVehicle(BasicScenario):
@@ -18,24 +20,52 @@ class AutopolitBackgroundVehicle(BasicScenario):
         self.world = world
 
         self.timeout = timeout
-        self.number_of_vehicles = int(80 / config.num_scenario)
+        self.number_of_vehicles = int(40 / config.num_scenario)
         self.number_of_walkers = 0
 
     def initialize_actors(self):
         """
         Set other_actors to the superset of all scenario actors
         """
-        actors = CarlaDataProvider.request_new_batch_actors(
-            'vehicle.*', 
-            amount=self.number_of_vehicles,
-            spawn_points=None, autopilot=True,
-            random_location=True, 
-            rolename='autopilot'
-        )
-        self.other_actors = actors
+        # actors = CarlaDataProvider.request_new_batch_actors(
+        #     'vehicle.*',
+        #     amount=self.number_of_vehicles,
+        #     spawn_points=None, autopilot=True,
+        #     random_location=True,
+        #     rolename='autopilot'
+        # )
+        # print(f'spawned {len(actors)} actors')
+        # self.other_actors = actors
+
+        # Spawn surrounding vehicles
+        vehicle_spawn_points = get_valid_spawn_points(self.world)
+        print(f'{len(vehicle_spawn_points)} valid spawn points')
+        count = min(self.number_of_vehicles, len(vehicle_spawn_points))
+        for spawn_point in vehicle_spawn_points:
+            vehicle = self._try_spawn_random_vehicle_at(spawn_point, number_of_wheels=[4])
+            if vehicle is not None:
+                count -= 1
+                self.other_actors.append(vehicle)
+            if count <= 0:
+                break
+        # if count > 0:
+        #     for spawn_point in vehicle_spawn_points:
+        #         vehicle = self._try_spawn_random_vehicle_at(spawn_point, number_of_wheels=[4])
+        #         # vehicle = CarlaDataProvider.request_new_actor('vehicle.*', spawn_point=None, rolename='autopilot', autopilot=True, random_location=True)
+        #         if vehicle is not None:
+        #             count -= 1
+        #             self.other_actors.append(vehicle)
+        #         if count <= 0:
+        #             break
+        # while count > 0:
+        #     vehicle = self._try_spawn_random_vehicle_at(random.choice(vehicle_spawn_points), number_of_wheels=[4])
+        #     if vehicle is not None:
+        #         count -= 1
+        #         self.other_actors.append(vehicle)
+        print(f'spawned {len(self.other_actors)} actors')
 
         # the trigger distance will always be 0, trigger at the beginning
-        self.reference_actor = self.ego_vehicle 
+        self.reference_actor = self.ego_vehicle
 
     def create_behavior(self, scenario_init_action):
         pass

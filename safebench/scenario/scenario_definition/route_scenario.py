@@ -19,6 +19,7 @@ from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataPro
 from safebench.scenario.scenario_configs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
 from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
+from safebench.scenario.tools.scenario_utils import get_valid_spawn_points
 
 from safebench.scenario.scenario_definition.atomic_criteria import (
     Status,
@@ -273,7 +274,7 @@ class RouteScenario():
         self.max_running_step = max_running_step
         self.timeout = 60
 
-        self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
+        # self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
         self.ego_vehicle = self._update_route_and_ego(world, config)
         self.other_actors = []
 
@@ -297,8 +298,7 @@ class RouteScenario():
         # prepare route's trajectory (interpolate and add the GPS route)
         ego_vehicle = None
         if self.config.scenario_id == 0:
-            vehicle_spawn_points = self.world.get_map().get_spawn_points()
-            random.shuffle(vehicle_spawn_points)
+            vehicle_spawn_points = get_valid_spawn_points(self.world)
             for random_transform in vehicle_spawn_points:
                 gps_route, route = interpolate_trajectory(world, [random_transform])
                 ego_vehicle = self._spawn_ego_vehicle(route[0][0])

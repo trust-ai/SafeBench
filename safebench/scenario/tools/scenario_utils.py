@@ -9,6 +9,7 @@ Description:
 import math
 import os.path as osp
 import json
+import random
 from .route_parser import RouteParser
 
 
@@ -76,3 +77,32 @@ def scenario_parse(config, logger):
             map_town_config[cur_town] = cur_config_list
 
     return map_town_config
+
+
+def get_valid_spawn_points(world):
+    vehicle_spawn_points = list(world.get_map().get_spawn_points())
+    random.shuffle(vehicle_spawn_points)
+    actor_location_list = get_current_location_list(world)
+    vehicle_spawn_points = filter_valid_spawn_points(vehicle_spawn_points, actor_location_list)
+    return vehicle_spawn_points
+
+
+def filter_valid_spawn_points(spawn_points, current_locations):
+    dis_threshold = 8
+    valid_spawn_points = []
+    for spawn_point in spawn_points:
+        valid = True
+        for location in current_locations:
+            if spawn_point.location.distance(location) < dis_threshold:
+                valid = False
+                break
+        if valid:
+            valid_spawn_points.append(spawn_point)
+    return valid_spawn_points
+
+
+def get_current_location_list(world):
+    locations = []
+    for actor in world.get_actors().filter('vehicle.*'):
+        locations.append(actor.get_transform().location)
+    return locations
