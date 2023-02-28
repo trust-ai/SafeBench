@@ -1,5 +1,7 @@
 type_dir: 'safebench/scenario/config/scenario_type'
 type_name: 'LC.json'
+type_category: 'planning'
+
 route_dir: 'safebench/scenario/scenario_data/route'
 method: null
 scenario_id: 1
@@ -12,3 +14,7 @@ ego_action_limit: 3.0
 # for REINFORCE policy model
 model_path: 'safebench/scenario/scenario_data/models/lc/1/0.pth'
 standard_action: False
+buffer_capacity: 100
+eval_in_train_freq: 10
+save_freq: 10
+train_episode: 100

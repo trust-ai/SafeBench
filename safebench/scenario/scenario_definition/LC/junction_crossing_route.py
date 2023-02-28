@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 18:51:26
+LastEditTime: 2023-02-27 21:49:45
 Description: 
     Copyright (c) 2018-2020 Intel Corporation.
     This work is licensed under the terms of the MIT license.
@@ -304,7 +304,7 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
 
     def create_behavior(self, scenario_init_action):
         actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = actions  # [0, 0, 0]
+        self.x, self.y, delta_v, delta_dist = actions  
         self.actor_speed = 10 + delta_v
         self.trigger_distance_threshold = 35 + delta_dist
 

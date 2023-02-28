@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 20:31:46
+LastEditTime: 2023-02-27 22:03:58
 Description: 
 '''
 
@@ -22,7 +22,6 @@ class VectorWrapper():
         self.ROOT_DIR = scenario_config['ROOT_DIR']
         self.frame_skip = scenario_config['frame_skip']  
         self.render = scenario_config['render']
-        self.scenario_type = env_params['scenario_type']
 
         self.env_list = []
         self.action_space_list = []
@@ -39,17 +38,11 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
-    def static_obs_postprocess(self, static_obs_list):
-        # assume all variables are array
-        static_obs_list = np.array(static_obs_list)
-        return static_obs_list
-
     def get_static_obs(self, scenario_configs):
         static_obs_list = []
         for s_i in range(len(scenario_configs)):
-            if not self.finished_env[s_i]:
-                static_obs = self.env_list[s_i].get_static_obs(scenario_configs[s_i])
-                static_obs_list.append(static_obs)
+            static_obs = self.env_list[s_i].get_static_obs(scenario_configs[s_i])
+            static_obs_list.append(static_obs)
         return static_obs_list
 
     def reset(self, scenario_configs, scenario_init_action):
@@ -153,7 +146,7 @@ class EnvWrapper(gym.Wrapper):
         self._env.create_ego_object()
 
     def get_static_obs(self, config):
-        self._env.get_static_obs(config)
+        return self._env.get_static_obs(config)
 
     def clear_up(self):
         self._env.clear_up()

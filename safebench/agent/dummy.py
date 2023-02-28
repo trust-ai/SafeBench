@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-01-30 22:30:20
-LastEditTime: 2023-02-27 20:44:10
+LastEditTime: 2023-02-27 20:53:37
 Description: 
 '''
 
@@ -10,6 +10,9 @@ import numpy as np
 
 
 class DummyEgo(object):
+    name = 'dummy'
+    type = 'unlearnable'
+
     """ This is just an example for testing, whcih always goes straight. """
     def __init__(self, config, logger):
         self.logger = logger

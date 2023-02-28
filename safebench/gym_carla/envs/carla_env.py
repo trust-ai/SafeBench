@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 20:38:24
+LastEditTime: 2023-02-27 21:57:36
 Description: 
 '''
 
@@ -78,9 +78,9 @@ class CarlaEnv(gym.Env):
 
         # for scenario
         self.ROOT_DIR = env_params['ROOT_DIR']
-        self.scenario_type = env_params['scenario_type']
+        self.scenario_category = env_params['scenario_category']
 
-        if self.scenario_type in ['dev', 'benign', 'standard', 'LC', 'ordinary']:
+        if self.scenario_category == 'planning':
             self.obs_size = int(self.obs_range / self.lidar_bin)
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
@@ -88,13 +88,13 @@ class CarlaEnv(gym.Env):
                 'birdeye': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'state': spaces.Box(np.array([-2, -1, -5, 0], dtype=np.float32), np.array([2, 1, 30, 1], dtype=np.float32), dtype=np.float32)
             }
-        elif self.scenario_type in ['od']:
+        elif self.scenario_category == 'perception':
             self.obs_size = env_params['image_sz']
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
             }
         else:
-            raise ValueError(f'Unknown scenario type: {self.scenario_type}')
+            raise ValueError(f'Unknown scenario category: {self.scenario_category}')
 
         # define obs space
         self.observation_space = spaces.Dict(observation_space_dict)
@@ -114,7 +114,7 @@ class CarlaEnv(gym.Env):
         # collision sensor
         self.collision_hist_l = 1  # collision history length
         self.collision_bp = self.world.get_blueprint_library().find('sensor.other.collision')
-        if self.scenario_type != 'od':
+        if self.scenario_category != 'perception':
             # lidar sensor
             self.lidar_trans = carla.Transform(carla.Location(x=0.0, z=self.lidar_height))
             self.lidar_bp = self.world.get_blueprint_library().find('sensor.lidar.ray_cast')
@@ -133,10 +133,10 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def _create_scenario(self, config, env_id):
-        self.logger.log(">> Loading scenario id: " + str(env_id) + ', type: ' + str(self.scenario_type))
+        self.logger.log(">> Loading scenario id: " + str(env_id) + ', type: ' + str(self.scenario_category))
 
         # create scenario accoridng to different types
-        if self.scenario_type in ['od']:
+        if self.scenario_category == 'perception':
             scenario = ObjectDetectionScenario(
                 world=self.world, 
                 config=config, 
@@ -145,7 +145,7 @@ class CarlaEnv(gym.Env):
                 logger=self.logger,
                 first_env=self.first_env
             )
-        elif self.scenario_type in ['dev', 'standard', 'benign', 'LC', 'ordinary']:
+        elif self.scenario_category == 'planning':
             scenario = RouteScenario(
                 world=self.world, 
                 config=config, 
@@ -154,7 +154,7 @@ class CarlaEnv(gym.Env):
                 logger=self.logger
             )
         else:
-            raise NotImplementedError(f'{self.scenario_type} scenario is not implemented.')
+            raise ValueError(f'Unknown scenario category: {self.scenario_category}')
 
         # init scenario
         self.ego = scenario.ego_vehicle
@@ -255,7 +255,7 @@ class CarlaEnv(gym.Env):
         self.collision_hist = []
 
         # Add lidar sensor
-        if self.scenario_type != 'od' and not self.disable_lidar:
+        if self.scenario_category != 'perception' and not self.disable_lidar:
             self.lidar_sensor = self.world.spawn_actor(self.lidar_bp, self.lidar_trans, attach_to=self.ego)
             self.lidar_sensor.listen(lambda data: get_lidar_data(data))
 
@@ -435,8 +435,7 @@ class CarlaEnv(gym.Env):
         #node_forward = self.current_waypoint.transform.get_forward_vector()
         #target_forward = self.target_waypoint.transform.get_forward_vector()
 
-        if self.scenario_type != 'od': # dev, benign, standard
-            """ Get the observations. """
+        if self.scenario_category != 'perception': 
             # set ego information for birdeye_render
             self.birdeye_render.set_hero(self.ego, self.ego.id)
             self.birdeye_render.vehicle_polygons = self.vehicle_polygons

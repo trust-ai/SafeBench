@@ -1,5 +1,7 @@
 type_dir: 'safebench/scenario/config/scenario_type_old_map'
 type_name: 'dev.json'
+type_category: 'planning'
+
 route_dir: 'safebench/scenario/scenario_data/route_old_map'
 method: 'advmaddpg'
 scenario_id: 8

@@ -1,5 +1,7 @@
 type_dir: 'safebench/scenario/config/scenario_type'
 type_name: 'ordinary.json'
+type_category: 'planning'
+
 route_dir: 'safebench/scenario/scenario_data/route'
 method: null
 scenario_id: 0
