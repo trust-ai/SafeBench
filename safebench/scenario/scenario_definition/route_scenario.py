@@ -301,12 +301,12 @@ class RouteScenario():
             vehicle_spawn_points = get_valid_spawn_points(self.world)
             for random_transform in vehicle_spawn_points:
                 gps_route, route = interpolate_trajectory(world, [random_transform])
-                ego_vehicle = self._spawn_ego_vehicle(route[0][0])
+                ego_vehicle = self._spawn_ego_vehicle(route[0][0], config.auto_ego)
                 if ego_vehicle is not None:
                     break
         else:
             gps_route, route = interpolate_trajectory(world, config.trajectory)
-            ego_vehicle = self._spawn_ego_vehicle(route[0][0])
+            ego_vehicle = self._spawn_ego_vehicle(route[0][0], config.auto_ego)
         self.route = route
 
         potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations, scenario_id=self.config.scenario_id)
@@ -370,10 +370,10 @@ class RouteScenario():
 
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
-    def _spawn_ego_vehicle(self, elevate_transform):
+    def _spawn_ego_vehicle(self, elevate_transform, autopilot=False):
         try:
             role_name = 'ego_vehicle' + str(self.ego_id)
-            ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
+            ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name, autopilot=autopilot)
         except RuntimeError:
             return None
 
