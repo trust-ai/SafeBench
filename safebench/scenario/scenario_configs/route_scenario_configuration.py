@@ -47,6 +47,7 @@ class RouteScenarioConfiguration(ScenarioConfiguration):
     """
     Basic configuration of a RouteScenario
     """
+    auto_ego = False
     num_scenario = None
     trajectory = None
     scenario_file = None

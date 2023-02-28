@@ -58,6 +58,7 @@ def scenario_parse(config, logger):
         parsed_configs = RouteParser.parse_routes_file(route_file, scenario_file)
         assert len(parsed_configs) == 1, item
         parsed_config = parsed_configs[0]
+        parsed_config.auto_ego = config['auto_ego']
         parsed_config.num_scenario = config['num_scenario']
         parsed_config.data_id = item['data_id']
         parsed_config.scenario_generation_method = item['method']

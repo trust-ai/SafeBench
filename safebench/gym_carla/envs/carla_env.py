@@ -291,30 +291,31 @@ class CarlaEnv(gym.Env):
                     ego_action = ego_action['ego_action']
 
                 # Calculate acceleration and steering
-                if self.discrete:
-                    acc = self.discrete_act[0][ego_action // self.n_steer]
-                    steer = self.discrete_act[1][ego_action % self.n_steer]
-                else:
-                    acc = ego_action[0]
-                    steer = ego_action[1]
+                if not np.isnan(ego_action).all():
+                    if self.discrete:
+                        acc = self.discrete_act[0][ego_action // self.n_steer]
+                        steer = self.discrete_act[1][ego_action % self.n_steer]
+                    else:
+                        acc = ego_action[0]
+                        steer = ego_action[1]
 
-                # normalize and clip the action
-                acc = acc * self.acc_max
-                steer = steer * self.steering_max
-                acc = max(min(self.acc_max, acc), -self.acc_max)
-                steer = max(min(self.steering_max, steer), -self.steering_max)
+                    # normalize and clip the action
+                    acc = acc * self.acc_max
+                    steer = steer * self.steering_max
+                    acc = max(min(self.acc_max, acc), -self.acc_max)
+                    steer = max(min(self.steering_max, steer), -self.steering_max)
 
-                # Convert acceleration to throttle and brake
-                if acc > 0:
-                    throttle = np.clip(acc / 3, 0, 1)
-                    brake = 0
-                else:
-                    throttle = 0
-                    brake = np.clip(-acc / 8, 0, 1)
+                    # Convert acceleration to throttle and brake
+                    if acc > 0:
+                        throttle = np.clip(acc / 3, 0, 1)
+                        brake = 0
+                    else:
+                        throttle = 0
+                        brake = np.clip(-acc / 8, 0, 1)
 
-                # Apply control
-                act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
-                self.ego.apply_control(act)
+                    # Apply control
+                    act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
+                    self.ego.apply_control(act)
             else:
                 self.logger.log('>> Can not get snapshot!', color='red')
                 raise Exception()
