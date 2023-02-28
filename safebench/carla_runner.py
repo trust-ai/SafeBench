@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-27 18:57:47
+LastEditTime: 2023-02-27 22:10:52
 Description: 
 '''
 
@@ -39,7 +39,8 @@ class CarlaRunner:
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
-        self.scenario_type = scenario_config['type_name'].split('.')[0]
+        self.scenario_category = scenario_config['type_category']
+        self.scenario_policy_type = scenario_config['type_name'].split('.')[0]
 
         # continue training flag
         self.continue_agent_training = scenario_config['continue_agent_training']
@@ -52,7 +53,7 @@ class CarlaRunner:
 
         self.env_params = {
             'obs_type': agent_config['obs_type'],
-            'scenario_type': self.scenario_type,
+            'scenario_category': self.scenario_category,
             'ROOT_DIR': scenario_config['ROOT_DIR'],
             'disable_lidar': True,
             'display_size': 128,                    # screen size of one bird-eye view windowd=
@@ -64,7 +65,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 300,                # maximum timesteps per episode
+            'max_episode_step': 100,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -90,22 +91,22 @@ class CarlaRunner:
             self.eval_in_train_freq = agent_config['eval_in_train_freq']
             self.save_freq = agent_config['save_freq']
             self.train_episode = agent_config['train_episode']
-            #self.logger.save_config(agent_config)
+            self.logger.save_config(agent_config)
         elif self.mode == 'train_scenario':
             self.buffer_capacity = scenario_config['buffer_capacity']
             self.eval_in_train_freq = scenario_config['eval_in_train_freq']
             self.save_freq = scenario_config['save_freq']
             self.train_episode = scenario_config['train_episode']
-            #self.logger.save_config(scenario_config)
+            self.logger.save_config(scenario_config)
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
         # define agent and scenario
         self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
-        self.logger.log('>> Scenario Policy: ' + self.scenario_type)
+        self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
         self.logger.log('-' * 40)
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
-        self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_type](scenario_config, logger=self.logger)
+        self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
 
     def _init_world(self, town):
         self.logger.log(f">> Initializing carla world: {town}")
@@ -124,7 +125,7 @@ class CarlaRunner:
         flag = pygame.HWSURFACE | pygame.DOUBLEBUF
         if not self.render:
             flag = flag | pygame.HIDDEN
-        if self.scenario_type != 'od': 
+        if self.scenario_category == 'planning': 
             # [bird-eye view, Lidar, front view] or [bird-eye view, front view]
             if self.env_params['disable_lidar']:
                 window_size = (self.env_params['display_size'] * 2, self.env_params['display_size'] * num_envs)
@@ -143,7 +144,7 @@ class CarlaRunner:
             'pixels_ahead_vehicle': pixels_ahead_vehicle,
         }
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
-    
+
     def train(self, env, data_loader):
         # general buffer for both agent and scenario
         replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
@@ -154,8 +155,13 @@ class CarlaRunner:
             # TODO: to restart the data loader, reset the index counter every time
             data_loader.reset_idx_counter()
 
-            # reset envs with init action from scenario policy
-            obs = env.reset(sampled_scenario_configs, self.scenario_policy)
+            # get static obs and then reset with init action 
+            static_obs = env.get_static_obs(sampled_scenario_configs)
+            scenario_init_action = self.scenario_policy.get_init_action(static_obs)
+            obs = env.reset(sampled_scenario_configs, scenario_init_action)
+            replay_buffer.store_init([static_obs, scenario_init_action])
+
+            # start loop
             while not env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
                 ego_actions = self.agent_policy.get_action(obs, deterministic=False)
@@ -192,7 +198,7 @@ class CarlaRunner:
                 if self.mode == 'train_agent':
                     self.agent_policy.save_model()
                 if self.mode == 'train_scenario':
-                    self.scenario_policy.save_model()  # TODO
+                    self.scenario_policy.save_model()
 
     def eval(self, env, data_loader):
         num_finished_scenario = 0
@@ -202,9 +208,12 @@ class CarlaRunner:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
             num_finished_scenario += num_sampled_scenario
-            
-            # reset envs with init action from scenario policy
-            obs = env.reset(sampled_scenario_configs, self.scenario_policy)
+
+            # reset envs with new config, get init action from scenario policy, and run scenario
+            static_obs = env.get_static_obs(sampled_scenario_configs)
+            scenario_init_action = self.scenario_policy.get_init_action(static_obs)
+            obs = env.reset(sampled_scenario_configs, scenario_init_action)
+
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while not env.all_scenario_done():
@@ -282,14 +291,14 @@ class CarlaRunner:
             'sensor.other.collision', 
             'sensor.lidar.ray_cast',
             'sensor.camera.rgb',
+            'controller.ai.walker',
             'vehicle.*',
             'walker.*',
-            'controller.ai.walker',
         ]
         for actor_filter in actor_filters:
             for actor in self.world.get_actors().filter(actor_filter):
                 self.logger.log('>> Removing agent: ' + str(actor.type_id) + '-' + str(actor.id))
                 if actor.is_alive:
-                    if actor.type_id.split('.')[0] in ['controller']:
+                    if actor.type_id.split('.')[0] in ['controller', 'sensor']:
                         actor.stop()
                     actor.destroy()

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 19:10:54
+LastEditTime: 2023-02-27 21:48:13
 Description: 
 '''
 
@@ -307,9 +307,10 @@ class RouteScenario():
         else:
             gps_route, route = interpolate_trajectory(world, config.trajectory)
             ego_vehicle = self._spawn_ego_vehicle(route[0][0])
+        self.route = route
 
         potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations, scenario_id=self.config.scenario_id)
-        self.route = route
+        # TODO: check if ego route is overwritten by others
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
         CarlaDataProvider.set_scenario_config(config)
 
@@ -328,9 +329,7 @@ class RouteScenario():
             The function used to sample the scenarios that are going to happen for this route.
         """
         def position_sampled(scenario_choice, sampled_scenarios):
-            """
-            Check if a position was already sampled, i.e. used for another scenario
-            """
+            # Check if a position was already sampled, i.e. used for another scenario
             for existent_scenario in sampled_scenarios:
                 # If the scenarios have equal positions then it is true.
                 if compare_scenarios(scenario_choice, existent_scenario):

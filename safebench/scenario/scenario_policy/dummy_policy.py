@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-26 21:20:14
+LastEditTime: 2023-02-27 20:55:16
 @Description: 
 '''
 
@@ -10,10 +10,11 @@ from safebench.scenario.scenario_policy.base_policy import BasePolicy
 
 
 class DummyAgent(BasePolicy):
+    name = 'dummy'
+    type = 'unlearnable'
+
     """ This agent is used for scenarios that do not have controllable agents. """
     def __init__(self, config, logger):
-        self.__name__ = 'dummy'
-
         self.logger = logger
         self.logger.log('>> This scenario does not require policy model, using a dummy one', color='yellow')
         self.num_scenario = config['num_scenario']
@@ -28,7 +29,7 @@ class DummyAgent(BasePolicy):
         return [None] * self.num_scenario
 
     def get_init_action(self, scenario_config):
-        return None
+        return [None] * self.num_scenario
 
     def load_model(self):
         return None

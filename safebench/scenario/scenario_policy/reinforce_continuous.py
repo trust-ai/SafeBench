@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-26 21:20:28
+LastEditTime: 2023-02-27 21:49:13
 @Description: 
 '''
 
@@ -16,6 +16,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 from safebench.scenario.scenario_policy.base_policy import BasePolicy
+from safebench.util.torch_util import CUDA, CPU
 
 
 def constraint(x, x_min, x_max):
@@ -40,25 +41,19 @@ def normalize_routes(routes):
     return route
 
 
-def CUDA(var):
-    return var.cuda() if torch.cuda.is_available() else var
-
-
-pi = CUDA(Variable(torch.FloatTensor([math.pi])))
+pi = CUDA(torch.FloatTensor([math.pi]))
 def normal(x, mu, sigma_sq):
-    a = (-1*(CUDA(Variable(x))-mu).pow(2)/(2*sigma_sq)).exp()
+    a = (-1*(CUDA(x)-mu).pow(2)/(2*sigma_sq)).exp()
     b = 1/(2*sigma_sq*pi.expand_as(sigma_sq)).sqrt()
     return a*b
 
 
 class AutoregressiveModel(nn.Module):
-    def __init__(self, standard_action=True):
+    def __init__(self, standard_action=True, num_waypoint=20):
         super(AutoregressiveModel, self).__init__()
         self.standard_action = standard_action
-        input_size = 30*2+1
+        input_size = num_waypoint*2 + 1
         hidden_size_1 = 32
-        # input_size = 30*2
-        # hidden_size_1 = 64
 
         self.a_os = 1
         self.b_os = 1
@@ -73,13 +68,9 @@ class AutoregressiveModel(nn.Module):
             nn.ReLU(inplace=True)
         )
 
-        self.fc_action_a = nn.Sequential(
-            nn.Linear(hidden_size_1, self.a_os*2),
-        )
+        self.fc_action_a = nn.Sequential(nn.Linear(hidden_size_1, self.a_os*2))
 
-        self.fc_action_b = nn.Sequential(
-            nn.Linear(1+hidden_size_1, self.b_os*2),
-        )
+        self.fc_action_b = nn.Sequential(nn.Linear(1+hidden_size_1, self.b_os*2))
 
         self.fc_action_c = nn.Sequential(
             nn.Linear(1+1+hidden_size_1, self.c_os*2),
@@ -105,7 +96,6 @@ class AutoregressiveModel(nn.Module):
 
     def forward(self, x):
         # p(s)
-        x = x.view(1, -1)
         s = self.fc_input(x)
 
         # p(a|s)
@@ -136,7 +126,6 @@ class AutoregressiveModel(nn.Module):
     # deterministic output
     def deterministic_forward(self, x):
         # p(s)
-        x = x.view(1, -1)
         s = self.fc_input(x)
 
         # p(a|s)
@@ -168,15 +157,15 @@ class AutoregressiveModel(nn.Module):
 
 class REINFORCE(BasePolicy):
     name = 'reinforce'
-    type = 'init'
+    type = 'onpolicy'
 
     def __init__(self, scenario_config, logger):
         self.logger = logger
+        self.num_waypoint = 20
         self.standard_action = scenario_config['standard_action']
         self.num_scenario = scenario_config['num_scenario']
-        self.model = CUDA(AutoregressiveModel(self.standard_action))
+        self.model = CUDA(AutoregressiveModel(self.standard_action, self.num_waypoint))
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
-        self.num_waypoint = 30
 
     def train(self, replay_buffer):
         pass
@@ -191,14 +180,19 @@ class REINFORCE(BasePolicy):
             raise ValueError(f'Unknown mode {mode}')
 
     def proceess_init_state(self, state):
-        route = state['route']
-        target_speed = state['target_speed']
+        processed_state_list = []
+        for s_i in range(len(state)):
+            route = state[s_i]['route']
+            target_speed = state[s_i]['target_speed']
 
-        index = np.linspace(1, len(route) - 1, self.num_waypoint).tolist()
-        index = [int(i) for i in index]
-        route_norm = normalize_routes(route[index])
-        processed_state = np.concatenate((route_norm, [[target_speed]]), axis=0).astype('float32')
-        return processed_state
+            index = np.linspace(1, len(route) - 1, self.num_waypoint).tolist()
+            index = [int(i) for i in index]
+            route_norm = normalize_routes(route[index])[:, 0] # [num_waypoint*2]
+            processed_state = np.concatenate((route_norm, [target_speed]), axis=0).astype('float32')
+            processed_state_list.append(processed_state)
+        
+        processed_state_list = np.stack(processed_state_list, axis=0)
+        return processed_state_list
 
     def get_action(self, state, deterministic):
         return [None] * self.num_scenario
@@ -206,7 +200,7 @@ class REINFORCE(BasePolicy):
     def get_init_action(self, state, deterministic=True):
         # the state should be a sequence of route waypoints
         processed_state = self.proceess_init_state(state)
-        processed_state = CUDA(Variable(torch.from_numpy(processed_state)))
+        processed_state = CUDA(torch.from_numpy(processed_state))
 
         if deterministic:
             with torch.no_grad():
@@ -261,3 +255,8 @@ class REINFORCE(BasePolicy):
             self.model.load_state_dict(checkpoint['parameters'])
         else:
             self.logger.log(f'>> Fail to load LC model from {self.model_path}', color='red')
+
+    def save_model(self):
+        self.logger.log(f'>> Saving LC model to {self.model_path}')
+        with open(self.model_path, 'wb') as f:
+            torch.save({'parameters': self.model.state_dict()}, f)
