@@ -35,6 +35,7 @@ class CarlaEnv(gym.Env):
         An OpenAI-gym style interface for CARLA simulator. 
     """
     def __init__(self, env_params, birdeye_render=None, display=None, world=None, logger=None, first_env=False):
+        self.config = None
         # TODO: only initialize textures for once in parallel rollout
         self.first_env = first_env
 
@@ -202,6 +203,7 @@ class CarlaEnv(gym.Env):
         return state
 
     def reset(self, config, env_id, scenario_init_action):
+        self.config = config
         self.env_id = env_id
 
         # create sensors, load and run scenarios
