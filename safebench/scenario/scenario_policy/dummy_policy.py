@@ -28,7 +28,7 @@ class DummyAgent(BasePolicy):
     def get_action(self, state, deterministic):
         return [None] * self.num_scenario
 
-    def get_init_action(self, scenario_config, deterministic):
+    def get_init_action(self, scenario_config, deterministic=False):
         return [None] * self.num_scenario, None
 
     def load_model(self):
