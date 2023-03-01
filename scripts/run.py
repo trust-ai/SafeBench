@@ -35,7 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')   
 
     parser.add_argument('--num_scenario', '-ns', type=int, default=2, help='num of scenarios we run in one episode')
-    parser.add_argument('--save_video', type=bool, default=False)
+    parser.add_argument('--save_video', action='store_true')
     parser.add_argument('--render', type=bool, default=True)
     parser.add_argument('--frame_skip', '-fs', type=int, default=1, help='skip of frame in each step')
     parser.add_argument('--port', type=int, default=2000, help='port to communicate with carla')

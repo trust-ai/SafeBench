@@ -287,12 +287,13 @@ class CarlaRunner:
                 self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
 
         all_scores, _, final_score = get_scores(eval_results)
-        self.logger.log(f">> Collision rate:            {all_scores['collision_rate']:0.2f}")
-        self.logger.log(f">> Red light running freq.:   {all_scores['avg_red_light_freq']:0.2f}")
-        self.logger.log(f">> Stop sign running freq.:   {all_scores['avg_stop_sign_freq']:0.2f}")
-        self.logger.log(f">> Out of road length:        {all_scores['out_of_road_length']:0.2f}")
-        self.logger.log(f">> Route Following Stability: {all_scores['route_following_stability']:0.2f}")
-        self.logger.log(f">> Route Completion:          {all_scores['route_completion']:0.2f}")
+        self.logger.log("Evaluation results:")
+        self.logger.log(f"\t Collision rate:            {all_scores['collision_rate']:0.2f}")
+        self.logger.log(f"\t Red light running freq.:   {all_scores['avg_red_light_freq']:0.2f}")
+        self.logger.log(f"\t Stop sign running freq.:   {all_scores['avg_stop_sign_freq']:0.2f}")
+        self.logger.log(f"\t Out of road length:        {all_scores['out_of_road_length']:0.2f}")
+        self.logger.log(f"\t Route Following Stability: {all_scores['route_following_stability']:0.2f}")
+        self.logger.log(f"\t Route Completion:          {all_scores['route_completion']:0.2f}")
 
     def run(self):
         # get scenario data of different maps
