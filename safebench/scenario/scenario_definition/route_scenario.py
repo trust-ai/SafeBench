@@ -488,9 +488,9 @@ class RouteScenario():
                 else:
                     stop = True
                     self.logger.log('>> Stop due to low speed', color='yellow')
-            if len(running_record) >= self.max_running_step:  # stop at max step when training
-                stop = True
-                self.logger.log('>> Stop due to max steps', color='yellow')
+        if len(running_record) >= self.max_running_step:  # stop at max step when training
+            stop = True
+            self.logger.log('>> Stop due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
             # print(running_status['driven_distance'])

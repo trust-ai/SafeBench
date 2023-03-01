@@ -162,7 +162,7 @@ class CarlaRunner:
             self.logger.log('>> Previous checkpoint not found. Training from scratch.')
         else:
             self.logger.log('>> Continue training from previous checkpoint.')
-        for e_i in tqdm(range(self.agent_policy.load_episode, self.train_episode)):
+        for e_i in tqdm(range(self.agent_policy.load_episode + 1, self.train_episode)):
             # sample scenarios
             sampled_scenario_configs, _ = data_loader.sampler()
             # TODO: to restart the data loader, reset the index counter every time
