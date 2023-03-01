@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 19:13:21
+LastEditTime: 2023-02-28 17:56:13
 Description: 
 '''
 
@@ -81,7 +81,6 @@ class BasicScenario(object):
         """
             Remove all actors
         """
-        # TODO: destroy collision sensors before destroying actors
         for s_i in range(len(self.other_actors)):
             if self.other_actors[s_i].type_id.startswith('vehicle'):
                 self.other_actors[s_i].set_autopilot(enabled=False)

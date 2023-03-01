@@ -2,7 +2,7 @@
 Author: Wenhao Ding
 Email: wenhaod@andrew.cmu.edu
 Date: 2023-01-30 22:30:38
-LastEditTime: 2023-02-24 15:00:10
+LastEditTime: 2023-02-28 17:46:56
 Description: 
 '''
 #!/usr/bin/env python
@@ -39,7 +39,6 @@ class RouteConfiguration(object):
             z = float(waypoint.attrib.get('z', 0))
             c = waypoint.attrib.get('connection', '')
             connection = RoadOption[c.split('.')[1]]
-
             self.data.append((carla.Location(x, y, z), connection))
 
 
@@ -55,7 +54,6 @@ class RouteScenarioConfiguration(ScenarioConfiguration):
 
     initial_transform = None
     initial_pose = None
-    initialize_background_actors = True
 
     data_id = 0
     scenario_generation_method = None

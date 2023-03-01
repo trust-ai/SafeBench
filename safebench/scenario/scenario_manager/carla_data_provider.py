@@ -670,9 +670,9 @@ class CarlaDataProvider(object):
             Some parameters are the same for all actors (rolename, autopilot and random location) while others are randomized (color)
         """
 
-        SpawnActor = carla.command.SpawnActor      # pylint: disable=invalid-name
-        SetAutopilot = carla.command.SetAutopilot  # pylint: disable=invalid-name
-        FutureActor = carla.command.FutureActor    # pylint: disable=invalid-name
+        SpawnActor = carla.command.SpawnActor      
+        SetAutopilot = carla.command.SetAutopilot 
+        FutureActor = carla.command.FutureActor   
         CarlaDataProvider.generate_spawn_points()
 
         batch = []
@@ -685,7 +685,7 @@ class CarlaDataProvider(object):
                     print("No more spawn points to use. Spawned {} actors out of {}".format(i + 1, amount))
                     break
                 else:
-                    spawn_point = CarlaDataProvider._spawn_points[CarlaDataProvider._spawn_index]  # pylint: disable=unsubscriptable-object
+                    spawn_point = CarlaDataProvider._spawn_points[CarlaDataProvider._spawn_index]  
                     CarlaDataProvider._spawn_index += 1
             else:
                 try:

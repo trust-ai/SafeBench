@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-28 14:41:30
+LastEditTime: 2023-02-28 19:02:26
 Description: 
 '''
 
@@ -54,6 +54,7 @@ class CarlaRunner:
         self.client = carla.Client('localhost', scenario_config['port'])
         self.client.set_timeout(10.0)
         self.world = None
+        self.env = None
 
         self.env_params = {
             'obs_type': agent_config['obs_type'],
@@ -69,7 +70,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 30,                # maximum timesteps per episode
+            'max_episode_step': 100,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -107,7 +108,10 @@ class CarlaRunner:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
         # define agent and scenario
-        self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
+        if scenario_config['auto_ego']:
+            self.logger.log('>> Agent Policy: Auto-polit')
+        else:
+            self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
         self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
         self.logger.log('-' * 40)
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
@@ -150,7 +154,7 @@ class CarlaRunner:
         }
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
 
-    def train(self, env, data_loader):
+    def train(self, data_loader):
         # general buffer for both agent and scenario
         replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
 
@@ -161,19 +165,19 @@ class CarlaRunner:
             data_loader.reset_idx_counter()
 
             # get static obs and then reset with init action 
-            static_obs = env.get_static_obs(sampled_scenario_configs)
+            static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
-            obs = env.reset(sampled_scenario_configs, scenario_init_action)
+            obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
             replay_buffer.store_init([static_obs, scenario_init_action], additional_dict=additional_dict)
 
             # start loop
-            while not env.all_scenario_done():
+            while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
                 ego_actions = self.agent_policy.get_action(obs, deterministic=False)
                 scenario_actions = self.scenario_policy.get_action(obs, deterministic=False)
 
                 # apply action to env and get obs
-                next_obs, rewards, dones, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
+                next_obs, rewards, dones, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
                 replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones, infos])
                 obs = copy.deepcopy(next_obs)
 
@@ -184,7 +188,7 @@ class CarlaRunner:
                     self.scenario_policy.train(replay_buffer)
 
             # end up environment
-            env.clean_up()
+            self.env.clean_up()
             replay_buffer.finish_one_episode()
 
             # train off-policy agent or scenario
@@ -205,7 +209,7 @@ class CarlaRunner:
                 if self.mode == 'train_scenario':
                     self.scenario_policy.save_model()
 
-    def eval(self, env, data_loader):
+    def eval(self, data_loader):
         num_finished_scenario = 0
         video_count = 0
         data_loader.reset_idx_counter()
@@ -225,19 +229,19 @@ class CarlaRunner:
             num_finished_scenario += num_sampled_scenario
 
             # reset envs with new config, get init action from scenario policy, and run scenario
-            static_obs = env.get_static_obs(sampled_scenario_configs)
+            static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
-            obs = env.reset(sampled_scenario_configs, scenario_init_action)
+            obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
 
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
-            while not env.all_scenario_done():
+            while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
                 ego_actions = self.agent_policy.get_action(obs, deterministic=True)
                 scenario_actions = self.scenario_policy.get_action(obs, deterministic=True)
 
                 # apply action to env and get obs
-                obs, rewards, _, infos = env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
+                obs, rewards, _, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
 
                 # save video
                 if self.save_video:
@@ -249,11 +253,11 @@ class CarlaRunner:
                     rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
                     reward_idx += 1
 
-            eval_results.update(env.running_results)
+            eval_results.update(self.env.running_results)
 
             # clean up all things
             self.logger.log(">> All scenarios are completed. Clearning up all actors")
-            env.clean_up()
+            self.env.clean_up()
 
             self.logger.log('>> Saving evaluation results')
             joblib.dump(eval_results, result_file)
@@ -280,7 +284,7 @@ class CarlaRunner:
             self._init_renderer(self.num_scenario)
 
             # create scenarios within the vectorized wrapper
-            env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
+            self.env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
 
             # prepare data loader and buffer
             data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)
@@ -291,33 +295,22 @@ class CarlaRunner:
                 self.agent_policy.set_mode('eval')
                 self.scenario_policy.load_model()
                 self.scenario_policy.set_mode('eval')
-                self.eval(env, data_loader)
+                self.eval(data_loader)
             elif self.mode == 'train_agent':
                 self.agent_policy.set_mode('train')
                 self.scenario_policy.load_model()
                 self.scenario_policy.set_mode('eval')
-                self.train(env, data_loader)
+                self.train(data_loader)
             elif self.mode == 'train_scenario':
                 self.agent_policy.load_model()
                 self.agent_policy.set_mode('eval')
                 self.scenario_policy.set_mode('train')
-                self.train(env, data_loader)
+                self.train(data_loader)
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
     def close(self):
-        # check if all actors are cleaned
-        actor_filters = [
-            'sensor.other.collision', 
-            'sensor.lidar.ray_cast',
-            'sensor.camera.rgb',
-            'controller.ai.walker',
-            'vehicle.*',
-            'walker.*',
-        ]
-        for actor_filter in actor_filters:
-            for actor in self.world.get_actors().filter(actor_filter):
-                self.logger.log('>> Removing agent: ' + str(actor.type_id) + '-' + str(actor.id))
-                if actor.type_id.split('.')[0] in ['controller', 'sensor']:
-                    actor.stop()
-                actor.destroy()
+        # close pygame renderer
+        pygame.quit()
+        if self.env:
+            self.env.clean_up()
