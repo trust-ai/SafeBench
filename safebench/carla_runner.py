@@ -126,6 +126,7 @@ class CarlaRunner:
         self.world.apply_settings(settings)
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
+        CarlaDataProvider.set_traffic_manager_port(self.scenario_config['tm_port'])
         self.world.set_weather(carla.WeatherParameters.ClearNoon)
 
     def _init_renderer(self, num_envs):
