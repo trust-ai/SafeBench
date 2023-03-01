@@ -1,9 +1,24 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:46:28
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This file is modified from <https://github.com/philtabor/Multi-Agent-Deep-Deterministic-Policy-Gradients>
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
+
 import os
 import torch
 import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
 
 # "normal" or "uniform" or None
 INIT_METHOD = "normal"

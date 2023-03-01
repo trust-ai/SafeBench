@@ -1,13 +1,17 @@
-"""
-Other Leading Vehicle scenario:
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:53:40
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
 
-The scenario realizes a common driving behavior, in which the
-user-controlled ego vehicle follows a leading car driving down
-a given road. At some point the leading car has to decelerate.
-The ego vehicle has to react accordingly by changing lane to avoid a
-collision and follow the leading car in other lane. The scenario ends
-either via a timeout, or if the ego vehicle drives some distance.
-"""
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/tree/master/srunner/scenarios>
+    Copyright (c) 2018-2020 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import carla
 import json

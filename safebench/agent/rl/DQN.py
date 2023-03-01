@@ -1,9 +1,15 @@
 '''
-@Author: Wenhao Ding
-@Email: wenhaod@andrew.cmu.edu
-@Date: 2020-05-30 14:20:04
-LastEditTime: 2020-10-05 12:57:33
-@Description: modified from https://github.com/sweetice/Deep-reinforcement-learning-with-pytorch
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:55:23
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    Modified from <https://github.com/sweetice/Deep-reinforcement-learning-with-pytorch>
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import torch

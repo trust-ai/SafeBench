@@ -1,9 +1,13 @@
 '''
-Author: 
+Author:
 Email: 
-Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-28 22:44:14
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:41:45
 Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import copy

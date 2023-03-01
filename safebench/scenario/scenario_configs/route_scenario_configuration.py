@@ -1,16 +1,17 @@
 '''
-Author: Wenhao Ding
-Email: wenhaod@andrew.cmu.edu
-Date: 2023-01-30 22:30:38
-LastEditTime: 2023-02-28 17:46:56
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:42:56
 Description: 
-'''
-#!/usr/bin/env python
+    Copyright (c) 2022-2023 Safebench Team
 
-# Copyright (c) 2019 Intel Corporation
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/blob/master/srunner/scenarioconfigs/route_scenario_configuration.py>
+    Copyright (c) 2019 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import carla
 
@@ -19,18 +20,14 @@ from safebench.scenario.scenario_configs.scenario_configuration import ScenarioC
 
 
 class RouteConfiguration(object):
-
     """
-    This class provides the basic  configuration for a route
+        This class provides the basic  configuration for a route
     """
 
     def __init__(self, route=None):
         self.data = route
 
     def parse_xml(self, node):
-        """
-        Parse route config XML
-        """
         self.data = []
 
         for waypoint in node.iter("waypoint"):
@@ -44,7 +41,7 @@ class RouteConfiguration(object):
 
 class RouteScenarioConfiguration(ScenarioConfiguration):
     """
-    Basic configuration of a RouteScenario
+        Basic configuration of a RouteScenario
     """
     auto_ego = False
     num_scenario = None

@@ -2,11 +2,15 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 00:55:32
+LastEditTime: 2023-03-01 16:49:28
 Description: 
-    Copyright (c) 2018-2020 Intel Corporation.
+    Copyright (c) 2022-2023 Safebench Team
+
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/tree/master/srunner/scenarios>
+    Copyright (c) 2018-2020 Intel Corporation
+
     This work is licensed under the terms of the MIT license.
-    For a copy, see <https://opensource.org/licenses/MIT>.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import carla

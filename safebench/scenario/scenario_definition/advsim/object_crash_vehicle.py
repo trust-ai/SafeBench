@@ -1,4 +1,17 @@
-from __future__ import print_function
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:52:20
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/tree/master/srunner/scenarios>
+    Copyright (c) 2018-2020 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import math
 import carla
@@ -12,7 +25,6 @@ from safebench.scenario.tools.scenario_helper import get_location_in_distance_fr
 
 
 class DynamicObjectCrossing(BasicScenario):
-
     """
     This class holds everything required for a simple object crash
     without prior vehicle action involving a vehicle and a cyclist/pedestrian,
@@ -22,8 +34,7 @@ class DynamicObjectCrossing(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False,
-                 debug_mode=False, criteria_enable=True, adversary_type=False, timeout=60):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, adversary_type=False, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """

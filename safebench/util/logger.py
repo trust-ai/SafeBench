@@ -1,3 +1,15 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:55:23
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
+
 import atexit
 import json
 import os
@@ -273,22 +285,12 @@ class Logger:
             os.makedirs(fpath, exist_ok=True)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                # We are using a non-recommended way of saving PyTorch models,
-                # by pickling whole objects (which are dependent on the exact
-                # directory structure at the time of saving) as opposed to
-                # just saving network weights. This works sufficiently well
-                # for the purposes of Spinning Up, but you may want to do
-                # something different for your personal PyTorch project.
-                # We use a catch_warnings() context to avoid the warnings about
-                # not being able to save the source code.
                 torch.save(self.pytorch_saver_elements, fname)
 
     def dump_tabular(self, x_axis="Epoch", verbose=True, env=None):
         """
         Write all of the diagnostics from the current iteration.
-
         Writes both to stdout, and to the output file.
-
         x_axis: "Epoch" or "TotalEnvInteracts"
         """
         data_dict = {}

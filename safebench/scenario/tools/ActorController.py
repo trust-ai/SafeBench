@@ -1,3 +1,18 @@
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:54:10
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/tree/master/srunner/tools>
+    Copyright (c) 2018-2020 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
+
 from collections import deque
 import math
 import numpy as np
@@ -11,7 +26,6 @@ class VehiclePIDController():
     (lateral and longitudinal) to perform the
     low level control a vehicle from client side
     """
-
 
     def __init__(self, vehicle, args_lateral, args_longitudinal, offset=0, max_throttle=0.75, max_brake=0.3, max_steering=0.8):
         """

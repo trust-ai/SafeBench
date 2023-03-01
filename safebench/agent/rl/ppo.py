@@ -1,11 +1,15 @@
 '''
-@Author: 
-@Email: 
-@Date: 2020-05-30 14:20:04
-LastEditTime: 2023-02-28 20:39:14
-@Description: 
-    A PPO implementation with Generalized Advantage Estimator (GAE) to improve the sample efficiency
-    Modified from https://github.com/gouxiangchen/ac-ppo
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:55:23
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    Modified from <https://github.com/gouxiangchen/ac-ppo>
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import os

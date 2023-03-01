@@ -1,11 +1,14 @@
 '''
-@Author: 
-@Email: 
-@Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-27 20:55:34
-@Description: 
-'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:45:19
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
 
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 class BasePolicy:
     name = 'base'

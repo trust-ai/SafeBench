@@ -1,14 +1,17 @@
-#!/usr/bin/env python
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:42:53
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
 
-# Copyright (c) 2018-2020 Intel Corporation
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/blob/master/srunner/scenariomanager/carla_data_provider.py>
+    Copyright (c) 2018-2020 Intel Corporation
 
-"""
-This module provides all frequently used data from CARLA via
-local buffers to avoid blocking calls to CARLA
-"""
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import math
 import re
@@ -28,17 +31,8 @@ def calculate_velocity(actor):
 
 
 class CarlaDataProvider(object): 
-
     """
-    This class provides access to various data of all registered actors
-    It buffers the data and updates it on every CARLA tick
-    Currently available data:
-    - Absolute velocity
-    - Location
-    - Transform
-    Potential additions:
-    - Acceleration
-    In addition it provides access to the map and the transform of all traffic lights
+        This module provides all frequently used data from CARLA via local buffers to avoid blocking calls to CARLA
     """
 
     _actor_velocity_map = {}

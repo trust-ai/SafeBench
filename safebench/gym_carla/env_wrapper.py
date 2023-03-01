@@ -2,8 +2,12 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-27 22:03:58
+LastEditTime: 2023-03-01 17:19:09
 Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import gym

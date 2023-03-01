@@ -1,18 +1,23 @@
-#!/usr/bin/env python
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:54:55
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
 
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/tree/master/srunner/tools>
+    Copyright (c) 2018-2020 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import json
 import math
 import xml.etree.ElementTree as ET
 
 import carla
-# import carla_common.transforms as trans
-# from carla_common import transforms as trans
-# from carla_common.transforms import carla_transform_to_ros_pose
-# from tools.carla_common.transforms import carla_transform_to_ros_pose
-# from scenario_runner.srunner.tools.carla_common.transforms import carla_transform_to_ros_pose
 from agents.navigation.local_planner import RoadOption
 from safebench.scenario.scenario_configs.route_scenario_configuration import RouteScenarioConfiguration
 

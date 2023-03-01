@@ -1,10 +1,17 @@
-"""
-This module provides all atomic evaluation criteria required to analyze if a
-scenario was completed successfully or failed.
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:46:51
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
 
-Criteria should run continuously to monitor the state of a single actor, multiple
-actors or environmental parameters. Hence, a termination is not required.
-"""
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/blob/master/srunner/scenariomanager/scenarioatomics/atomic_criteria.py>
+    Copyright (c) 2018-2020 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import weakref
 import math

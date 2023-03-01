@@ -1,16 +1,24 @@
-#!/usr/bin/env python
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:43:48
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
 
-# Copyright (c) 2019 Intel Corporation
-#
-# This work is licensed under the terms of the MIT license.
-# For a copy, see <https://opensource.org/licenses/MIT>.
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/blob/master/srunner/scenarioconfigs/scenario_configuration.py>
+    Copyright (c) 2019 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import carla
 
 
 class ActorConfigurationData(object):
     """
-    This is a configuration base class to hold model and transform attributes
+        This is a configuration base class to hold model and transform attributes
     """
     def __init__(self, model, transform, rolename='other', speed=0, autopilot=False, random=False, color=None, category="car", args=None):
         self.model = model
@@ -25,10 +33,6 @@ class ActorConfigurationData(object):
 
     @staticmethod
     def parse_from_node(node, rolename):
-        """
-        static method to initialize an ActorConfigurationData from a given ET tree
-        """
-
         model = node.attrib.get('model', 'vehicle.*')
 
         pos_x = float(node.attrib.get('x', 0))
@@ -54,13 +58,12 @@ class ActorConfigurationData(object):
 
 
 class ScenarioConfiguration(object):
-
     """
-    This class provides a basic scenario configuration incl.:
-    - configurations for all actors
-    - town, where the scenario should be executed
-    - name of the scenario (e.g. ControlLoss_1)
-    - type is the class of scenario (e.g. ControlLoss)
+        This class provides a basic scenario configuration incl.:
+            - configurations for all actors
+            - town, where the scenario should be executed
+            - name of the scenario (e.g. ControlLoss_1)
+            - type is the class of scenario (e.g. ControlLoss)
     """
 
     num_scenario = None

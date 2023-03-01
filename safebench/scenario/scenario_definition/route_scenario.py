@@ -2,8 +2,15 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 23:03:31
+LastEditTime: 2023-03-01 16:47:52
 Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/blob/master/srunner/scenarios/route_scenario.py>
+    Copyright (c) 2018-2020 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import math
@@ -475,13 +482,24 @@ class RouteScenario():
             running_status[criterion_name] = criterion.update()
 
         stop = False
+        # collision with other objects
         if running_status['collision'] == Status.FAILURE:
             stop = True
             self.logger.log('>> Stop due to collision', color='yellow')
-        if self.config.scenario_id != 0:  # only check when evaluating
+
+        # out of the road detection
+        if running_status['off_road'] == Status.FAILURE:
+            stop = True
+            self.logger.log('>> Stop due to off road', color='yellow')
+
+        # only check when evaluating
+        if self.config.scenario_id != 0:  
+            # route completed
             if running_status['route_complete'] == 100:
                 stop = True
                 self.logger.log('>> Stop due to route completion', color='yellow')
+
+            # speed below threshold
             if running_status['speed_above_threshold'] == Status.FAILURE:
                 if running_status['route_complete'] == 0:
                     raise RuntimeError("Agent not moving")
@@ -495,8 +513,8 @@ class RouteScenario():
             self.logger.log('>> Stop due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
-            # print(running_status['driven_distance'])
-            if self.config.scenario_id != 0:  # only check when evaluating
+            # only check when evaluating
+            if self.config.scenario_id != 0:  
                 if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
                     stop = True
                     self.logger.log('>> Stop due to max driven distance', color='yellow')

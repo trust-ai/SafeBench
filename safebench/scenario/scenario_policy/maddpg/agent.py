@@ -1,10 +1,15 @@
 '''
-Author: 
+Author:
 Email: 
-Date: 2023-02-23 14:31:56
-LastEditTime: 2023-02-28 21:28:45
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:42:53
 Description: 
-    Modified from "https://github.com/philtabor/Multi-Agent-Deep-Deterministic-Policy-Gradients" by philtabor.
+    Copyright (c) 2022-2023 Safebench Team
+
+    This file is modified from <https://github.com/philtabor/Multi-Agent-Deep-Deterministic-Policy-Gradients>
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import torch as T

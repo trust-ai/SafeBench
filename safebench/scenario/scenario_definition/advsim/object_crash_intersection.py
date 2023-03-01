@@ -1,4 +1,17 @@
-from __future__ import print_function
+'''
+Author:
+Email: 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:52:04
+Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This file is modified from <https://github.com/carla-simulator/scenario_runner/tree/master/srunner/scenarios>
+    Copyright (c) 2018-2020 Intel Corporation
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
+'''
 
 import math
 import carla
@@ -6,11 +19,8 @@ import json
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
-from safebench.scenario.tools.scenario_helper import generate_target_waypoint, generate_target_waypoint_in_route
-
+from safebench.scenario.tools.scenario_helper import generate_target_waypoint_in_route
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
-from safebench.scenario.tools.scenario_utils import calculate_distance_transforms
-from safebench.scenario.tools.scenario_utils import calculate_distance_locations
 
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):

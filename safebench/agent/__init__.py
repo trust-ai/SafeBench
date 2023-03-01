@@ -1,23 +1,22 @@
 '''
-Author: 
+Author:
 Email: 
-Date: 2023-02-04 16:30:08
-LastEditTime: 2023-02-27 20:44:24
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-01 16:56:39
 Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 from safebench.agent.dummy import DummyEgo
 from safebench.agent.object_detection.detector import ObjectDetection
 from safebench.agent.rl.sac import SAC
-# from safebench.agent.rl.DDPG import DDPG
-# from safebench.agent.rl.PPO_GAE import PPO_GAE
 
 
 AGENT_POLICY_LIST = {
     'dummy': DummyEgo,
     'object_detection': ObjectDetection,
     'sac': SAC,
-    #'ddpg': DDPG,
-    #'ppo': PPO_GAE,
-    #'mbrl': MBRL,
 }
