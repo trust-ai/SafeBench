@@ -515,7 +515,7 @@ class RouteScenario():
         criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicle, optional=True)
         criteria['off_road'] = OffRoadTest(actor=self.ego_vehicle, optional=True)
         criteria['collision'] = CollisionTest(actor=self.ego_vehicle, terminate_on_failure=True)
-        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicle)
+        criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicle)
         criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicle)
         if self.config.scenario_id != 0:  # only check when evaluating
             criteria['distance_to_route'] = InRouteTest(self.ego_vehicle, route=route, offroad_max=30)

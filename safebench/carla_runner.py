@@ -28,6 +28,7 @@ from safebench.scenario.tools.scenario_utils import scenario_parse
 
 from safebench.util.logger import EpochLogger, setup_logger_kwargs
 from safebench.util.run_util import save_video
+from safebench.util.metric_util import get_scores
 
 
 class CarlaRunner:
@@ -70,7 +71,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 100,                # maximum timesteps per episode
+            'max_episode_step': 300,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -225,8 +226,15 @@ class CarlaRunner:
         result_file = os.path.join(self.output_dir, 'eval_results/results.pkl')
         eval_results = {}
         if os.path.exists(result_file):
-            print('loading previous evaluation results from', result_file)
+            self.logger.log(f'loading previous evaluation results from {result_file}')
             eval_results = joblib.load(result_file)
+
+        # save video
+        video_file = None
+        if self.save_video:
+            video_dir = os.path.join(self.output_dir, 'video')
+            os.makedirs(video_dir, exist_ok=True)
+            video_file = os.path.join(video_dir, f'video_{video_count:04}.gif')
 
         while len(data_loader) > 0:
             # sample scenarios
@@ -264,19 +272,27 @@ class CarlaRunner:
             self.logger.log(">> All scenarios are completed. Clearning up all actors")
             self.env.clean_up()
 
-            self.logger.log('>> Saving evaluation results')
+            self.logger.log(f'>> Saving evaluation results to {result_file}')
             joblib.dump(eval_results, result_file)
 
             # save video
             if self.save_video:
-                self.logger.log('>> Saving video')
-                save_video(frame_list, os.path.join(self.output_dir, 'video/video_{}.gif'.format(str(video_count))))
+                self.logger.log(f'>> Saving video to {video_file}')
+                save_video(frame_list, video_file)
                 video_count += 1
 
             # calculate episode reward and print
             self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode reward for batch scenario:', color='yellow')
             for s_i in rewards_list.keys():
                 self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
+
+        all_scores, _, final_score = get_scores(eval_results)
+        self.logger.log(f">> Collision rate:            {all_scores['collision_rate']:0.2f}")
+        self.logger.log(f">> Red light running freq.:   {all_scores['avg_red_light_freq']:0.2f}")
+        self.logger.log(f">> Stop sign running freq.:   {all_scores['avg_stop_sign_freq']:0.2f}")
+        self.logger.log(f">> Out of road length:        {all_scores['out_of_road_length']:0.2f}")
+        self.logger.log(f">> Route Following Stability: {all_scores['route_following_stability']:0.2f}")
+        self.logger.log(f">> Route Completion:          {all_scores['route_completion']:0.2f}")
 
     def run(self):
         # get scenario data of different maps
