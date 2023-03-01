@@ -24,7 +24,7 @@ class BasePolicy:
     def get_action(self, state, deterministic):
         raise NotImplementedError()
     
-    def get_init_action(self, scenario_config):
+    def get_init_action(self, scenario_config, deterministic=False):
         raise NotImplementedError()
 
     def load_model(self):

@@ -244,7 +244,7 @@ class REINFORCE(BasePolicy):
         else:
             self.logger.log(f'>> Fail to load LC model from {self.model_path}', color='red')
 
-    def save_model(self):
+    def save_model(self, epoch):
         self.logger.log(f'>> Saving LC model to {self.model_path}')
         with open(self.model_path, 'wb+') as f:
             torch.save({'parameters': self.model.state_dict()}, f)

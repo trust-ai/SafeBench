@@ -1,5 +1,5 @@
 policy_type: 'sac'
-model_path: 'safebench/agent/model_ckpt'
+model_path: 'safebench/agent/model_ckpt/sac'
 model_id: 0
 results_folder_path: ''
 obs_type: 0

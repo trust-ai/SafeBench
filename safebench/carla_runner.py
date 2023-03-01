@@ -158,7 +158,11 @@ class CarlaRunner:
         # general buffer for both agent and scenario
         replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
 
-        for e_i in tqdm(range(self.train_episode)):
+        if self.agent_policy.load_epoch == 0:
+            self.logger.log('>> Previous checkpoint not found. Training from scratch.')
+        else:
+            self.logger.log('>> Continue training from previous checkpoint.')
+        for e_i in tqdm(range(self.agent_policy.load_epoch, self.train_episode)):
             # sample scenarios
             sampled_scenario_configs, _ = data_loader.sampler()
             # TODO: to restart the data loader, reset the index counter every time
@@ -205,9 +209,9 @@ class CarlaRunner:
             # save checkpoints
             if (e_i+1) % self.save_freq == 0:
                 if self.mode == 'train_agent':
-                    self.agent_policy.save_model()
+                    self.agent_policy.save_model(e_i)
                 if self.mode == 'train_scenario':
-                    self.scenario_policy.save_model()
+                    self.scenario_policy.save_model(e_i)
 
     def eval(self, data_loader):
         num_finished_scenario = 0
@@ -289,20 +293,18 @@ class CarlaRunner:
             # prepare data loader and buffer
             data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)
 
+            self.agent_policy.load_model()
+            self.scenario_policy.load_model()
             # run with different modes
             if self.mode == 'eval':
-                self.agent_policy.load_model()
                 self.agent_policy.set_mode('eval')
-                self.scenario_policy.load_model()
                 self.scenario_policy.set_mode('eval')
                 self.eval(data_loader)
             elif self.mode == 'train_agent':
                 self.agent_policy.set_mode('train')
-                self.scenario_policy.load_model()
                 self.scenario_policy.set_mode('eval')
                 self.train(data_loader)
             elif self.mode == 'train_scenario':
-                self.agent_policy.load_model()
                 self.agent_policy.set_mode('eval')
                 self.scenario_policy.set_mode('train')
                 self.train(data_loader)
