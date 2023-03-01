@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 16:03:11
+LastEditTime: 2023-02-28 20:57:23
 Description: 
 '''
 
@@ -449,21 +449,11 @@ class RouteScenario():
         return list_of_actors
 
     def initialize_actors(self):
-        """
-            Set other_actors to the superset of all scenario actors
-        """
-        # TODO: totally remove background vehicle
-        if self.config.initialize_background_actors:
-            amount = 0 
-        else:
-            amount = 0
-
+        amount = 0 
         new_actors = CarlaDataProvider.request_new_batch_actors('vehicle.*', amount, carla.Transform(), autopilot=True, random_location=True, rolename='background')
         if new_actors is None:
             raise Exception("Error: Unable to add the background activity, all spawn points were occupied")
-        
         for _actor in new_actors:
-            print('background', _actor.type_id)
             self.other_actors.append(_actor)
 
     def get_running_status(self, running_record):
@@ -498,10 +488,9 @@ class RouteScenario():
                 else:
                     stop = True
                     self.logger.log('>> Stop due to low speed', color='yellow')
-
-        if len(running_record) >= self.max_running_step:  # stop at max step when training
-            stop = True
-            self.logger.log('>> Stop due to max steps', color='yellow')
+            if len(running_record) >= self.max_running_step:  # stop at max step when training
+                stop = True
+                self.logger.log('>> Stop due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
             # print(running_status['driven_distance'])

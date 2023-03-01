@@ -2,7 +2,7 @@
 @Author: 
 @Email: 
 @Date: 2020-01-24 13:52:10
-LastEditTime: 2023-02-28 14:42:50
+LastEditTime: 2023-02-28 20:03:55
 @Description: 
 '''
 
@@ -25,7 +25,7 @@ class DummyAgent(BasePolicy):
     def set_mode(self, mode):
         self.mode = mode
 
-    def get_action(self, state, deterministic):
+    def get_action(self, state, deterministic=False):
         return [None] * self.num_scenario
 
     def get_init_action(self, scenario_config, deterministic=False):
