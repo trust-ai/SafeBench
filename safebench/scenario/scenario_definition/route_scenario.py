@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 20:57:23
+LastEditTime: 2023-02-28 23:03:31
 Description: 
 '''
 
@@ -98,15 +98,15 @@ from safebench.scenario.scenario_definition.advsim.junction_crossing_route impor
 from safebench.scenario.scenario_definition.advsim.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advsim
 from safebench.scenario.scenario_definition.advsim.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advsim
 
-# AdvMADDGP
-from safebench.scenario.scenario_definition.advmaddpg.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advmaddpg
-from safebench.scenario.scenario_definition.advmaddpg.object_crash_intersection import VehicleTurningRoute as scenario_04_advmaddpg
-from safebench.scenario.scenario_definition.advmaddpg.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advmaddpg
-from safebench.scenario.scenario_definition.advmaddpg.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advmaddpg
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advmaddpg
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advmaddpg
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advmaddpg
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advmaddpg
+# AdvPolicy
+from safebench.scenario.scenario_definition.adv_policy.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advpolicy
+from safebench.scenario.scenario_definition.adv_policy.object_crash_intersection import VehicleTurningRoute as scenario_04_advpolicy
+from safebench.scenario.scenario_definition.adv_policy.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advpolicy
+from safebench.scenario.scenario_definition.adv_policy.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advpolicy
+from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advpolicy
+from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advpolicy
+from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advpolicy
+from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advpolicy
 
 
 SECONDS_GIVEN_PER_METERS = 1
@@ -175,14 +175,14 @@ SCENARIO_CLASS_MAPPING = {
         "Scenario10": scenario_10_advsim,
     },
     'advmaddpg': {
-        "Scenario3": scenario_03_advmaddpg,
-        "Scenario4": scenario_04_advmaddpg,
-        "Scenario5": scenario_05_advmaddpg,
-        "Scenario6": scenario_06_advmaddpg,
-        "Scenario7": scenario_07_advmaddpg,
-        "Scenario8": scenario_08_advmaddpg,
-        "Scenario9": scenario_09_advmaddpg,
-        "Scenario10": scenario_10_advmaddpg,
+        "Scenario3": scenario_03_advpolicy,
+        "Scenario4": scenario_04_advpolicy,
+        "Scenario5": scenario_05_advpolicy,
+        "Scenario6": scenario_06_advpolicy,
+        "Scenario7": scenario_07_advpolicy,
+        "Scenario8": scenario_08_advpolicy,
+        "Scenario9": scenario_09_advpolicy,
+        "Scenario10": scenario_10_advpolicy,
     },
 }
 
@@ -488,7 +488,9 @@ class RouteScenario():
                 else:
                     stop = True
                     self.logger.log('>> Stop due to low speed', color='yellow')
-        if len(running_record) >= self.max_running_step:  # stop at max step when training
+        
+        # stop at max step
+        if len(running_record) >= self.max_running_step: 
             stop = True
             self.logger.log('>> Stop due to max steps', color='yellow')
 

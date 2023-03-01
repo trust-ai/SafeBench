@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-28 15:44:40
+LastEditTime: 2023-02-28 22:48:16
 Description: 
 '''
 
@@ -51,19 +51,18 @@ class ReplayBuffer:
             end_ = dones[-1]
             self.buffer_episode_reward.append(np.sum(self.buffer_rewards[s_i][start_+1:end_+1]))
 
-    def store(self, data_list):
+    def store(self, data_list, additional_dict):
         ego_actions = data_list[0]
         scenario_actions = data_list[1]
         obs = data_list[2]
         next_obs = data_list[3]
         rewards = data_list[4]
         dones = data_list[5]
-        infos = data_list[6]
-        self.buffer_len += len(infos)
+        self.buffer_len += len(rewards)
 
         # separate trajectories according to infos
-        for s_i in range(len(infos)):
-            sid = infos[s_i]['scenario_id']
+        for s_i in range(len(additional_dict)):
+            sid = additional_dict[s_i]['scenario_id']
             self.buffer_ego_actions[sid].append(ego_actions[s_i])
             self.buffer_scenario_actions[sid].append(scenario_actions[s_i])
             self.buffer_obs[sid].append(obs[s_i])
@@ -71,7 +70,13 @@ class ReplayBuffer:
             self.buffer_rewards[sid].append(rewards[s_i])
             self.buffer_dones[sid].append(dones[s_i])
 
-        # TODO: allow storing additional information into self.buffer_additional_dict
+            # store additional information in given dict (e.g., cost)
+            for key in additional_dict[s_i].keys():
+                if key == 'scenario_id':
+                    continue
+                if key not in self.buffer_additional_dict[s_i].keys():
+                    self.buffer_additional_dict[s_i][key] = []
+                self.buffer_additional_dict[s_i][key].append(additional_dict[s_i][key])
 
     def store_init(self, data_list, additional_dict=None):
         static_obs = data_list[0]

@@ -9,7 +9,7 @@ import carla
 import json
 import torch
 import numpy as np
-from .advagent import Agent
+
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
@@ -18,6 +18,8 @@ from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 
 from safebench.gym_carla.envs.route_planner import RoutePlanner
 from safebench.gym_carla.envs.misc import *
+
+from safebench.scenario.scenario_policy.maddpg.agent import Agent
 
 
 class OppositeVehicleRunningRedLight(BasicScenario):
@@ -30,8 +32,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=180):
+    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, timeout=60):
         """
         Setup all relevant parameters and create scenario
         and instantiate scenario manager

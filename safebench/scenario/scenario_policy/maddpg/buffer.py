@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class AdvMultiAgentReplayBuffer:
     def __init__(self, max_size = 100000, critic_dims = 11, actor_dims = [4,7], 
         n_actions = [2,2], n_agents = 2, batch_size = 1024):
@@ -7,8 +8,7 @@ class AdvMultiAgentReplayBuffer:
         self.collision_buffer = MultiAgentReplayBuffer(max_size, critic_dims, actor_dims, n_actions, n_agents, batch_size//2)
         self.non_collision_buffer = MultiAgentReplayBuffer(max_size, critic_dims, actor_dims, n_actions, n_agents, batch_size//2)
     
-    def store_transition(self, collision, raw_obs, state, action, next_action, reward, 
-                               raw_obs_, state_, done):
+    def store_transition(self, collision, raw_obs, state, action, next_action, reward, raw_obs_, state_, done):
         if collision:
             self.collision_buffer.store_transition(raw_obs, state, action, next_action, reward, raw_obs_, state_, done)
         else:
@@ -28,16 +28,16 @@ class AdvMultiAgentReplayBuffer:
             actor_new_states[agent_idx] = np.concatenate((actor_new_states[agent_idx], actor_new_states2[agent_idx]), axis = 0)
             actions[agent_idx] = np.concatenate((actions[agent_idx], actions2[agent_idx]), axis = 0)
             next_actions[agent_idx] = np.concatenate((next_actions[agent_idx], next_actions2[agent_idx]), axis = 0)
-        return actor_states, states, actions, next_actions, rewards, \
-               actor_new_states, states_, terminal
+        return actor_states, states, actions, next_actions, rewards, actor_new_states, states_, terminal
     
     def ready(self):
         if self.collision_buffer.ready() and self.non_collision_buffer.ready():
             return True
-        
+
+
 class MultiAgentReplayBuffer:
-    def __init__(self, max_size = 100000, critic_dims = 11, actor_dims = [4,7], 
-            n_actions = [2,2], n_agents = 2, batch_size = 512, chkpt_dir = DIR):
+    def __init__(self, max_size = 100000, critic_dims = 11, actor_dims=[4,7], 
+            n_actions = [2,2], n_agents = 2, batch_size = 512, chkpt_dir=DIR):
         self.mem_size = max_size
         self.mem_cntr = 0
         self.n_agents = n_agents
@@ -68,8 +68,7 @@ class MultiAgentReplayBuffer:
             self.actor_next_action_memory.append( 
                         np.zeros((self.mem_size, self.n_actions[i])))
 
-    def store_transition(self, raw_obs, state, action, next_action, reward, 
-                               raw_obs_, state_, done):
+    def store_transition(self, raw_obs, state, action, next_action, reward, raw_obs_, state_, done):
         # this introduces a bug: if we fill up the memory capacity and then
         # zero out our actor memory, the critic will still have memories to access
         # while the actor will have nothing but zeros to sample. Obviously
@@ -113,8 +112,7 @@ class MultiAgentReplayBuffer:
             actor_new_states.append(self.actor_new_state_memory[agent_idx][batch])
             actions.append(self.actor_action_memory[agent_idx][batch])
             next_actions.append(self.actor_next_action_memory[agent_idx][batch])
-        return actor_states, states, actions, next_actions, rewards, \
-               actor_new_states, states_, terminal
+        return actor_states, states, actions, next_actions, rewards, actor_new_states, states_, terminal
 
     def ready(self):
         if self.mem_cntr >= self.batch_size:

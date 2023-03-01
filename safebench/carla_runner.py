@@ -2,7 +2,7 @@
 Author: 
 Email: 
 Date: 2023-02-16 11:20:54
-LastEditTime: 2023-02-28 19:02:26
+LastEditTime: 2023-02-28 22:44:14
 Description: 
 '''
 
@@ -184,7 +184,7 @@ class CarlaRunner:
 
                 # apply action to env and get obs
                 next_obs, rewards, dones, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
-                replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones, infos])
+                replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones], additional_dict=infos)
                 obs = copy.deepcopy(next_obs)
 
                 # train on-policy agent or scenario

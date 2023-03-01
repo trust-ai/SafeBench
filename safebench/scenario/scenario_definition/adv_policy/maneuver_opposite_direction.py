@@ -8,7 +8,7 @@ import carla
 import json
 import torch
 import numpy as np
-from .advagent import Agent
+
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.tools.scenario_helper import get_waypoint_in_distance
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
@@ -17,6 +17,9 @@ from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 from safebench.gym_carla.envs.route_planner import RoutePlanner
 from safebench.gym_carla.envs.misc import *
+
+from safebench.scenario.scenario_policy.maddpg.agent import Agent
+
 
 class ManeuverOppositeDirection(BasicScenario):
 
