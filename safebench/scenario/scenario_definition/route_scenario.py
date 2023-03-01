@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 22:57:20
+LastEditTime: 2023-02-28 23:03:31
 Description: 
 '''
 
@@ -489,8 +489,8 @@ class RouteScenario():
                     stop = True
                     self.logger.log('>> Stop due to low speed', color='yellow')
         
-        # stop at max step 
-        if len(running_record) >= self.max_running_step:  
+        # stop at max step
+        if len(running_record) >= self.max_running_step: 
             stop = True
             self.logger.log('>> Stop due to max steps', color='yellow')
 
