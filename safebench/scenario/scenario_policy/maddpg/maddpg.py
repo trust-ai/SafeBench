@@ -1,23 +1,33 @@
 import torch as T
-import torch.nn.functional as F
 import os
 from .agent import Agent
 
+
 class MADDPG:
-    def __init__(self, actor_dims = [4,7], critic_dims = 11, n_agents = 2, n_actions = [2,2], 
-                 scenario='standard_scenario3',  alpha=0.001, beta=0.001, fc1=64, 
-                 fc2=64, gamma=0.99, tau=0.005, chkpt_dir='./checkpoints/'):
+    def __init__(
+            self, 
+            actor_dims = [4, 7], 
+            critic_dims = 11, 
+            n_agents = 2, 
+            n_actions = [2,2], 
+            scenario='standard_scenario3',
+            alpha=0.001,
+            beta=0.001, 
+            fc1=64, 
+            fc2=64, 
+            gamma=0.99, 
+            tau=0.005, 
+            chkpt_dir='./checkpoints/'
+        ):
         self.agents = []
         self.n_agents = n_agents
         self.n_actions = n_actions
         chkpt_dir += scenario 
         if not os.path.exists(chkpt_dir):
             os.makedirs(chkpt_dir)
-         ### TODO: the first agent should be the ego agent ###
+        ### TODO: the first agent should be the ego agent ###
         for agent_idx in range(self.n_agents):
-            self.agents.append(Agent(actor_dims[agent_idx], critic_dims,  
-                            n_actions[agent_idx], n_agents, agent_idx, alpha=alpha, beta=beta,
-                            chkpt_dir=chkpt_dir))
+            self.agents.append(Agent(actor_dims[agent_idx], critic_dims, n_actions[agent_idx], n_agents, agent_idx, alpha=alpha, beta=beta, chkpt_dir=chkpt_dir))
         self.save_checkpoint()
         
     def save_checkpoint(self):
@@ -41,9 +51,7 @@ class MADDPG:
         if not memory.ready():
             return
         self.train()
-        actor_states, states, actions, next_actions, rewards, \
-        actor_new_states, states_, dones = memory.sample_buffer()
-
+        actor_states, states, actions, next_actions, rewards, actor_new_states, states_, dones = memory.sample_buffer()
         device = self.agents[0].actor.device
 
         states = T.tensor(states, dtype=T.float).to(device)
@@ -56,28 +64,23 @@ class MADDPG:
         old_agents_actions = []
 
         for agent_idx, agent in enumerate(self.agents):
-            new_states = T.tensor(actor_new_states[agent_idx], 
-                                 dtype=T.float).to(device)
+            new_states = T.tensor(actor_new_states[agent_idx], dtype=T.float).to(device)
             
             if agent_idx == 0:
-                new_pi = T.tensor(next_actions[agent_idx], 
-                                 dtype=T.float).to(device)
+                new_pi = T.tensor(next_actions[agent_idx], dtype=T.float).to(device)
             else:
                 new_pi = agent.target_actor.forward(new_states)
                 
             all_agents_new_actions.append(new_pi)
-            mu_states = T.tensor(actor_states[agent_idx], 
-                                 dtype=T.float).to(device)
+            mu_states = T.tensor(actor_states[agent_idx], dtype=T.float).to(device)
             
             if agent_idx == 0:
-                pi = T.tensor(actions[agent_idx], 
-                                 dtype=T.float).to(device)
+                pi = T.tensor(actions[agent_idx], dtype=T.float).to(device)
             else:
                 pi = agent.actor.forward(mu_states)
                 
             all_agents_new_mu_actions.append(pi)
-            old_agents_actions.append(T.tensor(actions[agent_idx], 
-                                 dtype=T.float).to(device))
+            old_agents_actions.append(T.tensor(actions[agent_idx], dtype=T.float).to(device))
 
         new_actions = T.cat([acts for acts in all_agents_new_actions], dim=1)
         mu = T.cat([acts for acts in all_agents_new_mu_actions], dim=1)
@@ -114,4 +117,3 @@ class MADDPG:
     def eval(self):
         for agent_idx, agent in enumerate(self.agents):
             agent.eval()
-            

@@ -1,10 +1,9 @@
-from __future__ import print_function
 import torch
 import numpy as np
 import math
 import carla
 import json
-from .advagent import Agent
+
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.scenario_helper import generate_target_waypoint_in_route
@@ -13,6 +12,9 @@ from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 from safebench.gym_carla.envs.route_planner import RoutePlanner
 from safebench.gym_carla.envs.misc import *
+
+from safebench.scenario.scenario_policy.maddpg.agent import Agent
+
 
 def get_opponent_transform(added_dist, waypoint, trigger_location):
     """

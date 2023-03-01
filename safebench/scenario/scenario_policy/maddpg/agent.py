@@ -1,15 +1,33 @@
 '''
-Modified from "https://github.com/philtabor/Multi-Agent-Deep-Deterministic-Policy-Gradients" by philtabor.
+Author: 
+Email: 
+Date: 2023-02-23 14:31:56
+LastEditTime: 2023-02-28 21:28:45
+Description: 
+    Modified from "https://github.com/philtabor/Multi-Agent-Deep-Deterministic-Policy-Gradients" by philtabor.
 '''
 
 import torch as T
 import os
 from .networks import ActorNetwork, CriticNetwork
 
+
 class Agent:
-    def __init__(self, actor_dims = 7, critic_dims = 11, n_actions = 2, n_agents = 2, agent_idx = 1, chkpt_dir = 'checkpoints/',
-                    alpha=0.001, beta=0.001, fc1=64, 
-                    fc2=64, gamma=0.99, tau=0.005):
+    def __init__(
+            self, 
+            actor_dims=7, 
+            critic_dims=11, 
+            n_actions=2, 
+            n_agents=2, 
+            agent_idx=1, 
+            chkpt_dir='checkpoints/',
+            alpha=0.001, 
+            beta=0.001, 
+            fc1=64, 
+            fc2=64, 
+            gamma=0.99, 
+            tau=0.005
+        ):
         self.gamma = gamma
         self.tau = tau
         self.n_actions = n_actions
@@ -17,19 +35,10 @@ class Agent:
         
         chkpt_dir = os.path.join(os.path.dirname(__file__), chkpt_dir)
         
-        self.actor = ActorNetwork(alpha, actor_dims, fc1, fc2, n_actions, 
-                                  chkpt_dir=chkpt_dir,  name=self.agent_name+'_actor')
-        self.critic = CriticNetwork(beta, critic_dims, 
-                            fc1, fc2, n_agents, n_actions, 
-                            chkpt_dir=chkpt_dir, name=self.agent_name+'_critic')
-        self.target_actor = ActorNetwork(alpha, actor_dims, fc1, fc2, n_actions,
-                                        chkpt_dir=chkpt_dir, 
-                                        name=self.agent_name+'_target_actor')
-        self.target_critic = CriticNetwork(beta, critic_dims, 
-                                            fc1, fc2, n_agents, n_actions,
-                                            chkpt_dir=chkpt_dir,
-                                            name=self.agent_name+'_target_critic')
-
+        self.actor = ActorNetwork(alpha, actor_dims, fc1, fc2, n_actions, chkpt_dir=chkpt_dir,  name=self.agent_name+'_actor')
+        self.critic = CriticNetwork(beta, critic_dims, fc1, fc2, n_agents, n_actions, chkpt_dir=chkpt_dir, name=self.agent_name+'_critic')
+        self.target_actor = ActorNetwork(alpha, actor_dims, fc1, fc2, n_actions, chkpt_dir=chkpt_dir, name=self.agent_name+'_target_actor')
+        self.target_critic = CriticNetwork(beta, critic_dims, fc1, fc2, n_agents, n_actions, chkpt_dir=chkpt_dir, name=self.agent_name+'_target_critic')
         self.update_network_parameters(tau=1)
 
     def train(self):
