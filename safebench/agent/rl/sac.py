@@ -89,7 +89,7 @@ class SAC:
         self.model_path = os.path.join(config['ROOT_DIR'], config['model_path'])
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
-        self.load_epoch = 0
+        self.load_episode = 0
 
         # create models
         self.policy_net = CUDA(Actor(self.state_dim, self.action_dim))
@@ -204,27 +204,27 @@ class SAC:
             for target_param, param in zip(self.Target_value_net.parameters(), self.value_net.parameters()):
                 target_param.data.copy_(target_param * (1 - self.tau) + param * self.tau)
 
-    def save_model(self, epoch):
+    def save_model(self, episode):
         states = {
             'policy_net': self.policy_net.state_dict(), 
             'value_net': self.value_net.state_dict(), 
             'Q_net': self.Q_net.state_dict()
         }
-        filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{epoch:04}.torch')
+        filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{episode:04}.torch')
         self.logger.log(f'>> Saving {self.name} model to {filepath}')
         with open(filepath, 'wb+') as f:
             torch.save(states, f)
 
-    def load_model(self, epoch=None):
-        if epoch is None:
-            epoch = -1
+    def load_model(self, episode=None):
+        if episode is None:
+            episode = -1
             for _, _, files in os.walk(self.model_path):
                 for name in files:
                     if fnmatch(name, "*torch"):
-                        cur_epoch = int(name.split(".")[-2])
-                        if cur_epoch > epoch:
-                            epoch = cur_epoch
-        filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{epoch:04}.torch')
+                        cur_episode = int(name.split(".")[-2])
+                        if cur_episode > episode:
+                            episode = cur_episode
+        filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{episode:04}.torch')
         if os.path.isfile(filepath):
             self.logger.log(f'>> Loading {self.name} model from {filepath}')
             with open(filepath, 'rb') as f:
@@ -232,4 +232,4 @@ class SAC:
             self.policy_net.load_state_dict(checkpoint['policy_net'])
             self.value_net.load_state_dict(checkpoint['value_net'])
             self.Q_net.load_state_dict(checkpoint['Q_net'])
-            self.load_epoch = epoch
+            self.load_episode = episode
