@@ -2,7 +2,7 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-02-20 20:13:41
- * @LastEditTime: 2023-02-21 15:50:50
+ * @LastEditTime: 2023-03-01 22:23:32
  * @Description: 
 -->
 
@@ -199,10 +199,8 @@ Update the HTML templates in EvalAI-Starters/templates. The submission-guideline
 ```
 evalai push <image>:<tag> --phase <phase_name>
 ```
-
 <br>
 At this point, the challenge configuration has been submitted for review and the EvalAI team has been notified. They will review and approve the challenge.
-
 <br>
 
 # How to Submit Results

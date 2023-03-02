@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:48:17
+LastEditTime: 2023-03-02 16:37:19
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -179,9 +179,9 @@ class ObjectDetectionScenario(BasicScenario):
             len_spawn_points = len(self.vehicle_spawn_points)
             idx = random.choice(list(range(len_spawn_points)))
             random_transform = self.vehicle_spawn_points[idx]
-            gps_route, route = interpolate_trajectory(world, [random_transform])
+            route = interpolate_trajectory(world, [random_transform])
         else:
-            gps_route, route = interpolate_trajectory(world, config.trajectory)
+            route = interpolate_trajectory(world, config.trajectory)
 
         potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
 
@@ -189,9 +189,6 @@ class ObjectDetectionScenario(BasicScenario):
         self.route_length = len(route)
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
         CarlaDataProvider.set_scenario_config(config)
-
-        if config.agent is not None:
-            config.agent.set_global_plan(gps_route, self.route)
 
         # Sample the scenarios to be used for this route instance.
         self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)

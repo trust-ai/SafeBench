@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:37:24
+LastEditTime: 2023-03-02 16:29:46
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -19,7 +19,8 @@ import xml.etree.ElementTree as ET
 
 import carla
 from agents.navigation.local_planner import RoadOption
-from safebench.scenario.scenario_configs.route_scenario_configuration import RouteScenarioConfiguration
+from safebench.scenario.scenario_manager.scenario_config import ScenarioConfig
+
 
 # TODO  check this threshold, it could be a bit larger but not so large that we cluster scenarios.
 TRIGGER_THRESHOLD = 2.0  # Threshold to say if a trigger position is new or repeated, works for matching positions
@@ -62,7 +63,7 @@ class RouteParser(object):
             if single_route and route_id != single_route:
                 continue
 
-            new_config = RouteScenarioConfiguration()
+            new_config = ScenarioConfig()
             new_config.town = route.attrib['town']
             new_config.name = "RouteScenario_{}".format(route_id)
             new_config.weather = RouteParser.parse_weather(route)
@@ -85,7 +86,6 @@ class RouteParser(object):
                 waypoint_list.append(carla.Location(x=float(waypoint.attrib['x']), y=float(waypoint.attrib['y']), z=float(waypoint.attrib['z'])))
 
             new_config.trajectory = waypoint_list
-            new_config.initialize_background_actors = True if len(waypoint_list) == 0 else False
             list_route_descriptions.append(new_config)
 
         return list_route_descriptions

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 17:34:48
+LastEditTime: 2023-03-02 16:40:23
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -13,20 +13,22 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-import math
 import traceback
 
-from numpy import random
 import carla
-import xml.etree.ElementTree as ET
 
 from safebench.scenario.scenario_manager.timer import GameTime
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 
-from safebench.scenario.scenario_configs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
-from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
+from safebench.scenario.scenario_manager.scenario_config import RouteScenarioConfig
+from safebench.scenario.tools.route_parser import RouteParser
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
-from safebench.scenario.tools.scenario_utils import get_valid_spawn_points
+from safebench.scenario.tools.scenario_utils import (
+    get_valid_spawn_points, 
+    convert_json_to_transform, 
+    convert_json_to_actor, 
+    convert_transform_to_location
+)
 
 from safebench.scenario.scenario_definition.atomic_criteria import (
     Status,
@@ -194,74 +196,6 @@ SCENARIO_CLASS_MAPPING = {
 }
 
 
-def convert_json_to_transform(actor_dict):
-    """
-        Convert a JSON string to a CARLA transform
-    """
-    return carla.Transform(
-        location=carla.Location(x=float(actor_dict['x']), y=float(actor_dict['y']), z=float(actor_dict['z'])),
-        rotation=carla.Rotation(roll=0.0, pitch=0.0, yaw=float(actor_dict['yaw']))
-    )
-
-
-def convert_json_to_actor(actor_dict):
-    """
-        Convert a JSON string to an ActorConfigurationData dictionary
-    """
-    node = ET.Element('waypoint')
-    node.set('x', actor_dict['x'])
-    node.set('y', actor_dict['y'])
-    node.set('z', actor_dict['z'])
-    node.set('yaw', actor_dict['yaw'])
-
-    return ActorConfigurationData.parse_from_node(node, 'simulation')
-
-
-def convert_transform_to_location(transform_vec):
-    """
-        Convert a vector of transforms to a vector of locations
-    """
-    location_vec = []
-    for transform_tuple in transform_vec:
-        location_vec.append((transform_tuple[0].location, transform_tuple[1]))
-
-    return location_vec
-
-
-def compare_scenarios(scenario_choice, existent_scenario):
-    """
-        Compare function for scenarios based on distance of the scenario start position
-    """
-
-    def transform_to_pos_vec(scenario):
-        # Convert left/right/front to a meaningful CARLA position
-        position_vec = [scenario['trigger_position']]
-        if scenario['other_actors'] is not None:
-            if 'left' in scenario['other_actors']:
-                position_vec += scenario['other_actors']['left']
-            if 'front' in scenario['other_actors']:
-                position_vec += scenario['other_actors']['front']
-            if 'right' in scenario['other_actors']:
-                position_vec += scenario['other_actors']['right']
-        return position_vec
-
-    # put the positions of the scenario choice into a vec of positions to be able to compare
-    choice_vec = transform_to_pos_vec(scenario_choice)
-    existent_vec = transform_to_pos_vec(existent_scenario)
-    for pos_choice in choice_vec:
-        for pos_existent in existent_vec:
-
-            dx = float(pos_choice['x']) - float(pos_existent['x'])
-            dy = float(pos_choice['y']) - float(pos_existent['y'])
-            dz = float(pos_choice['z']) - float(pos_existent['z'])
-            dist_position = math.sqrt(dx * dx + dy * dy + dz * dz)
-            dyaw = float(pos_choice['yaw']) - float(pos_choice['yaw'])
-            dist_angle = math.sqrt(dyaw * dyaw)
-            if dist_position < TRIGGER_THRESHOLD and dist_angle < TRIGGER_ANGLE_THRESHOLD:
-                return True
-    return False
-
-
 class RouteScenario():
     """
         Implementation of a RouteScenario, i.e. a scenario that consists of driving along a pre-defined route,
@@ -271,124 +205,86 @@ class RouteScenario():
     def __init__(self, world, config, ego_id, logger, max_running_step):
         self.world = world
         self.logger = logger
-
         self.config = config
-        self.route = None
         self.ego_id = ego_id
-        self.sampled_scenarios_definitions = None
         self.max_running_step = max_running_step
         self.timeout = 60
 
-        # self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
-        self.ego_vehicle = self._update_route_and_ego(world, config)
+        self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego()
         self.other_actors = []
 
-        self.list_scenarios = self._build_scenario_instances(
-            world,
-            self.ego_vehicle,
-            self.sampled_scenarios_definitions,
-            scenarios_per_tick=5,
-            timeout=self.timeout,
-            weather=config.weather
-        )
+        self.list_scenarios = self._build_scenario_instances(scenario_definitions)
         self.criteria = self._create_criteria()
 
-    def _update_route_and_ego(self, world, config, timeout=None):
+    def _update_route_and_ego(self, timeout=None):
         # Transform the scenario file into a dictionary
-        if config.scenario_file is not None:
-            world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
+        if self.config.scenario_file is not None:
+            world_annotations = RouteParser.parse_annotations_file(self.config.scenario_file)
         else:
-            world_annotations = config.scenario_config
+            world_annotations = self.config.scenario_config
 
         # prepare route's trajectory (interpolate and add the GPS route)
         ego_vehicle = None
-        if self.config.scenario_id == 0:
+        route = None
+        scenario_id = self.config.scenario_id
+        if scenario_id == 0:
             vehicle_spawn_points = get_valid_spawn_points(self.world)
             for random_transform in vehicle_spawn_points:
-                gps_route, route = interpolate_trajectory(world, [random_transform])
-                ego_vehicle = self._spawn_ego_vehicle(route[0][0], config.auto_ego)
+                route = interpolate_trajectory(self.world, [random_transform])
+                ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
                 if ego_vehicle is not None:
                     break
         else:
-            gps_route, route = interpolate_trajectory(world, config.trajectory)
-            ego_vehicle = self._spawn_ego_vehicle(route[0][0], config.auto_ego)
-        self.route = route
+            route = interpolate_trajectory(self.world, self.config.trajectory)
+            ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
+        
+        # scan route to get scenario definitions
+        possible_scenarios, _ = RouteParser.scan_route_for_scenarios(
+            self.config.town, 
+            route, 
+            world_annotations, 
+            scenario_id=scenario_id
+        )
+        scenarios_definitions = []
+        for trigger in possible_scenarios.keys():
+            scenarios_definitions.extend(possible_scenarios[trigger])
 
-        potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations, scenario_id=self.config.scenario_id)
-        # TODO: check if ego route is overwritten by others
-        CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
-        CarlaDataProvider.set_scenario_config(config)
-
-        if config.agent is not None:
-            config.agent.set_global_plan(gps_route, self.route)
-
-        # Sample the scenarios to be used for this route instance.
-        self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
+        # TODO: ego route will be overwritten by other scenarios
+        CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(route))
+        CarlaDataProvider.set_scenario_config(self.config)
 
         # Timeout of scenario in seconds
-        self.timeout = self._estimate_route_timeout() if timeout is None else timeout
-        return ego_vehicle
+        self.timeout = self._estimate_route_timeout(route) if timeout is None else timeout
+        return route, ego_vehicle, scenarios_definitions
 
-    def _scenario_sampling(self, potential_scenarios_definitions):
-        """
-            The function used to sample the scenarios that are going to happen for this route.
-        """
-        def position_sampled(scenario_choice, sampled_scenarios):
-            # Check if a position was already sampled, i.e. used for another scenario
-            for existent_scenario in sampled_scenarios:
-                # If the scenarios have equal positions then it is true.
-                if compare_scenarios(scenario_choice, existent_scenario):
-                    return True
-            return False
-
-        # The idea is to randomly sample a scenario per trigger position.
-        sampled_scenarios = []
-        for trigger in potential_scenarios_definitions.keys():
-            possible_scenarios = potential_scenarios_definitions[trigger]
-
-            scenario_choice = random.choice(possible_scenarios)
-            del possible_scenarios[possible_scenarios.index(scenario_choice)]
-            # We keep sampling and testing if this position is present on any of the scenarios.
-            while position_sampled(scenario_choice, sampled_scenarios):
-                if possible_scenarios is None or not possible_scenarios:
-                    scenario_choice = None
-                    break
-                scenario_choice = random.choice(possible_scenarios)
-                del possible_scenarios[possible_scenarios.index(scenario_choice)]
-
-            if scenario_choice is not None:
-                sampled_scenarios.append(scenario_choice)
-        return sampled_scenarios
-
-    def _estimate_route_timeout(self):
+    def _estimate_route_timeout(self, route):
         route_length = 0.0  # in meters
         min_length = 100.0
 
-        if len(self.route) == 1:
+        if len(route) == 1:
             return int(SECONDS_GIVEN_PER_METERS * min_length)
 
-        prev_point = self.route[0][0]
-        for current_point, _ in self.route[1:]:
+        prev_point = route[0][0]
+        for current_point, _ in route[1:]:
             dist = current_point.location.distance(prev_point.location)
             route_length += dist
             prev_point = current_point
-
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
     def _spawn_ego_vehicle(self, elevate_transform, autopilot=False):
         try:
             role_name = 'ego_vehicle' + str(self.ego_id)
             ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name, autopilot=autopilot)
-        except RuntimeError:
-            return None
+        except Exception as e:   
+            raise RuntimeError("Error while spawning ego vehicle: {}".format(e))
 
         return ego_vehicle
 
-    def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions, scenarios_per_tick=5, timeout=300, weather=None):
+    def _build_scenario_instances(self, scenario_definitions):
         """
             Based on the parsed route and possible scenarios, build all the scenario classes.
         """
-        scenario_instance_vec = []
+        scenario_instance_list = []
         for scenario_number, definition in enumerate(scenario_definitions):
             # get the class possibilities for this scenario number
             scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
@@ -401,37 +297,26 @@ class RouteScenario():
 
             # create an actor configuration for the ego-vehicle trigger position
             egoactor_trigger_position = convert_json_to_transform(definition['trigger_position'])
-            scenario_configuration = ScenarioConfiguration()
-            scenario_configuration.other_actors = list_of_actor_conf_instances
-            scenario_configuration.trigger_points = [egoactor_trigger_position]
-            scenario_configuration.subtype = definition['scenario_type']
-            scenario_configuration.parameters = self.config.parameters
-            scenario_configuration.num_scenario = self.config.num_scenario
-
-            if weather is not None:
-                scenario_configuration.weather = weather
-
-            scenario_configuration.ego_vehicles = [ActorConfigurationData('vehicle.tesla.model3', ego_vehicle.get_transform(), 'ego_vehicle')]
+            route_config = RouteScenarioConfig()
+            route_config.other_actors = list_of_actor_conf_instances
+            route_config.trigger_points = [egoactor_trigger_position]
+            route_config.subtype = definition['scenario_type']
+            route_config.parameters = self.config.parameters
+            route_config.num_scenario = self.config.num_scenario
+            if self.config.weather is not None:
+                route_config.weather = self.config.weather
             route_var_name = "ScenarioRouteNumber{}".format(scenario_number)
-            scenario_configuration.route_var_name = route_var_name
+            route_config.route_var_name = route_var_name
 
             try:
-                scenario_instance = scenario_class(world, ego_vehicle, scenario_configuration, timeout=timeout)
-                # tick every once in a while to avoid spawning everything at the same time
-                if scenario_number % scenarios_per_tick == 0:
-                    if CarlaDataProvider.is_sync_mode():
-                        world.tick()
-                    else:
-                        world.wait_for_tick()
-
-                scenario_number += 1
+                scenario_instance = scenario_class(self.world, self.ego_vehicle, route_config, timeout=self.timeout)
             except Exception as e:   
                 traceback.print_exc()
                 print("Skipping scenario '{}' due to setup error: {}".format(definition['name'], e))
                 continue
 
-            scenario_instance_vec.append(scenario_instance)
-        return scenario_instance_vec
+            scenario_instance_list.append(scenario_instance)
+        return scenario_instance_list
 
     def _get_actors_instances(self, list_of_antagonist_actors):
         def get_actors_from_list(list_of_actor_def):
@@ -455,7 +340,14 @@ class RouteScenario():
 
     def initialize_actors(self):
         amount = 0 
-        new_actors = CarlaDataProvider.request_new_batch_actors('vehicle.*', amount, carla.Transform(), autopilot=True, random_location=True, rolename='background')
+        new_actors = CarlaDataProvider.request_new_batch_actors(
+            'vehicle.*', 
+            amount, 
+            carla.Transform(), 
+            autopilot=True, 
+            random_location=True, 
+            rolename='background'
+        )
         if new_actors is None:
             raise Exception("Error: Unable to add the background activity, all spawn points were occupied")
         for _actor in new_actors:

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:35:46
+LastEditTime: 2023-03-02 16:36:41
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -153,6 +153,4 @@ def interpolate_trajectory(world, waypoints_trajectory, hop_resolution=1.0):
         for wp_tuple in interpolated_trace:
             route.append((wp_tuple[0].transform, wp_tuple[1]))
 
-    # Increase the route position to avoid fails
-    lat_ref, lon_ref = _get_latlon_ref(world)
-    return location_route_to_gps(route, lat_ref, lon_ref), route
+    return route

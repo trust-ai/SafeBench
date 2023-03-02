@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:53:30
+LastEditTime: 2023-03-02 16:37:27
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -102,7 +102,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
 
         other_locations = [self.other_actor_transform[0].location,
                            carla.Location(self.other_actor_transform[0].location + forward_vector)]
-        gps_route, route = interpolate_trajectory(self.world, other_locations)
+        route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))
@@ -308,9 +308,8 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         self.target_waypoint = [self.target_transform.location.x, self.target_transform.location.y, self.target_transform.rotation.yaw]
         print('self.target_waypoint', self.target_waypoint)
 
-        other_locations = [self.other_actor_transform[0].location,
-                           carla.Location(self.other_actor_transform[0].location + forward_vector)]
-        gps_route, route = interpolate_trajectory(self.world, other_locations)
+        other_locations = [self.other_actor_transform[0].location, carla.Location(self.other_actor_transform[0].location + forward_vector)]
+        route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))
@@ -509,9 +508,8 @@ class SignalizedJunctionRightTurn(BasicScenario):
         self.target_waypoint = [self.target_transform.location.x, self.target_transform.location.y, self.target_transform.rotation.yaw]
         print('self.target_waypoint', self.target_waypoint)
 
-        other_locations = [self.other_actor_transform[0].location,
-                           carla.Location(self.other_actor_transform[0].location + forward_vector)]
-        gps_route, route = interpolate_trajectory(self.world, other_locations)
+        other_locations = [self.other_actor_transform[0].location, carla.Location(self.other_actor_transform[0].location + forward_vector)]
+        route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))
@@ -699,9 +697,8 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
         self.target_waypoint = [self.target_transform.location.x, self.target_transform.location.y, self.target_transform.rotation.yaw]
         print('self.target_waypoint', self.target_waypoint)
 
-        other_locations = [self.other_actor_transform[0].location,
-                           carla.Location(self.other_actor_transform[0].location + forward_vector)]
-        gps_route, route = interpolate_trajectory(self.world, other_locations)
+        other_locations = [self.other_actor_transform[0].location, carla.Location(self.other_actor_transform[0].location + forward_vector)]
+        route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))

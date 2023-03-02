@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 17:19:24
+LastEditTime: 2023-03-02 16:37:09
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -176,7 +176,7 @@ class CarlaEnv(gym.Env):
         origin_waypoints_loc = []
         for loc in config.trajectory:
             origin_waypoints_loc.append(loc)
-        _, route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
+        route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
 
         # TODO: these waypoints can be directly got from scenario
         init_waypoints = []
@@ -195,7 +195,7 @@ class CarlaEnv(gym.Env):
         origin_waypoints_loc = []
         for loc in config.trajectory:
             origin_waypoints_loc.append(loc)
-        _, route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
+        route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
 
         # get [x, y] along the route
         waypoint_xy = []

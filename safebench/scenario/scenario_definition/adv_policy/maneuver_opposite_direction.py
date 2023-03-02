@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 17:35:30
+LastEditTime: 2023-03-02 16:38:05
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -113,7 +113,7 @@ class ManeuverOppositeDirection(BasicScenario):
 
         other_locations = [self.other_actor_transform[1].location,
                            carla.Location(self.other_actor_transform[1].location + forward_vector)]
-        gps_route, route = interpolate_trajectory(self.world, other_locations)
+        route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))

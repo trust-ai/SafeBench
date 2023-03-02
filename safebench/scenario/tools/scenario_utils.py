@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:54:10
+LastEditTime: 2023-03-02 16:45:16
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -17,7 +17,11 @@ import math
 import os.path as osp
 import json
 import random
-from .route_parser import RouteParser
+
+import carla
+import xml.etree.ElementTree as ET
+
+from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 
 
 def calculate_distance_transforms(transform_1, transform_2):
@@ -114,3 +118,112 @@ def get_current_location_list(world):
     for actor in world.get_actors().filter('vehicle.*'):
         locations.append(actor.get_transform().location)
     return locations
+
+
+def compare_scenarios(scenario_choice, existent_scenario):
+    """
+        Compare function for scenarios based on distance of the scenario start position
+    """
+
+    def transform_to_pos_vec(scenario):
+        # Convert left/right/front to a meaningful CARLA position
+        position_vec = [scenario['trigger_position']]
+        if scenario['other_actors'] is not None:
+            if 'left' in scenario['other_actors']:
+                position_vec += scenario['other_actors']['left']
+            if 'front' in scenario['other_actors']:
+                position_vec += scenario['other_actors']['front']
+            if 'right' in scenario['other_actors']:
+                position_vec += scenario['other_actors']['right']
+        return position_vec
+
+    # put the positions of the scenario choice into a vec of positions to be able to compare
+    choice_vec = transform_to_pos_vec(scenario_choice)
+    existent_vec = transform_to_pos_vec(existent_scenario)
+    for pos_choice in choice_vec:
+        for pos_existent in existent_vec:
+
+            dx = float(pos_choice['x']) - float(pos_existent['x'])
+            dy = float(pos_choice['y']) - float(pos_existent['y'])
+            dz = float(pos_choice['z']) - float(pos_existent['z'])
+            dist_position = math.sqrt(dx * dx + dy * dy + dz * dz)
+            dyaw = float(pos_choice['yaw']) - float(pos_choice['yaw'])
+            dist_angle = math.sqrt(dyaw * dyaw)
+            if dist_position < TRIGGER_THRESHOLD and dist_angle < TRIGGER_ANGLE_THRESHOLD:
+                return True
+    return False
+
+
+def convert_json_to_transform(actor_dict):
+    """
+        Convert a JSON string to a CARLA transform
+    """
+    return carla.Transform(
+        location=carla.Location(x=float(actor_dict['x']), y=float(actor_dict['y']), z=float(actor_dict['z'])),
+        rotation=carla.Rotation(roll=0.0, pitch=0.0, yaw=float(actor_dict['yaw']))
+    )
+
+
+class ActorConfigurationData(object):
+    """
+        This is a configuration base class to hold model and transform attributes
+    """
+    def __init__(self, model, transform, rolename='other', speed=0, autopilot=False, random=False, color=None, category="car", args=None):
+        self.model = model
+        self.rolename = rolename
+        self.transform = transform
+        self.speed = speed
+        self.autopilot = autopilot
+        self.random_location = random
+        self.color = color
+        self.category = category
+        self.args = args
+
+    @staticmethod
+    def parse_from_node(node, rolename):
+        model = node.attrib.get('model', 'vehicle.*')
+
+        pos_x = float(node.attrib.get('x', 0))
+        pos_y = float(node.attrib.get('y', 0))
+        pos_z = float(node.attrib.get('z', 0))
+        yaw = float(node.attrib.get('yaw', 0))
+
+        transform = carla.Transform(carla.Location(x=pos_x, y=pos_y, z=pos_z), carla.Rotation(yaw=yaw))
+        rolename = node.attrib.get('rolename', rolename)
+        speed = node.attrib.get('speed', 0)
+
+        autopilot = False
+        if 'autopilot' in node.keys():
+            autopilot = True
+
+        random_location = False
+        if 'random_location' in node.keys():
+            random_location = True
+
+        color = node.attrib.get('color', None)
+
+        return ActorConfigurationData(model, transform, rolename, speed, autopilot, random_location, color)
+
+
+def convert_json_to_actor(actor_dict):
+    """
+        Convert a JSON string to an ActorConfigurationData dictionary
+    """
+    node = ET.Element('waypoint')
+    node.set('x', actor_dict['x'])
+    node.set('y', actor_dict['y'])
+    node.set('z', actor_dict['z'])
+    node.set('yaw', actor_dict['yaw'])
+
+    return ActorConfigurationData.parse_from_node(node, 'simulation')
+
+
+def convert_transform_to_location(transform_vec):
+    """
+        Convert a vector of transforms to a vector of locations
+    """
+    location_vec = []
+    for transform_tuple in transform_vec:
+        location_vec.append((transform_tuple[0].location, transform_tuple[1]))
+
+    return location_vec
