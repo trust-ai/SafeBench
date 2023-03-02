@@ -44,7 +44,6 @@ from safebench.scenario.scenario_definition.atomic_criteria import (
 
 # ordinary scenario (for training)
 from safebench.scenario.scenario_definition.ordinary.autopolit_background_vehicle import AutopolitBackgroundVehicle
-
 # standard
 from safebench.scenario.scenario_definition.standard.object_crash_vehicle import DynamicObjectCrossing as scenario_03_standard
 from safebench.scenario.scenario_definition.standard.object_crash_intersection import VehicleTurningRoute as scenario_04_standard
@@ -291,6 +290,7 @@ class RouteScenario():
             timeout=self.timeout,
             weather=config.weather
         )
+        print('list scenarios: ', self.list_scenarios)
         self.criteria = self._create_criteria()
 
     def _update_route_and_ego(self, world, config, timeout=None):
@@ -324,7 +324,6 @@ class RouteScenario():
 
         # Sample the scenarios to be used for this route instance.
         self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
-
         # Timeout of scenario in seconds
         self.timeout = self._estimate_route_timeout() if timeout is None else timeout
         return ego_vehicle
@@ -392,7 +391,7 @@ class RouteScenario():
         for scenario_number, definition in enumerate(scenario_definitions):
             # get the class possibilities for this scenario number
             scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
-
+            print(self.config.scenario_generation_method, definition)
             # create the other actors that are going to appear
             if definition['other_actors'] is not None:
                 list_of_actor_conf_instances = self._get_actors_instances(definition['other_actors'])

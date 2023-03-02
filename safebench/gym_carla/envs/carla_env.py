@@ -290,13 +290,14 @@ class CarlaEnv(gym.Env):
                 # TODO: input an action into the scenario
                 self.scenario_manager.get_update(timestamp, scenario_action)
                 self.is_running = self.scenario_manager._running
-                if isinstance(ego_action, dict):
+                if self.scenario_category in ['perception']:
+                    assert isinstance(ego_action, dict), 'ego action in ObjectDetectionScenario should be a dict'
                     world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
                     fov = self.camera_bp.get_attribute('fov').as_float()
                     image_w, image_h = self.obs_size, self.obs_size
-                    self.scenario_manager.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
+                    self.scenario_manager.background_scenario.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
                     ego_action = ego_action['ego_action']
-
+                
                 # Calculate acceleration and steering
                 if not np.isnan(ego_action).all():
                     if self.discrete:
@@ -369,6 +370,8 @@ class CarlaEnv(gym.Env):
         # Update timesteps
         self.time_step += 1
         self.total_step += 1
+        if self.scenario_category in ['perception']:
+            info.update(self.scenario_manager.background_scenario.update_info())
         return (self._get_obs(), self._get_reward(), self._terminal(), copy.deepcopy(info))
     
     def _init_traffic_light(self):

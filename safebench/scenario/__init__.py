@@ -13,10 +13,11 @@ Description:
 # collect policy models from scenarios
 from safebench.scenario.scenario_policy.dummy_policy import DummyPolicy
 from safebench.scenario.scenario_policy.reinforce_continuous import REINFORCE
-
+from safebench.scenario.scenario_policy.adv_patch import ObjectDetection
 
 SCENARIO_POLICY_LIST = {
     'standard': DummyPolicy,
     'ordinary': DummyPolicy,
-    'LC': REINFORCE
+    'LC': REINFORCE,
+    'od': ObjectDetection
 }

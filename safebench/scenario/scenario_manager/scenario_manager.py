@@ -54,16 +54,19 @@ class ScenarioManager(object):
         self._init_scenarios(scenario_init_action)
 
     def _init_scenarios(self, scenario_init_action):
-        # spawn background actors
-        self.background_scenario.initialize_actors()
-
-        # spawn actors for each scenario along this route
-        for running_scenario in self.scenario_list:
-            # some scenario passes actions when creating behavior
-            running_scenario.create_behavior(scenario_init_action)
-            # init actors after passing in init actions
-            running_scenario.initialize_actors()
-
+        try:
+            # spawn background actors
+            self.background_scenario.initialize_actors()
+            # spawn actors for each scenario along this route
+            for running_scenario in self.scenario_list:
+                # some scenario passes actions when creating behavior
+                running_scenario.create_behavior(scenario_init_action)
+                # init actors after passing in init actions
+                running_scenario.initialize_actors()
+        except:
+            print('create bahaviors not found!')
+            pass
+            
     def stop_scenario(self):
         self._running = False
 
@@ -100,11 +103,3 @@ class ScenarioManager(object):
                 running_scenario.update_behavior(scenario_action)
 
             self.update_running_status()
-
-    def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
-        # TODO: move to OD scenario
-        bbox_pred = ego_action['od_result']
-        self.background_scenario.get_bbox(world_2_camera, image_w, image_h, fov)
-        bbox_label = self.background_scenario.ground_truth_bbox
-        self.background_scenario.eval(bbox_pred, bbox_label)
-        self.background_scenario.save_img_label(obs, bbox_label)

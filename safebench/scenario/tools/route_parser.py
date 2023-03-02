@@ -333,5 +333,5 @@ class RouteParser(object):
                             # Increment the latest trigger
                             latest_trigger_id += 1
                         possible_scenarios[trigger_id].append(scenario_description)
-
+        
         return possible_scenarios, existent_triggers

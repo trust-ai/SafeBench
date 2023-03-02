@@ -11,16 +11,123 @@ Description:
 '''
 
 import os
+import traceback
+import xml.etree.ElementTree as ET
 
 import carla
 import numpy as np
+from numpy import random
+import math
+
 import cv2
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_manager.timer import GameTime
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
-from safebench.scenario.scenario_definition.route_scenario import *
+from safebench.scenario.scenario_definition.object_detection.stopsign import Detection_StopSign
+from safebench.scenario.scenario_definition.object_detection.vehicle import Detection_Vehicle
+from safebench.scenario.scenario_definition.object_detection.pedestrian import Detection_Pedestrian
+
+
+from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
+from safebench.scenario.tools.route_manipulation import interpolate_trajectory
+from safebench.scenario.scenario_configs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
+
 from safebench.util.od_util import *
+
+from safebench.scenario.scenario_definition.atomic_criteria import (
+    Status,
+    CollisionTest,
+    DrivenDistanceTest,
+    AverageVelocityTest,
+    OffRoadTest,
+    KeepLaneTest,
+    InRouteTest,
+    RouteCompletionTest,
+    RunningRedLightTest,
+    RunningStopTest,
+    ActorSpeedAboveThresholdTest
+)
+
+SECONDS_GIVEN_PER_METERS = 1
+
+SCENARIO_CLASS_MAPPING = {
+    "od": {
+        "StopSign": Detection_StopSign,
+        "Vehicle": Detection_Vehicle,
+        "Ped": Detection_Pedestrian
+    },
+}
+
+
+def convert_json_to_transform(actor_dict):
+    """
+        Convert a JSON string to a CARLA transform
+    """
+    return carla.Transform(
+        location=carla.Location(x=float(actor_dict['x']), y=float(actor_dict['y']), z=float(actor_dict['z'])),
+        rotation=carla.Rotation(roll=0.0, pitch=0.0, yaw=float(actor_dict['yaw']))
+    )
+
+
+def convert_json_to_actor(actor_dict):
+    """
+        Convert a JSON string to an ActorConfigurationData dictionary
+    """
+    node = ET.Element('waypoint')
+    node.set('x', actor_dict['x'])
+    node.set('y', actor_dict['y'])
+    node.set('z', actor_dict['z'])
+    node.set('yaw', actor_dict['yaw'])
+
+    return ActorConfigurationData.parse_from_node(node, 'simulation')
+
+
+def convert_transform_to_location(transform_vec):
+    """
+        Convert a vector of transforms to a vector of locations
+    """
+    location_vec = []
+    for transform_tuple in transform_vec:
+        location_vec.append((transform_tuple[0].location, transform_tuple[1]))
+
+    return location_vec
+
+
+def compare_scenarios(scenario_choice, existent_scenario):
+    """
+        Compare function for scenarios based on distance of the scenario start position
+    """
+
+    def transform_to_pos_vec(scenario):
+        """
+        Convert left/right/front to a meaningful CARLA position
+        """
+        position_vec = [scenario['trigger_position']]
+        if scenario['other_actors'] is not None:
+            if 'left' in scenario['other_actors']:
+                position_vec += scenario['other_actors']['left']
+            if 'front' in scenario['other_actors']:
+                position_vec += scenario['other_actors']['front']
+            if 'right' in scenario['other_actors']:
+                position_vec += scenario['other_actors']['right']
+        return position_vec
+
+    # put the positions of the scenario choice into a vec of positions to be able to compare
+    choice_vec = transform_to_pos_vec(scenario_choice)
+    existent_vec = transform_to_pos_vec(existent_scenario)
+    for pos_choice in choice_vec:
+        for pos_existent in existent_vec:
+
+            dx = float(pos_choice['x']) - float(pos_existent['x'])
+            dy = float(pos_choice['y']) - float(pos_existent['y'])
+            dz = float(pos_choice['z']) - float(pos_existent['z'])
+            dist_position = math.sqrt(dx * dx + dy * dy + dz * dz)
+            dyaw = float(pos_choice['yaw']) - float(pos_choice['yaw'])
+            dist_angle = math.sqrt(dyaw * dyaw)
+            if dist_position < TRIGGER_THRESHOLD and dist_angle < TRIGGER_ANGLE_THRESHOLD:
+                return True
+    return False
 
 
 class ObjectDetectionScenario(BasicScenario):
@@ -37,18 +144,18 @@ class ObjectDetectionScenario(BasicScenario):
         self.ego_id = ego_id
         self.sampled_scenarios_definitions = None
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
-        self._update_route(world, config)
-        ego_vehicle = self._update_ego_vehicle()
+        self.ego_vehicle = self._update_route_and_ego(world, config)
+
         self.list_scenarios = self._build_scenario_instances(
             world,
-            ego_vehicle,
+            self.ego_vehicle,
             self.sampled_scenarios_definitions,
             scenarios_per_tick=5,
             timeout=self.timeout,
             weather=config.weather
         )
         self.n_step = 0
-
+        
         TEMPLATE_DIR = os.path.join(ROOT_DIR, 'safebench/scenario/scenario_data/template_od')
         self.object_dict = dict(
             stopsign=list(filter(lambda k: 'BP_Stop' in k, world.get_names_of_all_objects())),
@@ -66,25 +173,19 @@ class ObjectDetectionScenario(BasicScenario):
 
         super(ObjectDetectionScenario, self).__init__(
             name=config.name,
-            ego_vehicles=[ego_vehicle],
             config=config,
             world=world,
-            debug_mode=False,
-            terminate_on_failure=False,
-            criteria_enable=criteria_enable, 
             first_env=first_env
         )
         self.criteria = self._create_criteria()
         # TODO: make save dir, add flag
-        os.makedirs('online_data/', exist_ok=True)
-        os.makedirs('online_data/images', exist_ok=True)
-        os.makedirs('online_data/labels', exist_ok=True)
-        self.video_writer = xverse_video_writer('online_data/images/debug.mp4', 1024, 1024)
+        # os.makedirs('online_data/', exist_ok=True)
+        # os.makedirs('online_data/images', exist_ok=True)
+        # os.makedirs('online_data/labels', exist_ok=True)
+        # self.video_writer = xverse_video_writer('online_data/images/debug.mp4', 1024, 1024)
 
     def _initialize_environment(self, world): # TODO: image from dict or parameter?
         settings = world.get_settings()
-        settings.synchronous_mode = True
-        settings.fixed_delta_seconds = 0.05
         world.apply_settings(settings)
         for obj_key, image in zip(self.object_dict.keys(), self.image_list):
             resized = cv2.resize(image, (1024,1024), interpolation=cv2.INTER_AREA)
@@ -104,21 +205,40 @@ class ObjectDetectionScenario(BasicScenario):
             for o_name in self.object_dict[obj_key]:
                 world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
     
+
+
     def initialize_actors(self):
-        return
+        for obj_key, image in zip(self.object_dict.keys(), self.image_list):
+            resized = cv2.resize(image, (1024,1024), interpolation=cv2.INTER_AREA)
+            resized = np.rot90(resized,k=1)
+            resized = cv2.flip(resized,1)
+            height = 1024
+            texture = carla.TextureColor(height,height)
+            for x in range(1024):
+                for y in range(1024):
+                    r = int(resized[x,y,0])
+                    g = int(resized[x,y,1])
+                    b = int(resized[x,y,2])
+                    a = int(255)
+                    # texture.set(x,height -0-y - 1, carla.Color(r,g,b,a))
+                    texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
+                    # texture.set(x, y, carla.Color(r,g,b,a))
+            for o_name in self.object_dict[obj_key]:
+                self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
+    
 
     def get_running_status(self, running_record):
         running_status = {
-            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicles[0]),
-            'ego_acceleration_x': self.ego_vehicles[0].get_acceleration().x,
-            'ego_acceleration_y': self.ego_vehicles[0].get_acceleration().y,
-            'ego_acceleration_z': self.ego_vehicles[0].get_acceleration().z,
-            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.x,
-            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.y,
-            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicles[0]).location.z,
-            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.roll,
-            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.pitch,
-            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicles[0]).rotation.yaw,
+            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicle),
+            'ego_acceleration_x': self.ego_vehicle.get_acceleration().x,
+            'ego_acceleration_y': self.ego_vehicle.get_acceleration().y,
+            'ego_acceleration_z': self.ego_vehicle.get_acceleration().z,
+            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicle).location.x,
+            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicle).location.y,
+            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicle).location.z,
+            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.roll,
+            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.pitch,
+            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.yaw,
             'current_game_time': GameTime.get_time()
         }
 
@@ -129,11 +249,10 @@ class ObjectDetectionScenario(BasicScenario):
         if running_status['collision'] == Status.FAILURE:
             stop = True
             self.logger.log('>> Stop due to collision', color='yellow')
-        if self.route_length > 1:  # only check when evaluating
-            #print(running_status['route_complete'])
+        if self.config.scenario_id != 0:  # only check when evaluating
             if running_status['route_complete'] == 100:
                 stop = True
-                self.logger.log('>> Stop due to route complete', color='yellow')
+                self.logger.log('>> Stop due to route completion', color='yellow')
             if running_status['speed_above_threshold'] == Status.FAILURE:
                 if running_status['route_complete'] == 0:
                     raise RuntimeError("Agent not moving")
@@ -141,63 +260,23 @@ class ObjectDetectionScenario(BasicScenario):
                     stop = True
                     self.logger.log('>> Stop due to low speed', color='yellow')
         else:
-            if len(running_record) >= 250:  # stop at max step when training
+            if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
-                self.logger.log('>> Stop due to max step', color='yellow')
+                self.logger.log('>> Stop due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
-            if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
-                stop = True
-                self.logger.log('>> Stop due to max driven distance', color='yellow')
-                break
+            # print(running_status['driven_distance'])
+            if self.config.scenario_id != 0:  # only check when evaluating
+                if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
+                    stop = True
+                    self.logger.log('>> Stop due to max driven distance', color='yellow')
+                    break
             if running_status['current_game_time'] >= scenario.timeout:
                 stop = True
-                self.logger.log('>> Stop due to timeout', color='yellow')
+                self.logger.log('>> Stop due to timeout', color='yellow') 
                 break
-        
+
         return running_status, stop
-
-    def _update_route(self, world, config, timeout=None):
-        """
-            Update the input route, i.e. refine waypoint list, and extract possible scenario locations
-
-            Parameters:
-            - world: CARLA world
-            - config: Scenario configuration (RouteConfiguration)
-        """
-
-        # Transform the scenario file into a dictionary
-        if config.scenario_file is not None:
-            world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
-        else:
-            world_annotations = config.scenario_config
-
-        # prepare route's trajectory (interpolate and add the GPS route)
-        len_trajectory = len(config.trajectory)
-        # print(f"length of trajectory {len_trajectory}")
-        if len_trajectory == 0:
-            len_spawn_points = len(self.vehicle_spawn_points)
-            idx = random.choice(list(range(len_spawn_points)))
-            random_transform = self.vehicle_spawn_points[idx]
-            gps_route, route = interpolate_trajectory(world, [random_transform])
-        else:
-            gps_route, route = interpolate_trajectory(world, config.trajectory)
-
-        potential_scenarios_definitions, _, t, mt = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
-
-        self.route = route
-        self.route_length = len(route)
-        CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
-        CarlaDataProvider.set_scenario_config(config)
-
-        if config.agent is not None:
-            config.agent.set_global_plan(gps_route, self.route)
-
-        # Sample the scenarios to be used for this route instance.
-        self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
-
-        # Timeout of scenario in seconds
-        self.timeout = self._estimate_route_timeout() if timeout is None else timeout
 
     def _scenario_sampling(self, potential_scenarios_definitions, random_seed=0):
         """
@@ -256,61 +335,77 @@ class ObjectDetectionScenario(BasicScenario):
 
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
-    def _update_ego_vehicle(self):
-        """
-        Set/Update the start position of the ego_vehicle
-        """
-        # move ego to correct position
-        elevate_transform = self.route[0][0]
 
-        # gradually increase the height of ego vehicle
-        success = False
-        while not success:
-            try:
-                role_name = 'ego_vehicle'+str(self.ego_id)
-                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
+    def _update_route_and_ego(self, world, config, timeout=None):
+        # Transform the scenario file into a dictionary
+        if config.scenario_file is not None:
+            world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
+        else:
+            world_annotations = config.scenario_config
+
+        # prepare route's trajectory (interpolate and add the GPS route)
+        ego_vehicle = None
+        if self.config.scenario_id == 0:
+            vehicle_spawn_points = self.world.get_map().get_spawn_points()
+            random.shuffle(vehicle_spawn_points)
+            for random_transform in vehicle_spawn_points:
+                gps_route, route = interpolate_trajectory(world, [random_transform])
+                ego_vehicle = self._spawn_ego_vehicle(route[0][0])
                 if ego_vehicle is not None:
-                    success = True
-                else:
-                    elevate_transform.location.z += 0.1
-            except RuntimeError:
-                elevate_transform.location.z += 0.1
+                    break
+        else:
+            gps_route, route = interpolate_trajectory(world, config.trajectory)
+            ego_vehicle = self._spawn_ego_vehicle(route[0][0])
 
+        potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations, scenario_id=self.config.scenario_id)
+        self.route = route
+        CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(self.route))
+        CarlaDataProvider.set_scenario_config(config)
+
+        if config.agent is not None:
+            config.agent.set_global_plan(gps_route, self.route)
+
+        # Sample the scenarios to be used for this route instance.
+        self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
+        # Timeout of scenario in seconds
+        self.timeout = self._estimate_route_timeout() if timeout is None else timeout
         return ego_vehicle
+    
 
     def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions, scenarios_per_tick=5, timeout=300, weather=None):
         """
-        Based on the parsed route and possible scenarios, build all the scenario classes.
+            Based on the parsed route and possible scenarios, build all the scenario classes.
         """
         scenario_instance_vec = []
         for scenario_number, definition in enumerate(scenario_definitions):
-            # Get the class possibilities for this scenario number
-            scenario_class = NUMBER_CLASS_TRANSLATION[self.config.scenario_generation_method][definition['name']]
+            # get the class possibilities for this scenario number
+            scenario_class = SCENARIO_CLASS_MAPPING[definition['name']]
 
-            # Create the other actors that are going to appear
+            # create the other actors that are going to appear
             if definition['other_actors'] is not None:
                 list_of_actor_conf_instances = self._get_actors_instances(definition['other_actors'])
             else:
                 list_of_actor_conf_instances = []
-            # Create an actor configuration for the ego-vehicle trigger position
 
+            # create an actor configuration for the ego-vehicle trigger position
             egoactor_trigger_position = convert_json_to_transform(definition['trigger_position'])
             scenario_configuration = ScenarioConfiguration()
             scenario_configuration.other_actors = list_of_actor_conf_instances
             scenario_configuration.trigger_points = [egoactor_trigger_position]
             scenario_configuration.subtype = definition['scenario_type']
             scenario_configuration.parameters = self.config.parameters
+            scenario_configuration.num_scenario = self.config.num_scenario
 
             if weather is not None:
                 scenario_configuration.weather = weather
-
+            
             scenario_configuration.ego_vehicles = [ActorConfigurationData('vehicle.tesla.model3', ego_vehicle.get_transform(), 'ego_vehicle')]
-            route_var_name = "ScenarioRouteNumber{}".format(scenario_number)
+            route_var_name = "ScenarioPerceptionNumber{}".format(scenario_number)
             scenario_configuration.route_var_name = route_var_name
 
             try:
-                scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration, criteria_enable=False, timeout=timeout)
-                # Do a tick every once in a while to avoid spawning everything at the same time
+                scenario_instance = scenario_class(world, ego_vehicle, scenario_configuration, timeout=timeout)
+                # tick every once in a while to avoid spawning everything at the same time
                 if scenario_number % scenarios_per_tick == 0:
                     if CarlaDataProvider.is_sync_mode():
                         world.tick()
@@ -318,15 +413,23 @@ class ObjectDetectionScenario(BasicScenario):
                         world.wait_for_tick()
 
                 scenario_number += 1
-            except Exception as e:  # pylint: disable=broad-except
+            except Exception as e:   
                 traceback.print_exc()
                 print("Skipping scenario '{}' due to setup error: {}".format(definition['name'], e))
                 continue
 
             scenario_instance_vec.append(scenario_instance)
-
         return scenario_instance_vec
+    
+    def _spawn_ego_vehicle(self, elevate_transform):
+        try:
+            role_name = 'ego_vehicle' + str(self.ego_id)
+            ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name)
+        except RuntimeError:
+            return None
 
+        return ego_vehicle
+    
     def _get_actors_instances(self, list_of_antagonist_actors):
         """
         Get the full list of actor instances.
@@ -354,40 +457,27 @@ class ObjectDetectionScenario(BasicScenario):
             list_of_actors += get_actors_from_list(list_of_antagonist_actors['right'])
 
         return list_of_actors
-
-    def _create_behavior(self):
-        """
-        Basic behavior do nothing, i.e. Idle
-        We need this method for background
-        We keep pytrees just for background
-        """
-        behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SuccessOnOne)
-        subbehavior = py_trees.composites.Parallel(name="Behavior", policy=py_trees.common.ParallelPolicy.SuccessOnAll)
-
-        # subbehavior.add_child(Idle())  # The behaviours cannot make the route scenario stop
-        behavior.add_child(subbehavior)
-        return behavior
-
+    
     def _create_criteria(self):
         criteria = {}
         route = convert_transform_to_location(self.route)
-        
-        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicles[0], distance_success=1e4, distance_acceptable=1e4, optional=True)
-        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicles[0], avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
-        criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicles[0], optional=True)
-        criteria['off_road'] = OffRoadTest(actor=self.ego_vehicles[0], optional=True)
-        criteria['collision'] = CollisionTest(actor=self.ego_vehicles[0], terminate_on_failure=True)
-        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicles[0])
-        criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicles[0])
-        if self.route_length > 1:  # only check when evaluating
-            criteria['distance_to_route'] = InRouteTest(self.ego_vehicles[0], route=route, offroad_max=30)
+
+        criteria['driven_distance'] = DrivenDistanceTest(actor=self.ego_vehicle, distance_success=1e4, distance_acceptable=1e4, optional=True)
+        criteria['average_velocity'] = AverageVelocityTest(actor=self.ego_vehicle, avg_velocity_success=1e4, avg_velocity_acceptable=1e4, optional=True)
+        criteria['lane_invasion'] = KeepLaneTest(actor=self.ego_vehicle, optional=True)
+        criteria['off_road'] = OffRoadTest(actor=self.ego_vehicle, optional=True)
+        criteria['collision'] = CollisionTest(actor=self.ego_vehicle, terminate_on_failure=True)
+        # criteria['run_red_light'] = RunningRedLightTest(actor=self.ego_vehicle)
+        criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicle)
+        if self.config.scenario_id != 0:  # only check when evaluating
+            criteria['distance_to_route'] = InRouteTest(self.ego_vehicle, route=route, offroad_max=30)
             criteria['speed_above_threshold'] = ActorSpeedAboveThresholdTest(
-                actor=self.ego_vehicles[0],
+                actor=self.ego_vehicle,
                 speed_threshold=0.1,
                 below_threshold_max_time=10,
                 terminate_on_failure=True
             )
-            criteria['route_complete'] = RouteCompletionTest(self.ego_vehicles[0], route=route)
+            criteria['route_complete'] = RouteCompletionTest(self.ego_vehicle, route=route)
         return criteria
 
     def get_bbox(self, world_2_camera, image_w, image_h, fov): 
@@ -421,30 +511,31 @@ class ObjectDetectionScenario(BasicScenario):
         label_verts = [2, 3, 6, 7]
 
         for key, bounding_box_set in self.bbox_ground_truth.items():
+            self.ground_truth_bbox.setdefault(key, [])
             for bbox in bounding_box_set:
                 bbox_label = []
-                if bbox.location.distance(self.ego_vehicles[0].get_transform().location) < 50:
-                    forward_vec = self.ego_vehicles[0].get_transform().get_forward_vector()
-                    ray = bbox.location - self.ego_vehicles[0].get_transform().location
-                    if forward_vec.dot(ray) > 5.0:
+                if bbox.location.distance(self.ego_vehicle.get_transform().location) < 50:
+                    forward_vec = self.ego_vehicle.get_transform().get_forward_vector()
+                    ray = bbox.location - self.ego_vehicle.get_transform().location
+                    if forward_vec.dot(ray) > 1.0:
                         verts = [v for v in bbox.get_world_vertices(carla.Transform())]
                         
                         for v in label_verts:
                             p = get_image_point(verts[v], self.K, world_2_camera)
                             bbox_label.append(p)
-                        
-                        self.ground_truth_bbox.setdefault(key, [])
                         self.ground_truth_bbox[key].append(np.array(bbox_label))
-    
+        
+        
     def eval(self, bbox_pred, bbox_gt):
         # print(bbox_pred)
         # print(bbox_gt)
-        types = bbox_pred[0][:, -1].detach().cpu().numpy()
+        types = bbox_pred[0][:, -1]
         types = np.array(types, dtype=np.int32)
-        pred = bbox_pred[0][:, :-2]
+        pred = torch.from_numpy(bbox_pred[0][:, :-2])
         # pred = xywh2xyxy(pred)
         # print(pred.shape)
         # print(bbox_gt.keys())
+        ret = 0.
         for obj_idx in range(len(types)):
             if names[types[obj_idx]] in bbox_gt.keys():
                 box_true = bbox_gt[names[types[obj_idx]]]
@@ -453,15 +544,15 @@ class ObjectDetectionScenario(BasicScenario):
                     box_pred = pred[obj_idx]
                     for b_true in box_true:
                         b_true = get_xyxy(b_true)
-                        ret = box_iou(box_pred[None, :].detach().cpu(), b_true[None, :])[0][0]
-                        if ret > 0:
-                            print('detected: ', names[types[obj_idx]], '|  IoU: ', ret.item())
+                        ret = box_iou(box_pred[None, :], b_true[None, :])[0][0].item()
+                #         if ret > 0:
+                #             print('detected: ', names[types[obj_idx]], '|  IoU: ', ret.item())
                 else:
                     continue
+        return ret
     
-    def save_img_label(self, obs, label):
-        self.video_writer.write_frame(obs)
-
+    def get_img_label(self, label, ):
+        
         saved_list = []
         for k in label.keys():
             cls = names.index(k)
@@ -469,16 +560,41 @@ class ObjectDetectionScenario(BasicScenario):
             for box_true in bbox_true:
                 box_save = xyxy2xywhn(get_xyxy(box_true)[None, :])[0]
                 saved_list.append(np.concatenate([np.array([cls]), box_save.numpy()], axis=0))
-        # print(self.n_step, obs.shape)
-        # save_image('online_data/images/'+str(self.n_step)+'.jpg', obs)
-        print('saved: ', self.n_step)
-        np.savetxt('online_data/labels/'+str(self.n_step)+'.txt', np.array(saved_list), delimiter=' ')
-        self.n_step += 1
-        pass
 
-    def __del__(self):
-        self.video_writer.release()
-        for scenario in self.list_scenarios:
-            scenario.remove_all_actors()
-        self.remove_all_actors()
+        # print('saved: ', self.n_step)
+        # np.savetxt('online_data/labels/'+str(self.n_step)+'.txt', np.array(saved_list), delimiter=' ')
+        self.n_step += 1
+        return saved_list
+
+
+    def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
+        # self.video_writer.write_frame(obs)
+        bbox_pred = ego_action['od_result']
+        self.get_bbox(world_2_camera, image_w, image_h, fov)
+        bbox_label = {"stopsign": self.ground_truth_bbox["stopsign"]}
+        self._iou = self.eval(bbox_pred, bbox_label)
+        return self._iou
+    
+    def update_info(self):
+        # print(self.list_scenarios) # TODO: check the listed scenarios
+        bbox_label = {"stopsign": self.ground_truth_bbox["stopsign"]} # local labels
+
+        return {"bbox_label": self.get_img_label(bbox_label), "iou_loss": 1-self._iou}
+
+    def clean_up(self):
+        # self.video_writer.release()
         
+        for _, criterion in self.criteria.items():
+            criterion.terminate()
+        
+        # each scenario remove its own actors
+        for scenario in self.list_scenarios:
+            scenario.clean_up()
+
+        # remove background vehicles
+        for s_i in range(len(self.other_actors)):
+            if self.other_actors[s_i].type_id.startswith('vehicle'):
+                self.other_actors[s_i].set_autopilot(enabled=False)
+            if CarlaDataProvider.actor_id_exists(self.other_actors[s_i].id):
+                CarlaDataProvider.remove_actor_by_id(self.other_actors[s_i].id)
+        self.other_actors = []
