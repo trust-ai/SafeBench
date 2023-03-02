@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 17:13:31
+LastEditTime: 2023-03-02 18:15:50
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -106,15 +106,15 @@ from safebench.scenario.scenario_definition.advsim.junction_crossing_route impor
 from safebench.scenario.scenario_definition.advsim.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advsim
 from safebench.scenario.scenario_definition.advsim.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advsim
 
-# AdvPolicy
-from safebench.scenario.scenario_definition.adv_policy.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advpolicy
-from safebench.scenario.scenario_definition.adv_policy.object_crash_intersection import VehicleTurningRoute as scenario_04_advpolicy
-from safebench.scenario.scenario_definition.adv_policy.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advpolicy
-from safebench.scenario.scenario_definition.adv_policy.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advpolicy
-from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advpolicy
-from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advpolicy
-from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advpolicy
-from safebench.scenario.scenario_definition.adv_policy.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advpolicy
+# AdvMADDPG
+from safebench.scenario.scenario_definition.advmaddpg.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advpolicy
+from safebench.scenario.scenario_definition.advmaddpg.object_crash_intersection import VehicleTurningRoute as scenario_04_advpolicy
+from safebench.scenario.scenario_definition.advmaddpg.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advpolicy
+from safebench.scenario.scenario_definition.advmaddpg.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advpolicy
+from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advpolicy
+from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advpolicy
+from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advpolicy
+from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advpolicy
 
 
 SECONDS_GIVEN_PER_METERS = 1
@@ -216,17 +216,14 @@ class RouteScenario():
         self.criteria = self._create_criteria()
 
     def _update_route_and_ego(self, timeout=None):
-        # Transform the scenario file into a dictionary
-        if self.config.scenario_file is not None:
-            world_annotations = RouteParser.parse_annotations_file(self.config.scenario_file)
-        else:
-            world_annotations = self.config.scenario_config
+        # transform the scenario file into a dictionary
+        possible_scenarios = RouteParser.parse_annotations_file(self.config.scenario_file)
 
-        # prepare route's trajectory (interpolate and add the GPS route)
+        # prepare route's trajectory
         ego_vehicle = None
         route = None
-        scenario_id = self.config.scenario_id
-        if scenario_id == 0:
+        # TODO: change to training mode
+        if self.config.scenario_id == 0:
             vehicle_spawn_points = get_valid_spawn_points(self.world)
             for random_transform in vehicle_spawn_points:
                 route = interpolate_trajectory(self.world, [random_transform])
@@ -237,16 +234,13 @@ class RouteScenario():
             route = interpolate_trajectory(self.world, self.config.trajectory)
             ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
         
-        # scan route to get scenario definitions
-        possible_scenarios, _ = RouteParser.scan_route_for_scenarios(
+        # TODO: remove this
+        scenarios_definitions = RouteParser.match_route_and_scenarios(
             self.config.town,
             route, 
-            world_annotations, 
-            scenario_id=scenario_id
+            possible_scenarios, 
+            scenario_id=self.config.scenario_id
         )
-        scenarios_definitions = []
-        for trigger in possible_scenarios.keys():
-            scenarios_definitions.extend(possible_scenarios[trigger])
 
         # TODO: ego route will be overwritten by other scenarios
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(route))
@@ -299,13 +293,13 @@ class RouteScenario():
             route_config = RouteScenarioConfig()
             route_config.other_actors = list_of_actor_conf_instances
             route_config.trigger_points = [egoactor_trigger_position]
-            route_config.subtype = definition['scenario_type']
+            #route_config.subtype = definition['scenario_type']
             route_config.parameters = self.config.parameters
             route_config.num_scenario = self.config.num_scenario
             if self.config.weather is not None:
                 route_config.weather = self.config.weather
             route_var_name = "ScenarioRouteNumber{}".format(scenario_number)
-            route_config.route_var_name = route_var_name
+            #route_config.route_var_name = route_var_name
 
             try:
                 scenario_instance = scenario_class(self.world, self.ego_vehicle, route_config, timeout=self.timeout)
@@ -326,13 +320,11 @@ class RouteScenario():
             return sublist_of_actors
 
         list_of_actors = []
-        # Parse vehicles to the left
+        # parse vehicles to the left
         if 'front' in list_of_antagonist_actors:
             list_of_actors += get_actors_from_list(list_of_antagonist_actors['front'])
-
         if 'left' in list_of_antagonist_actors:
             list_of_actors += get_actors_from_list(list_of_antagonist_actors['left'])
-
         if 'right' in list_of_antagonist_actors:
             list_of_actors += get_actors_from_list(list_of_antagonist_actors['right'])
         return list_of_actors

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:45:16
+LastEditTime: 2023-03-02 17:42:44
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -62,12 +62,15 @@ def scenario_parse(config, logger):
             data_full = [item for item in data_full if item["route_id"] == config['route_id']]
 
     logger.log(f'>> Loading {len(data_full)} data')
-    map_town_config = {}
+    config_by_map = {}
     for item in data_full:
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])
         scenario_file = scenario_file_formatter % item['scenario_id']
         parsed_configs = RouteParser.parse_routes_file(route_file, scenario_file)
-        assert len(parsed_configs) == 1, item
+        
+        # assume one file only has one route
+        assert len(parsed_configs) == 1, 'More than one route in one file'
+
         parsed_config = parsed_configs[0]
         parsed_config.auto_ego = config['auto_ego']
         parsed_config.num_scenario = config['num_scenario']
@@ -78,17 +81,13 @@ def scenario_parse(config, logger):
         parsed_config.risk_level = item['risk_level']
         parsed_config.parameters = item['parameters']
 
-        # build town and config mapping map
-        cur_town = parsed_config.town
-        if cur_town in map_town_config:
-            cur_config_list = map_town_config[cur_town]
-            cur_config_list.append(parsed_config)
-            map_town_config[cur_town] = cur_config_list
+        # cluster config according to the town
+        if parsed_config.town not in config_by_map:
+            config_by_map[parsed_config.town] = [parsed_config]
         else:
-            cur_config_list = [parsed_config]
-            map_town_config[cur_town] = cur_config_list
+            config_by_map[parsed_config.town].append(parsed_config)
 
-    return map_town_config
+    return config_by_map
 
 
 def get_valid_spawn_points(world):

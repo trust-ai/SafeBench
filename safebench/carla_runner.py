@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 17:03:18
+LastEditTime: 2023-03-02 17:44:28
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -232,10 +232,10 @@ class CarlaRunner:
         # setup result path
         result_dir = os.path.join(self.output_dir, 'eval_results')
         os.makedirs(result_dir, exist_ok=True)
-        result_file = os.path.join(self.output_dir, 'eval_results/results.pkl')
+        result_file = os.path.join(result_dir, 'results.pkl')
         eval_results = {}
         if os.path.exists(result_file):
-            self.logger.log(f'loading previous evaluation results from {result_file}')
+            self.logger.log(f'>> Loading previous evaluation results from {result_file}')
             eval_results = joblib.load(result_file)
 
         # save video
@@ -318,10 +318,10 @@ class CarlaRunner:
 
     def run(self):
         # get scenario data of different maps
-        maps_data = scenario_parse(self.scenario_config, self.logger)
-        for town in maps_data.keys():
-            # initialize town
-            self._init_world(town)
+        config_by_map = scenario_parse(self.scenario_config, self.logger)
+        for m_i in config_by_map.keys():
+            # initialize a map
+            self._init_world(m_i)
 
             # initialize renderer
             self._init_renderer(self.num_scenario)
@@ -330,7 +330,7 @@ class CarlaRunner:
             self.env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
 
             # prepare data loader and buffer
-            data_loader = ScenarioDataLoader(maps_data[town], self.num_scenario)
+            data_loader = ScenarioDataLoader(config_by_map[m_i], self.num_scenario)
 
             self.agent_policy.load_model()
             self.scenario_policy.load_model()

@@ -6,14 +6,23 @@ We provide step-by-step instructions on how to create your own (perception / pla
 
 TBD
 
+
+
 ## Create Planning Agent
+There are three steps to create a new scenario with static objects and dynamic actors.
+The first step is to define the route file, scenario type file, and scenario config file.
+The second step is to implement the scenario class, which create actors, define initial behavior of actors, and create static objects.
+The third step is to implement the scenario policy, which controls the behavior of the actors if necessary.
 
-There are two steps to create a new scenario since the scenario is a combination of static objects and dynamic actors.
-The first step is to implement the scenario class, which create actors, define initial behavior of actors, and create static objects.
-The second step is to implement the scenario policy, which controls the behavior of the actors if necessary.
 
-### Step 1: Implement Scenario Class
+### Step 1: Define Route and Scenario Config
+Firt, you should define the routes of the scenario in `safebench/scenario/scenario_data/route`. 
+Then, you should define the combination of scenarios and route by writing a json file in `safebench/scenario/config/scenario_type`. Each item in this file represent a specific scenario.
+Finally, a configuration file of your scenario should be written in `safebench/scenario/config`. This file contains the configuration of the scenario, e.g., the number of actors, the number of time steps, the number of static objects, etc.
 
+
+
+### Step 2: Implement Scenario Class
 All scenarios need to inherit the `BasicScenario` defined in `safebench/scenario/scenario_definition/base_scenario.py`.
 One scenario should create actors in the scenario and update the behavior of the actors at each time step.
 To create a new scenario policy, you need to inherit `BasePolicy` and implement the following 6 functions.
@@ -49,7 +58,7 @@ def check_stop_condition(self):
 You can define your own stop condition to stop the scenario. If this is left blank, the scenario will be stopped after some pre-defined conditions, e.g., the number of time steps and collision dection.
 
 
-### step 2 (Optional): Implement Scenario Policy 
+### step 3 (Optional): Implement Scenario Policy 
 
 Your scenarios may contain a policy to cotnrol the behavior of the actors. If so, you need to implement a scenario policy. If not, you can just use `DummyPolicy`.
 We provide a `BasePolicy` as a template for implementing policy, which is stored in file `safebench/scenario/scenario_policy/base_policy.py`.

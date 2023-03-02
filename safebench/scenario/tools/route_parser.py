@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:29:46
+LastEditTime: 2023-03-02 18:12:54
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -31,12 +31,13 @@ class RouteParser(object):
     """
         Pure static class used to parse all the route and scenario configuration parameters.
     """
+
     @staticmethod
     def parse_annotations_file(annotation_filename):
         """
             Return the annotations of which positions where the scenarios are going to happen.
-            :param annotation_filename: the filename for the anotations file
-            :return:
+                :param annotation_filename: the filename for the anotations file
+                :return:
         """
         with open(annotation_filename, 'r') as f:
             annotation_dict = json.loads(f.read())
@@ -44,8 +45,7 @@ class RouteParser(object):
         final_dict = {}
         for town_dict in annotation_dict['available_scenarios']:
             final_dict.update(town_dict)
-
-        return final_dict  # the file has a current maps name that is an one element vec
+        return final_dict
 
     @staticmethod
     def parse_routes_file(route_filename, scenario_file, single_route=None):
@@ -80,8 +80,6 @@ class RouteParser(object):
                     z = float(waypoint.attrib['z']) + 2.0  # avoid collision to the ground
                     initial_pose = carla.Transform(carla.Location(x, y, z), carla.Rotation(roll=roll, pitch=pitch, yaw=yaw))
                     new_config.initial_transform = initial_pose
-                    # initial_pose = trans.carla_transform_to_ros_pose(initial_pose)
-                    # initial_pose = carla_transform_to_ros_pose(initial_pose)
                     new_config.initial_pose = initial_pose
                 waypoint_list.append(carla.Location(x=float(waypoint.attrib['x']), y=float(waypoint.attrib['y']), z=float(waypoint.attrib['z'])))
 
@@ -127,9 +125,9 @@ class RouteParser(object):
     def check_trigger_position(new_trigger, existing_triggers):
         """
             Check if this trigger position already exists or if it is a new one.
-            :param new_trigger:
-            :param existing_triggers:
-            :return:
+                :param new_trigger:
+                :param existing_triggers:
+                :return:
         """
         for trigger_id in existing_triggers.keys():
             trigger = existing_triggers[trigger_id]
@@ -144,9 +142,6 @@ class RouteParser(object):
 
     @staticmethod
     def convert_waypoint_float(waypoint):
-        """
-            Convert waypoint values to float
-        """
         waypoint['x'] = float(waypoint['x'])
         waypoint['y'] = float(waypoint['y'])
         waypoint['z'] = float(waypoint['z'])
@@ -184,10 +179,10 @@ class RouteParser(object):
     def get_scenario_type(scenario, match_position, trajectory):
         """
             Some scenarios have different types depending on the route.
-            :param scenario: the scenario name
-            :param match_position: the matching position for the scenarion
-            :param trajectory: the route trajectory the ego is following
-            :return: tag representing this subtype
+                :param scenario: the scenario name
+                :param match_position: the matching position for the scenarion
+                :param trajectory: the route trajectory the ego is following
+                :return: tag representing this subtype
 
             Also used to check which are not viable (Such as an scenario that triggers when turning but the route doesnt')
             WARNING: These tags are used at:
@@ -260,12 +255,13 @@ class RouteParser(object):
     @staticmethod
     def scan_route_for_scenarios(route_name, trajectory, world_annotations, scenario_id=None):
         """
-            Just returns a plain list of possible scenarios that can happen in this route by matching the locations from the scenario into the route description
-                :return:  A list of scenario definitions with their correspondent parameters
+            Returns a plain list of possible scenarios that can happen in this route 
+            by matching the locations from the scenario into the route description
         """
 
-        # the triggers dictionaries:
+        # the triggers dictionaries
         existent_triggers = {}
+
         # We have a table of IDs and trigger positions associated
         possible_scenarios = {}
 
@@ -295,8 +291,8 @@ class RouteParser(object):
                             "z": trajectory[0][0].location.z
                         }
                     RouteParser.convert_waypoint_float(waypoint)
-                    # We match trigger point to the  route, now we need to check if the route affects
-
+                    
+                    # we match trigger point to the route, now we need to check if the route affects
                     triggers.append([waypoint['x'], waypoint['y'], waypoint['z']])
 
                     match_position = RouteParser.match_world_location_to_route(waypoint, trajectory)
@@ -305,12 +301,10 @@ class RouteParser(object):
                     if match_position is not None:
                         matched_triggers.append([waypoint['x'], waypoint['y'], waypoint['z']])
 
-                        # We match a location for this scenario, create a scenario object so this scenario
-                        # can be instantiated later
+                        # We match a location for this scenario, create a scenario object so this scenario can be instantiated later
+                        other_vehicles = None
                         if 'other_actors' in event:
                             other_vehicles = event['other_actors']
-                        else:
-                            other_vehicles = None
                         scenario_subtype = RouteParser.get_scenario_type(scenario_name, match_position, trajectory)
 
                         # TODO: check trigger location
@@ -335,3 +329,41 @@ class RouteParser(object):
                         possible_scenarios[trigger_id].append(scenario_description)
         
         return possible_scenarios, existent_triggers
+
+    @staticmethod
+    def match_route_and_scenarios(town_name, trajectory, possible_scenarios, scenario_id=None):
+        select_scenarios = []
+        for town_name in possible_scenarios.keys():
+            if town_name != town_name:
+                continue
+
+            scenarios = possible_scenarios[town_name]
+            for scenario in scenarios: 
+                # scenario must have scenario type
+                if "scenario_type" not in scenario:
+                    raise ValueError('Scenario type not found in scenario description')
+
+                scenario_name = scenario["scenario_type"]
+                for event in scenario["available_event_configurations"]:
+                    waypoint = event['transform']  # trigger point of this scenario
+                    if scenario_id == 0:
+                        waypoint = {
+                            "pitch": trajectory[0][0].rotation.pitch,
+                            "x": trajectory[0][0].location.x,
+                            "y": trajectory[0][0].location.y,
+                            "yaw": trajectory[0][0].rotation.yaw,
+                            "z": trajectory[0][0].location.z
+                        }
+                    RouteParser.convert_waypoint_float(waypoint)
+
+                    # We match a location for this scenario, create a scenario object so this scenario can be instantiated later
+                    other_vehicles = None
+                    if 'other_actors' in event:
+                        other_vehicles = event['other_actors']
+                    scenario_description = {
+                        'name': scenario_name,
+                        'other_actors': other_vehicles,
+                        'trigger_position': waypoint,
+                    }
+                    select_scenarios.append(scenario_description)
+        return select_scenarios
