@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:40:23
+LastEditTime: 2023-03-02 16:50:38
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -46,7 +46,6 @@ from safebench.scenario.scenario_definition.atomic_criteria import (
 
 # ordinary scenario (for training)
 from safebench.scenario.scenario_definition.ordinary.autopolit_background_vehicle import AutopolitBackgroundVehicle
-
 # standard
 from safebench.scenario.scenario_definition.standard.object_crash_vehicle import DynamicObjectCrossing as scenario_03_standard
 from safebench.scenario.scenario_definition.standard.object_crash_intersection import VehicleTurningRoute as scenario_04_standard
@@ -288,7 +287,7 @@ class RouteScenario():
         for scenario_number, definition in enumerate(scenario_definitions):
             # get the class possibilities for this scenario number
             scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
-
+            print(self.config.scenario_generation_method, definition)
             # create the other actors that are going to appear
             if definition['other_actors'] is not None:
                 list_of_actor_conf_instances = self._get_actors_instances(definition['other_actors'])

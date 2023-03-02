@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
-from safebench.gym_carla.replay_buffer import ReplayBuffer
+from safebench.gym_carla.replay_buffer import ReplayBuffer, ReplayBuffer_Perception
 
 from safebench.agent import AGENT_POLICY_LIST
 from safebench.scenario import SCENARIO_POLICY_LIST
@@ -162,7 +162,10 @@ class CarlaRunner:
 
     def train(self, data_loader):
         # general buffer for both agent and scenario
-        replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
+        if self.scenario_policy_type not in ['od']:
+            replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
+        else:
+            replay_buffer = ReplayBuffer_Perception(self.num_scenario, self.mode, self.buffer_capacity)
 
         if self.agent_policy.load_episode == 0:
             self.logger.log('>> Previous checkpoint not found. Training from scratch.')
@@ -179,7 +182,7 @@ class CarlaRunner:
             scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
             obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
             replay_buffer.store_init([static_obs, scenario_init_action], additional_dict=additional_dict)
-
+            
             # start loop
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
@@ -188,7 +191,10 @@ class CarlaRunner:
 
                 # apply action to env and get obs
                 next_obs, rewards, dones, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
-                replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones], additional_dict=infos)
+                if self.scenario_policy_type not in ['od']:
+                    replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones, infos])
+                else:
+                    replay_buffer.store([ego_actions, scenario_actions, obs, infos])
                 obs = copy.deepcopy(next_obs)
 
                 # train on-policy agent or scenario
@@ -196,7 +202,7 @@ class CarlaRunner:
                     self.agent_policy.train(replay_buffer)
                 elif self.mode == 'train_scenario' and self.scenario_policy.type == 'offpolicy':
                     self.scenario_policy.train(replay_buffer)
-
+            
             # end up environment
             self.env.clean_up()
             replay_buffer.finish_one_episode()
@@ -249,8 +255,10 @@ class CarlaRunner:
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
             obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
-
+            
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
+            ious_list = {s_i: [] for s_i in range(num_sampled_scenario)}
+
             frame_list = []
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
@@ -266,10 +274,14 @@ class CarlaRunner:
 
                 # accumulate reward to corresponding scenario
                 reward_idx = 0
-                for s_i in infos:
-                    rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
-                    reward_idx += 1
-
+                if self.scenario_policy_type not in ['od']:
+                    for s_i in infos:
+                        rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
+                        reward_idx += 1
+                else:
+                    for s_i in infos:
+                        ious_list[s_i['scenario_id']].append(1-infos[reward_idx]['iou_loss'])
+                        reward_idx += 1
             eval_results.update(self.env.running_results)
 
             # clean up all things
@@ -284,20 +296,36 @@ class CarlaRunner:
                 self.logger.log(f'>> Saving video to {video_file}')
                 save_video(frame_list, video_file)
                 video_count += 1
-
+                        
             # calculate episode reward and print
-            self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode reward for batch scenario:', color='yellow')
-            for s_i in rewards_list.keys():
-                self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
+            if self.scenario_policy_type not in ['od']:
+                self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode reward for batch scenario:', color='yellow')
+                for s_i in rewards_list.keys():
+                    self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
+                        
+                all_scores, _, final_score = get_scores(eval_results)
+                self.logger.log("Evaluation results:")
+                self.logger.log(f"\t Collision rate:            {all_scores['collision_rate']:0.2f}")
+                self.logger.log(f"\t Red light running freq.:   {all_scores['avg_red_light_freq']:0.2f}")
+                self.logger.log(f"\t Stop sign running freq.:   {all_scores['avg_stop_sign_freq']:0.2f}")
+                self.logger.log(f"\t Out of road length:        {all_scores['out_of_road_length']:0.2f}")
+                self.logger.log(f"\t Route Following Stability: {all_scores['route_following_stability']:0.2f}")
+                self.logger.log(f"\t Route Completion:          {all_scores['route_completion']:0.2f}")
 
-        all_scores, _, final_score = get_scores(eval_results)
-        self.logger.log("Evaluation results:")
-        self.logger.log(f"\t Collision rate:            {all_scores['collision_rate']:0.2f}")
-        self.logger.log(f"\t Red light running freq.:   {all_scores['avg_red_light_freq']:0.2f}")
-        self.logger.log(f"\t Stop sign running freq.:   {all_scores['avg_stop_sign_freq']:0.2f}")
-        self.logger.log(f"\t Out of road length:        {all_scores['out_of_road_length']:0.2f}")
-        self.logger.log(f"\t Route Following Stability: {all_scores['route_following_stability']:0.2f}")
-        self.logger.log(f"\t Route Completion:          {all_scores['route_completion']:0.2f}")
+                all_scores, _, final_score = get_scores(eval_results)
+                self.logger.log("Evaluation results:")
+                self.logger.log(f"\t Collision rate:            {all_scores['collision_rate']:0.2f}")
+                self.logger.log(f"\t Red light running freq.:   {all_scores['avg_red_light_freq']:0.2f}")
+                self.logger.log(f"\t Stop sign running freq.:   {all_scores['avg_stop_sign_freq']:0.2f}")
+                self.logger.log(f"\t Out of road length:        {all_scores['out_of_road_length']:0.2f}")
+                self.logger.log(f"\t Route Following Stability: {all_scores['route_following_stability']:0.2f}")
+                self.logger.log(f"\t Route Completion:          {all_scores['route_completion']:0.2f}")
+            else:
+                self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode IoU for batch scenario:', color='yellow')
+                for s_i in ious_list.keys():
+                    self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.mean(ious_list[s_i])), color='yellow')
+
+
 
     def run(self):
         # get scenario data of different maps

@@ -55,6 +55,11 @@ class ObjectDetection(object):
 
         self.ego_action_dim = config['ego_action_dim']
         self.model_path = config['model_path']
+        self.type = config['type']
+        self.batch_size = config['batch_size']
+        self._batch_id = torch.arange(0, self.batch_size).unsqueeze(1)
+        self.load_episode = 0
+
         self.mode = 'train'
         self.imgsz = DEFAULT_CONFIG['imgsz']
         self.conf_thres = DEFAULT_CONFIG['conf_thres']
@@ -66,14 +71,10 @@ class ObjectDetection(object):
         stride, self.names, self.pt = self.model.stride, self.model.names, self.model.pt
         self.annotator = None 
         #imgsz = check_img_size(DEFAULT_CONFIG['imgsz'], s=stride)  # check image size
-        if train_mode in ['od', 'attack']: 
+
+        if self.mode == 'train': 
             self.compute_loss = ComputeLoss(self.model.model)  
-        
-            # Prepare for training of agents
-            self.dataset = LoadImagesAndBoxLabels(path='./online_data/', \
-                                            img_size=self.imgsz[0])
-            self.train_loader = DataLoader(self.dataset, batch_size=16, shuffle=True, \
-                                        collate_fn=LoadImagesAndBoxLabels.collate_fn)
+            
             
             with open(ROOT / 'data/hyps/hyp.scratch-high.yaml', errors='ignore') as f:
                 hyp = yaml.safe_load(f)  # load hyps dict
@@ -85,87 +86,70 @@ class ObjectDetection(object):
             hyp['cls'] *= 0 # len(names) / 80 * 3 / nl  # scale to classes and layers
             hyp['obj'] *= 0 # (self.imgsz[0] / 640) ** 2 * 3 / nl  # scale to image size and layers
             hyp['label_smoothing'] = 0.0
-            self.model.model.class_weights = labels_to_class_weights(self.dataset.labels, len(names)).to('cuda:0') * len(names)  # attach class weights
+            self.model.model.class_weights = labels_to_class_weights([[[i]] for i in range(15)], len(names)).to('cuda:0') * len(names)  # attach class weights
             self.model.model.names = names
 
-            if train_mode != 'attack': 
-                freeze = [0]
-                freeze = [f'model.{x}.' for x in (freeze if len(freeze) > 1 else range(freeze[0]))]
-                for k, v in self.model.model.named_parameters():
-                    v.requires_grad = True  # train all layers
-                    # v.register_hook(lambda x: torch.nan_to_num(x))  # NaN to 0 (commented for erratic training results)
-                    if any(x in k for x in freeze):
-                        v.requires_grad = False
-                
-                self.optimizer = self.smart_optimizer(self.model.model, 'Adam', hyp['lr0'], hyp['momentum'], hyp['weight_decay'])    
-            
-            else:
-                self.patch = nn.Parameter(torch.rand(1, 3, 1024, 1024),requires_grad=True)
-                self.optimizer = torch.optim.Adam([self.patch], lr=1e-2, betas=(0.9, 0.999))  # adjust beta1 to momentum
-   
+            freeze = [0]
+            freeze = [f'model.{x}.' for x in (freeze if len(freeze) > 1 else range(freeze[0]))]
+            for k, v in self.model.model.named_parameters():
+                v.requires_grad = True  # train all layers
+                # v.register_hook(lambda x: torch.nan_to_num(x))  # NaN to 0 (commented for erratic training results)
+                if any(x in k for x in freeze):
+                    v.requires_grad = False
+            # self.model.train()        
+            self.optimizer = self.smart_optimizer(self.model.model, 'Adam', hyp['lr0'], hyp['momentum'], hyp['weight_decay'])    
+        else: 
+            self.model.eval()
     
-    def get_action(self, obs):
+    def get_action(self, obs, deterministic=False):
         # print(len(obs), len(obs[0]), type(obs), type(obs[0]))
-        image = obs[0]['img']
-        # print(image.shape)
-        image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
-        image = torch.from_numpy(image).float().permute(2, 0, 1).to(self.device)
-        # print(image.shape)
-        image /= 255.
-        if len(image.shape) == 3:
-            image = image[None]
-        pred = self.model(image, augment=False, visualize=False)
-        pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, None, False, max_det=100)
+        self.model.eval()
+        self.model.model.eval()
 
-        batch_size = len(obs)
+        n_envs = len(obs)
+        pred_list = []
+        for i in range(n_envs):
+            image = obs[i]['img']
+            # print(image.shape)
+            image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
+            image = torch.from_numpy(image).float().permute(2, 0, 1).to(self.device)
+            image /= 255.
+            if len(image.shape) == 3:
+                image = image[None]
 
-        return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred} for _ in range(batch_size)]
+            pred = self.model(image, augment=False, visualize=False).detach().cpu()
+            pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, None, False, max_det=100)
+            pred_list.append([p.numpy() for p in pred])
 
+            # TODO: CUDA Memory Management
+            torch.cuda.empty_cache()
+
+        return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred_list[i]} for i in range(n_envs)]
+    
     def load_model(self):
         pass
 
     def set_mode(self, mode):
         self.mode = mode
 
-    def train_agent(self, train_mode='od'):
-        if train_mode == 'od': 
-            self.model.train()
-            for e in range(200):
-                loss_sum = torch.zeros(3, )
-                for img, img0, ret_label in self.train_loader:
-                    img = Variable(CUDA(img))
-                    ret_label = CUDA(ret_label)
-                    pred = self.model.model(img)
-                    self.optimizer.zero_grad()
-                    loss, loss_items = self.compute_loss(pred, ret_label)
-                    loss_items = loss_items.detach()
-                    loss.backward()
-                    self.optimizer.step()
-                    loss_sum += loss_items.cpu()
-                loss_sum /= len(self.train_loader)
-                print('train_agent: ', loss_sum)
-        
-        else: # adversarial training
-            self.model.train()
-            for e in range(200):
-                loss_sum = torch.zeros(3, )
-                for img, img0, ret_label in self.train_loader:
-                    img = CUDA(self.add_patch(CUDA(img), CUDA(self.patch)))
-                    ret_label = CUDA(ret_label)
-                    pred = self.model.model(img)
-                    self.optimizer.zero_grad()
-                    loss, loss_items = self.compute_loss(pred, ret_label)
-                    loss_items = loss_items.detach()
-                    (-loss).backward()
-                    self.optimizer.step()
-                    loss_sum += loss_items.cpu()
-                loss_sum /= len(self.train_loader)
-                print('Epoch: ', e, ' | Attack_agents: ', loss_sum)
-                if e % 10 == 0: 
-                    cv2.imwrite('./online_data/demo_patch.jpg', 255*self.patch.detach().cpu().numpy().transpose(0, 2, 3, 1)[0])
-                    cv2.imwrite('./online_data/demo.jpg', 255*img.detach().cpu().numpy().transpose(0, 2, 3, 1)[0])
+    def train(self, replay_buffer):
+        # print('start training')
+        self.model.train()
 
-                    print('saved')
+        batch = replay_buffer.sample(self.batch_size)
+
+        img = CUDA(torch.FloatTensor(batch['image']))
+        label = torch.FloatTensor(batch['label']).squeeze(1)
+        label = CUDA(torch.cat([self._batch_id, label], dim=1))
+
+        pred = self.model.model(img.permute(0, 3, 1, 2))
+        
+        self.optimizer.zero_grad()
+        loss, loss_items = self.compute_loss(pred, label)
+        loss_items = loss_items.detach()
+        loss.backward()
+        self.optimizer.step()
+        torch.cuda.empty_cache()
 
     def smart_optimizer(self, model, name='Adam', lr=0.001, momentum=0.9, decay=1e-5):
         # YOLOv5 3-param group optimizer: 0) weights with decay, 1) weights no decay, 2) biases no decay
@@ -200,7 +184,7 @@ class ObjectDetection(object):
         for i, det in enumerate(pred):
             if self.annotator is None:
                 self.annotator = Annotator(image, line_width=3, example=str(self.names))
-        
+
             if len(det):
                 det[:, :4] = scale_coords(image.shape[2:], det[:, :4], image.shape).round()
             
@@ -247,7 +231,10 @@ class ObjectDetection(object):
         patch_mask[:, int(patch_x):int(p_w), int(patch_y):int(p_h)]= 1
 
         return patch_mask
-    
+
+    def save_model(self, e_i):
+        pass
+
 if __name__ == '__main__':
     agent = ObjectDetection({'ego_action_dim': 2, 'model_path': None}, None, train_mode='attack')
     agent.train_agent('attack')

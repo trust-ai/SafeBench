@@ -156,3 +156,89 @@ class ReplayBuffer:
             'done': np.stack(prepared_dones)[sample_index],           # done
         }
         return batch
+
+
+
+class ReplayBuffer_Perception:
+    """
+        This buffer supports parallel storing image states and labels for object detection
+    """
+    
+    def __init__(self, num_scenario, mode, buffer_capacity=1000):
+        self.mode = mode
+        self.buffer_capacity = buffer_capacity
+        self.num_scenario = num_scenario
+        self.buffer_len = 0
+
+        # buffers for different data type
+        self.buffer_bbox_label = [[] for _ in range(num_scenario)]          # perception labels
+        self.buffer_predictions = [[] for _ in range(num_scenario)]         # perception outputs
+        self.buffer_scenario_actions = [[] for _ in range(num_scenario)]    # synthetic textures (attack)
+        self.buffer_obs = [[] for _ in range(num_scenario)]                 # image observations (FPV observation)
+        self.buffer_loss = [[] for _ in range(num_scenario)]                # object detection loss (IoU, class, etc.)
+    
+    def finish_one_episode(self):
+        pass
+
+    def reset_init_buffer(self):
+        self.buffer_static_obs = []
+        self.buffer_init_action = []
+        self.buffer_episode_reward = []
+        self.buffer_init_additional_dict = {}
+        self.init_buffer_len = 0
+    
+    def store_init(self, data_list, additional_dict=None):
+        pass
+
+    def store(self, data_list):
+        assert len(data_list) == 4, 'input to Perception data buffer should contain ego_actions, scenario_actions, obs, and infos'
+        ego_actions = data_list[0]
+        scenario_actions = data_list[1]
+        obs = data_list[2]
+        infos = data_list[3]
+        self.buffer_len += len(infos)
+
+        # separate trajectories according to infos
+        for s_i in range(len(infos)):
+            sid = infos[s_i]['scenario_id']
+            self.buffer_predictions[sid].append(ego_actions[s_i]['od_result'])
+            self.buffer_scenario_actions[sid].append(scenario_actions[s_i]['attack'])
+            self.buffer_obs[sid].append(obs[s_i]['img'])
+            self.buffer_bbox_label[sid].append(infos[s_i]['bbox_label'])
+            self.buffer_loss[sid].append(infos[s_i]['iou_loss'])
+
+    
+    def sample(self, batch_size):
+        # prepare concatenated list
+        prepared_bbox_label = []
+        prepared_predictions = []
+        prepared_obs = []
+        prepared_scenario_actions = []
+        prepared_loss = []
+        # get the length of each sub-buffer
+        samples_per_trajectory = self.buffer_capacity // self.num_scenario # assume average over all sub-buffer
+        for s_i in range(self.num_scenario):
+            # select the latest samples starting from the end of buffer
+            num_trajectory = len(self.buffer_loss[s_i])
+            start_idx = np.max([0, num_trajectory - samples_per_trajectory])
+
+            # concat
+            prepared_bbox_label += self.buffer_bbox_label[s_i][start_idx:]
+            prepared_predictions += self.buffer_predictions[s_i][start_idx:]
+            prepared_scenario_actions += self.buffer_scenario_actions[s_i][start_idx:]
+            prepared_obs += self.buffer_obs[s_i][start_idx:]
+            prepared_loss += self.buffer_loss[s_i][start_idx:]
+        # sample from concatenated list
+        sample_index = np.random.randint(0, len(prepared_loss), size=batch_size)
+
+        batch = {
+            'label': np.stack(prepared_bbox_label)[sample_index, :],        
+            # 'prediction': np.stack(prepared_predictions)[sample_index, :],     # TODO: Multiple/empty predictions should be stacked together
+            # 'attack': np.stack(prepared_scenario_actions)[sample_index, :],
+            # 'attack': torch.stack(prepared_scenario_actions)[sample_index, :],
+            'image': np.stack(prepared_obs)[sample_index, :],
+            'loss': np.stack(prepared_loss)[sample_index],                       # scalar with 1D 
+        }
+        
+        return batch
+    
