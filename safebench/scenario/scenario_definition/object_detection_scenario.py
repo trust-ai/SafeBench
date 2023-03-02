@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:50:23
+LastEditTime: 2023-03-02 17:09:55
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -31,7 +31,7 @@ from safebench.scenario.scenario_definition.object_detection.pedestrian import D
 
 from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
-from safebench.scenario.scenario_configs.scenario_configuration import ScenarioConfiguration, ActorConfigurationData
+from safebench.scenario.scenario_manager.scenario_config import RouteScenarioConfig
 
 from safebench.util.od_util import *
 
@@ -389,7 +389,7 @@ class ObjectDetectionScenario(BasicScenario):
 
             # create an actor configuration for the ego-vehicle trigger position
             egoactor_trigger_position = convert_json_to_transform(definition['trigger_position'])
-            scenario_configuration = ScenarioConfiguration()
+            scenario_configuration = RouteScenarioConfig()
             scenario_configuration.other_actors = list_of_actor_conf_instances
             scenario_configuration.trigger_points = [egoactor_trigger_position]
             scenario_configuration.subtype = definition['scenario_type']

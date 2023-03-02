@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:50:38
+LastEditTime: 2023-03-02 17:13:31
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -239,7 +239,7 @@ class RouteScenario():
         
         # scan route to get scenario definitions
         possible_scenarios, _ = RouteParser.scan_route_for_scenarios(
-            self.config.town, 
+            self.config.town,
             route, 
             world_annotations, 
             scenario_id=scenario_id
@@ -287,7 +287,7 @@ class RouteScenario():
         for scenario_number, definition in enumerate(scenario_definitions):
             # get the class possibilities for this scenario number
             scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
-            print(self.config.scenario_generation_method, definition)
+
             # create the other actors that are going to appear
             if definition['other_actors'] is not None:
                 list_of_actor_conf_instances = self._get_actors_instances(definition['other_actors'])
@@ -395,7 +395,7 @@ class RouteScenario():
                 else:
                     stop = True
                     self.logger.log('>> Stop due to low speed', color='yellow')
-        
+
         # stop at max step
         if len(running_record) >= self.max_running_step: 
             stop = True

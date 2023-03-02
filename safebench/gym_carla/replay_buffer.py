@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:41:56
+LastEditTime: 2023-03-02 16:56:01
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -156,7 +156,6 @@ class ReplayBuffer:
             'done': np.stack(prepared_dones)[sample_index],           # done
         }
         return batch
-
 
 
 class ReplayBuffer_Perception:
