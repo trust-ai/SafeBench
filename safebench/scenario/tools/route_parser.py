@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:54:55
+LastEditTime: 2023-03-01 19:37:24
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -28,16 +28,15 @@ TRIGGER_ANGLE_THRESHOLD = 10  # Threshold to say if two angles can be considerin
 
 class RouteParser(object):
     """
-    Pure static class used to parse all the route and scenario configuration parameters.
+        Pure static class used to parse all the route and scenario configuration parameters.
     """
     @staticmethod
     def parse_annotations_file(annotation_filename):
         """
-        Return the annotations of which positions where the scenarios are going to happen.
-        :param annotation_filename: the filename for the anotations file
-        :return:
+            Return the annotations of which positions where the scenarios are going to happen.
+            :param annotation_filename: the filename for the anotations file
+            :return:
         """
-
         with open(annotation_filename, 'r') as f:
             annotation_dict = json.loads(f.read())
 
@@ -50,16 +49,15 @@ class RouteParser(object):
     @staticmethod
     def parse_routes_file(route_filename, scenario_file, single_route=None):
         """
-        Returns a list of route elements.
-        :param route_filename: the path to a set of routes.
-        :param single_route: If set, only this route shall be returned
-        :return: List of dicts containing the waypoints, id and town of the routes
+            Returns a list of route elements.
+                :param route_filename: the path to a set of routes.
+                :param single_route: If set, only this route shall be returned
+                :return: List of dicts containing the waypoints, id and town of the routes
         """
 
         list_route_descriptions = []
         tree = ET.parse(route_filename)
         for route in tree.iter("route"):
-
             route_id = route.attrib['id']
             if single_route and route_id != single_route:
                 continue
@@ -95,8 +93,8 @@ class RouteParser(object):
     @staticmethod
     def parse_weather(route):
         """
-        Returns a carla.WeatherParameters with the corresponding weather for that route. If the route
-        has no weather attribute, the default one is triggered.
+            Returns a carla.WeatherParameters with the corresponding weather for that route. 
+            If the route has no weather attribute, the default one is triggered.
         """
 
         route_weather = route.find("weather")
@@ -123,18 +121,16 @@ class RouteParser(object):
                     weather.fog_distance = float(weather_attrib.attrib['fog_distance'])
                 if 'fog_density' in weather_attrib.attrib:
                     weather.fog_density = float(weather_attrib.attrib['fog_density'])
-
         return weather
 
     @staticmethod
     def check_trigger_position(new_trigger, existing_triggers):
         """
-        Check if this trigger position already exists or if it is a new one.
-        :param new_trigger:
-        :param existing_triggers:
-        :return:
+            Check if this trigger position already exists or if it is a new one.
+            :param new_trigger:
+            :param existing_triggers:
+            :return:
         """
-
         for trigger_id in existing_triggers.keys():
             trigger = existing_triggers[trigger_id]
             dx = trigger['x'] - new_trigger['x']
@@ -144,13 +140,12 @@ class RouteParser(object):
             dyaw = (trigger['yaw'] - new_trigger['yaw']) % 360
             if distance < TRIGGER_THRESHOLD and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD)):
                 return trigger_id
-
         return None
 
     @staticmethod
     def convert_waypoint_float(waypoint):
         """
-        Convert waypoint values to float
+            Convert waypoint values to float
         """
         waypoint['x'] = float(waypoint['x'])
         waypoint['y'] = float(waypoint['y'])
@@ -160,9 +155,9 @@ class RouteParser(object):
     @staticmethod
     def match_world_location_to_route(world_location, route_description):
         """
-        We match this location to a given route.
-            world_location:
-            route_description:
+            We match this location to a given route.
+                world_location:
+                route_description:
         """
         def match_waypoints(waypoint1, wtransform):
             """
@@ -174,16 +169,11 @@ class RouteParser(object):
             dpos = math.sqrt(dx * dx + dy * dy + dz * dz)
 
             dyaw = (float(waypoint1['yaw']) - wtransform.rotation.yaw) % 360
-            # print(">>>>>>>>>>", dpos, dyaw, float(waypoint1['yaw']), wtransform.rotation.yaw)
             return dpos < TRIGGER_THRESHOLD and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD))
 
         match_position = 0
         # TODO this function can be optimized to run on Log(N) time
         for route_waypoint in route_description:
-            # if match_position == 70:
-            #     print("stop here")
-            # if match_position == 90:
-            #     print("stop here")
             if match_waypoints(world_location, route_waypoint[0]):
                 return match_position
             match_position += 1
@@ -193,23 +183,21 @@ class RouteParser(object):
     @staticmethod
     def get_scenario_type(scenario, match_position, trajectory):
         """
-        Some scenarios have different types depending on the route.
-        :param scenario: the scenario name
-        :param match_position: the matching position for the scenarion
-        :param trajectory: the route trajectory the ego is following
-        :return: tag representing this subtype
+            Some scenarios have different types depending on the route.
+            :param scenario: the scenario name
+            :param match_position: the matching position for the scenarion
+            :param trajectory: the route trajectory the ego is following
+            :return: tag representing this subtype
 
-        Also used to check which are not viable (Such as an scenario
-        that triggers when turning but the route doesnt')
-        WARNING: These tags are used at:
-            - VehicleTurningRoute
-            - SignalJunctionCrossingRoute
-        and changes to these tags will affect them
+            Also used to check which are not viable (Such as an scenario that triggers when turning but the route doesnt')
+            WARNING: These tags are used at:
+                - VehicleTurningRoute
+                - SignalJunctionCrossingRoute and changes to these tags will affect them
         """
 
         def check_this_waypoint(tuple_wp_turn):
             """
-            Decides whether or not the waypoint will define the scenario behavior
+                Decides whether or not the waypoint will define the scenario behavior
             """
             if RoadOption.LANEFOLLOW == tuple_wp_turn[1]:
                 return False
@@ -219,10 +207,8 @@ class RouteParser(object):
                 return False
             return True
 
-        # Unused tag for the rest of scenarios,
-        # can't be None as they are still valid scenarios
+        # Unused tag for the rest of scenarios, can't be None as they are still valid scenarios
         subtype = 'valid'
-
         if scenario == 'Scenario4':
             for tuple_wp_turn in trajectory[match_position:]:
                 if check_this_waypoint(tuple_wp_turn):
@@ -274,10 +260,8 @@ class RouteParser(object):
     @staticmethod
     def scan_route_for_scenarios(route_name, trajectory, world_annotations, scenario_id=None):
         """
-        Just returns a plain list of possible scenarios that can happen in this route by matching
-        the locations from the scenario into the route description
-
-        :return:  A list of scenario definitions with their correspondent parameters
+            Just returns a plain list of possible scenarios that can happen in this route by matching the locations from the scenario into the route description
+                :return:  A list of scenario definitions with their correspondent parameters
         """
 
         # the triggers dictionaries:

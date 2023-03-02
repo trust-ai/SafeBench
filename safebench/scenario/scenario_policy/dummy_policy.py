@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:45:33
+LastEditTime: 2023-03-01 20:20:43
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -13,7 +13,7 @@ Description:
 from safebench.scenario.scenario_policy.base_policy import BasePolicy
 
 
-class DummyAgent(BasePolicy):
+class DummyPolicy(BasePolicy):
     name = 'dummy'
     type = 'unlearnable'
 

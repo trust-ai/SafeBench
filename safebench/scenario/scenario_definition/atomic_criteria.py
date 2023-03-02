@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:46:51
+LastEditTime: 2023-03-01 19:47:15
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -75,34 +75,26 @@ class Criterion:
 
 
 class DrivenDistanceTest(Criterion):
-
     """
-    This class contains an atomic test to check the driven distance
+        This class contains an atomic test to check the driven distance
 
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - distance_success: If the actor's driven distance is more than this value (in meters), the test result is SUCCESS
-    - distance_acceptable: If the actor's driven distance is more than this value (in meters), the test result is ACCEPTABLE
-    - optional [optional]: If True, the result is not considered for an overall pass/fail result
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - distance_success: If the actor's driven distance is more than this value (in meters), the test result is SUCCESS
+        - distance_acceptable: If the actor's driven distance is more than this value (in meters), the test result is ACCEPTABLE
+        - optional [optional]: If True, the result is not considered for an overall pass/fail result
     """
 
     def __init__(self, actor, distance_success, distance_acceptable=None, optional=False,name="CheckDrivenDistance"):
-        """
-        Setup actor
-        """
         super(DrivenDistanceTest, self).__init__(name, actor, distance_success, distance_acceptable, optional)
         self._last_location = None
         self._last_location = CarlaDataProvider.get_location(self.actor)
 
     def update(self):
-        """
-        Check distance
-        """
         if self.actor is None:
             return self.actual_value
 
         location = CarlaDataProvider.get_location(self.actor)
-
         if location is None:
             return self.actual_value
 
@@ -123,9 +115,6 @@ class DrivenDistanceTest(Criterion):
         return self.actual_value
 
     def terminate(self):
-        """
-        Set final status
-        """
         if self.test_status != "SUCCESS":
             self.test_status = "FAILURE"
         self.actual_value = round(self.actual_value, 2)
@@ -134,42 +123,32 @@ class DrivenDistanceTest(Criterion):
 
 class AverageVelocityTest(Criterion):
     """
-    This class contains an atomic test for average velocity.
+        This class contains an atomic test for average velocity.
 
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - avg_velocity_success: If the actor's average velocity is more than this value (in m/s),
-                            the test result is SUCCESS
-    - avg_velocity_acceptable: If the actor's average velocity is more than this value (in m/s), the test result is ACCEPTABLE
-    - optional [optional]: If True, the result is not considered for an overall pass/fail result
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - avg_velocity_success: If the actor's average velocity is more than this value (in m/s), the test result is SUCCESS
+        - avg_velocity_acceptable: If the actor's average velocity is more than this value (in m/s), the test result is ACCEPTABLE
+        - optional [optional]: If True, the result is not considered for an overall pass/fail result
     """
 
-    def __init__(self,
-                 actor,
-                 avg_velocity_success,
-                 avg_velocity_acceptable=None,
-                 optional=False,
-                 name="CheckAverageVelocity"):
+    def __init__(self, actor, avg_velocity_success, avg_velocity_acceptable=None, optional=False, name="CheckAverageVelocity"):
         """
-        Setup actor and average velovity expected
+            Setup actor and average velovity expected
         """
-        super(AverageVelocityTest, self).__init__(name, actor,
-                                                  avg_velocity_success,
-                                                  avg_velocity_acceptable,
-                                                  optional)
+        super(AverageVelocityTest, self).__init__(name, actor, avg_velocity_success, avg_velocity_acceptable, optional)
         self._last_location = None
         self._distance = 0.0
         self._last_location = CarlaDataProvider.get_location(self.actor)
 
     def update(self):
         """
-        Check velocity
+            Check velocity
         """
         if self.actor is None:
             return self.actual_value
 
         location = CarlaDataProvider.get_location(self.actor)
-
         if location is None:
             return self.actual_value
 
@@ -190,12 +169,11 @@ class AverageVelocityTest(Criterion):
             self.test_status = "ACCEPTABLE"
         else:
             self.test_status = "RUNNING"
-
         return self.actual_value
 
     def terminate(self):
         """
-        Set final status
+            Set final status
         """
         if self.test_status == "RUNNING":
             self.test_status = "FAILURE"
@@ -221,7 +199,7 @@ class CollisionTest(Criterion):
 
     def __init__(self, actor, other_actor=None, other_actor_type=None, optional=False, name="CollisionTest", terminate_on_failure=False):
         """
-        Construction with sensor setup
+            Construction with sensor setup
         """
         super(CollisionTest, self).__init__(name, actor, 0, None, optional, terminate_on_failure)
 
@@ -238,7 +216,7 @@ class CollisionTest(Criterion):
 
     def update(self):
         """
-        Check collision count
+            Check collision count
         """
         new_status = Status.RUNNING
 
@@ -259,7 +237,6 @@ class CollisionTest(Criterion):
                 new_registered_collisions.append(collision_location)
 
         self.registered_collisions = new_registered_collisions
-
         if self.last_id and GameTime.get_time() - self.collision_time > self.MAX_ID_TIME:
             self.last_id = None
 
@@ -349,20 +326,19 @@ class CollisionTest(Criterion):
 
 
 class ActorSpeedAboveThresholdTest(Criterion):
-
     """
-    This test will fail if the actor has had its linear velocity lower than a specific value for
-    a specific amount of time
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - speed_threshold: speed required
-    - below_threshold_max_time: Maximum time (in seconds) the actor can remain under the speed threshold
-    - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
+        This test will fail if the actor has had its linear velocity lower than a specific value for a specific amount of time
+
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - speed_threshold: speed required
+        - below_threshold_max_time: Maximum time (in seconds) the actor can remain under the speed threshold
+        - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
 
     def __init__(self, actor, speed_threshold, below_threshold_max_time, name="ActorSpeedAboveThresholdTest", terminate_on_failure=False):
         """
-        Class constructor.
+            Class constructor
         """
         super(ActorSpeedAboveThresholdTest, self).__init__(name, actor, 0, terminate_on_failure=terminate_on_failure)
         self._actor = actor
@@ -372,15 +348,13 @@ class ActorSpeedAboveThresholdTest(Criterion):
 
     def update(self):
         """
-        Check if the actor speed is above the speed_threshold
+            Check if the actor speed is above the speed_threshold
         """
         new_status = Status.RUNNING
 
         linear_speed = CarlaDataProvider.get_velocity(self._actor)
         if linear_speed is not None:
             if linear_speed < self._speed_threshold and self._time_last_valid_state:
-                # print(f'linear_speed: {str(linear_speed)}, speed_threshold: {str(self._speed_threshold)}, {str(self._time_last_valid_state)}')
-                # print(f'GameTime: {str(GameTime.get_time())}, time_last_valid_state: {str(self._time_last_valid_state)}, below_threshold_max_time: {str(self._below_threshold_max_time)}')
                 if (GameTime.get_time() - self._time_last_valid_state) > self._below_threshold_max_time:
                     # Game over. The actor has been "blocked" for too long
                     self.test_status = "FAILURE"
@@ -435,7 +409,7 @@ class KeepLaneTest(Criterion):
 
     def update(self):
         """
-        Check lane invasion count
+            Check lane invasion count
         """
         new_status = Status.RUNNING
 
@@ -483,7 +457,7 @@ class OffRoadTest(Criterion):
 
     def __init__(self, actor, duration=0, optional=False, terminate_on_failure=False, name="OffRoadTest"):
         """
-        Setup of the variables
+            Setup of the variables
         """
         super(OffRoadTest, self).__init__(name, actor, 0, None, optional, terminate_on_failure)
 
@@ -548,6 +522,7 @@ class InRouteTest(Criterion):
         - offroad_min: Maximum safe distance (in meters). Might eventually cause failure
         - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
+
     MAX_ROUTE_PERCENTAGE = 30  # %
     WINDOWS_SIZE = 5  # Amount of additional waypoints checked
 
@@ -583,7 +558,7 @@ class InRouteTest(Criterion):
 
     def update(self):
         """
-        Check if the actor location is within trigger region
+            Check if the actor location is within trigger region
         """
         new_status = Status.RUNNING
 
@@ -650,13 +625,14 @@ class InRouteTest(Criterion):
 
 class RouteCompletionTest(Criterion):
     """
-    Check at which stage of the route is the actor at each tick
+        Check at which stage of the route is the actor at each tick
 
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - route: Route to be checked
-    - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - route: Route to be checked
+        - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
+
     DISTANCE_THRESHOLD = 10.0  # meters
     WINDOWS_SIZE = 2
 
@@ -747,6 +723,7 @@ class RunningRedLightTest(Criterion):
         - actor: CARLA actor to be used for this test
         - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
+    
     DISTANCE_LIGHT = 15  # m
 
     def __init__(self, actor, name="RunningRedLightTest", terminate_on_failure=False):
@@ -913,12 +890,13 @@ class RunningRedLightTest(Criterion):
 
 class RunningStopTest(Criterion):
     """
-    Check if an actor is running a stop sign
+        Check if an actor is running a stop sign
 
-    Important parameters:
-    - actor: CARLA actor to be used for this test
-    - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
+        Important parameters:
+        - actor: CARLA actor to be used for this test
+        - terminate_on_failure [optional]: If True, the complete scenario will terminate upon failure of this test
     """
+
     PROXIMITY_THRESHOLD = 50.0  # meters
     SPEED_THRESHOLD = 0.1
     WAYPOINT_STEP = 1.0  # meters

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:54:10
+LastEditTime: 2023-03-01 19:34:45
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -22,29 +22,28 @@ from agents.tools.misc import get_speed
 
 class VehiclePIDController():
     """
-    VehiclePIDController is the combination of two PID controllers
-    (lateral and longitudinal) to perform the
-    low level control a vehicle from client side
+        VehiclePIDController is the combination of two PID controllers
+        (lateral and longitudinal) to perform the low level control a vehicle from client side
     """
 
     def __init__(self, vehicle, args_lateral, args_longitudinal, offset=0, max_throttle=0.75, max_brake=0.3, max_steering=0.8):
         """
-        Constructor method.
+            Constructor method.
 
-        :param vehicle: actor to apply to local planner logic onto
-        :param args_lateral: dictionary of arguments to set the lateral PID controller
-        using the following semantics:
-            K_P -- Proportional term
-            K_D -- Differential term
-            K_I -- Integral term
-        :param args_longitudinal: dictionary of arguments to set the longitudinal
-        PID controller using the following semantics:
-            K_P -- Proportional term
-            K_D -- Differential term
-            K_I -- Integral term
-        :param offset: If different than zero, the vehicle will drive displaced from the center line.
-        Positive values imply a right offset while negative ones mean a left one. Numbers high enough
-        to cause the vehicle to drive through other lanes might break the controller.
+            :param vehicle: actor to apply to local planner logic onto
+            :param args_lateral: dictionary of arguments to set the lateral PID controller
+            using the following semantics:
+                K_P -- Proportional term
+                K_D -- Differential term
+                K_I -- Integral term
+            :param args_longitudinal: dictionary of arguments to set the longitudinal
+            PID controller using the following semantics:
+                K_P -- Proportional term
+                K_D -- Differential term
+                K_I -- Integral term
+            :param offset: If different than zero, the vehicle will drive displaced from the center line.
+            Positive values imply a right offset while negative ones mean a left one. Numbers high enough
+            to cause the vehicle to drive through other lanes might break the controller.
         """
 
         self.max_brake = max_brake
@@ -59,13 +58,11 @@ class VehiclePIDController():
 
     def run_step(self, target_speed, transform):
         """
-        Execute one step of control invoking both lateral and longitudinal
-        PID controllers to reach a target waypoint
-        at a given target_speed.
-
-            :param target_speed: desired vehicle speed
-            :param waypoint: target location encoded as a waypoint
-            :return: distance (in meters) to the waypoint
+            Execute one step of control invoking both lateral and longitudinal
+            PID controllers to reach a target waypoint at a given target_speed.
+                :param target_speed: desired vehicle speed
+                :param waypoint: target location encoded as a waypoint
+                :return: distance (in meters) to the waypoint
         """
 
         acceleration = self._lon_controller.run_step(target_speed)
@@ -79,7 +76,6 @@ class VehiclePIDController():
             control.brake = min(abs(acceleration), self.max_brake)
 
         # Steering regulation: changes cannot happen abruptly, can't steer too much.
-
         if current_steering > self.past_steering + 0.1:
             current_steering = self.past_steering + 0.1
         elif current_steering < self.past_steering - 0.1:
@@ -97,7 +93,6 @@ class VehiclePIDController():
 
         return control
 
-
     def change_longitudinal_PID(self, args_longitudinal):
         """Changes the parameters of the PIDLongitudinalController"""
         self._lon_controller.change_parameters(**args_longitudinal)
@@ -109,18 +104,17 @@ class VehiclePIDController():
 
 class PIDLongitudinalController():
     """
-    PIDLongitudinalController implements longitudinal control using a PID.
+        PIDLongitudinalController implements longitudinal control using a PID.
     """
 
     def __init__(self, vehicle, K_P=1.0, K_I=0.0, K_D=0.0, dt=0.03):
         """
-        Constructor method.
-
-            :param vehicle: actor to apply to local planner logic onto
-            :param K_P: Proportional term
-            :param K_D: Differential term
-            :param K_I: Integral term
-            :param dt: time differential in seconds
+            Constructor method.
+                :param vehicle: actor to apply to local planner logic onto
+                :param K_P: Proportional term
+                :param K_D: Differential term
+                :param K_I: Integral term
+                :param dt: time differential in seconds
         """
         self._vehicle = vehicle
         self._k_p = K_P
@@ -131,11 +125,10 @@ class PIDLongitudinalController():
 
     def run_step(self, target_speed, debug=False):
         """
-        Execute one step of longitudinal control to reach a given target speed.
-
-            :param target_speed: target speed in Km/h
-            :param debug: boolean for debugging
-            :return: throttle control
+            Execute one step of longitudinal control to reach a given target speed.
+                :param target_speed: target speed in Km/h
+                :param debug: boolean for debugging
+                :return: throttle control
         """
         current_speed = get_speed(self._vehicle)
 
@@ -146,13 +139,12 @@ class PIDLongitudinalController():
 
     def _pid_control(self, target_speed, current_speed):
         """
-        Estimate the throttle/brake of the vehicle based on the PID equations
+            Estimate the throttle/brake of the vehicle based on the PID equations
 
-            :param target_speed:  target speed in Km/h
-            :param current_speed: current speed of the vehicle in Km/h
-            :return: throttle/brake control
+                :param target_speed:  target speed in Km/h
+                :param current_speed: current speed of the vehicle in Km/h
+                :return: throttle/brake control
         """
-
         error = target_speed - current_speed
         self._error_buffer.append(error)
 
@@ -175,20 +167,20 @@ class PIDLongitudinalController():
 
 class PIDLateralController():
     """
-    PIDLateralController implements lateral control using a PID.
+        PIDLateralController implements lateral control using a PID.
     """
 
     def __init__(self, vehicle, offset=0, K_P=1.0, K_I=0.0, K_D=0.0, dt=0.03):
         """
-        Constructor method.
+            Constructor method.
 
-            :param vehicle: actor to apply to local planner logic onto
-            :param offset: distance to the center line. If might cause issues if the value
-                is large enough to make the vehicle invade other lanes.
-            :param K_P: Proportional term
-            :param K_D: Differential term
-            :param K_I: Integral term
-            :param dt: time differential in seconds
+                :param vehicle: actor to apply to local planner logic onto
+                :param offset: distance to the center line. If might cause issues if the value
+                    is large enough to make the vehicle invade other lanes.
+                :param K_P: Proportional term
+                :param K_D: Differential term
+                :param K_I: Integral term
+                :param dt: time differential in seconds
         """
         self._vehicle = vehicle
         self._k_p = K_P
@@ -200,23 +192,23 @@ class PIDLateralController():
 
     def run_step(self, transform):
         """
-        Execute one step of lateral control to steer
-        the vehicle towards a certain waypoin.
+            Execute one step of lateral control to steer
+            the vehicle towards a certain waypoin.
 
-            :param waypoint: target waypoint
-            :return: steering control in the range [-1, 1] where:
-            -1 maximum steering to left
-            +1 maximum steering to right
+                :param waypoint: target waypoint
+                :return: steering control in the range [-1, 1] where:
+                -1 maximum steering to left
+                +1 maximum steering to right
         """
         return self._pid_control(transform, self._vehicle.get_transform())
 
     def _pid_control(self, transform, vehicle_transform):
         """
-        Estimate the steering angle of the vehicle based on the PID equations
+            Estimate the steering angle of the vehicle based on the PID equations
 
-            :param waypoint: target waypoint
-            :param vehicle_transform: current transform of the vehicle
-            :return: steering control in the range [-1, 1]
+                :param waypoint: target waypoint
+                :param vehicle_transform: current transform of the vehicle
+                :return: steering control in the range [-1, 1]
         """
         # Get the ego's location and forward vector
         ego_loc = vehicle_transform.location
@@ -228,14 +220,11 @@ class PIDLateralController():
             # Displace the wp to the side
             w_tran = transform
             r_vec = w_tran.get_right_vector()
-            w_loc = w_tran.location + carla.Location(x=self._offset*r_vec.x,
-                                                         y=self._offset*r_vec.y)
+            w_loc = w_tran.location + carla.Location(x=self._offset*r_vec.x, y=self._offset*r_vec.y)
         else:
             w_loc = transform.location
 
-        w_vec = np.array([w_loc.x - ego_loc.x,
-                          w_loc.y - ego_loc.y,
-                          0.0])
+        w_vec = np.array([w_loc.x - ego_loc.x, w_loc.y - ego_loc.y, 0.0])
 
         wv_linalg = np.linalg.norm(w_vec) * np.linalg.norm(v_vec)
         if wv_linalg == 0:

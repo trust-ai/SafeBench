@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:56:39
+LastEditTime: 2023-03-01 19:57:19
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -10,13 +10,13 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-from safebench.agent.dummy import DummyEgo
+from safebench.agent.dummy import DummyAgent
 from safebench.agent.object_detection.detector import ObjectDetection
 from safebench.agent.rl.sac import SAC
 
 
 AGENT_POLICY_LIST = {
-    'dummy': DummyEgo,
+    'dummy': DummyAgent,
     'object_detection': ObjectDetection,
     'sac': SAC,
 }

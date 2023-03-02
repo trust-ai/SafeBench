@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:57:08
+LastEditTime: 2023-03-01 19:55:56
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -19,6 +19,7 @@ from fnmatch import fnmatch
 from torch.distributions import Normal
 
 from safebench.util.torch_util import CUDA, CPU, kaiming_init
+from safebench.agent.base_policy import BasePolicy
 
 
 class Actor(nn.Module):
@@ -79,12 +80,11 @@ class Q(nn.Module):
         return x
 
 
-class SAC:
+class SAC(BasePolicy):
     name = 'SAC'
     type = 'offpolicy'
 
     def __init__(self, config, logger):
-        super(SAC, self).__init__()
         self.logger = logger
 
         self.buffer_start_training = config['buffer_start_training']

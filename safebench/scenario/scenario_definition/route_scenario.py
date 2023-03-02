@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:47:52
+LastEditTime: 2023-03-01 17:34:48
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -234,9 +234,7 @@ def compare_scenarios(scenario_choice, existent_scenario):
     """
 
     def transform_to_pos_vec(scenario):
-        """
-        Convert left/right/front to a meaningful CARLA position
-        """
+        # Convert left/right/front to a meaningful CARLA position
         position_vec = [scenario['trigger_position']]
         if scenario['other_actors'] is not None:
             if 'left' in scenario['other_actors']:

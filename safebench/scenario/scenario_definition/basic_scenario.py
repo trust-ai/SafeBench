@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:47:28
+LastEditTime: 2023-03-01 20:27:22
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -67,20 +67,29 @@ class BasicScenario(object):
 
     def create_behavior(self, scenario_init_action):
         """
-            This method just for background defination in route scenaio
+            This method defines the initial behavior of the scenario
         """
         raise NotImplementedError(
             "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
-    def initialize_actors(self):
+    def update_behavior(self, scenario_action):
+        """
+            This method defines how to update the behavior of the actors in scenario in each step.
+        """
         raise NotImplementedError(
                 "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
-    def update_behavior(self, scenario_action):
+    def initialize_actors(self):
+        """
+            This method defines how to initialize the actors in scenario.
+        """
         raise NotImplementedError(
                 "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 
     def check_stop_condition(self):
+        """
+            This method defines the stop condition of the scenario.
+        """
         raise NotImplementedError(
             "This function is re-implemented by all scenarios. If this error becomes visible the class hierarchy is somehow broken")
 

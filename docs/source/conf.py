@@ -1,11 +1,3 @@
-'''
-Author: 
-Email: 
-Date: 2021-07-18 21:46:37
-LastEditTime: 2023-02-21 16:00:48
-Description: 
-'''
-
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -26,8 +18,8 @@ Description:
 # -- Project information -----------------------------------------------------
 
 project = 'SafeBench'
-copyright = '2022, SafeBench Developer'
-author = 'SafeBench Developer'
+copyright = '2023, SafeBench Team'
+author = 'SafeBench Team'
 
 
 # -- General configuration ---------------------------------------------------

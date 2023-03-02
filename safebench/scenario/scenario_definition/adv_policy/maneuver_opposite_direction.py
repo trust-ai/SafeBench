@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:53:37
+LastEditTime: 2023-03-01 17:35:30
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -18,12 +18,13 @@ import json
 import torch
 import numpy as np
 
-from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.tools.scenario_helper import get_waypoint_in_distance
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
-from safebench.scenario.tools.scenario_operation import ScenarioOperation
+from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 
+from safebench.scenario.tools.scenario_helper import get_waypoint_in_distance
+from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
+
 from safebench.gym_carla.envs.route_planner import RoutePlanner
 from safebench.gym_carla.envs.misc import *
 

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:41:13
+LastEditTime: 2023-03-01 19:40:49
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -17,11 +17,9 @@ from enum import Enum
 
 
 class TrafficEventType(Enum):
-
     """
-    This enum represents different traffic events that occur during driving.
+        This enum represents different traffic events that occur during driving.
     """
-
     NORMAL_DRIVING = 0
     COLLISION_STATIC = 1
     COLLISION_VEHICLE = 2
@@ -39,51 +37,30 @@ class TrafficEventType(Enum):
 
 
 class TrafficEvent(object):
-    """
-    TrafficEvent definition
-    """
-
     def __init__(self, event_type, message=None, dictionary=None):
         """
-        Initialize object
-
-        :param event_type: TrafficEventType defining the type of traffic event
-        :param message: optional message to inform users of the event
-        :param dictionary: optional dictionary with arbitrary keys and values
+            Initialize object
+                :param event_type: TrafficEventType defining the type of traffic event
+                :param message: optional message to inform users of the event
+                :param dictionary: optional dictionary with arbitrary keys and values
         """
         self._type = event_type
         self._message = message
         self._dict = dictionary
 
     def get_type(self):
-        """
-        @return type
-        """
         return self._type
 
     def get_message(self):
-        """
-        @return message
-        """
         if self._message:
             return self._message
-
         return ""
 
     def set_message(self, message):
-        """
-        Set message
-        """
         self._message = message
 
     def get_dict(self):
-        """
-        @return dictionary
-        """
         return self._dict
 
     def set_dict(self, dictionary):
-        """
-        Set dictionary
-        """
         self._dict = dictionary

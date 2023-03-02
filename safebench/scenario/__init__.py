@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:42:26
+LastEditTime: 2023-03-01 20:20:52
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -11,12 +11,12 @@ Description:
 '''
 
 # collect policy models from scenarios
-from safebench.scenario.scenario_policy.dummy_policy import DummyAgent
+from safebench.scenario.scenario_policy.dummy_policy import DummyPolicy
 from safebench.scenario.scenario_policy.reinforce_continuous import REINFORCE
 
 
 SCENARIO_POLICY_LIST = {
-    'standard': DummyAgent,
-    'ordinary': DummyAgent,
+    'standard': DummyPolicy,
+    'ordinary': DummyPolicy,
     'LC': REINFORCE
 }

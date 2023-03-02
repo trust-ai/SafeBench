@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:54:35
+LastEditTime: 2023-03-01 19:35:46
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -22,11 +22,11 @@ from agents.navigation.local_planner import RoadOption
 
 def _location_to_gps(lat_ref, lon_ref, location):
     """
-    Convert from world coordinates to GPS coordinates
-    :param lat_ref: latitude reference for the current map
-    :param lon_ref: longitude reference for the current map
-    :param location: location to translate
-    :return: dictionary with lat, lon and height
+        Convert from world coordinates to GPS coordinates
+            :param lat_ref: latitude reference for the current map
+            :param lon_ref: longitude reference for the current map
+            :param location: location to translate
+            :return: dictionary with lat, lon and height
     """
 
     EARTH_RADIUS_EQUA = 6378137.0   # pylint: disable=invalid-name
@@ -46,10 +46,10 @@ def _location_to_gps(lat_ref, lon_ref, location):
 def location_route_to_gps(route, lat_ref, lon_ref):
     """
         Locate each waypoint of the route into gps, (lat long ) representations.
-    :param route:
-    :param lat_ref:
-    :param lon_ref:
-    :return:
+            :param route:
+            :param lat_ref:
+            :param lon_ref:
+            :return:
     """
     gps_route = []
 
@@ -62,8 +62,8 @@ def location_route_to_gps(route, lat_ref, lon_ref):
 
 def _get_latlon_ref(world):
     """
-    Convert from waypoints world coordinates to CARLA GPS coordinates
-    :return: tuple with lat and lon coordinates
+        Convert from waypoints world coordinates to CARLA GPS coordinates
+            :return: tuple with lat and lon coordinates
     """
     xodr = world.get_map().to_opendrive()
     tree = ET.ElementTree(ET.fromstring(xodr))
@@ -87,10 +87,10 @@ def _get_latlon_ref(world):
 
 def downsample_route(route, sample_factor):
     """
-    Downsample the route by some factor.
-    :param route: the trajectory , has to contain the waypoints and the road options
-    :param sample_factor: Maximum distance between samples
-    :return: returns the ids of the final route that can
+        Downsample the route by some factor.
+            :param route: the trajectory , has to contain the waypoints and the road options
+            :param sample_factor: Maximum distance between samples
+            :return: returns the ids of the final route that can
     """
 
     ids_to_sample = []
@@ -134,22 +134,19 @@ def downsample_route(route, sample_factor):
 def interpolate_trajectory(world, waypoints_trajectory, hop_resolution=1.0):
     """
         Given some raw keypoints interpolate a full dense trajectory to be used by the user.
-    :param world: an reference to the CARLA world so we can use the planner
-    :param waypoints_trajectory: the current coarse trajectory
-    :param hop_resolution: is the resolution, how dense is the provided trajectory going to be made
-    :return: the full interpolated route both in GPS coordinates and also in its original form.
+            :param world: an reference to the CARLA world so we can use the planner
+            :param waypoints_trajectory: the current coarse trajectory
+            :param hop_resolution: is the resolution, how dense is the provided trajectory going to be made
+            :return: the full interpolated route both in GPS coordinates and also in its original form.
     """
 
     grp = GlobalRoutePlanner(world.get_map(), hop_resolution)
-    # grp.setup()
-    # Obtain route plan
     route = []
 
     if len(waypoints_trajectory) == 1:
         route.append((waypoints_trajectory[0], RoadOption.VOID))
 
     for i in range(len(waypoints_trajectory) - 1):   # Goes until the one before the last.
-
         waypoint = waypoints_trajectory[i]
         waypoint_next = waypoints_trajectory[i + 1]
         interpolated_trace = grp.trace_route(waypoint, waypoint_next)
@@ -157,7 +154,5 @@ def interpolate_trajectory(world, waypoints_trajectory, hop_resolution=1.0):
             route.append((wp_tuple[0].transform, wp_tuple[1]))
 
     # Increase the route position to avoid fails
-
     lat_ref, lon_ref = _get_latlon_ref(world)
-
     return location_route_to_gps(route, lat_ref, lon_ref), route

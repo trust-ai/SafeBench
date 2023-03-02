@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:53:49
+LastEditTime: 2023-03-01 17:35:47
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -21,8 +21,8 @@ import json
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
-from safebench.scenario.tools.scenario_helper import generate_target_waypoint_in_route
 
+from safebench.scenario.tools.scenario_helper import generate_target_waypoint_in_route
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 from safebench.gym_carla.envs.route_planner import RoutePlanner

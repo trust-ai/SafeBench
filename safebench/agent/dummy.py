@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:56:33
+LastEditTime: 2023-03-01 19:56:33
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -13,7 +13,7 @@ Description:
 import numpy as np
 
 
-class DummyEgo(object):
+class DummyAgent(object):
     name = 'dummy'
     type = 'unlearnable'
 
@@ -24,6 +24,9 @@ class DummyEgo(object):
         self.model_path = config['model_path']
         self.auto_ego = config['auto_ego']
         self.mode = 'train'
+
+    def train(self, replay_buffer):
+        pass
 
     def set_mode(self, mode):
         self.mode = mode
@@ -39,5 +42,5 @@ class DummyEgo(object):
     def load_model(self):
         pass
 
-    def update(self):
+    def save_model(self):
         pass

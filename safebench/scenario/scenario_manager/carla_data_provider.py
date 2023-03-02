@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:42:53
+LastEditTime: 2023-03-01 19:43:36
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -56,8 +56,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def register_actor(actor):
         """
-        Add new actor to dictionaries
-        If actor already exists, throw an exception
+            Add new actor to dictionaries. If actor already exists, throw an exception
         """
         if actor in CarlaDataProvider._actor_velocity_map:
             raise KeyError("Vehicle '{}' already registered. Cannot register twice!".format(actor.id))
@@ -77,21 +76,21 @@ class CarlaDataProvider(object):
     @staticmethod
     def update_osc_global_params(parameters):
         """
-        updates/initializes global osc parameters.
+            updates/initializes global osc parameters.
         """
         CarlaDataProvider._global_osc_parameters.update(parameters)
 
     @staticmethod
     def get_osc_global_param_value(ref):
         """
-        returns updated global osc parameter value.
+            returns updated global osc parameter value.
         """
         return CarlaDataProvider._global_osc_parameters.get(ref.replace("$", ""))
 
     @staticmethod
     def register_actors(actors):
         """
-        Add new set of actors to dictionaries
+            Add new set of actors to dictionaries
         """
         for actor in actors:
             CarlaDataProvider.register_actor(actor)
@@ -99,7 +98,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def on_carla_tick():
         """
-        Callback from CARLA
+            Callback from CARLA
         """
         for actor in CarlaDataProvider._actor_velocity_map:
             if actor is not None and actor.is_alive:
@@ -120,7 +119,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_velocity(actor):
         """
-        returns the absolute velocity for the given actor
+            returns the absolute velocity for the given actor
         """
         for key in CarlaDataProvider._actor_velocity_map:
             if key.id == actor.id:
@@ -134,7 +133,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_location(actor):
         """
-        returns the location for the given actor
+            returns the location for the given actor
         """
         for key in CarlaDataProvider._actor_location_map:
             if key.id == actor.id:
@@ -148,7 +147,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_transform(actor):
         """
-        returns the transform for the given actor
+            returns the transform for the given actor
         """
         for key in CarlaDataProvider._actor_transform_map:
             if key.id == actor.id:
@@ -162,21 +161,21 @@ class CarlaDataProvider(object):
     @staticmethod
     def set_client(client):
         """
-        Set the CARLA client
+            Set the CARLA client
         """
         CarlaDataProvider._client = client
 
     @staticmethod
     def get_client():
         """
-        Get the CARLA client
+            Get the CARLA client
         """
         return CarlaDataProvider._client
 
     @staticmethod
     def set_world(world):
         """
-        Set the world and world settings
+            Set the world and world settings
         """
         CarlaDataProvider._world = world
         CarlaDataProvider._sync_flag = world.get_settings().synchronous_mode
@@ -188,14 +187,14 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_world():
         """
-        Return world
+            Return world
         """
         return CarlaDataProvider._world
 
     @staticmethod
     def get_map(world=None):
         """
-        Get the current map
+            Get the current map
         """
         if CarlaDataProvider._map is None:
             if world is None:
@@ -211,21 +210,21 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_random_seed():
         """
-        @return true if syncronuous mode is used
+            return true if syncronuous mode is used
         """
         return CarlaDataProvider._rng
 
     @staticmethod
     def is_sync_mode():
         """
-        @return true if syncronuous mode is used
+            return true if syncronuous mode is used
         """
         return CarlaDataProvider._sync_flag
 
     @staticmethod
     def find_weather_presets():
         """
-        Get weather presets from CARLA
+            Get weather presets from CARLA
         """
         rgx = re.compile('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)')
         name = lambda x: ' '.join(m.group(0) for m in rgx.finditer(x))
@@ -235,8 +234,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def prepare_map():
         """
-        This function set the current map and loads all traffic lights for this map to
-        _traffic_light_map
+            This function set the current map and loads all traffic lights for this map to _traffic_light_map
         """
         if CarlaDataProvider._map is None:
             CarlaDataProvider._map = CarlaDataProvider._world.get_map()
@@ -247,13 +245,12 @@ class CarlaDataProvider(object):
             if traffic_light not in CarlaDataProvider._traffic_light_map.keys():
                 CarlaDataProvider._traffic_light_map[traffic_light] = traffic_light.get_transform()
             else:
-                raise KeyError(
-                    "Traffic light '{}' already registered. Cannot register twice!".format(traffic_light.id))
+                raise KeyError("Traffic light '{}' already registered. Cannot register twice!".format(traffic_light.id))
 
     @staticmethod
     def annotate_trafficlight_in_group(traffic_light):
         """
-        Get dictionary with traffic light group info for a given traffic light
+            Get dictionary with traffic light group info for a given traffic light
         """
         dict_annotations = {'ref': [], 'opposite': [], 'left': [], 'right': []}
 
@@ -263,7 +260,6 @@ class CarlaDataProvider(object):
         ref_yaw = ref_waypoint.transform.rotation.yaw
 
         group_tl = traffic_light.get_group_traffic_lights()
-
         for target_tl in group_tl:
             if traffic_light.id == target_tl.id:
                 dict_annotations['ref'].append(target_tl)
@@ -274,7 +270,6 @@ class CarlaDataProvider(object):
                 target_yaw = target_waypoint.transform.rotation.yaw
 
                 diff = (target_yaw - ref_yaw) % 360
-
                 if diff > 330:
                     continue
                 elif diff > 225:
@@ -289,15 +284,14 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_trafficlight_trigger_location(traffic_light):    # pylint: disable=invalid-name
         """
-        Calculates the yaw of the waypoint that represents the trigger volume of the traffic light
+            Calculates the yaw of the waypoint that represents the trigger volume of the traffic light
         """
         def rotate_point(point, angle):
             """
-            rotate a given point by a given angle
+                rotate a given point by a given angle
             """
             x_ = math.cos(math.radians(angle)) * point.x - math.sin(math.radians(angle)) * point.y
             y_ = math.sin(math.radians(angle)) * point.x - math.cos(math.radians(angle)) * point.y
-
             return carla.Vector3D(x_, y_, point.z)
 
         base_transform = traffic_light.get_transform()
@@ -307,13 +301,12 @@ class CarlaDataProvider(object):
 
         point = rotate_point(carla.Vector3D(0, 0, area_ext.z), base_rot)
         point_location = area_loc + carla.Location(x=point.x, y=point.y)
-
         return carla.Location(point_location.x, point_location.y, point_location.z)
 
     @staticmethod
     def update_light_states(ego_light, annotations, states, freeze=False, timeout=1000000000):
         """
-        Update traffic light states
+            Update traffic light states
         """
         reset_params = []
 
@@ -335,7 +328,6 @@ class CarlaDataProvider(object):
                     'red_time': prev_red_time, 
                     'yellow_time': prev_yellow_time
                 })
-
                 light.set_state(states[state])
                 if freeze:
                     light.set_green_time(timeout)
@@ -347,7 +339,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def reset_lights(reset_params):
         """
-        Reset traffic lights
+            Reset traffic lights
         """
         for param in reset_params:
             param['light'].set_state(param['state'])
@@ -358,7 +350,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_next_traffic_light(actor, use_cached_location=True, use_transform=False):
         """
-        returns the next relevant traffic light for the provided actor
+            returns the next relevant traffic light for the provided actor
         """
 
         if use_transform:
@@ -398,23 +390,22 @@ class CarlaDataProvider(object):
     @staticmethod
     def set_ego_vehicle_route(route):
         """
-        Set the route of the ego vehicle
-        @todo extend ego_vehicle_route concept to support multi ego_vehicle scenarios
+            Set the route of the ego vehicle
         """
         CarlaDataProvider._ego_vehicle_route = route
 
     @staticmethod
     def get_ego_vehicle_route():
         """
-        returns the currently set route of the ego vehicle
-        Note: Can be None
+            returns the currently set route of the ego vehicle
+            Note: Can be None
         """
         return CarlaDataProvider._ego_vehicle_route
 
     @staticmethod
     def generate_spawn_points():
         """
-        Generate spawn points for the current map
+            Generate spawn points for the current map
         """
         spawn_points = list(CarlaDataProvider.get_map(CarlaDataProvider._world).get_spawn_points())
         CarlaDataProvider._rng.shuffle(spawn_points)
@@ -424,7 +415,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def create_blueprint(model, rolename='scenario', color=None, actor_category="car", safe=False):
         """
-        Function to setup the blueprint of an actor given its model and other relevant parameters
+            Function to setup the blueprint of an actor given its model and other relevant parameters
         """
 
         _actor_blueprint_categories = {
@@ -447,8 +438,7 @@ class CarlaDataProvider(object):
             blueprints_ = []
             if safe:
                 for bp in blueprints:
-                    if bp.id.endswith('firetruck') or bp.id.endswith('ambulance') \
-                            or int(bp.get_attribute('number_of_wheels')) != 4:
+                    if bp.id.endswith('firetruck') or bp.id.endswith('ambulance') or int(bp.get_attribute('number_of_wheels')) != 4:
                         # Two wheeled vehicles take much longer to render + bicicles shouldn't behave like cars
                         continue
                     blueprints_.append(bp)
@@ -496,8 +486,8 @@ class CarlaDataProvider(object):
     @staticmethod
     def handle_actor_batch(batch, tick=True):
         """
-        Forward a CARLA command batch to spawn actors to CARLA, and gather the responses.
-        Returns list of actors on success, none otherwise
+            Forward a CARLA command batch to spawn actors to CARLA, and gather the responses.
+            Returns list of actors on success, none otherwise
         """
         sync_mode = CarlaDataProvider.is_sync_mode()
         actors = []
@@ -536,7 +526,7 @@ class CarlaDataProvider(object):
         tick=True
     ):
         """
-        This method tries to create a new actor, returning it if successful (None otherwise).
+            This method tries to create a new actor, returning it if successful (None otherwise).
         """
         blueprint = CarlaDataProvider.create_blueprint(model, rolename, color, actor_category, safe_blueprint)
 
@@ -581,10 +571,8 @@ class CarlaDataProvider(object):
     @staticmethod
     def request_new_actors(actor_list, safe_blueprint=False, tick=True):
         """
-        This method tries to series of actor in batch. If this was successful,
-        the new actors are returned, None otherwise.
-        param:
-        - actor_list: list of ActorConfigurationData
+            This method tries to series of actor in batch. If this was successful, the new actors are returned, None otherwise.
+                actor_list: list of ActorConfigurationData
         """
         SpawnActor = carla.command.SpawnActor                     
         PhysicsCommand = carla.command.SetSimulatePhysics         
@@ -702,15 +690,15 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_actors():
         """
-        Return list of actors and their ids
-        Note: iteritems from six is used to allow compatibility with Python 2 and 3
+            Return list of actors and their ids
+            Note: iteritems from six is used to allow compatibility with Python 2 and 3
         """
         return iteritems(CarlaDataProvider._carla_actor_pool)
 
     @staticmethod
     def actor_id_exists(actor_id):
         """
-        Check if a certain id is still at the simulation
+            Check if a certain id is still at the simulation
         """
         if actor_id in CarlaDataProvider._carla_actor_pool:
             return True
@@ -720,7 +708,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_hero_actor():
         """
-        Get the actor object of the hero actor if it exists, returns none otherwise.
+            Get the actor object of the hero actor if it exists, returns none otherwise.
         """
         for actor_id in CarlaDataProvider._carla_actor_pool:
             if CarlaDataProvider._carla_actor_pool[actor_id].attributes['role_name'] == 'hero':
@@ -730,19 +718,17 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_actor_by_id(actor_id):
         """
-        Get an actor from the pool by using its ID. If the actor
-        does not exist, None is returned.
+            Get an actor from the pool by using its ID. If the actor does not exist, None is returned.
         """
         if actor_id in CarlaDataProvider._carla_actor_pool:
             return CarlaDataProvider._carla_actor_pool[actor_id]
-
         print("Non-existing actor id {}".format(actor_id))
         return None
 
     @staticmethod
     def remove_actor_by_id(actor_id):
         """
-        Remove an actor from the pool using its ID
+            Remove an actor from the pool using its ID
         """
         if actor_id in CarlaDataProvider._carla_actor_pool:
             CarlaDataProvider._carla_actor_pool[actor_id].destroy()
@@ -754,8 +740,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def remove_actors_in_surrounding(location, distance):
         """
-        Remove all actors from the pool that are closer than distance to the
-        provided location
+            Remove all actors from the pool that are closer than distance to the provided location
         """
         for actor_id in CarlaDataProvider._carla_actor_pool.copy():
             if CarlaDataProvider._carla_actor_pool[actor_id].get_location().distance(location) < distance:
@@ -768,7 +753,7 @@ class CarlaDataProvider(object):
     @staticmethod
     def get_traffic_manager_port():
         """
-        Get the port of the traffic manager.
+            Get the port of the traffic manager.
         """
         return CarlaDataProvider._traffic_manager_port
 
@@ -779,14 +764,14 @@ class CarlaDataProvider(object):
     @staticmethod
     def set_traffic_manager_port(tm_port):
         """
-        Set the port to use for the traffic manager.
+            Set the port to use for the traffic manager.
         """
         CarlaDataProvider._traffic_manager_port = tm_port
 
     @staticmethod
     def cleanup():
         """
-        Cleanup and remove all entries from all dictionaries
+            Cleanup and remove all entries from all dictionaries
         """
         DestroyActor = carla.command.DestroyActor       # pylint: disable=invalid-name
         batch = []
