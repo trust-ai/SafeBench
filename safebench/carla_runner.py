@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 17:44:28
+LastEditTime: 2023-03-02 18:56:19
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -282,14 +282,14 @@ class CarlaRunner:
                         ious_list[s_i['scenario_id']].append(1-infos[reward_idx]['iou_loss'])
                         reward_idx += 1
 
+            # save evaluation results
             eval_results.update(self.env.running_results)
+            self.logger.log(f'>> Saving evaluation results to {result_file}')
+            joblib.dump(eval_results, result_file)
 
             # clean up all things
             self.logger.log(">> All scenarios are completed. Clearning up all actors")
             self.env.clean_up()
-
-            self.logger.log(f'>> Saving evaluation results to {result_file}')
-            joblib.dump(eval_results, result_file)
 
             # save video
             if self.save_video:
