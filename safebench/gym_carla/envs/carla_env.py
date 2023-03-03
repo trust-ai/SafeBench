@@ -58,6 +58,7 @@ class CarlaEnv(gym.Env):
         self.is_running = True
         self.env_id = None
         self.ego = None
+        self.auto_ego = env_params['auto_ego']
 
         self.collision_sensor = None
         self.lidar_sensor = None
@@ -299,7 +300,7 @@ class CarlaEnv(gym.Env):
                     ego_action = ego_action['ego_action']
                 
                 # Calculate acceleration and steering
-                if not np.isnan(ego_action).all():
+                if not self.auto_ego:
                     if self.discrete:
                         acc = self.discrete_act[0][ego_action // self.n_steer]
                         steer = self.discrete_act[1][ego_action % self.n_steer]

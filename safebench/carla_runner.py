@@ -62,6 +62,7 @@ class CarlaRunner:
         self.env = None
 
         self.env_params = {
+            'auto_ego': scenario_config['auto_ego'],
             'obs_type': agent_config['obs_type'],
             'scenario_category': self.scenario_category,
             'ROOT_DIR': scenario_config['ROOT_DIR'],
@@ -85,7 +86,6 @@ class CarlaRunner:
 
         # pass info from scenario to agent
         agent_config['mode'] = scenario_config['mode']
-        agent_config['auto_ego'] = scenario_config['auto_ego']
         agent_config['ego_action_dim'] = scenario_config['ego_action_dim']
         agent_config['ego_state_dim'] = scenario_config['ego_state_dim']
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
