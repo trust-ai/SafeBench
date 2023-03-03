@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:55:56
+LastEditTime: 2023-03-02 19:53:41
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -89,6 +89,7 @@ class SAC(BasePolicy):
 
         self.buffer_start_training = config['buffer_start_training']
         self.lr = config['lr']
+        self.continue_episode = config['continue_episode']
         self.state_dim = config['ego_state_dim']
         self.action_dim = config['ego_action_dim']
         self.min_Val = torch.tensor(config['min_Val']).float()
@@ -101,7 +102,6 @@ class SAC(BasePolicy):
         self.model_path = os.path.join(config['ROOT_DIR'], config['model_path'])
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
-        self.load_episode = 0
 
         # create models
         self.policy_net = CUDA(Actor(self.state_dim, self.action_dim))

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:56:33
+LastEditTime: 2023-03-02 19:55:00
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -24,6 +24,7 @@ class DummyAgent(object):
         self.model_path = config['model_path']
         self.auto_ego = config['auto_ego']
         self.mode = 'train'
+        self.continue_episode = 0
 
     def train(self, replay_buffer):
         pass

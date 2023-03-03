@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 19:46:39
+LastEditTime: 2023-03-02 19:55:20
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -158,6 +158,7 @@ class REINFORCE(BasePolicy):
     def __init__(self, scenario_config, logger):
         self.logger = logger
         self.num_waypoint = 30
+        self.continue_episode = 0
         self.num_scenario = scenario_config['num_scenario']
         self.batch_size = scenario_config['batch_size']
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])

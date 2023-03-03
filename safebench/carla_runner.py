@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 19:47:56
+LastEditTime: 2023-03-02 19:54:06
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -160,20 +160,14 @@ class CarlaRunner:
         }
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
 
-    def train(self, data_loader):
+    def train(self, data_loader, start_episode=0):
         # general buffer for both agent and scenario
         if self.scenario_category == 'planning':
             replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
         else:
             replay_buffer = ReplayBuffer_Perception(self.num_scenario, self.mode, self.buffer_capacity)
 
-        # load previous checkpoint
-        if self.agent_policy.load_episode == 0:
-            self.logger.log('>> Previous checkpoint not found. Training from scratch.')
-        else:
-            self.logger.log('>> Continue training from previous checkpoint.')
-        
-        for e_i in tqdm(range(self.agent_policy.load_episode + 1, self.train_episode)):
+        for e_i in tqdm(range(start_episode, self.train_episode)):
             # sample scenarios
             sampled_scenario_configs, _ = data_loader.sampler()
             # TODO: to restart the data loader, reset the index counter every time
@@ -340,17 +334,29 @@ class CarlaRunner:
                 self.scenario_policy.set_mode('eval')
                 self.eval(data_loader)
             elif self.mode == 'train_agent':
+                start_episode = self.check_continue_training(self.agent_policy)
                 self.scenario_policy.load_model()
                 self.agent_policy.set_mode('train')
                 self.scenario_policy.set_mode('eval')
-                self.train(data_loader)
+                self.train(data_loader, start_episode)
             elif self.mode == 'train_scenario':
+                start_episode = self.check_continue_training(self.scenario_policy)
                 self.agent_policy.load_model()
                 self.agent_policy.set_mode('eval')
                 self.scenario_policy.set_mode('train')
-                self.train(data_loader)
+                self.train(data_loader, start_episode)
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")
+
+    def check_continue_training(self, policy):
+        # load previous checkpoint
+        if policy.continue_episode == 0:
+            start_episode = 0
+            self.logger.log('>> Previous checkpoint not found. Training from scratch.')
+        else:
+            start_episode = policy.continue_episode
+            self.logger.log('>> Continue training from previous checkpoint.')
+        return start_episode
 
     def close(self):
         # close pygame renderer
