@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 18:56:19
+LastEditTime: 2023-03-02 19:47:56
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -332,18 +332,20 @@ class CarlaRunner:
             # prepare data loader and buffer
             data_loader = ScenarioDataLoader(config_by_map[m_i], self.num_scenario)
 
-            self.agent_policy.load_model()
-            self.scenario_policy.load_model()
             # run with different modes
             if self.mode == 'eval':
+                self.agent_policy.load_model()
+                self.scenario_policy.load_model()
                 self.agent_policy.set_mode('eval')
                 self.scenario_policy.set_mode('eval')
                 self.eval(data_loader)
             elif self.mode == 'train_agent':
+                self.scenario_policy.load_model()
                 self.agent_policy.set_mode('train')
                 self.scenario_policy.set_mode('eval')
                 self.train(data_loader)
             elif self.mode == 'train_scenario':
+                self.agent_policy.load_model()
                 self.agent_policy.set_mode('eval')
                 self.scenario_policy.set_mode('train')
                 self.train(data_loader)
