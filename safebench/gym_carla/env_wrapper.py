@@ -30,7 +30,7 @@ class VectorWrapper():
         self.env_list = []
         self.action_space_list = []
         for i in range(self.num_scenario):
-            env = carla_env(env_params, birdeye_render=birdeye_render, display=display, world=world, logger=logger, first_env=not i)
+            env = carla_env(env_params, birdeye_render=birdeye_render, display=display, world=world, logger=logger)
             self.env_list.append(env)
             self.action_space_list.append(env.action_space)
 
@@ -219,7 +219,7 @@ class EnvWrapper(gym.Wrapper):
         return action
 
 
-def carla_env(env_params, birdeye_render=None, display=None, world=None, logger=None, first_env=False):
+def carla_env(env_params, birdeye_render=None, display=None, world=None, logger=None):
     return EnvWrapper(
         gym.make(
             'carla-v0', 
@@ -228,7 +228,6 @@ def carla_env(env_params, birdeye_render=None, display=None, world=None, logger=
             display=display, 
             world=world, 
             logger=logger,
-            first_env=first_env
         ), 
         obs_type=env_params['obs_type']
     )

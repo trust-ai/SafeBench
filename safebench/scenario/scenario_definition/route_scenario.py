@@ -211,14 +211,14 @@ class RouteScenario():
 
         self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego()
         self.other_actors = []
-
+        print(scenario_definitions)
         self.list_scenarios = self._build_scenario_instances(scenario_definitions)
         self.criteria = self._create_criteria()
 
     def _update_route_and_ego(self, timeout=None):
         # transform the scenario file into a dictionary
         possible_scenarios = RouteParser.parse_annotations_file(self.config.scenario_file)
-
+        
         # prepare route's trajectory
         ego_vehicle = None
         route = None
@@ -235,6 +235,8 @@ class RouteScenario():
             ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
         
         # TODO: remove this
+        print(self.config.town, route)
+        print(possible_scenarios, self.config.scenario_id)
         scenarios_definitions = RouteParser.match_route_and_scenarios(
             self.config.town,
             route, 

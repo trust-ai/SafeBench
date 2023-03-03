@@ -11,12 +11,14 @@ Description:
 '''
 
 from safebench.agent.dummy import DummyAgent
-from safebench.agent.object_detection.detector import ObjectDetection
 from safebench.agent.rl.sac import SAC
 
+from safebench.agent.object_detection.yolov5 import YoloAgent
+from safebench.agent.object_detection.faster_rcnn import FasterRCNNAgent
 
 AGENT_POLICY_LIST = {
     'dummy': DummyAgent,
-    'object_detection': ObjectDetection,
+    'yolo': YoloAgent,
     'sac': SAC,
+    'faster_rcnn': FasterRCNNAgent
 }

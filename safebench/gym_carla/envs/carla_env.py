@@ -41,10 +41,9 @@ class CarlaEnv(gym.Env):
     """ 
         An OpenAI-gym style interface for CARLA simulator. 
     """
-    def __init__(self, env_params, birdeye_render=None, display=None, world=None, logger=None, first_env=False):
+    def __init__(self, env_params, birdeye_render=None, display=None, world=None, logger=None):
         self.config = None
         # TODO: only initialize textures for once in parallel rollout
-        self.first_env = first_env
 
         assert world is not None, "the world passed into CarlaEnv is None"
         self.world = world
@@ -152,7 +151,6 @@ class CarlaEnv(gym.Env):
                 ROOT_DIR=self.ROOT_DIR, 
                 ego_id=env_id, 
                 logger=self.logger,
-                first_env=self.first_env
             )
         elif self.scenario_category == 'planning':
             scenario = RouteScenario(

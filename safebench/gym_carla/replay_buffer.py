@@ -158,6 +158,7 @@ class ReplayBuffer:
         return batch
 
 
+
 class ReplayBuffer_Perception:
     """
         This buffer supports parallel storing image states and labels for object detection
@@ -188,23 +189,22 @@ class ReplayBuffer_Perception:
     
     def store_init(self, data_list, additional_dict=None):
         pass
-
-    def store(self, data_list):
-        assert len(data_list) == 4, 'input to Perception data buffer should contain ego_actions, scenario_actions, obs, and infos'
+    
+    def store(self, data_list, additional_dict=None):
         ego_actions = data_list[0]
         scenario_actions = data_list[1]
         obs = data_list[2]
-        infos = data_list[3]
-        self.buffer_len += len(infos)
+        
+        self.buffer_len += len(ego_actions)
 
         # separate trajectories according to infos
-        for s_i in range(len(infos)):
-            sid = infos[s_i]['scenario_id']
+        for s_i in range(len(additional_dict)):
+            sid = additional_dict[s_i]['scenario_id']
             self.buffer_predictions[sid].append(ego_actions[s_i]['od_result'])
             self.buffer_scenario_actions[sid].append(scenario_actions[s_i]['attack'])
             self.buffer_obs[sid].append(obs[s_i]['img'])
-            self.buffer_bbox_label[sid].append(infos[s_i]['bbox_label'])
-            self.buffer_loss[sid].append(infos[s_i]['iou_loss'])
+            self.buffer_bbox_label[sid].append(additional_dict[s_i]['bbox_label'])
+            self.buffer_loss[sid].append(additional_dict[s_i]['iou_loss'])
 
     
     def sample(self, batch_size):
@@ -240,4 +240,5 @@ class ReplayBuffer_Perception:
         }
         
         return batch
+    
     
