@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 19:54:06
+LastEditTime: 2023-03-02 20:04:09
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -232,7 +232,6 @@ class CarlaRunner:
             self.logger.log(f'>> Loading previous evaluation results from {result_file}')
             eval_results = joblib.load(result_file)
 
-        # save video
         video_file = None
         if self.save_video:
             video_dir = os.path.join(self.output_dir, 'video')
@@ -246,7 +245,7 @@ class CarlaRunner:
 
             # reset envs with new config, get init action from scenario policy, and run scenario
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
-            scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
+            scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs)
             obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
             
             rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
@@ -267,14 +266,12 @@ class CarlaRunner:
 
                 # accumulate reward to corresponding scenario
                 reward_idx = 0
-                if self.scenario_category == 'planning':
-                    for s_i in infos:
+                for s_i in infos:
+                    if self.scenario_category == 'planning':
                         rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
-                        reward_idx += 1
-                else:
-                    for s_i in infos:
+                    else:
                         ious_list[s_i['scenario_id']].append(1-infos[reward_idx]['iou_loss'])
-                        reward_idx += 1
+                    reward_idx += 1
 
             # save evaluation results
             eval_results.update(self.env.running_results)

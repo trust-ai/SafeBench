@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 19:53:41
+LastEditTime: 2023-03-02 20:15:33
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -89,7 +89,7 @@ class SAC(BasePolicy):
 
         self.buffer_start_training = config['buffer_start_training']
         self.lr = config['lr']
-        self.continue_episode = config['continue_episode']
+        self.continue_episode = 0
         self.state_dim = config['ego_state_dim']
         self.action_dim = config['ego_action_dim']
         self.min_Val = torch.tensor(config['min_Val']).float()
