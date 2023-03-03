@@ -268,7 +268,8 @@ class RouteScenario():
         try:
             role_name = 'ego_vehicle' + str(self.ego_id)
             ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name, autopilot=autopilot)
-        except Exception as e:   
+            ego_vehicle.set_autopilot(autopilot, CarlaDataProvider.get_traffic_manager_port())
+        except Exception as e:
             raise RuntimeError("Error while spawning ego vehicle: {}".format(e))
 
         return ego_vehicle
