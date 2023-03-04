@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:45:19
+LastEditTime: 2023-03-03 12:38:59
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -16,7 +16,7 @@ class BasePolicy:
 
     """ This is the template for implementing the policy for a scenario. """
     def __init__(self, config, logger):
-        pass
+        self.continue_episode = 0
 
     def train(self, replay_buffer):
         raise NotImplementedError()

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:30:15
+LastEditTime: 2023-03-03 22:15:00
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -56,13 +56,14 @@ class ScenarioManager(object):
     def _init_scenarios(self, scenario_init_action):
         # spawn background actors
         self.background_scenario.initialize_actors()
+        
         # spawn actors for each scenario along this route
         for running_scenario in self.scenario_list:
             # some scenario passes actions when creating behavior
             running_scenario.create_behavior(scenario_init_action)
             # init actors after passing in init actions
             running_scenario.initialize_actors()
-            
+    
     def stop_scenario(self):
         self._running = False
 

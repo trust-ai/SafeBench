@@ -40,7 +40,6 @@ def scenario_parse(config, logger):
     """
         Data file should also come from args
     """
-
     ROOT_DIR = config['ROOT_DIR']
     logger.log(">> Parsing scenario route and data")
     list_of_scenario_config = osp.join(ROOT_DIR, config['type_dir'], config['type_name'])
@@ -80,7 +79,10 @@ def scenario_parse(config, logger):
         parsed_config.route_id = item['route_id']
         parsed_config.risk_level = item['risk_level']
         parsed_config.parameters = item['parameters']
-
+        # parse the template directory from .yaml config of scenarios
+        if 'texture_dir' in config.keys():
+            parsed_config.texture_dir = config['texture_dir']
+        
         # cluster config according to the town
         if parsed_config.town not in config_by_map:
             config_by_map[parsed_config.town] = [parsed_config]

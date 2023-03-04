@@ -76,8 +76,9 @@ class ObjectDetectionScenario(BasicScenario):
         self.config = config
         self.route = None
         self.ego_id = ego_id
-        self.ROOT_DIR = ROOT_DIR
 
+        self.texture_dir = os.path.join(ROOT_DIR, config.texture_dir)
+        
         self.sampled_scenarios_definitions = None
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
         self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego()
@@ -86,17 +87,12 @@ class ObjectDetectionScenario(BasicScenario):
         self.list_scenarios = self._build_scenario_instances(scenario_definitions)
         self.n_step = 0
         
-        TEMPLATE_DIR = os.path.join(ROOT_DIR, 'safebench/scenario/scenario_data/template_od')
         self.object_dict = dict(
             stopsign=list(filter(lambda k: 'BP_Stop' in k, world.get_names_of_all_objects())),
             car=list(filter(lambda k: 'SM_Tesla' in k or 'SM_Jeep' in k, world.get_names_of_all_objects())),
             ad=list(filter(lambda k: 'AD' in k, world.get_names_of_all_objects()))
         )
-        self.image_path_list = [os.path.join(TEMPLATE_DIR, k)+'.jpg' for k in self.object_dict.keys()]
 
-        self.image_list = [cv2.imread(image_file) for image_file in self.image_path_list]
-        self.image_list = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in self.image_list]
-        
         self.bbox_ground_truth = {}
         self.ground_truth_bbox = {}
         
@@ -108,6 +104,7 @@ class ObjectDetectionScenario(BasicScenario):
         )
 
         self.criteria = self._create_criteria()
+        self._iou = 0.
         # TODO: make save dir, add flag
         # os.makedirs('online_data/', exist_ok=True)
         # os.makedirs('online_data/images', exist_ok=True)
@@ -116,49 +113,14 @@ class ObjectDetectionScenario(BasicScenario):
     
     def _initialize_environment(self): # TODO: image from dict or parameter?
         pass
-        
-        # print('run init_envs in OD envs')
-        # if self.ego_id == 0:
-        #     print('init envs...')
-        #     settings = self.world.get_settings()
-        #     self.world.apply_settings(settings)
-        #     for obj_key, image in zip(self.object_dict.keys(), self.image_list):
-        #         resized = cv2.resize(image, (1024,1024), interpolation=cv2.INTER_AREA)
-        #         resized = np.rot90(resized,k=1)
-        #         resized = cv2.flip(resized,1)
-        #         height = 1024
-        #         texture = carla.TextureColor(height,height)
-        #         for x in range(1024):
-        #             for y in range(1024):
-        #                 r = int(resized[x,y,0])
-        #                 g = int(resized[x,y,1])
-        #                 b = int(resized[x,y,2])
-        #                 a = int(255)
-        #                 # texture.set(x,height -0-y - 1, carla.Color(r,g,b,a))
-        #                 texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
-        #                 # texture.set(x, y, carla.Color(r,g,b,a))
-        #         for o_name in self.object_dict[obj_key]:
-        #             self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
-        # else:
-        #     print('skip init')
-        #     return    
-
 
     def initialize_actors(self):
         pass
 
     def get_running_status(self, running_record):
+        print('get running status: ', self._iou)
         running_status = {
-            'ego_velocity': CarlaDataProvider.get_velocity(self.ego_vehicle),
-            'ego_acceleration_x': self.ego_vehicle.get_acceleration().x,
-            'ego_acceleration_y': self.ego_vehicle.get_acceleration().y,
-            'ego_acceleration_z': self.ego_vehicle.get_acceleration().z,
-            'ego_x': CarlaDataProvider.get_transform(self.ego_vehicle).location.x,
-            'ego_y': CarlaDataProvider.get_transform(self.ego_vehicle).location.y,
-            'ego_z': CarlaDataProvider.get_transform(self.ego_vehicle).location.z,
-            'ego_roll': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.roll,
-            'ego_pitch': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.pitch,
-            'ego_yaw': CarlaDataProvider.get_transform(self.ego_vehicle).rotation.yaw,
+            'iou': self._iou, 
             'current_game_time': GameTime.get_time()
         }
 
@@ -276,7 +238,7 @@ class ObjectDetectionScenario(BasicScenario):
             #route_config.route_var_name = route_var_name
 
             try:
-                scenario_instance = scenario_class(self.world, self.ego_id, self.ROOT_DIR, self.ego_vehicle, route_config, timeout=self.timeout)
+                scenario_instance = scenario_class(self.world, self.ego_id, self.texture_dir, self.ego_vehicle, route_config, timeout=self.timeout)
             except Exception as e:   
                 traceback.print_exc()
                 print("Skipping scenario '{}' due to setup error: {}".format(definition['name'], e))
@@ -341,6 +303,7 @@ class ObjectDetectionScenario(BasicScenario):
                 terminate_on_failure=True
             )
             criteria['route_complete'] = RouteCompletionTest(self.ego_vehicle, route=route)
+
         return criteria
 
     def get_bbox(self, world_2_camera, image_w, image_h, fov): 
@@ -395,7 +358,7 @@ class ObjectDetectionScenario(BasicScenario):
     def eval(self, bbox_pred, bbox_gt):
         scenario = self.list_scenarios[0]
         ret = scenario.eval(bbox_pred, bbox_gt)
-        
+
         return ret
     
     def get_img_label(self, label, ):
@@ -420,6 +383,7 @@ class ObjectDetectionScenario(BasicScenario):
         self.get_bbox(world_2_camera, image_w, image_h, fov)
         bbox_label = self.ground_truth_bbox
         self._iou = self.eval(bbox_pred, bbox_label)
+        print('evaluate: ', self._iou)
         return self._iou
     
     def update_info(self):

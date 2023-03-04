@@ -46,7 +46,6 @@ from safebench.agent.object_detection.utils.general import (
     labels_to_class_weights
 )
 
-# TEMPLATE_DIR = os.path.join()
 
 class ObjectDetection(object):
     def __init__(self, config, logger) -> None:
@@ -54,9 +53,8 @@ class ObjectDetection(object):
         self.ego_action_dim = config['ego_action_dim']
         self.batch_size = config['batch_size']
         self.type = config['type']
-
-        self.template_dir = os.path.join(config['ROOT_DIR'], 'safebench/scenario/scenario_data/template_od')
-        self.raw_image = cv2.imread(os.path.join(self.template_dir, 'stopsign.jpg'))
+        self.texture_dir = os.path.join(config['ROOT_DIR'], config['texture_dir'])
+        self.raw_image = cv2.imread(self.texture_dir)
         self._preprocess_img()
 
         self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
