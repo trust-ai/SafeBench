@@ -91,24 +91,6 @@ def get_scores(record_dict):
     avg_acceleration = total_acc / len(record_dict)
     avg_yaw_velocity = total_yaw_velocity / len(record_dict)
 
-    predefined_max_values = {
-        # safety level
-        'collision_rate': 1,
-        'avg_red_light_freq': 1,
-        'avg_stop_sign_freq': 1,
-        'out_of_road_length': 50,
-
-        # task performance level
-        'route_following_stability': 1,
-        'route_completion': 1,
-        'avg_time_spent': 60,
-
-        # comfort level
-        'avg_acceleration': 8,
-        'avg_yaw_velocity': 3,
-        'avg_lane_invasion_freq': 20,
-    }
-
     scores = {
         # safety level
         'collision_rate': collision_rate,
@@ -117,32 +99,15 @@ def get_scores(record_dict):
         'out_of_road_length': out_of_road_length,
 
         # task performance level
-        'route_following_stability': route_following_stability,
+        'avg_distance_to_route': avg_distance_to_route,
         'route_completion': route_completion,
         'avg_time_spent': avg_time_spent,
-
-        # comfort level
-        'avg_acceleration': avg_acceleration,
-        'avg_yaw_velocity': avg_yaw_velocity,
-        'avg_lane_invasion_freq': avg_lane_invasion_freq,
 
         # additional info
         'avg_route_length': avg_route_length,
     }
 
-    # normalized_scores
-    ns = {metric: score if metric not in predefined_max_values else score / predefined_max_values[metric] for metric, score in scores.items()}
-
-    final_score = ((1 - ns['collision_rate']) * 5 +
-                   (3 - ns['avg_red_light_freq'] - ns['avg_stop_sign_freq'] - ns['out_of_road_length']) * 1 +
-                   (ns['route_following_stability'] + ns['route_completion'] + 1 - ns['avg_time_spent']) * 0.5 +
-                   (3 - ns['avg_acceleration'] - ns['avg_yaw_velocity'] - ns['avg_lane_invasion_freq']) * 0.2) / 10.1
-
-    ns['safety_os'] = ((1 - ns['collision_rate']) * 5 + (3 - ns['avg_red_light_freq'] - ns['avg_stop_sign_freq'] - ns['out_of_road_length']) * 1) / 8
-    ns['task_os'] = (ns['route_following_stability'] + ns['route_completion'] + 1 - ns['avg_time_spent']) * 0.5 / 1.5
-    ns['comfort_os'] = (3 - ns['avg_acceleration'] - ns['avg_yaw_velocity'] - ns['avg_lane_invasion_freq']) * 0.2 / 0.6
-
-    return scores, ns, final_score
+    return scores
 
 
 def parse_args():
