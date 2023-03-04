@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:48:57
+LastEditTime: 2023-03-04 16:51:47
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -82,8 +82,7 @@ class DynamicObjectCrossing(BasicScenario):
 
     def _spawn_blocker(self, transform, orientation_yaw):
         """
-        Spawn the blocker prop that blocks the vision from the egovehicle of the jaywalker
-        :return:
+            Spawn the blocker prop that blocks the vision from the egovehicle of the jaywalker
         """
         # static object transform
         shift = 0.9

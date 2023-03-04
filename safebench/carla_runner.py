@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 16:08:11
+LastEditTime: 2023-03-04 16:46:59
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -118,7 +118,7 @@ class CarlaRunner:
         # define agent and scenario
         self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
         self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
-        self.logger.log('-' * 40)
+        self.logger.log('>> ' + '-' * 40)
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
 
