@@ -111,8 +111,6 @@ class ObjectDetectionScenario(BasicScenario):
         # os.makedirs('online_data/labels', exist_ok=True)
         # self.video_writer = xverse_video_writer('online_data/images/debug.mp4', 1024, 1024)
     
-    def _initialize_environment(self): # TODO: image from dict or parameter?
-        pass
 
     def initialize_actors(self):
         pass

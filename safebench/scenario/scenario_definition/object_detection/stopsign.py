@@ -46,24 +46,6 @@ class Detection_StopSign(BasicScenario):
         # the trigger distance will always be 0, trigger at the beginning
         self.reference_actor = self.ego_vehicle 
     
-    def _initialize_environment(self):
-        if self.ego_id == 0:
-            height = 1024
-            texture = carla.TextureColor(height,height)
-            # TODO: run in multi-processing?
-            for x in range(height):
-                for y in range(height):
-                    r = int(self.resized[x,y,0])
-                    g = int(self.resized[x,y,1])
-                    b = int(self.resized[x,y,2])
-                    a = int(255)
-                    # texture.set(x,height -0-y - 1, carla.Color(r,g,b,a))
-                    texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
-                    # texture.set(x, y, carla.Color(r,g,b,a))
-            for o_name in self.object_list:
-                self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
-        else:
-            pass
     
     def create_behavior(self, scenario_init_action):
         if self.ego_id == 0:

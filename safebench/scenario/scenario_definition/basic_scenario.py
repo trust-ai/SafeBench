@@ -34,35 +34,12 @@ class BasicScenario(object):
         self.trigger_distance_threshold = None
         self.ego_max_driven_distance = 200
 
-        self._initialize_environment()
-
+        
         if CarlaDataProvider.is_sync_mode():
             world.tick()
         else:
             world.wait_for_tick()
-
-    def _initialize_environment(self):
-        """
-            Default initialization of weather and road friction.
-            Override this method in child class to provide custom initialization.
-        """
-        # Set the appropriate weather conditions
-        self.world.set_weather(self.config.weather)
-        print('run init_envs in base envs')
-
-        # Set the appropriate road friction
-        if self.config.friction is not None:
-            friction_bp = self.world.get_blueprint_library().find('static.trigger.friction')
-            extent = carla.Location(1000000.0, 1000000.0, 1000000.0)
-            friction_bp.set_attribute('friction', str(self.config.friction))
-            friction_bp.set_attribute('extent_x', str(extent.x))
-            friction_bp.set_attribute('extent_y', str(extent.y))
-            friction_bp.set_attribute('extent_z', str(extent.z))
-
-            # Spawn Trigger Friction
-            transform = carla.Transform()
-            transform.location = carla.Location(-10000.0, -10000.0, 0.0)
-            self.world.spawn_actor(friction_bp, transform)
+    
 
     def create_behavior(self, scenario_init_action):
         """
