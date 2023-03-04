@@ -34,7 +34,7 @@ def cal_avg_yaw_velocity(sequence):
     return avg_yaw_velocity
 
 
-def get_scores(record_dict):
+def get_route_scores(record_dict):
     # safety level
     num_collision = 0
     num_run_red_light = 0
@@ -106,8 +106,11 @@ def get_scores(record_dict):
         # additional info
         'avg_route_length': avg_route_length,
     }
-
     return scores
+
+
+def get_perception_scores(record_dict):
+    return {}
 
 
 def parse_args():

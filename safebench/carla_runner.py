@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 14:42:15
+LastEditTime: 2023-03-04 16:08:11
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 from safebench.gym_carla.env_wrapper import VectorWrapper
 from safebench.gym_carla.envs.render import BirdeyeRender
-from safebench.gym_carla.replay_buffer import ReplayBuffer, ReplayBuffer_Perception
+from safebench.gym_carla.replay_buffer import RouteReplayBuffer, PerceptionReplayBuffer
 
 from safebench.agent import AGENT_POLICY_LIST
 from safebench.scenario import SCENARIO_POLICY_LIST
@@ -32,7 +32,7 @@ from safebench.scenario.tools.scenario_utils import scenario_parse
 
 from safebench.util.logger import Logger, setup_logger_kwargs
 from safebench.util.run_util import save_video
-from safebench.util.metric_util import get_scores
+from safebench.util.metric_util import get_route_scores, get_perception_scores
 
 
 class CarlaRunner:
@@ -78,7 +78,7 @@ class CarlaRunner:
             'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
             'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
             'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 300,                # maximum timesteps per episode
+            'max_episode_step': 100,                # maximum timesteps per episode
             'max_waypt': 12,                        # maximum number of waypoints
             'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
             'out_lane_thres': 4,                    # threshold for out of lane (meter)
@@ -110,15 +110,13 @@ class CarlaRunner:
             self.train_episode = scenario_config['train_episode']
             self.logger.save_config(scenario_config)
         elif self.mode == 'eval':
-            self.logger.log('>> Evaluation Mode, skip config saving')
+            self.logger.log('>> Evaluation Mode, skip config saving', 'yellow')
+            self.logger.create_eval_dir(load_existing_results=True)
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
         # define agent and scenario
-        if scenario_config['auto_ego']:
-            self.logger.log('>> Agent Policy: Auto-polit')
-        else:
-            self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
+        self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
         self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
         self.logger.log('-' * 40)
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
@@ -165,9 +163,9 @@ class CarlaRunner:
     def train(self, data_loader, start_episode=0):
         # general buffer for both agent and scenario
         if self.scenario_category == 'planning':
-            replay_buffer = ReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
+            replay_buffer = RouteReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
         else:
-            replay_buffer = ReplayBuffer_Perception(self.num_scenario, self.mode, self.buffer_capacity)
+            replay_buffer = PerceptionReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
 
         for e_i in tqdm(range(start_episode, self.train_episode)):
             # sample scenarios
@@ -225,15 +223,6 @@ class CarlaRunner:
         video_count = 0
         data_loader.reset_idx_counter()
 
-        # setup result path
-        result_dir = os.path.join(self.output_dir, 'eval_results')
-        os.makedirs(result_dir, exist_ok=True)
-        result_file = os.path.join(result_dir, 'results.pkl')
-        eval_results = {}
-        if os.path.exists(result_file):
-            self.logger.log(f'>> Loading previous evaluation results from {result_file}')
-            eval_results = joblib.load(result_file)
-
         video_file = None
         if self.save_video:
             video_dir = os.path.join(self.output_dir, 'video')
@@ -250,9 +239,7 @@ class CarlaRunner:
             scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs)
             obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
             
-            rewards_list = {s_i: [] for s_i in range(num_sampled_scenario)}
-            ious_list = {s_i: [] for s_i in range(num_sampled_scenario)}
-
+            score_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             frame_list = []
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
@@ -266,19 +253,12 @@ class CarlaRunner:
                 if self.save_video:
                     frame_list.append(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
 
-                # accumulate reward to corresponding scenario
+                # accumulate scores to corresponding scenario
                 reward_idx = 0
                 for s_i in infos:
-                    if self.scenario_category == 'planning':
-                        rewards_list[s_i['scenario_id']].append(rewards[reward_idx])
-                    else:
-                        ious_list[s_i['scenario_id']].append(1-infos[reward_idx]['iou_loss'])
+                    score = rewards[reward_idx] if self.scenario_category == 'planning' else 1-infos[reward_idx]['iou_loss']
+                    score_list[s_i['scenario_id']].append(score)
                     reward_idx += 1
-
-            # save evaluation results
-            eval_results.update(self.env.running_results)
-            self.logger.log(f'>> Saving evaluation results to {result_file}')
-            joblib.dump(eval_results, result_file)
 
             # clean up all things
             self.logger.log(">> All scenarios are completed. Clearning up all actors")
@@ -290,25 +270,17 @@ class CarlaRunner:
                 save_video(frame_list, video_file)
                 video_count += 1
 
-            # print evaluation results
-            if self.scenario_category == 'planning':
-                self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode reward for batch scenario:', color='yellow')
-                for s_i in rewards_list.keys():
-                    self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
+            # print score for ranking
+            self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', color='yellow')
+            for s_i in score_list.keys():
+                self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.mean(score_list[s_i])), color='yellow')
 
-                all_scores = get_scores(eval_results)
-                self.logger.log("Evaluation results:")
-                self.logger.log(f"\t Collision rate:            {all_scores['collision_rate']:0.2f}")
-                # self.logger.log(f"\t Red light running freq.:   {all_scores['avg_red_light_freq']:0.2f}")
-                # self.logger.log(f"\t Stop sign running freq.:   {all_scores['avg_stop_sign_freq']:0.2f}")
-                self.logger.log(f"\t Out of road length:        {all_scores['out_of_road_length']:0.2f}")
-                self.logger.log(f"\t Distance to route:         {all_scores['avg_distance_to_route']:0.2f}")
-                self.logger.log(f"\t Route completion:          {all_scores['route_completion']:0.2f}")
-                self.logger.log(f"\t Running time:              {all_scores['avg_time_spent']:0.2f}")
-            else:
-                self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode IoU for batch scenario:', color='yellow')
-                for s_i in ious_list.keys():
-                    self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.mean(ious_list[s_i])), color='yellow')
+            # calculate evaluation results
+            score_function = get_route_scores if self.scenario_category == 'planning' else get_perception_scores
+            all_scores = score_function(self.env.running_results)
+            self.logger.add_eval_results(all_scores)
+            self.logger.print_eval_results()
+            self.logger.save_eval_results()
 
     def run(self):
         # get scenario data of different maps

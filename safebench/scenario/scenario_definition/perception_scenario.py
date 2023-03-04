@@ -17,7 +17,7 @@ import carla
 import numpy as np
 import cv2
 
-from safebench.scenario.scenario_manager.scenario_config import RouteScenarioConfig
+from safebench.scenario.scenario_manager.scenario_config import PerceptionScenarioConfig
 from safebench.scenario.scenario_manager.timer import GameTime
 from safebench.scenario.scenario_definition.object_detection.stopsign import Detection_StopSign
 from safebench.scenario.scenario_definition.object_detection.vehicle import Detection_Vehicle
@@ -124,7 +124,7 @@ class PerceptionScenario(RouteScenario):
 
             # create an actor configuration for the ego-vehicle trigger position
             egoactor_trigger_position = convert_json_to_transform(definition['trigger_position'])
-            route_config = RouteScenarioConfig()
+            route_config = PerceptionScenarioConfig()
             route_config.other_actors = list_of_actor_conf_instances
             route_config.trigger_points = [egoactor_trigger_position]
             #route_config.subtype = definition['scenario_type']

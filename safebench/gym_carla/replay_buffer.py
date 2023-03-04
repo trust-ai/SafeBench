@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:56:01
+LastEditTime: 2023-03-04 15:29:54
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -14,7 +14,7 @@ import numpy as np
 import torch
 
 
-class ReplayBuffer:
+class RouteReplayBuffer:
     """
         This buffer supports parallel storing transitions from multiple trajectories.
     """
@@ -159,7 +159,7 @@ class ReplayBuffer:
 
 
 
-class ReplayBuffer_Perception:
+class PerceptionReplayBuffer:
     """
         This buffer supports parallel storing image states and labels for object detection
     """
