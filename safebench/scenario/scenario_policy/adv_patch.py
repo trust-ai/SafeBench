@@ -25,7 +25,7 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
-from safebench.util.od_util import names, CUDA, CPU
+from safebench.util.od_util import CUDA, CPU
 from safebench.agent.object_detection.models.common import DetectMultiBackend
 from safebench.agent.object_detection.utils.dataloader_label import LoadImagesAndBoxLabels
 from safebench.agent.object_detection.utils.loss import ComputeLoss
@@ -46,7 +46,6 @@ from safebench.agent.object_detection.utils.general import (
     labels_to_class_weights
 )
 
-# TEMPLATE_DIR = os.path.join()
 
 class ObjectDetection(object):
     def __init__(self, config, logger) -> None:
@@ -54,9 +53,8 @@ class ObjectDetection(object):
         self.ego_action_dim = config['ego_action_dim']
         self.batch_size = config['batch_size']
         self.type = config['type']
-
-        self.template_dir = os.path.join(config['ROOT_DIR'], 'safebench/scenario/scenario_data/template_od')
-        self.raw_image = cv2.imread(os.path.join(self.template_dir, 'stopsign.jpg'))
+        self.texture_dir = os.path.join(config['ROOT_DIR'], config['texture_dir'])
+        self.raw_image = cv2.imread(self.texture_dir)
         self._preprocess_img()
 
         self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
@@ -120,23 +118,6 @@ class ObjectDetection(object):
         # Update the distribution
         self._dist = D.Bernoulli(torch.sigmoid(self.patch), )
     
-    def annotate(self, pred, img):
-        for i, det in enumerate(pred):
-            if self.annotator is None:
-                self.annotator = Annotator(image, line_width=3, example=str(self.names))
-        
-            if len(det):
-                det[:, :4] = scale_coords(image.shape[2:], det[:, :4], image.shape).round()
-            
-            for *xyxy, conf, cls in reversed(det):
-                c = int(cls)
-                label = str(self.model.names[c]) + ' {:.2f}'.format(conf)
-                self.annotator.box_label(xyxy, label, color=colors(c, True)) 
-        image = image.permute(0, 2, 3, 1).detach().cpu().numpy()[0]
-        image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
-        image = np.array(255*image, np.uint8)
-        return image
-     
     
     def add_patch(self, img, input_patch):
         # img: [1,3,416,416]

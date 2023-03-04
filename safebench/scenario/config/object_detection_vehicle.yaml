@@ -1,10 +1,12 @@
 type_dir: 'safebench/scenario/config/scenario_type'
 type_name: 'od.json' 
 type_category: 'perception'
+save_video: True
 
 route_dir: 'safebench/scenario/scenario_data/route_od'
+texture_dir: 'safebench/scenario/scenario_data/template_od/car.jpg'
 method: null
-scenario_id: 1
+scenario_id: 2
 route_id: null
 
 ego_action_dim: 2

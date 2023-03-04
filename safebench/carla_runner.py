@@ -293,7 +293,7 @@ class CarlaRunner:
                 self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode reward for batch scenario:', color='yellow')
                 for s_i in rewards_list.keys():
                     self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.sum(rewards_list[s_i])), color='yellow')
-
+                
                 all_scores, _, final_score = get_scores(eval_results)
                 self.logger.log("Evaluation results:")
                 self.logger.log(f"\t Collision rate:            {all_scores['collision_rate']:0.2f}")

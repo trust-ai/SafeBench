@@ -1,25 +1,34 @@
 import carla
+import os
 import random
 import numpy as np
+import cv2
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
+from safebench.util.od_util import *
 
 
 class Detection_Vehicle(BasicScenario):
     """
-        This scenario create vehicle textures in the current scenarios.
+        This scenario create stopsign textures in the current scenarios.
     """
 
-    def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(Detection_Vehicle, self).__init__("Detection_Vehicle", config, world)
+    def __init__(self, world, ego_id, texture_dir, ego_vehicle, config, timeout=60):
         self._map = CarlaDataProvider.get_map()
+        self.ego_id = ego_id
         self.ego_vehicle = ego_vehicle
         self.world = world
         self.timeout = timeout
-        self.object_vehicle=list(filter(lambda k: 'SM_Tesla' in k or 'SM_Jeep' in k, world.get_names_of_all_objects()))
+        self.object_list=list(filter(lambda k: 'SM_Tesla' in k, world.get_names_of_all_objects()))
+        self.image_path_list = [texture_dir]
+        self.image_list = [cv2.imread(image_file) for image_file in self.image_path_list]
+        self.image_list = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in self.image_list]
+        resized = cv2.resize(self.image_list[0], (1024,1024), interpolation=cv2.INTER_AREA)
+        resized = np.rot90(resized,k=1)
+        self.resized = cv2.flip(resized,1)
+        super(Detection_Vehicle, self).__init__("Detection_Vehicle", config, world)
 
-    
     def initialize_actors(self):
         """
         Initialize some background autopilot vehicles.
@@ -35,30 +44,79 @@ class Detection_Vehicle(BasicScenario):
 
         # the trigger distance will always be 0, trigger at the beginning
         self.reference_actor = self.ego_vehicle 
-
+    
+    def _initialize_environment(self):
+        if self.ego_id == 0:
+            height = 1024
+            texture = carla.TextureColor(height,height)
+            # TODO: run in multi-processing?
+            for x in range(height):
+                for y in range(height):
+                    r = int(self.resized[x,y,0])
+                    g = int(self.resized[x,y,1])
+                    b = int(self.resized[x,y,2])
+                    a = int(255)
+                    # texture.set(x,height -0-y - 1, carla.Color(r,g,b,a))
+                    texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
+                    # texture.set(x, y, carla.Color(r,g,b,a))
+            for o_name in self.object_list:
+                print(o_name)
+                self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
+        else:
+            pass    
+    
     def create_behavior(self, scenario_init_action):
-        inputs = np.array(scenario_init_action['image'].detach().cpu().numpy()*255, dtype=np.int)
-        height = 1024
-        texture = carla.TextureColor(height,height)
-        # TODO: run in multi-processing?
-        for x in range(height):
-            for y in range(height):
-                r = int(inputs[x,y,0])
-                g = int(inputs[x,y,1])
-                b = int(inputs[x,y,2])
-                a = int(255)
-                # texture.set(x,height -0-y - 1, carla.Color(r,g,b,a))
-                texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
-                # texture.set(x, y, carla.Color(r,g,b,a))
-        for o_name in self.object_vehicle:
-            self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
-        
+        if self.ego_id == 0:
+            inputs = np.array(scenario_init_action['image'].detach().cpu().numpy()*255, dtype=np.int)[0].transpose(1, 2, 0)
+            height = 1024
+            texture = carla.TextureColor(height,height)
+            # TODO: run in multi-processing?
+            for x in range(height):
+                for y in range(height):
+                    r = int(inputs[x,y,0])
+                    g = int(inputs[x,y,1])
+                    b = int(inputs[x,y,2])
+                    a = int(255)
+                    # texture.set(x,height -0-y - 1, carla.Color(r,g,b,a))
+                    texture.set(height-x-1, height-y-1, carla.Color(r,g,b,a))
+                    # texture.set(x, y, carla.Color(r,g,b,a))
+            for o_name in self.object_list:
+                # print('initialize_actors: ', o_name)
+                self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
+        else:
+            return
+    
     def update_behavior(self, scenario_action):
         pass
 
     def check_stop_condition(self):
         return False
 
+
+    def eval(self, bbox_pred, bbox_gt):
+        types = bbox_pred['labels']
+        if isinstance(types, torch.Tensor) or 'car' not in types:
+            return 0
+        
+        index = types.index('car')
+
+        objectiveness = bbox_pred['scores'][[index]]
+        pred = bbox_pred['boxes'][[index]]
+
+
+        match_ret = 0.
+        
+        if 'car' in bbox_gt.keys():
+            box_true = bbox_gt['car']
+            if len(box_true) > 0:
+                for b_true in box_true:
+                    b_true = get_xyxy(b_true)[None, :]
+                    ret = box_iou(pred, b_true)[0][0].item()
+                    if ret > match_ret:
+                        match_ret = ret
+        return match_ret
+        
+    
     def _try_spawn_random_walker_at(self, transform):
         """
             Try to spawn a walker at specific transform with random bluprint.

@@ -24,7 +24,7 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
-from safebench.util.od_util import names, CUDA, CPU
+from safebench.util.od_util import names_coco128, CUDA, CPU
 from safebench.agent.object_detection.models.common import DetectMultiBackend
 from safebench.agent.object_detection.utils.dataloader_label import LoadImagesAndBoxLabels
 from safebench.agent.object_detection.utils.loss import ComputeLoss
@@ -48,9 +48,9 @@ from safebench.agent.object_detection.utils.general import (
 DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yaml', \
                       imgsz=(1024, 1024),  conf_thres=0.25, iou_thres=0.45,)
 
-# TEMPLATE_DIR = os.path.join()
+# texture_dir = os.path.join()
 
-class ObjectDetection(object):
+class YoloAgent(object):
     def __init__(self, config, logger, train_mode='none') -> None:
 
         self.ego_action_dim = config['ego_action_dim']
@@ -59,6 +59,7 @@ class ObjectDetection(object):
         self.batch_size = config['batch_size']
         self._batch_id = torch.arange(0, self.batch_size).unsqueeze(1)
         self.load_episode = 0
+        self.continue_episode = 0
 
         self.mode = 'train'
         self.imgsz = DEFAULT_CONFIG['imgsz']
@@ -68,7 +69,7 @@ class ObjectDetection(object):
 
         self.model = DetectMultiBackend(DEFAULT_CONFIG['weights'], device=self.device, dnn=False, data=DEFAULT_CONFIG['data'], fp16=False)
         self.model.warmup(imgsz=(1 if self.model.pt else 1, 3, *DEFAULT_CONFIG['imgsz']))
-        stride, self.names, self.pt = self.model.stride, self.model.names, self.model.pt
+        stride, _, self.pt = self.model.stride, self.model.names, self.model.pt
         self.annotator = None 
         #imgsz = check_img_size(DEFAULT_CONFIG['imgsz'], s=stride)  # check image size
 
@@ -79,16 +80,16 @@ class ObjectDetection(object):
             with open(ROOT / 'data/hyps/hyp.scratch-high.yaml', errors='ignore') as f:
                 hyp = yaml.safe_load(f)  # load hyps dict
 
-            self.model.model.nc = len(names)  # attach number of classes to model
+            self.model.model.nc = len(names_coco128)  # attach number of classes to model
             self.model.model.hyp = hyp  # attach hyperparameters to model
             nl = self.model.model.model[-1].nl
             hyp['box'] *= 3 / nl  # scale to layers
             hyp['cls'] *= 0 # len(names) / 80 * 3 / nl  # scale to classes and layers
             hyp['obj'] *= 0 # (self.imgsz[0] / 640) ** 2 * 3 / nl  # scale to image size and layers
             hyp['label_smoothing'] = 0.0
-            self.model.model.class_weights = labels_to_class_weights([[[i]] for i in range(15)], len(names)).to('cuda:0') * len(names)  # attach class weights
-            self.model.model.names = names
-
+            self.model.model.class_weights = labels_to_class_weights([[[i]] for i in range(15)], len(names_coco128)).to('cuda:0') * len(names_coco128)  # attach class weights
+            self.model.model.names = names_coco128
+            
             freeze = [0]
             freeze = [f'model.{x}.' for x in (freeze if len(freeze) > 1 else range(freeze[0]))]
             for k, v in self.model.model.named_parameters():
@@ -119,8 +120,9 @@ class ObjectDetection(object):
 
             pred = self.model(image, augment=False, visualize=False).detach().cpu()
             pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, None, False, max_det=100)
-            pred_list.append([p.numpy() for p in pred])
 
+            pred = self._transform_predictions(pred)
+            pred_list.append(pred)
             # TODO: CUDA Memory Management
             torch.cuda.empty_cache()
 
@@ -183,7 +185,7 @@ class ObjectDetection(object):
     def annotate(self, pred, img):
         for i, det in enumerate(pred):
             if self.annotator is None:
-                self.annotator = Annotator(image, line_width=3, example=str(self.names))
+                self.annotator = Annotator(image, line_width=3, example=str(names_coco128))
 
             if len(det):
                 det[:, :4] = scale_coords(image.shape[2:], det[:, :4], image.shape).round()
@@ -192,9 +194,7 @@ class ObjectDetection(object):
                 c = int(cls)
                 label = str(self.model.names[c]) + ' {:.2f}'.format(conf)
                 self.annotator.box_label(xyxy, label, color=colors(c, True)) 
-        print(xyxy, conf)
         image = image.permute(0, 2, 3, 1).detach().cpu().numpy()[0]
-        print(image.shape)
         image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
         image = np.array(255*image, np.uint8)
         return image
@@ -235,6 +235,16 @@ class ObjectDetection(object):
     def save_model(self, e_i):
         pass
 
+    def _transform_predictions(self, pred):
+        if pred[0].shape[0] == 0:
+            pred = {"scores": torch.Tensor([-1]), "labels": torch.Tensor([-1]), "boxes": torch.Tensor([-1, -1, -1, -1])}
+
+        else:
+            pred = {"scores": torch.cat([p[:, -2].detach().cpu() for p in pred], dim=-1), 
+                    "labels": [names_coco128[int(idx)] for p in pred for idx in p[:,-1].detach().cpu().numpy()],
+                    "boxes": torch.cat([p[:, :-2].detach().cpu() for p in pred], dim=1)}
+        return pred
+
 if __name__ == '__main__':
-    agent = ObjectDetection({'ego_action_dim': 2, 'model_path': None}, None, train_mode='attack')
+    agent = YoloAgent({'ego_action_dim': 2, 'model_path': None}, None, train_mode='attack')
     agent.train_agent('attack')

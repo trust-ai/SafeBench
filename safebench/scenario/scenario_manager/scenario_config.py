@@ -37,6 +37,7 @@ class ScenarioConfig(object):
     initial_transform = None
     initial_pose = None
     trajectory = None
+    texture_dir = None
 
 
 class RouteScenarioConfig(object):
@@ -50,3 +51,18 @@ class RouteScenarioConfig(object):
     parameters = None
     weather = carla.WeatherParameters()
     num_scenario = None
+
+
+class PerceptionScenarioConfig(object):
+    """
+        configuration of a PerceptionScenario
+    """
+    other_actors = []
+    trigger_points = []
+    route_var_name = None
+    subtype = None
+    parameters = None
+    weather = carla.WeatherParameters()
+    num_scenario = None
+
+
