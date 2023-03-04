@@ -2,7 +2,7 @@
  * @Author: 
  * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-02-20 20:26:29
+ * @LastEditTime: 2023-03-04 16:55:58
  * @Description: 
 -->
 
@@ -15,7 +15,7 @@
 |
 <a href="">Demo Video</a>
 |
-<a href="">Website</a>
+<a href="https://ai-secure.github.io/SSAD2023/challenge">Website</a>
 |
 <a href="https://arxiv.org/pdf/2206.09682.pdf">Paper</a>
 ]

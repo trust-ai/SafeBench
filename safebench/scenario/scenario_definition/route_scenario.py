@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 15:23:00
+LastEditTime: 2023-03-04 16:24:17
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -235,7 +235,7 @@ class RouteScenario():
             route = interpolate_trajectory(self.world, self.config.trajectory)
             ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
 
-        # scan route to get scenario definitions
+        # scan route to get exactly 1 scenario definition
         possible_scenarios, _ = RouteParser.scan_route_for_scenarios(
             self.config.town,
             route,
@@ -245,6 +245,7 @@ class RouteScenario():
         scenarios_definitions = []
         for trigger in possible_scenarios.keys():
             scenarios_definitions.extend(possible_scenarios[trigger])
+        assert len(scenarios_definitions) == 1, "There should be exactly 1 scenario definition in the route"
 
         # TODO: ego route will be overwritten by other scenarios
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(route))

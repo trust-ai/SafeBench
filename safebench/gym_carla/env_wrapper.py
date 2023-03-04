@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 17:19:09
+LastEditTime: 2023-03-04 16:43:48
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -21,6 +21,7 @@ class VectorWrapper():
     """
 
     def __init__(self, env_params, scenario_config, world, birdeye_render, display, logger):
+        self.logger = logger
         self.world = world
         self.num_scenario = scenario_config['num_scenario']
         self.ROOT_DIR = scenario_config['ROOT_DIR']
@@ -99,6 +100,9 @@ class VectorWrapper():
                 # check if env is done
                 if done:
                     self.finished_env[e_i] = True
+                    # save running results according to the data_id of scenario
+                    if current_env.config.data_id in self.running_results.keys():
+                        self.logger.log('Scenario with data_id {} is duplicated'.format(current_env.config.data_id))
                     self.running_results[current_env.config.data_id] = current_env.scenario_manager.running_record
 
                 # update infomation
@@ -106,6 +110,8 @@ class VectorWrapper():
                 reward_list.append(reward)
                 done_list.append(done)
                 info_list.append(info)
+        
+        # convert to numpy
         rewards = np.array(reward_list)
         dones = np.array(done_list)
         infos = np.array(info_list)

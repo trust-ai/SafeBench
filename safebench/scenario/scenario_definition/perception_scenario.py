@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 15:19:15
+LastEditTime: 2023-03-04 16:46:15
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -93,7 +93,6 @@ class PerceptionScenario(RouteScenario):
                 self.logger.log('>> Stop due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
-            # print(running_status['driven_distance'])
             if self.config.scenario_id != 0:  # only check when evaluating
                 if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
                     stop = True
@@ -211,12 +210,10 @@ class PerceptionScenario(RouteScenario):
         return saved_list
 
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
-        # self.video_writer.write_frame(obs)
         bbox_pred = ego_action['od_result']
         self.get_bbox(world_2_camera, image_w, image_h, fov)
         bbox_label = self.ground_truth_bbox
         self._iou = self.eval(bbox_pred, bbox_label)
-        print('evaluate: ', self._iou)
         return self._iou
     
     def update_info(self):
