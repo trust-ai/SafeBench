@@ -14,20 +14,20 @@ class Detection_StopSign(BasicScenario):
         This scenario create stopsign textures in the current scenarios.
     """
 
-    def __init__(self, world, ego_id, ROOT_DIR, ego_vehicle, config, timeout=60):
+    def __init__(self, world, ego_id, texture_dir, ego_vehicle, config, timeout=60):
         self._map = CarlaDataProvider.get_map()
         self.ego_id = ego_id
         self.ego_vehicle = ego_vehicle
         self.world = world
         self.timeout = timeout
         self.object_list=list(filter(lambda k: 'BP_Stop' in k, world.get_names_of_all_objects()))
-        TEMPLATE_DIR = os.path.join(ROOT_DIR, 'safebench/scenario/scenario_data/template_od')
-        self.image_path_list = [os.path.join(TEMPLATE_DIR, 'stopsign.jpg')]
+        self.image_path_list = [texture_dir]
         self.image_list = [cv2.imread(image_file) for image_file in self.image_path_list]
         self.image_list = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in self.image_list]
         resized = cv2.resize(self.image_list[0], (1024,1024), interpolation=cv2.INTER_AREA)
         resized = np.rot90(resized,k=1)
         self.resized = cv2.flip(resized,1)
+
         super(Detection_StopSign, self).__init__("Detection_StopSign", config, world)
 
     def initialize_actors(self):
@@ -63,7 +63,7 @@ class Detection_StopSign(BasicScenario):
             for o_name in self.object_list:
                 self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
         else:
-            print('skip in stopsign')
+            pass
     
     def create_behavior(self, scenario_init_action):
         if self.ego_id == 0:
@@ -84,7 +84,6 @@ class Detection_StopSign(BasicScenario):
                 # print('initialize_actors: ', o_name)
                 self.world.apply_color_texture_to_object(o_name, carla.MaterialParameter.Diffuse, texture)
         else:
-            print('init just once, skip')
             return
     def update_behavior(self, scenario_action):
         pass
@@ -108,16 +107,17 @@ class Detection_StopSign(BasicScenario):
         pred = bbox_pred['boxes'][[index]]
 
 
-        ret = 0.
+        match_ret = 0.
+        
         if 'stopsign' in bbox_gt.keys():
             box_true = bbox_gt['stopsign']
             if len(box_true) > 0:
                 for b_true in box_true:
                     b_true = get_xyxy(b_true)[None, :]
-                    print(b_true, pred)
                     ret = box_iou(pred, b_true)[0][0].item()
-
-        return ret
+                    if ret > match_ret:
+                        match_ret = ret
+        return match_ret
                 
         
     def _try_spawn_random_walker_at(self, transform):

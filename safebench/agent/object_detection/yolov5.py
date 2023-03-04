@@ -48,7 +48,7 @@ from safebench.agent.object_detection.utils.general import (
 DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yaml', \
                       imgsz=(1024, 1024),  conf_thres=0.25, iou_thres=0.45,)
 
-# TEMPLATE_DIR = os.path.join()
+# texture_dir = os.path.join()
 
 class YoloAgent(object):
     def __init__(self, config, logger, train_mode='none') -> None:
