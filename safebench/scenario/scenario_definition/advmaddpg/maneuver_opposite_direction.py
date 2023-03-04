@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:38:05
+LastEditTime: 2023-03-04 14:21:53
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -38,8 +38,7 @@ class ManeuverOppositeDirection(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 obstacle_type='vehicle', timeout=120):
+    def __init__(self, world, ego_vehicles, config, timeout=60):
         """
         Setup all relevant parameters and create scenario
         obstacle_type -> flag to select type of leading obstacle. Values: vehicle, barrier
@@ -55,9 +54,6 @@ class ManeuverOppositeDirection(BasicScenario):
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         # self._source_transform = None
         # self._sink_location = None
-        # self._blackboard_queue_name = 'ManeuverOppositeDirection/actor_flow_queue'
-        # self._queue = py_trees.blackboard.Blackboard().set(self._blackboard_queue_name, Queue())
-        self._obstacle_type = obstacle_type
         self._first_actor_transform = None
         self._second_actor_transform = None
         # self._third_actor_transform = None
@@ -106,13 +102,11 @@ class ManeuverOppositeDirection(BasicScenario):
     def initialize_route_planner(self):
         carla_map = self.world.get_map()
         forward_vector = self.other_actor_transform[1].rotation.get_forward_vector() * self._actor_distance
-        self.target_transform = carla.Transform(carla.Location(self.other_actor_transform[1].location + forward_vector),
-                                           self.other_actor_transform[1].rotation)
+        self.target_transform = carla.Transform(carla.Location(self.other_actor_transform[1].location + forward_vector), self.other_actor_transform[1].rotation)
         self.target_waypoint = [self.target_transform.location.x, self.target_transform.location.y, self.target_transform.rotation.yaw]
         print('self.target_waypoint', self.target_waypoint)
 
-        other_locations = [self.other_actor_transform[1].location,
-                           carla.Location(self.other_actor_transform[1].location + forward_vector)]
+        other_locations = [self.other_actor_transform[1].location, carla.Location(self.other_actor_transform[1].location + forward_vector)]
         route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:41:07
+LastEditTime: 2023-03-03 23:25:38
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -51,6 +51,7 @@ class RouteScenarioConfig(object):
     parameters = None
     weather = carla.WeatherParameters()
     num_scenario = None
+    friction = None
 
 
 class PerceptionScenarioConfig(object):
@@ -64,5 +65,6 @@ class PerceptionScenarioConfig(object):
     parameters = None
     weather = carla.WeatherParameters()
     num_scenario = None
+    friction = None
 
 

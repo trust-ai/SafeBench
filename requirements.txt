@@ -1,13 +1,12 @@
 gym==0.23.1
 numpy==1.23.1
+torch
+torchvision
 pygame
 scikit-image
 tqdm
 pyyaml
 matplotlib
-torch
-torchvision
-py_trees==2.1.6
 opencv-python
 pandas
 seaborn
@@ -17,3 +16,4 @@ joblib
 tensorboardX
 cpprb
 moviepy
+pycocotools

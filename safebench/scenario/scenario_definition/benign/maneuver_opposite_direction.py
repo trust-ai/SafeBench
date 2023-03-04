@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:48:34
+LastEditTime: 2023-03-04 14:22:52
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -45,8 +45,6 @@ class ManeuverOppositeDirection(BasicScenario):
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         # self._source_transform = None
         # self._sink_location = None
-        # self._blackboard_queue_name = 'ManeuverOppositeDirection/actor_flow_queue'
-        # self._queue = py_trees.blackboard.Blackboard().set(self._blackboard_queue_name, Queue())
         self._obstacle_type = obstacle_type
         self._first_actor_transform = None
         self._second_actor_transform = None

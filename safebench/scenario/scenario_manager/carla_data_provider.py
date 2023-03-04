@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:43:36
+LastEditTime: 2023-03-04 14:22:43
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -22,9 +22,6 @@ import carla
 
 
 def calculate_velocity(actor):
-    """
-    Method to calculate the velocity of a actor
-    """
     velocity_squared = actor.get_velocity().x**2
     velocity_squared += actor.get_velocity().y**2
     return math.sqrt(velocity_squared)
@@ -126,7 +123,6 @@ class CarlaDataProvider(object):
                 return CarlaDataProvider._actor_velocity_map[key]
 
         # We are intentionally not throwing here
-        # This may cause exception loops in py_trees
         print('{}.get_velocity: {} not found!' .format(__name__, actor))
         return 0.0
 
@@ -140,7 +136,6 @@ class CarlaDataProvider(object):
                 return CarlaDataProvider._actor_location_map[key]
 
         # We are intentionally not throwing here
-        # This may cause exception loops in py_trees
         print('{}.get_location: {} not found!' .format(__name__, actor))
         return None
 
@@ -154,7 +149,6 @@ class CarlaDataProvider(object):
                 return CarlaDataProvider._actor_transform_map[key]
 
         # We are intentionally not throwing here
-        # This may cause exception loops in py_trees
         print('{}.get_transform: {} not found!' .format(__name__, actor))
         return None
 
