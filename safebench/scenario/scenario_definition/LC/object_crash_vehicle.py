@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:49:48
+LastEditTime: 2023-03-03 12:43:48
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -102,8 +102,6 @@ class DynamicObjectCrossing(BasicScenario):
         x_static = x_ego + shift * (x_cycle - x_ego)
         y_static = y_ego + shift * (y_cycle - y_ego)
         spawn_point_wp = self.ego_vehicle.get_world().get_map().get_waypoint(transform.location)
-
-        #Note: if need to change tranform for blocker, here
         self.transform2 = carla.Transform(
             carla.Location(x_static, y_static, spawn_point_wp.transform.location.z + 0.3),
             carla.Rotation(yaw=orientation_yaw + 180)
@@ -118,7 +116,7 @@ class DynamicObjectCrossing(BasicScenario):
 
         # cyclist transform
         _start_distance = 45
-        # We start by getting and waypoint in the closest sidewalk.
+        # we start by getting and waypoint in the closest sidewalk.
         waypoint = self._reference_waypoint
 
         while True:
@@ -136,7 +134,8 @@ class DynamicObjectCrossing(BasicScenario):
                 _start_distance += 1.5
                 waypoint = wp_next
 
-        while True:  # We keep trying to spawn avoiding props
+        # we keep trying to spawn avoiding props
+        while True:  
             try:
                 self.transform, orientation_yaw = self._calculate_base_transform(_start_distance, waypoint)
                 forward_vector = self.transform.rotation.get_forward_vector() * y * self._reference_waypoint.lane_width
@@ -154,7 +153,6 @@ class DynamicObjectCrossing(BasicScenario):
                 self._spawn_blocker(self.transform, orientation_yaw)
                 break
             except RuntimeError as r:
-                # We keep retrying until we spawn
                 print("Base transform is blocking objects ", self.transform)
                 _start_distance += 0.4
                 self._spawn_attempted += 1
