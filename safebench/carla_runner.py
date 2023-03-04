@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 20:04:09
+LastEditTime: 2023-03-04 14:42:15
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -30,7 +30,7 @@ from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataPro
 from safebench.scenario.scenario_data_loader import ScenarioDataLoader
 from safebench.scenario.tools.scenario_utils import scenario_parse
 
-from safebench.util.logger import EpochLogger, setup_logger_kwargs
+from safebench.util.logger import Logger, setup_logger_kwargs
 from safebench.util.run_util import save_video
 from safebench.util.metric_util import get_scores
 
@@ -40,6 +40,8 @@ class CarlaRunner:
         self.scenario_config = scenario_config
         self.agent_config = agent_config
 
+        self.seed = scenario_config['seed']
+        self.exp_name = scenario_config['exp_name']
         self.output_dir = scenario_config['output_dir']
         self.save_video = scenario_config['save_video']
         self.mode = scenario_config['mode']
@@ -91,13 +93,11 @@ class CarlaRunner:
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
         # define logger
-        logger_kwargs = setup_logger_kwargs(scenario_config['exp_name'], self.output_dir, scenario_config['seed'])
-        self.logger = EpochLogger(**logger_kwargs)
+        logger_kwargs = setup_logger_kwargs(self.exp_name, self.output_dir, self.seed)
+        self.logger = Logger(**logger_kwargs)
         
         # prepare parameters
-        if self.mode == 'eval':
-            self.logger = EpochLogger(eval_mode=True)
-        elif self.mode == 'train_agent':
+        if self.mode == 'train_agent':
             self.buffer_capacity = agent_config['buffer_capacity']
             self.eval_in_train_freq = agent_config['eval_in_train_freq']
             self.save_freq = agent_config['save_freq']
@@ -109,6 +109,8 @@ class CarlaRunner:
             self.save_freq = scenario_config['save_freq']
             self.train_episode = scenario_config['train_episode']
             self.logger.save_config(scenario_config)
+        elif self.mode == 'eval':
+            self.logger.log('>> Evaluation Mode, skip config saving')
         else:
             raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
@@ -178,7 +180,7 @@ class CarlaRunner:
             scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
             obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
             replay_buffer.store_init([static_obs, scenario_init_action], additional_dict=additional_dict)
-            
+
             # start loop
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
@@ -288,7 +290,7 @@ class CarlaRunner:
                 save_video(frame_list, video_file)
                 video_count += 1
 
-            # calculate episode reward and print
+            # print evaluation results
             if self.scenario_category == 'planning':
                 self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Episode reward for batch scenario:', color='yellow')
                 for s_i in rewards_list.keys():

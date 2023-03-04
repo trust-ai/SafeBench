@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:56:09
+LastEditTime: 2023-03-04 14:40:44
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,17 +15,21 @@ import numpy as np
 import cv2
 from moviepy.video.io.ffmpeg_writer import FFMPEG_VideoWriter
 
+
 def CPU(x):
     return x.detach().cpu().numpy()
+
 
 def CUDA(x):
     if isinstance(x, np.ndarray):
         x = torch.from_numpy(x)
     return x.cuda()
 
+
 def save_image(fp, img):
     cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     cv2.imwrite(fp, img)
+
 
 def build_projection_matrix(w, h, fov):
     focal = w / (2.0 * np.tan(fov * np.pi / 360.0))
@@ -35,9 +39,11 @@ def build_projection_matrix(w, h, fov):
     K[1, 2] = h / 2.0
     return K
 
+
 def box_area(box):
     # box = xyxy(4,n)
     return (box[2] - box[0]) * (box[3] - box[1])
+
 
 def box_iou(box1, box2, eps=1e-7):
     # https://github.com/pytorch/vision/blob/master/torchvision/ops/boxes.py
@@ -60,6 +66,7 @@ def box_iou(box1, box2, eps=1e-7):
     # IoU = inter / (area1 + area2 - inter)
     return inter / (box_area(box1.T)[:, None] + box_area(box2.T) - inter + eps)
 
+
 def xywh2xyxy(x):
     # Convert nx4 boxes from [x, y, w, h] to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
     y = x.clone()
@@ -69,6 +76,7 @@ def xywh2xyxy(x):
     y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
     return y
 
+
 def xyxy2xywh(x):
     # Convert nx4 boxes from [x1, y1, x2, y2] to [x, y, w, h] where xy1=top-left, xy2=bottom-right
     y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
@@ -77,6 +85,7 @@ def xyxy2xywh(x):
     y[:, 2] = x[:, 2] - x[:, 0]  # width
     y[:, 3] = x[:, 3] - x[:, 1]  # height
     return y
+
 
 def xyxy2xywhn(x, w=1024, h=1024, clip=False, eps=0.0):
     # Convert nx4 boxes from [x1, y1, x2, y2] to [x, y, w, h] normalized where xy1=top-left, xy2=bottom-right
@@ -88,40 +97,9 @@ def xyxy2xywhn(x, w=1024, h=1024, clip=False, eps=0.0):
     y[:, 3] = (x[:, 3] - x[:, 1]) / h  # height
     return y
 
+
 def get_xyxy(x):
     return torch.tensor([np.min(x[:, 0]), np.min(x[:, 1]), np.max(x[:, 0]), np.max(x[:, 1])])
-
-class VideoWriter:
-    def __init__(self, filename='_autoplay.mp4', fps=10.0, **kw):
-        self.writer = None
-        self.params = dict(filename=filename, fps=fps, **kw)
-
-    def add(self, img):
-        img = np.asarray(img)
-        if self.writer is None:
-            h, w = img.shape[:2]
-            self.writer = FFMPEG_VideoWriter(size=(w, h), **self.params)
-        if img.dtype in [np.float32, np.float64]:
-            img = np.uint64(img.clip(0, 1)*255)
-        if len(img.shape) == 2:
-            img = np.repeat(img[..., None], 3, -1)
-        # self.writer.write_frame(img)
-        
-        try:
-            self.writer.write_frame(img)
-        except:
-            pass
-
-    def close(self):
-        if self.writer is not None:
-            self.writer.close()
-            self.writer = None
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *kw):
-        self.close()
 
 
 class xverse_video_writer:

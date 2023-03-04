@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:55:23
+LastEditTime: 2023-03-04 14:49:22
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,17 +15,11 @@ import json
 import os
 import os.path as osp
 import time
-import warnings
 
 import joblib
 import numpy as np
-import torch
 import yaml
-from tensorboardX import SummaryWriter
 
-
-# Determine if this is the main process so that some info could be printed
-IS_MAIN_PROC = True
 
 # Where experiment outputs are saved by default:
 DEFAULT_DATA_DIR = osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__))))
@@ -35,7 +29,7 @@ DEFAULT_DATA_DIR = osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__))))
 FORCE_DATESTAMP = False
 
 
-def setup_logger_kwargs(exp_name, output_dir, seed=None, datestamp=False, use_tensor_board=True):
+def setup_logger_kwargs(exp_name, output_dir, seed=None, datestamp=False):
     # Datestamp forcing
     datestamp = datestamp or FORCE_DATESTAMP
 
@@ -53,7 +47,10 @@ def setup_logger_kwargs(exp_name, output_dir, seed=None, datestamp=False, use_te
         relpath = osp.join(relpath, subfolder)
 
     data_dir = os.path.join(DEFAULT_DATA_DIR, output_dir)
-    logger_kwargs = dict(output_dir=osp.join(data_dir, relpath), exp_name=exp_name, use_tensor_board=use_tensor_board)
+    logger_kwargs = dict(
+        output_dir=osp.join(data_dir, relpath),
+        exp_name=exp_name, 
+    )
     return logger_kwargs
 
 
@@ -131,64 +128,53 @@ def colorize(string, color, bold=False, highlight=False):
 
 class Logger:
     """
-    A general-purpose logger.
-
-    Makes it easy to save diagnostics, hyperparameter configurations, the 
-    state of a training run, and the trained model.
+        A general-purpose logger.
+        Makes it easy to save diagnostics, hyperparameter configurations, the state of a training run, and the trained model.
     """
-    def __init__(self, output_dir=None, output_fname='progress.txt', exp_name=None, eval_mode=False, use_tensor_board=True):
+    def __init__(self, output_dir=None, output_fname='progress.txt', exp_name=None):
         """
-        Initialize a Logger.
+            Initialize a Logger.
 
-        Args:
-            output_dir (string): A directory for saving results to. If 
-                ``None``, defaults to a temp directory of the form
-                ``/tmp/experiments/somerandomnumber``.
+            Args:
+                output_dir (string): A directory for saving results to. 
+                    If ``None``, defaults to a temp directory of the form ``/tmp/experiments/somerandomnumber``.
 
-            output_fname (string): Name for the tab-separated-value file 
-                containing metrics logged throughout a training run. 
-                Defaults to ``progress.txt``. 
+                output_fname (string): Name for the tab-separated-value file 
+                    containing metrics logged throughout a training run. Defaults to ``progress.txt``. 
 
-            exp_name (string): Experiment name. If you run multiple training
-                runs and give them all the same ``exp_name``, the plotter
-                will know to group them. (Use case: if you run the same
-                hyperparameter configuration with multiple random seeds, you
-                should give them all the same ``exp_name``.)
+                exp_name (string): Experiment name. If you run multiple training
+                    runs and give them all the same ``exp_name``, the plotter will know to group them. (Use case: if you run the same
+                    hyperparameter configuration with multiple random seeds, you should give them all the same ``exp_name``.)
         """
-        if IS_MAIN_PROC and not eval_mode:
-            self.output_dir = output_dir or "/tmp/experiments/%i" % int(time.time())
-            if osp.exists(self.output_dir):
-                self.log(">> Log path %s already exists! Storing info there anyway." % self.output_dir, 'yellow')
-            else:
-                os.makedirs(self.output_dir)
-            self.output_file = open(osp.join(self.output_dir, output_fname), 'a')
-            atexit.register(self.output_file.close)
-            print(colorize(">> Logging data to %s" % self.output_file.name, 'green', bold=True))
-            # Setup tensor board logging if enabled and MPI root process
-            self.summary_writer = SummaryWriter(os.path.join(self.output_dir, 'tb')) if use_tensor_board else None
-        else:
-            self.output_dir = None
-            self.output_file = None
-            self.summary_writer = None
         self.epoch = 0
         self.first_row = True
         self.log_headers = []
         self.log_current_row = {}
         self.exp_name = exp_name
+        self.log_print_history = []
+
+        self.output_dir = output_dir or "/tmp/experiments/%i" % int(time.time())
+        if osp.exists(self.output_dir):
+            self.log(">> Log path %s already exists! Storing info there anyway." % self.output_dir, 'yellow')
+        else:
+            os.makedirs(self.output_dir)
+        self.output_file = open(osp.join(self.output_dir, output_fname), 'a')
+        atexit.register(self.output_file.close)
+        self.log(">> Logging data to %s" % self.output_file.name, 'green')
 
     def log(self, msg, color='green'):
-        """Print a colorized message to stdout."""
-        if IS_MAIN_PROC:
-            print(colorize(msg, color, bold=True))
+        # print with color
+        print(colorize(msg, color, bold=True))
+        # save print message to log file
+        self.log_print_history.append(msg)
+
+    def log_dict(self, dict_msg, color='green'):
+        for key, value in dict_msg.items():
+            self.log("{}: {}".format(key, value), color)
 
     def log_tabular(self, key, val):
         """
-        Log a value of some diagnostic.
-
-        Call this only once for each diagnostic quantity, each iteration.
-        After using ``log_tabular`` to store values for each diagnostic,
-        make sure to call ``dump_tabular`` to write them out to file and
-        stdout (otherwise they will not get saved anywhere).
+            Log a value of some diagnostic.
         """
         if self.first_row:
             self.log_headers.append(key)
@@ -199,230 +185,71 @@ class Logger:
 
     def save_config(self, config):
         """
-        Log an experiment configuration.
-
-        Call this once at the top of your experiment, passing in all important
-        config vars as a dict. This will serialize the config to JSON, while
-        handling anything which can't be serialized in a graceful way (writing
-        as informative a string as possible). 
-
-        Example use:
-
-        .. code-block:: python
-
-            logger = EpochLogger(**logger_kwargs)
-            logger.save_config(locals())
+            Log an experiment configuration.
         """
         if self.exp_name is not None:
             config['exp_name'] = self.exp_name
         config_json = convert_json(config)
-        if IS_MAIN_PROC:
-            output = json.dumps(config_json, separators=(',', ':\t'), indent=4, sort_keys=True)
-            # print(colorize('Saving config:\n', color='cyan', bold=True))
-            # print(output)
-            with open(osp.join(self.output_dir, "config.json"), 'w') as out:
-                out.write(output)
+        output = json.dumps(config_json, separators=(',', ':\t'), indent=4, sort_keys=True)
+        # print(colorize('Saving config:\n', color='cyan', bold=True))
+        # print(output)
+        with open(osp.join(self.output_dir, "config.json"), 'w') as out:
+            out.write(output)
 
-            with open(osp.join(self.output_dir, "config.yaml"), 'w') as out:
-                yaml.dump(config, out, default_flow_style=False, indent=4, sort_keys=False)
+        with open(osp.join(self.output_dir, "config.yaml"), 'w') as out:
+            yaml.dump(config, out, default_flow_style=False, indent=4, sort_keys=False)
 
     def save_state(self, state_dict, itr=None):
         """
-        Saves the state of an experiment.
+            Saves the state of an experiment.
 
-        To be clear: this is about saving *state*, not logging diagnostics.
-        All diagnostic logging is separate from this function. This function
-        will save whatever is in ``state_dict``---usually just a copy of the
-        environment---and the most recent parameters for the model you 
-        previously set up saving for with ``setup_pytorch_saver``. 
+            Args:
+                state_dict (dict): Dictionary containing essential elements to
+                    describe the current state of training.
 
-        Call with any frequency you prefer. If you only want to maintain a
-        single state and overwrite it at each call with the most recent 
-        version, leave ``itr=None``. If you want to keep all of the states you
-        save, provide unique (increasing) values for 'itr'.
-
-        Args:
-            state_dict (dict): Dictionary containing essential elements to
-                describe the current state of training.
-
-            itr: An int, or None. Current iteration of training.
+                itr: An int, or None. Current iteration of training.
         """
-        if IS_MAIN_PROC:
-            fname = 'vars.pkl' if itr is None else 'vars%d.pkl' % itr
-            try:
-                joblib.dump(state_dict, osp.join(self.output_dir, fname))
-            except:
-                self.log('Warning: could not pickle state_dict.', color='red')
-            if hasattr(self, 'pytorch_saver_elements'):
-                self._pytorch_simple_save(itr)
-
-    def setup_pytorch_saver(self, what_to_save):
-        """
-        Set up easy model saving for a single PyTorch model.
-
-        Because PyTorch saving and loading is especially painless, this is
-        very minimal; we just need references to whatever we would like to 
-        pickle. This is integrated into the logger because the logger
-        knows where the user would like to save information about this
-        training run.
-
-        Args:
-            what_to_save: Any PyTorch model or serializable object containing
-                PyTorch models.
-        """
-        self.pytorch_saver_elements = what_to_save
-
-    def _pytorch_simple_save(self, itr=None):
-        """
-        Saves the PyTorch model (or models).
-        """
-        if IS_MAIN_PROC:
-            assert hasattr(self, 'pytorch_saver_elements'), "First have to setup saving with self.setup_pytorch_saver"
-            fpath = 'model_save'
-            fpath = osp.join(self.output_dir, fpath)
-            fname = 'model' + ('_%d' % itr if itr is not None else '') + '.pt'
-            fname = osp.join(fpath, fname)
-            os.makedirs(fpath, exist_ok=True)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                torch.save(self.pytorch_saver_elements, fname)
+        fname = 'vars.pkl' if itr is None else 'vars%d.pkl' % itr
+        try:
+            joblib.dump(state_dict, osp.join(self.output_dir, fname))
+        except:
+            self.log('Warning: could not pickle state_dict.', color='red')
 
     def dump_tabular(self, x_axis="Epoch", verbose=True, env=None):
         """
-        Write all of the diagnostics from the current iteration.
-        Writes both to stdout, and to the output file.
-        x_axis: "Epoch" or "TotalEnvInteracts"
+            Write all of the diagnostics from the current iteration.  Writes both to stdout, and to the output file.
+            x_axis: "Epoch" or "TotalEnvInteracts"
         """
         data_dict = {}
-        if IS_MAIN_PROC:
-            self.epoch += 1
-            vals = []
-            key_lens = [len(key) for key in self.log_headers]
-            max_key_len = max(15, max(key_lens))
-            keystr = '%' + '%d' % max_key_len
-            fmt = "| " + keystr + "s | %15s |"
-            n_slashes = 22 + max_key_len
-            if verbose:
+        self.epoch += 1
+        vals = []
+        key_lens = [len(key) for key in self.log_headers]
+        max_key_len = max(15, max(key_lens))
+        keystr = '%' + '%d' % max_key_len
+        fmt = "| " + keystr + "s | %15s |"
+        n_slashes = 22 + max_key_len
+        if verbose:
+            print("-" * n_slashes)
+            if env is not None:
+                print("Env: ", env)
                 print("-" * n_slashes)
-                if env is not None:
-                    print("Env: ", env)
-                    print("-" * n_slashes)
-            for key in self.log_headers:
-                val = self.log_current_row.get(key, "")
-                valstr = "%8.3g" % val if hasattr(val, "__float__") else val
-                if verbose:
-                    print(fmt % (key, valstr))
-                vals.append(val)
-
-                if key == x_axis:
-                    self.steps = val
+        for key in self.log_headers:
+            val = self.log_current_row.get(key, "")
+            valstr = "%8.3g" % val if hasattr(val, "__float__") else val
             if verbose:
-                print("-" * n_slashes, flush=True)
-            if self.output_file is not None:
-                if self.first_row:
-                    self.output_file.write("\t".join(self.log_headers) + "\n")
-                self.output_file.write("\t".join(map(str, vals)) + "\n")
-                self.output_file.flush()
+                print(fmt % (key, valstr))
+            vals.append(val)
 
-            if self.summary_writer is not None:
-                for (k, v) in zip(self.log_headers, vals):
-                    if k != x_axis and k != "TotalEnvInteracts" and k != "Epoch":
-                        data_dict[k] = v
-                        self.summary_writer.add_scalar(tag=k, scalar_value=v, global_step=self.steps)
+            if key == x_axis:
+                self.steps = val
+        if verbose:
+            print("-" * n_slashes, flush=True)
+        if self.output_file is not None:
+            if self.first_row:
+                self.output_file.write("\t".join(self.log_headers) + "\n")
+            self.output_file.write("\t".join(map(str, vals)) + "\n")
+            self.output_file.flush()
 
-                # Flushes the event file to disk. Call this method to make sure
-                # that all pending events have been written to disk.
-                self.summary_writer.flush()
         self.log_current_row.clear()
         self.first_row = False
         return data_dict
-
-
-class EpochLogger(Logger):
-    """
-    A variant of Logger tailored for tracking average values over epochs.
-
-    Typical use case: there is some quantity which is calculated many times
-    throughout an epoch, and at the end of the epoch, you would like to 
-    report the average / std / min / max value of that quantity.
-
-    With an EpochLogger, each time the quantity is calculated, you would
-    use 
-
-    .. code-block:: python
-
-        epoch_logger.store(NameOfQuantity=quantity_value)
-
-    to load it into the EpochLogger's state. Then at the end of the epoch, you 
-    would use 
-
-    .. code-block:: python
-
-        epoch_logger.log_tabular(NameOfQuantity, **options)
-
-    to record the desired values.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.epoch_dict = dict()
-
-    def store(self, tab="learner", **kwargs):
-        """
-        Save something into the epoch_logger's current state.
-
-        Provide an arbitrary number of keyword arguments with numerical 
-        values.
-        """
-        for k, v in kwargs.items():
-            k = tab + "/" + k
-            if not (k in self.epoch_dict.keys()):
-                self.epoch_dict[k] = []
-            self.epoch_dict[k].append(v)
-
-    def log_tabular(self, key, val=None, with_min_and_max=False, average_only=True):
-        """
-        Log a value or possibly the mean/std/min/max values of a diagnostic.
-
-        Args:
-            key (string): The name of the diagnostic. If you are logging a
-                diagnostic whose state has previously been saved with 
-                ``store``, the key here has to match the key you used there.
-
-            val: A value for the diagnostic. If you have previously saved
-                values for this key via ``store``, do *not* provide a ``val``
-                here.
-
-            with_min_and_max (bool): If true, log min and max values of the 
-                diagnostic over the epoch.
-
-            average_only (bool): If true, do not log the standard deviation
-                of the diagnostic over the epoch.
-        """
-        if val is not None:
-            super().log_tabular(key, val)
-        else:
-            v = self.epoch_dict[key]
-            if not len(v):
-                return 0
-            vals = np.concatenate(v) if isinstance(
-                v[0], np.ndarray) and len(v[0].shape) > 0 else v
-            stats = statistics_scalar(vals, with_min_and_max=with_min_and_max)
-            super().log_tabular(key if average_only else 'Average' + key, stats[0])
-            if not (average_only):
-                super().log_tabular('Std' + key, stats[1])
-            if with_min_and_max:
-                super().log_tabular('Max' + key, stats[3])
-                super().log_tabular('Min' + key, stats[2])
-        self.epoch_dict[key] = []
-
-    @property
-    def logger_keys(self):
-        return self.epoch_dict.keys()
-
-    def get_stats(self, key):
-        """
-        Lets an algorithm ask the logger for mean/std/min/max of a diagnostic.
-        """
-        v = self.epoch_dict[key]
-        vals = np.concatenate(v) if isinstance(v[0], np.ndarray) and len(v[0].shape) > 0 else v
-        return statistics_scalar(vals)

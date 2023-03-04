@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 18:15:50
+LastEditTime: 2023-03-04 14:28:45
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -211,7 +211,6 @@ class RouteScenario():
 
         self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego()
         self.other_actors = []
-        print(scenario_definitions)
         self.list_scenarios = self._build_scenario_instances(scenario_definitions)
         self.criteria = self._create_criteria()
 
@@ -234,9 +233,7 @@ class RouteScenario():
             route = interpolate_trajectory(self.world, self.config.trajectory)
             ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
         
-        # TODO: remove this
-        print(self.config.town, route)
-        print(possible_scenarios, self.config.scenario_id)
+        # TODO: remove this matching process
         scenarios_definitions = RouteParser.match_route_and_scenarios(
             self.config.town,
             route, 

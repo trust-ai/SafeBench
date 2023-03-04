@@ -13,7 +13,5 @@ seaborn
 shapely
 ephem
 joblib
-tensorboardX
 cpprb
-moviepy
 pycocotools
