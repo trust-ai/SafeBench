@@ -66,5 +66,7 @@ class PerceptionScenarioConfig(object):
     weather = carla.WeatherParameters()
     num_scenario = None
     friction = None
+    ego_id = 0
+    texture_dir = None
 
 

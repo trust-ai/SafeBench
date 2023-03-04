@@ -14,14 +14,14 @@ class Detection_Vehicle(BasicScenario):
         This scenario create stopsign textures in the current scenarios.
     """
 
-    def __init__(self, world, ego_id, texture_dir, ego_vehicle, config, timeout=60):
+    def __init__(self, world, ego_vehicle, config, timeout=60):
         self._map = CarlaDataProvider.get_map()
-        self.ego_id = ego_id
+        self.ego_id = config.ego_id
         self.ego_vehicle = ego_vehicle
         self.world = world
         self.timeout = timeout
         self.object_list=list(filter(lambda k: 'SM_Tesla' in k, world.get_names_of_all_objects()))
-        self.image_path_list = [texture_dir]
+        self.image_path_list = [config.texture_dir]
         self.image_list = [cv2.imread(image_file) for image_file in self.image_path_list]
         self.image_list = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in self.image_list]
         resized = cv2.resize(self.image_list[0], (1024,1024), interpolation=cv2.INTER_AREA)

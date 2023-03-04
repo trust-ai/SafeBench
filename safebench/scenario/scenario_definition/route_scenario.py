@@ -242,6 +242,7 @@ class RouteScenario():
             world_annotations,
             scenario_id=scenario_id
         )
+        
         scenarios_definitions = []
         for trigger in possible_scenarios.keys():
             scenarios_definitions.extend(possible_scenarios[trigger])
