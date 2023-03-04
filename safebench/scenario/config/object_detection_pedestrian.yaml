@@ -3,7 +3,7 @@ type_name: 'od.json'
 type_category: 'perception'
 save_video: True
 
-route_dir: 'safebench/scenario/scenario_data/route_od'
+route_dir: 'safebench/scenario/scenario_data/route_perception'
 texture_dir: 'safebench/scenario/scenario_data/template_od/ad.jpg'
 method: null
 scenario_id: 3

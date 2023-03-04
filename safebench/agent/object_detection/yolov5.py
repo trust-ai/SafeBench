@@ -2,7 +2,7 @@
 Author: Haohong Lin
 Email: haohongl@andrew.cmu.edu
 Date: 2023-02-04 16:30:08
-LastEditTime: 2023-02-12 17:07:50
+LastEditTime: 2023-03-04 15:21:46
 Description: 
 '''
 
@@ -10,12 +10,10 @@ import os
 import sys
 from pathlib import Path
 import yaml
-from matplotlib import pyplot as plt
 
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 from torch.autograd import Variable
 
 FILE = Path(__file__).resolve()
@@ -45,10 +43,14 @@ from safebench.agent.object_detection.utils.general import (
     labels_to_class_weights
 )
 
-DEFAULT_CONFIG = dict(weights=ROOT / 'yolov5n.pt', data=ROOT / 'data/coco128.yaml', \
-                      imgsz=(1024, 1024),  conf_thres=0.25, iou_thres=0.45,)
+DEFAULT_CONFIG = dict(
+    weights=ROOT / 'yolov5n.pt', 
+    data=ROOT / 'data/coco128.yaml', 
+    imgsz=(1024, 1024),  
+    conf_thres=0.25, 
+    iou_thres=0.45
+)
 
-# texture_dir = os.path.join()
 
 class YoloAgent(object):
     def __init__(self, config, logger, train_mode='none') -> None:
@@ -75,8 +77,6 @@ class YoloAgent(object):
 
         if self.mode == 'train': 
             self.compute_loss = ComputeLoss(self.model.model)  
-            
-            
             with open(ROOT / 'data/hyps/hyp.scratch-high.yaml', errors='ignore') as f:
                 hyp = yaml.safe_load(f)  # load hyps dict
 
@@ -198,8 +198,7 @@ class YoloAgent(object):
         image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
         image = np.array(255*image, np.uint8)
         return image
-     
-    
+
     def add_patch(self, img, input_patch):
         # img: [1,3,416,416]
         # patch_size = cfg.patch_size
@@ -244,6 +243,7 @@ class YoloAgent(object):
                     "labels": [names_coco128[int(idx)] for p in pred for idx in p[:,-1].detach().cpu().numpy()],
                     "boxes": torch.cat([p[:, :-2].detach().cpu() for p in pred], dim=1)}
         return pred
+
 
 if __name__ == '__main__':
     agent = YoloAgent({'ego_action_dim': 2, 'model_path': None}, None, train_mode='attack')

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:37:09
+LastEditTime: 2023-03-04 15:09:43
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -32,7 +32,7 @@ from safebench.gym_carla.envs.misc import (
     get_preview_lane_dis
 )
 from safebench.scenario.scenario_definition.route_scenario import RouteScenario
-from safebench.scenario.scenario_definition.object_detection_scenario import ObjectDetectionScenario
+from safebench.scenario.scenario_definition.perception_scenario import PerceptionScenario
 from safebench.scenario.scenario_manager.scenario_manager import ScenarioManager
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 
@@ -44,7 +44,6 @@ class CarlaEnv(gym.Env):
     def __init__(self, env_params, birdeye_render=None, display=None, world=None, logger=None):
         self.config = None
         # TODO: only initialize textures for once in parallel rollout
-
         assert world is not None, "the world passed into CarlaEnv is None"
         self.world = world
         self.display = display
@@ -89,7 +88,7 @@ class CarlaEnv(gym.Env):
         self.scenario_category = env_params['scenario_category']
 
         if self.scenario_category == 'planning':
-            self.obs_size = int(self.obs_range / self.lidar_bin)
+            self.obs_size = int(self.obs_range/self.lidar_bin)
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
                 'lidar': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
@@ -145,7 +144,7 @@ class CarlaEnv(gym.Env):
 
         # create scenario accoridng to different types
         if self.scenario_category == 'perception':
-            scenario = ObjectDetectionScenario(
+            scenario = PerceptionScenario(
                 world=self.world, 
                 config=config, 
                 ROOT_DIR=self.ROOT_DIR, 
@@ -221,7 +220,7 @@ class CarlaEnv(gym.Env):
         # route planner for ego vehicle
         init_waypoints = self._parse_route(config)
         self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
-        self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
+        self.waypoints, _, _, _, _, self.vehicle_front, = self.routeplanner.run_step()
 
         # change view point
         #location = carla.Location(x=100, y=100, z=300)
@@ -357,7 +356,7 @@ class CarlaEnv(gym.Env):
             self.vehicle_velocities.pop(0)
 
         # route planner
-        self.waypoints, self.target_road_option, self.current_waypoint, self.target_waypoint, _, self.vehicle_front, = self.routeplanner.run_step()
+        self.waypoints, _, _, _, _, self.vehicle_front, = self.routeplanner.run_step()
 
         # state information
         info = {
@@ -440,12 +439,7 @@ class CarlaEnv(gym.Env):
         v = self.ego.get_velocity()
         speed = np.sqrt(v.x**2 + v.y**2)
         acc = self.ego.get_acceleration()
-        acceleration = np.sqrt(acc.x**2 + acc.y**2)
         state = np.array([lateral_dis, -delta_yaw, speed, self.vehicle_front])
-
-        #forward_vector = self.ego.get_transform().get_forward_vector()
-        #node_forward = self.current_waypoint.transform.get_forward_vector()
-        #target_forward = self.target_waypoint.transform.get_forward_vector()
 
         if self.scenario_category != 'perception': 
             # set ego information for birdeye_render
@@ -518,14 +512,6 @@ class CarlaEnv(gym.Env):
                 'lidar': None if self.disable_lidar else lidar.astype(np.uint8),
                 'birdeye': birdeye.astype(np.uint8),
                 'state': state.astype(np.float32),
-                # 'trajectories': self.vehicle_trajectories,
-                # 'accelerations': self.vehicle_accelerations,
-                # 'angular_velocities': self.vehicle_angular_velocities,
-                # 'velocities': self.vehicle_velocities,
-                # 'command': int(self.target_road_option.value),
-                # 'forward_vector': np.array([forward_vector.x, forward_vector.y]),
-                # 'node_forward': np.array([node_forward.x, node_forward.y]),
-                # 'target_forward': np.array([target_forward.x, target_forward.y]),
             }
         else:
             """ Get the observations for object detection. """

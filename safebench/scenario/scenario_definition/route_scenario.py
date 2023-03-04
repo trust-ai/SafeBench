@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 14:28:45
+LastEditTime: 2023-03-04 15:23:00
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -19,7 +19,6 @@ import carla
 
 from safebench.scenario.scenario_manager.timer import GameTime
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-
 from safebench.scenario.scenario_manager.scenario_config import RouteScenarioConfig
 from safebench.scenario.tools.route_parser import RouteParser
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
@@ -298,8 +297,6 @@ class RouteScenario():
             route_config.num_scenario = self.config.num_scenario
             if self.config.weather is not None:
                 route_config.weather = self.config.weather
-            route_var_name = "ScenarioRouteNumber{}".format(scenario_number)
-            #route_config.route_var_name = route_var_name
 
             try:
                 scenario_instance = scenario_class(self.world, self.ego_vehicle, route_config, timeout=self.timeout)
@@ -320,7 +317,6 @@ class RouteScenario():
             return sublist_of_actors
 
         list_of_actors = []
-        # parse vehicles to the left
         if 'front' in list_of_antagonist_actors:
             list_of_actors += get_actors_from_list(list_of_antagonist_actors['front'])
         if 'left' in list_of_antagonist_actors:
