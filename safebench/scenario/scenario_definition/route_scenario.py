@@ -215,13 +215,16 @@ class RouteScenario():
 
     def _update_route_and_ego(self, timeout=None):
         # transform the scenario file into a dictionary
-        possible_scenarios = RouteParser.parse_annotations_file(self.config.scenario_file)
-        
-        # prepare route's trajectory
+        if self.config.scenario_file is not None:
+            world_annotations = RouteParser.parse_annotations_file(self.config.scenario_file)
+        else:
+            world_annotations = self.config.scenario_config
+
+            # prepare route's trajectory (interpolate and add the GPS route)
         ego_vehicle = None
         route = None
-        # TODO: change to training mode
-        if self.config.scenario_id == 0:
+        scenario_id = self.config.scenario_id
+        if scenario_id == 0:
             vehicle_spawn_points = get_valid_spawn_points(self.world)
             for random_transform in vehicle_spawn_points:
                 route = interpolate_trajectory(self.world, [random_transform])
@@ -231,14 +234,17 @@ class RouteScenario():
         else:
             route = interpolate_trajectory(self.world, self.config.trajectory)
             ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
-        
-        # TODO: remove this matching process
-        scenarios_definitions = RouteParser.match_route_and_scenarios(
+
+        # scan route to get scenario definitions
+        possible_scenarios, _ = RouteParser.scan_route_for_scenarios(
             self.config.town,
-            route, 
-            possible_scenarios, 
-            scenario_id=self.config.scenario_id
+            route,
+            world_annotations,
+            scenario_id=scenario_id
         )
+        scenarios_definitions = []
+        for trigger in possible_scenarios.keys():
+            scenarios_definitions.extend(possible_scenarios[trigger])
 
         # TODO: ego route will be overwritten by other scenarios
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(route))
