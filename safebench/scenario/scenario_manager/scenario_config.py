@@ -23,6 +23,7 @@ class ScenarioConfig(object):
 
     auto_ego = False
     num_scenario = None
+    route_region = 0
     data_id = 0
     scenario_generation_method = None
     scenario_id = 0
@@ -66,5 +67,7 @@ class PerceptionScenarioConfig(object):
     weather = carla.WeatherParameters()
     num_scenario = None
     friction = None
+    ego_id = 0
+    texture_dir = None
 
 

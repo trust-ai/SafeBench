@@ -186,7 +186,7 @@ class Logger:
     def print_eval_results(self):
         self.log("Evaluation results:")
         for key, value in self.eval_results.items():
-            self.log(f"\t {key}: \t {value}")
+            self.log(f"\t {key: <25}{value}")
 
     def log(self, msg, color='green'):
         # print with color

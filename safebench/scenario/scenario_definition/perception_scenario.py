@@ -29,9 +29,11 @@ from safebench.util.od_util import *
 
 
 SCENARIO_CLASS_MAPPING = {
-    "Scenario_StopSign": Detection_StopSign,
-    "Scenario_Vehicle": Detection_Vehicle,
-    "Scenario_Ped": Detection_Pedestrian
+    "od": {
+        "Scenario_StopSign": Detection_StopSign,
+        "Scenario_Vehicle": Detection_Vehicle,
+        "Scenario_Ped": Detection_Pedestrian
+    }
 }
 
 
@@ -113,7 +115,7 @@ class PerceptionScenario(RouteScenario):
         for scenario_number, definition in enumerate(scenario_definitions):
             # get the class possibilities for this scenario number
             # TODO: add self.config.scenario_generation_method then we dont need to override this method
-            scenario_class = SCENARIO_CLASS_MAPPING[definition['name']]
+            scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
 
             # create the other actors that are going to appear
             if definition['other_actors'] is not None:
@@ -123,17 +125,19 @@ class PerceptionScenario(RouteScenario):
 
             # create an actor configuration for the ego-vehicle trigger position
             egoactor_trigger_position = convert_json_to_transform(definition['trigger_position'])
-            route_config = PerceptionScenarioConfig()
-            route_config.other_actors = list_of_actor_conf_instances
-            route_config.trigger_points = [egoactor_trigger_position]
-            #route_config.subtype = definition['scenario_type']
-            route_config.parameters = self.config.parameters
-            route_config.num_scenario = self.config.num_scenario
+            perception_config = PerceptionScenarioConfig()
+            perception_config.other_actors = list_of_actor_conf_instances
+            perception_config.trigger_points = [egoactor_trigger_position]
+            #perception_config.subtype = definition['scenario_type']
+            perception_config.parameters = self.config.parameters
+            perception_config.num_scenario = self.config.num_scenario
+            perception_config.texture_dir = self.texture_dir
+            perception_config.ego_id = self.ego_id
             if self.config.weather is not None:
-                route_config.weather = self.config.weather
+                perception_config.weather = self.config.weather
 
             try:
-                scenario_instance = scenario_class(self.world, self.ego_id, self.texture_dir, self.ego_vehicle, route_config, timeout=self.timeout)
+                scenario_instance = scenario_class(self.world, self.ego_vehicle, perception_config, timeout=self.timeout)
             except Exception as e:   
                 traceback.print_exc()
                 print("Skipping scenario '{}' due to setup error: {}".format(definition['name'], e))
@@ -208,7 +212,7 @@ class PerceptionScenario(RouteScenario):
 
         self.n_step += 1
         return saved_list
-
+    
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
         bbox_pred = ego_action['od_result']
         self.get_bbox(world_2_camera, image_w, image_h, fov)
