@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:54:44
+LastEditTime: 2023-03-04 21:05:02
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -16,7 +16,7 @@ Description:
 import carla
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
-from safebench.scenario.tools.ActorController import VehiclePIDController
+from safebench.util.pid_controller import VehiclePIDController
 from safebench.scenario.tools.scenario_utils import calculate_distance_locations
 
 
@@ -45,7 +45,8 @@ class ScenarioOperation(object):
         return self.other_actors
 
     def _init_vehicle_controller(self):
-        _dt = 1.0 / 20.0
+        fps = 30
+        _dt = 1.0 / fps
         _args_lateral_dict = {'K_P': 1.95, 'K_I': 0.05, 'K_D': 0.2, 'dt': _dt}
         _args_longitudinal_dict = {'K_P': 1.0, 'K_I': 0.05, 'K_D': 0, 'dt': _dt}
         for i in range(len(self.other_actors)):

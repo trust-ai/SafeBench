@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:57:19
+LastEditTime: 2023-03-04 20:53:32
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -10,15 +10,19 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
+# for planning scenario
 from safebench.agent.dummy import DummyAgent
 from safebench.agent.rl.sac import SAC
+from safebench.agent.pid import PIDAgent
 
+# for perception scenario
 from safebench.agent.object_detection.yolov5 import YoloAgent
 from safebench.agent.object_detection.faster_rcnn import FasterRCNNAgent
 
 AGENT_POLICY_LIST = {
     'dummy': DummyAgent,
+    'pid': PIDAgent,
     'yolo': YoloAgent,
     'sac': SAC,
-    'faster_rcnn': FasterRCNNAgent
+    'faster_rcnn': FasterRCNNAgent,
 }

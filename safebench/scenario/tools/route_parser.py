@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 18:12:54
+LastEditTime: 2023-03-05 13:46:06
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -18,7 +18,7 @@ import math
 import xml.etree.ElementTree as ET
 
 import carla
-from agents.navigation.local_planner import RoadOption
+from carla.agents.navigation.local_planner import RoadOption
 from safebench.scenario.scenario_manager.scenario_config import ScenarioConfig
 
 

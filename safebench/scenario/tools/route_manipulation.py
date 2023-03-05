@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:36:41
+LastEditTime: 2023-03-05 13:46:02
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -16,8 +16,8 @@ Description:
 import math
 import xml.etree.ElementTree as ET
 
-from agents.navigation.global_route_planner import GlobalRoutePlanner
-from agents.navigation.local_planner import RoadOption
+from carla.agents.navigation.global_route_planner import GlobalRoutePlanner
+from carla.agents.navigation.local_planner import RoadOption
 
 
 def _location_to_gps(lat_ref, lon_ref, location):

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 16:24:17
+LastEditTime: 2023-03-04 21:40:47
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -276,7 +276,6 @@ class RouteScenario():
             ego_vehicle.set_autopilot(autopilot, CarlaDataProvider.get_traffic_manager_port())
         except Exception as e:
             raise RuntimeError("Error while spawning ego vehicle: {}".format(e))
-
         return ego_vehicle
 
     def _build_scenario_instances(self, scenario_definitions):

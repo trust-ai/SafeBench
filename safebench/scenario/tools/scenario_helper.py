@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:39:52
+LastEditTime: 2023-03-05 13:46:10
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -20,8 +20,8 @@ import shapely.affinity
 import numpy as np
 
 import carla
-from agents.tools.misc import vector
-from agents.navigation.local_planner import RoadOption
+from carla.agents.tools.misc import vector
+from carla.agents.navigation.local_planner import RoadOption
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 

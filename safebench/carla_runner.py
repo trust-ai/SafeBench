@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 16:46:59
+LastEditTime: 2023-03-05 01:48:57
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -68,7 +68,7 @@ class CarlaRunner:
             'obs_type': agent_config['obs_type'],
             'scenario_category': self.scenario_category,
             'ROOT_DIR': scenario_config['ROOT_DIR'],
-            'disable_lidar': True,
+            'disable_lidar': True,                  # show bird-eye view lidar or not
             'display_size': 128,                    # screen size of one bird-eye view windowd=
             'obs_range': 32,                        # observation range (meter)
             'd_behind': 12,                         # distance behind the ego vehicle (meter)
@@ -86,7 +86,7 @@ class CarlaRunner:
             'image_sz': 1024,                       # TODO: move to config of od scenario
         }
 
-        # pass info from scenario to agent
+        # pass config from scenario to agent
         agent_config['mode'] = scenario_config['mode']
         agent_config['ego_action_dim'] = scenario_config['ego_action_dim']
         agent_config['ego_state_dim'] = scenario_config['ego_state_dim']
@@ -118,6 +118,8 @@ class CarlaRunner:
         # define agent and scenario
         self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
         self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
+        if self.scenario_config['auto_ego']:
+            self.logger.log('>> Using auto-polit for ego vehicle, the action of agent policy will be ignored', 'yellow')
         self.logger.log('>> ' + '-' * 40)
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
@@ -178,6 +180,9 @@ class CarlaRunner:
             scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
             obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
             replay_buffer.store_init([static_obs, scenario_init_action], additional_dict=additional_dict)
+            # TODO: get ego vehicle from scenario
+            # ego_vehicles = self.env.get_ego_vehicles()
+            # sekf.agent_policy.set_ego_and_route(routes, ego_vehicles)
 
             # start loop
             while not self.env.all_scenario_done():

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:34:45
+LastEditTime: 2023-03-05 13:46:14
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -17,7 +17,7 @@ from collections import deque
 import math
 import numpy as np
 import carla
-from agents.tools.misc import get_speed
+from carla.agents.tools.misc import get_speed
 
 
 class VehiclePIDController():
@@ -28,16 +28,12 @@ class VehiclePIDController():
 
     def __init__(self, vehicle, args_lateral, args_longitudinal, offset=0, max_throttle=0.75, max_brake=0.3, max_steering=0.8):
         """
-            Constructor method.
-
             :param vehicle: actor to apply to local planner logic onto
-            :param args_lateral: dictionary of arguments to set the lateral PID controller
-            using the following semantics:
+            :param args_lateral: dictionary of arguments to set the lateral PID controller using the following semantics:
                 K_P -- Proportional term
                 K_D -- Differential term
                 K_I -- Integral term
-            :param args_longitudinal: dictionary of arguments to set the longitudinal
-            PID controller using the following semantics:
+            :param args_longitudinal: dictionary of arguments to set the longitudinal PID controller using the following semantics:
                 K_P -- Proportional term
                 K_D -- Differential term
                 K_I -- Integral term
@@ -58,8 +54,7 @@ class VehiclePIDController():
 
     def run_step(self, target_speed, transform):
         """
-            Execute one step of control invoking both lateral and longitudinal
-            PID controllers to reach a target waypoint at a given target_speed.
+            Execute one step of control invoking both lateral and longitudinal PID controllers to reach a target waypoint at a given target_speed.
                 :param target_speed: desired vehicle speed
                 :param waypoint: target location encoded as a waypoint
                 :return: distance (in meters) to the waypoint
@@ -123,7 +118,7 @@ class PIDLongitudinalController():
         self._dt = dt
         self._error_buffer = deque(maxlen=10)
 
-    def run_step(self, target_speed, debug=False):
+    def run_step(self, target_speed):
         """
             Execute one step of longitudinal control to reach a given target speed.
                 :param target_speed: target speed in Km/h
@@ -131,10 +126,6 @@ class PIDLongitudinalController():
                 :return: throttle control
         """
         current_speed = get_speed(self._vehicle)
-
-        if debug:
-            print('Current speed = {}'.format(current_speed))
-
         return self._pid_control(target_speed, current_speed)
 
     def _pid_control(self, target_speed, current_speed):
@@ -158,7 +149,6 @@ class PIDLongitudinalController():
         return np.clip((self._k_p * error) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0)
 
     def change_parameters(self, K_P, K_I, K_D, dt):
-        """Changes the PID parameters"""
         self._k_p = K_P
         self._k_i = K_I
         self._k_d = K_D
@@ -195,7 +185,7 @@ class PIDLateralController():
             Execute one step of lateral control to steer
             the vehicle towards a certain waypoin.
 
-                :param waypoint: target waypoint
+                :param transform: target waypoint
                 :return: steering control in the range [-1, 1] where:
                 -1 maximum steering to left
                 +1 maximum steering to right
@@ -206,7 +196,7 @@ class PIDLateralController():
         """
             Estimate the steering angle of the vehicle based on the PID equations
 
-                :param waypoint: target waypoint
+                :param transform: target waypoint
                 :param vehicle_transform: current transform of the vehicle
                 :return: steering control in the range [-1, 1]
         """
@@ -225,7 +215,6 @@ class PIDLateralController():
             w_loc = transform.location
 
         w_vec = np.array([w_loc.x - ego_loc.x, w_loc.y - ego_loc.y, 0.0])
-
         wv_linalg = np.linalg.norm(w_vec) * np.linalg.norm(v_vec)
         if wv_linalg == 0:
             _dot = 1
@@ -246,7 +235,6 @@ class PIDLateralController():
         return np.clip((self._k_p * _dot) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0)
 
     def change_parameters(self, K_P, K_I, K_D, dt):
-        """Changes the PID parameters"""
         self._k_p = K_P
         self._k_i = K_I
         self._k_d = K_D
