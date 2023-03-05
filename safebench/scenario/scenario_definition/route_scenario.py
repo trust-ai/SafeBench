@@ -384,14 +384,6 @@ class RouteScenario():
                 stop = True
                 self.logger.log('>> Stop due to route completion', color='yellow')
 
-            # speed below threshold
-            if running_status['speed_above_threshold'] == Status.FAILURE:
-                if running_status['route_complete'] == 0:
-                    raise RuntimeError("Agent not moving")
-                else:
-                    stop = True
-                    self.logger.log('>> Stop due to low speed', color='yellow')
-
         # stop at max step
         if len(running_record) >= self.max_running_step: 
             stop = True
@@ -424,12 +416,6 @@ class RouteScenario():
         criteria['run_stop'] = RunningStopTest(actor=self.ego_vehicle)
         if self.config.scenario_id != 0:  # only check when evaluating
             criteria['distance_to_route'] = InRouteTest(self.ego_vehicle, route=route, offroad_max=30)
-            criteria['speed_above_threshold'] = ActorSpeedAboveThresholdTest(
-                actor=self.ego_vehicle,
-                speed_threshold=0.1,
-                below_threshold_max_time=10,
-                terminate_on_failure=True
-            )
             criteria['route_complete'] = RouteCompletionTest(self.ego_vehicle, route=route)
         return criteria
 

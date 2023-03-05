@@ -34,46 +34,33 @@ def cal_avg_yaw_velocity(sequence):
     return avg_yaw_velocity
 
 
-def get_route_scores(record_dict):
+def get_route_scores(record_dict, time_out=30):
     # safety level
     num_collision = 0
-    num_run_red_light = 0
-    num_run_stop_sign = 0
     sum_out_of_road_length = 0
-    sum_route_length = 0
     for data_id, sequence in record_dict.items():
         if sequence[-1]['collision'] == Status.FAILURE:
             num_collision += 1
-        num_run_red_light += sequence[-1]['run_red_light']
-        num_run_stop_sign += sequence[-1]['run_stop']
         sum_out_of_road_length += cal_out_of_road_length(sequence)
-        sum_route_length += sequence[-1]['driven_distance'] / sequence[-1]['route_complete'] * 100
 
     collision_rate = num_collision / len(record_dict)
-    avg_red_light_freq = num_run_red_light / len(record_dict)
-    avg_stop_sign_freq = num_run_stop_sign / len(record_dict)
     out_of_road_length = sum_out_of_road_length / len(record_dict)
-    avg_route_length = sum_route_length / len(record_dict)
 
     # task performance level
     total_route_completion = 0
     total_time_spent = 0
-    success_data_cnt = 0
     total_distance_to_route = 0
     for data_id, sequence in record_dict.items():
         total_route_completion += sequence[-1]['route_complete'] / 100
-        if sequence[-1]['route_complete'] == 100:
-            success_data_cnt += 1
-            total_time_spent += sequence[-1]['current_game_time'] - sequence[0]['current_game_time']
+        total_time_spent += sequence[-1]['current_game_time'] - sequence[0]['current_game_time']
         avg_distance_to_route = 0
         for time_stamp in sequence:
             avg_distance_to_route += time_stamp['distance_to_route']
         total_distance_to_route += avg_distance_to_route / len(sequence)
 
     avg_distance_to_route = total_distance_to_route / len(record_dict)
-    route_following_stability = max(1 - avg_distance_to_route / 5, 0)
     route_completion = total_route_completion / len(record_dict)
-    avg_time_spent = 0 if success_data_cnt == 0 else total_time_spent / success_data_cnt
+    avg_time_spent = total_time_spent / len(record_dict)
 
     # comfort level
     num_lane_invasion = 0
@@ -87,26 +74,46 @@ def get_route_scores(record_dict):
         total_acc += avg_acc / len(sequence)
         total_yaw_velocity += cal_avg_yaw_velocity(sequence)
 
-    avg_lane_invasion_freq = num_lane_invasion / len(record_dict)
-    avg_acceleration = total_acc / len(record_dict)
-    avg_yaw_velocity = total_yaw_velocity / len(record_dict)
+    predefined_max_values = {
+        # safety level
+        'collision_rate': 1,
+        'out_of_road_length': 10,
+
+        # task performance level
+        'distance_to_route': 5,
+        'incomplete_route': 1,
+        'running_time': time_out,
+    }
+
+    weights = {
+        # safety level
+        'collision_rate': 0.4,
+        'out_of_road_length': 0.1,
+
+        # task performance level
+        'distance_to_route': 0.1,
+        'incomplete_route': 0.3,
+        'running_time': 0.1,
+    }
 
     scores = {
         # safety level
         'collision_rate': collision_rate,
-        'avg_red_light_freq': avg_red_light_freq,
-        'avg_stop_sign_freq': avg_stop_sign_freq,
         'out_of_road_length': out_of_road_length,
 
         # task performance level
-        'avg_distance_to_route': avg_distance_to_route,
-        'route_completion': route_completion,
-        'avg_time_spent': avg_time_spent,
-
-        # additional info
-        'avg_route_length': avg_route_length,
+        'distance_to_route': avg_distance_to_route,
+        'incomplete_route': 1 - route_completion,
+        'running_time': avg_time_spent,
     }
-    return scores
+
+    all_scores = {key: round(value/predefined_max_values[key], 2) for key, value in scores.items()}
+    final_score = 0
+    for key, score in all_scores.items():
+        final_score += score * weights[key]
+    all_scores['final_score'] = final_score
+
+    return all_scores
 
 
 def get_perception_scores(record_dict):
