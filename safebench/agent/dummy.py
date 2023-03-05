@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 01:40:37
+LastEditTime: 2023-03-05 14:55:59
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -33,7 +33,7 @@ class DummyAgent(BasePolicy):
     def set_mode(self, mode):
         self.mode = mode
 
-    def get_action(self, obs, deterministic=False):
+    def get_action(self, obs, infos, deterministic=False):
         # the input should be formed into a batch, the return action should also be a batch
         batch_size = len(obs)
         action = np.random.randn(batch_size, self.ego_action_dim)

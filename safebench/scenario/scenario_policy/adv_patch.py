@@ -2,7 +2,7 @@
 Author: Haohong Lin
 Email: haohongl@andrew.cmu.edu
 Date: 2023-02-04 16:30:08
-LastEditTime: 2023-02-12 17:07:50
+LastEditTime: 2023-03-05 14:55:10
 Description: 
 '''
 
@@ -88,7 +88,7 @@ class ObjectDetection(object):
         self._img = img
         return [{'attack': eps, 'image': img} for _ in range(len(obs))], [{} in range(len(obs))]
     
-    def get_action(self, obs, deterministic=False):
+    def get_action(self, obs, infos, deterministic=False):
         return [{'attack': [], 'image': self._img} for _ in range(len(obs))]
     
     def load_model(self):
@@ -117,7 +117,6 @@ class ObjectDetection(object):
         
         # Update the distribution
         self._dist = D.Bernoulli(torch.sigmoid(self.patch), )
-    
     
     def add_patch(self, img, input_patch):
         # img: [1,3,416,416]

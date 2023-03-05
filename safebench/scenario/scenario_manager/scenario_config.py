@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-03 23:25:38
+LastEditTime: 2023-03-05 15:37:37
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -23,7 +23,7 @@ class ScenarioConfig(object):
 
     auto_ego = False
     num_scenario = None
-    route_region = 0
+    route_region = ''
     data_id = 0
     scenario_generation_method = None
     scenario_id = 0
@@ -31,8 +31,8 @@ class ScenarioConfig(object):
     risk_level = 0
     parameters = None
 
-    town = None
-    name = None
+    town = ''
+    name = ''
     weather = None
     scenario_file = None
     initial_transform = None

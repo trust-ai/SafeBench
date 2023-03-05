@@ -32,7 +32,7 @@ class FasterRCNNAgent(object):
         self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
         self.conf_thres = 0.3
 
-    def get_action(self, obs, deterministic=False):
+    def get_action(self, obs, infos, deterministic=False):
         # print(len(obs), len(obs[0]), type(obs), type(obs[0]))
         self.model.eval()
 

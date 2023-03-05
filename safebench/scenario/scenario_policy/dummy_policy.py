@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-03 12:38:31
+LastEditTime: 2023-03-05 14:54:19
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -29,7 +29,7 @@ class DummyPolicy(BasePolicy):
     def set_mode(self, mode):
         self.mode = mode
 
-    def get_action(self, state, deterministic=False):
+    def get_action(self, state, infos, deterministic=False):
         return [None] * self.num_scenario
 
     def get_init_action(self, scenario_config, deterministic=False):

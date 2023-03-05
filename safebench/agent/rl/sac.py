@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 20:15:33
+LastEditTime: 2023-03-05 14:55:51
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -137,7 +137,7 @@ class SAC(BasePolicy):
         else:
             raise ValueError(f'Unknown mode {mode}')
 
-    def get_action(self, state, deterministic=False):
+    def get_action(self, state, infos, deterministic=False):
         state = CUDA(torch.FloatTensor(state))
         mu, log_sigma = self.policy_net(state)
 

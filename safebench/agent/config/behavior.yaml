@@ -1,4 +1,4 @@
-policy_type: 'pid'
+policy_type: 'behavior'
 model_path: ''
 model_id: 0
 results_folder_path: ''

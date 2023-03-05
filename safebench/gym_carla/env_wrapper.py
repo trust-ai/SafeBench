@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 16:43:48
+LastEditTime: 2023-03-05 14:47:22
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -44,6 +44,15 @@ class VectorWrapper():
         obs_list = np.array(obs_list)
         return obs_list
 
+    def get_ego_vehicles(self):
+        ego_vehicles = []
+        for env in self.env_list:
+            if env.ego_vehicle is None:
+                self.logger.log('>> Ego vehicle is None. Please call reset() first.', 'red')
+                raise Exception()
+            ego_vehicles.append(env.ego_vehicle)
+        return ego_vehicles
+
     def get_static_obs(self, scenario_configs):
         static_obs_list = []
         for s_i in range(len(scenario_configs)):
@@ -54,19 +63,25 @@ class VectorWrapper():
     def reset(self, scenario_configs, scenario_init_action):
         # create scenarios and ego vehicles
         obs_list = []
+        info_list = []
         for s_i in range(len(scenario_configs)):
             config = scenario_configs[s_i]
-            obs = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_init_action=scenario_init_action[s_i])
+            obs, info = self.env_list[s_i].reset(config=config, env_id=s_i, scenario_init_action=scenario_init_action[s_i])
             obs_list.append(obs)
+            info_list.append(info)
 
         # sometimes not all scenarios are used
         self.finished_env = [False] * self.num_scenario
         for s_i in range(len(scenario_configs), self.num_scenario):
             self.finished_env[s_i] = True
         self.running_results = {}
+        
+        # store scenario id
+        for s_i in range(self.num_scenario):
+            info_list[s_i].update({'scenario_id': s_i})
 
         # return obs
-        return self.obs_postprocess(obs_list)
+        return self.obs_postprocess(obs_list), info_list
 
     def step(self, ego_actions, scenario_actions):
         """
@@ -95,6 +110,8 @@ class VectorWrapper():
             if not self.finished_env[e_i]:
                 current_env = self.env_list[e_i]
                 obs, reward, done, info = current_env.step_after_tick()
+
+                # store scenario id to help agent decide which policy should be used
                 info['scenario_id'] = e_i
 
                 # check if env is done
@@ -156,18 +173,12 @@ class EnvWrapper(gym.Wrapper):
         act_lim = np.ones((act_dim), dtype=np.float32)
         self.action_space = gym.spaces.Box(-act_lim, act_lim, dtype=np.float32)
 
-    def create_ego_object(self):
-        self._env.create_ego_object()
-
     def get_static_obs(self, config):
         return self._env.get_static_obs(config)
 
-    def clear_up(self):
-        self._env.clear_up()
-
     def reset(self, **kwargs):
-        obs = self._env.reset(**kwargs)
-        return self._preprocess_obs(obs)
+        obs, info = self._env.reset(**kwargs)
+        return self._preprocess_obs(obs), info
 
     def step_before_tick(self, ego_action, scenario_action):
         self._env.step_before_tick(ego_action=ego_action, scenario_action=scenario_action)
@@ -192,7 +203,7 @@ class EnvWrapper(gym.Wrapper):
             self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)
         elif self.obs_type == 2 or self.obs_type == 3:
             # 4 state space + bev
-            obs_dim = 256  # TODO: should be the same as display_size
+            obs_dim = 128  # TODO: should be the same as display_size
             # assume the obs range from -1 to 1
             obs_lim = np.ones((obs_dim), dtype=np.float32)
             self.observation_space = gym.spaces.Box(-obs_lim, obs_lim)
@@ -223,6 +234,9 @@ class EnvWrapper(gym.Wrapper):
 
     def _postprocess_action(self, action):
         return action
+
+    def clear_up(self):
+        self._env.clear_up()
 
 
 def carla_env(env_params, birdeye_render=None, display=None, world=None, logger=None):

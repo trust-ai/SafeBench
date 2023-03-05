@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 14:14:51
+LastEditTime: 2023-03-05 16:06:16
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -114,9 +114,15 @@ class CarlaRunner:
         # define agent and scenario
         self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
         self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
+
         if self.scenario_config['auto_ego']:
             self.logger.log('>> Using auto-polit for ego vehicle, the action of agent policy will be ignored', 'yellow')
+        if self.scenario_policy_type == 'odrinary' and self.mode != 'train_agent':
+            self.logger.log('>> Ordinary scenario can only be used in agent training', 'red')
+            raise Exception()
         self.logger.log('>> ' + '-' * 40)
+
+        # define agent and scenario policy
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
         self.video_recorder = VideoRecorder(scenario_config, logger=self.logger)
@@ -173,17 +179,17 @@ class CarlaRunner:
             # get static obs and then reset with init action 
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, additional_dict = self.scenario_policy.get_init_action(static_obs)
-            obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
+            obs, infos = self.env.reset(sampled_scenario_configs, scenario_init_action)
             replay_buffer.store_init([static_obs, scenario_init_action], additional_dict=additional_dict)
-            # TODO: get ego vehicle from scenario
-            # ego_vehicles = self.env.get_ego_vehicles()
-            # sekf.agent_policy.set_ego_and_route(routes, ego_vehicles)
+
+            # get ego vehicle from scenario
+            self.agent_policy.set_ego_and_route(self.env.get_ego_vehicles(), infos)
 
             # start loop
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
-                ego_actions = self.agent_policy.get_action(obs, deterministic=False)
-                scenario_actions = self.scenario_policy.get_action(obs, deterministic=False)
+                ego_actions = self.agent_policy.get_action(obs, infos, deterministic=False)
+                scenario_actions = self.scenario_policy.get_action(obs, infos, deterministic=False)
 
                 # apply action to env and get obs
                 next_obs, rewards, dones, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
@@ -230,13 +236,16 @@ class CarlaRunner:
             # reset envs with new config, get init action from scenario policy, and run scenario
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs)
-            obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
+            obs, infos = self.env.reset(sampled_scenario_configs, scenario_init_action)
             
+            # get ego vehicle from scenario
+            self.agent_policy.set_ego_and_route(self.env.get_ego_vehicles(), infos)
+
             score_list = {s_i: [] for s_i in range(num_sampled_scenario)}
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
-                ego_actions = self.agent_policy.get_action(obs, deterministic=True)
-                scenario_actions = self.scenario_policy.get_action(obs, deterministic=True)
+                ego_actions = self.agent_policy.get_action(obs, infos, deterministic=True)
+                scenario_actions = self.scenario_policy.get_action(obs, infos, deterministic=True)
 
                 # apply action to env and get obs
                 obs, rewards, _, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
@@ -262,7 +271,7 @@ class CarlaRunner:
             # print score for ranking
             self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', color='yellow')
             for s_i in score_list.keys():
-                self.logger.log('\t Scenario ' + str(s_i) + ': ' + str(np.mean(score_list[s_i])), color='yellow')
+                self.logger.log('\t Env id ' + str(s_i) + ': ' + str(np.mean(score_list[s_i])), color='yellow')
 
             # calculate evaluation results
             score_function = get_route_scores if self.scenario_category == 'planning' else get_perception_scores

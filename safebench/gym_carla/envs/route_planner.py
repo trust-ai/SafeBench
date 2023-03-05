@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 17:20:24
+LastEditTime: 2023-03-05 15:00:17
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -113,7 +113,7 @@ class RoutePlanner():
         if len(self._waypoints_queue) < int(self._waypoints_queue.maxlen * 0.5):
             self._compute_next_waypoints(k=100)
 
-        #     Buffering the waypoints
+        # Buffering the waypoints
         while len(self._waypoint_buffer) < self._buffer_size:
             if self._waypoints_queue:
                 self._waypoint_buffer.append(self._waypoints_queue.popleft())
@@ -121,7 +121,6 @@ class RoutePlanner():
                 break
 
         waypoints = []
-
         for i, (waypoint, _) in enumerate(self._waypoint_buffer):
             waypoints.append([waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.rotation.yaw])
 

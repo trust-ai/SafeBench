@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 15:09:43
+LastEditTime: 2023-03-05 15:45:18
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -55,7 +55,7 @@ class CarlaEnv(gym.Env):
         self.total_step = 0
         self.is_running = True
         self.env_id = None
-        self.ego = None
+        self.ego_vehicle = None
         self.auto_ego = env_params['auto_ego']
 
         self.collision_sensor = None
@@ -140,7 +140,7 @@ class CarlaEnv(gym.Env):
         self.camera_bp.set_attribute('sensor_tick', '0.02')
 
     def _create_scenario(self, config, env_id):
-        self.logger.log(f">> Loading scenario id: {config.data_id}")
+        self.logger.log(f">> Loading scenario data id: {config.data_id}")
 
         # create scenario accoridng to different types
         if self.scenario_category == 'perception':
@@ -163,7 +163,7 @@ class CarlaEnv(gym.Env):
             raise ValueError(f'Unknown scenario category: {self.scenario_category}')
 
         # init scenario
-        self.ego = scenario.ego_vehicle
+        self.ego_vehicle = scenario.ego_vehicle
         self.scenario_manager.load_scenario(scenario)
 
     def _run_scenario(self, scenario_init_action):
@@ -177,13 +177,13 @@ class CarlaEnv(gym.Env):
         route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
 
         # TODO: these waypoints can be directly got from scenario
-        init_waypoints = []
+        waypoints_list = []
         carla_map = self.world.get_map()
         for node in route:
             loc = node[0].location
             waypoint = carla_map.get_waypoint(loc, project_to_road=True, lane_type=carla.LaneType.Driving)
-            init_waypoints.append(waypoint)
-        return init_waypoints
+            waypoints_list.append(waypoint)
+        return waypoints_list
 
     def get_static_obs(self, config):
         """
@@ -218,8 +218,8 @@ class CarlaEnv(gym.Env):
         self._attack_sensor()
 
         # route planner for ego vehicle
-        init_waypoints = self._parse_route(config)
-        self.routeplanner = RoutePlanner(self.ego, self.max_waypt, init_waypoints)
+        self.route_waypoints = self._parse_route(config)
+        self.routeplanner = RoutePlanner(self.ego_vehicle, self.max_waypt, self.route_waypoints)
         self.waypoints, _, _, _, _, self.vehicle_front, = self.routeplanner.run_step()
 
         # change view point
@@ -246,11 +246,11 @@ class CarlaEnv(gym.Env):
         # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
         self.settings = self.world.get_settings()
         self.world.apply_settings(self.settings)
-        return self._get_obs()
+        return self._get_obs(), self._get_info()
 
     def _attack_sensor(self):
         # Add collision sensor
-        self.collision_sensor = self.world.spawn_actor(self.collision_bp, carla.Transform(), attach_to=self.ego)
+        self.collision_sensor = self.world.spawn_actor(self.collision_bp, carla.Transform(), attach_to=self.ego_vehicle)
         self.collision_sensor.listen(lambda event: get_collision_hist(event))
 
         def get_collision_hist(event):
@@ -263,14 +263,14 @@ class CarlaEnv(gym.Env):
 
         # Add lidar sensor
         if self.scenario_category != 'perception' and not self.disable_lidar:
-            self.lidar_sensor = self.world.spawn_actor(self.lidar_bp, self.lidar_trans, attach_to=self.ego)
+            self.lidar_sensor = self.world.spawn_actor(self.lidar_bp, self.lidar_trans, attach_to=self.ego_vehicle)
             self.lidar_sensor.listen(lambda data: get_lidar_data(data))
 
         def get_lidar_data(data):
             self.lidar_data = data
 
         # Add camera sensor
-        self.camera_sensor = self.world.spawn_actor(self.camera_bp, self.camera_trans, attach_to=self.ego)
+        self.camera_sensor = self.world.spawn_actor(self.camera_bp, self.camera_trans, attach_to=self.ego_vehicle)
         self.camera_sensor.listen(lambda data: get_camera_img(data))
 
         def get_camera_img(data):            
@@ -321,7 +321,7 @@ class CarlaEnv(gym.Env):
 
                     # Apply control
                     act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
-                    self.ego.apply_control(act)
+                    self.ego_vehicle.apply_control(act)
             else:
                 self.logger.log('>> Can not get snapshot!', color='red')
                 raise Exception()
@@ -358,20 +358,24 @@ class CarlaEnv(gym.Env):
         # route planner
         self.waypoints, _, _, _, _, self.vehicle_front, = self.routeplanner.run_step()
 
-        # state information
-        info = {
-            'waypoints': self.waypoints,
-            'vehicle_front': self.vehicle_front,
-            'cost': self._get_cost()
-        }
-
         # Update timesteps
         self.time_step += 1
         self.total_step += 1
+
+        return (self._get_obs(), self._get_reward(), self._terminal(), self._get_info())
+    
+    def _get_info(self):
+        # state information
+        info = {
+            'waypoints': self.waypoints,
+            'route_waypoints': self.route_waypoints,
+            'vehicle_front': self.vehicle_front,
+            'cost': self._get_cost()
+        }
         if self.scenario_category in ['perception']:
             info.update(self.scenario_manager.background_scenario.update_info())
-        return (self._get_obs(), self._get_reward(), self._terminal(), copy.deepcopy(info))
-    
+        return info #copy.deepcopy(info)
+
     def _init_traffic_light(self):
         actor_list = self.world.get_actors()
         for actor in actor_list:
@@ -379,7 +383,7 @@ class CarlaEnv(gym.Env):
                 actor.set_red_time(3)
                 actor.set_green_time(3)
                 actor.set_yellow_time(1)
-        
+
     def _create_vehicle_bluepprint(self, actor_filter, color=None, number_of_wheels=[4]):
         blueprints = self.world.get_blueprint_library().filter(actor_filter)
         blueprint_library = []
@@ -428,7 +432,7 @@ class CarlaEnv(gym.Env):
 
     def _get_obs(self):
         # State observation
-        ego_trans = self.ego.get_transform()
+        ego_trans = self.ego_vehicle.get_transform()
         ego_x = ego_trans.location.x
         ego_y = ego_trans.location.y
         ego_yaw = ego_trans.rotation.yaw / 180 * np.pi
@@ -436,14 +440,14 @@ class CarlaEnv(gym.Env):
         yaw = np.array([np.cos(ego_yaw), np.sin(ego_yaw)])
         delta_yaw = np.arcsin(np.cross(w, yaw))
 
-        v = self.ego.get_velocity()
+        v = self.ego_vehicle.get_velocity()
         speed = np.sqrt(v.x**2 + v.y**2)
-        acc = self.ego.get_acceleration()
+        acc = self.ego_vehicle.get_acceleration()
         state = np.array([lateral_dis, -delta_yaw, speed, self.vehicle_front])
 
         if self.scenario_category != 'perception': 
             # set ego information for birdeye_render
-            self.birdeye_render.set_hero(self.ego, self.ego.id)
+            self.birdeye_render.set_hero(self.ego_vehicle, self.ego_vehicle.id)
             self.birdeye_render.vehicle_polygons = self.vehicle_polygons
             self.birdeye_render.walker_polygons = self.walker_polygons
             self.birdeye_render.waypoints = self.waypoints
@@ -535,15 +539,15 @@ class CarlaEnv(gym.Env):
         r_collision = -1 if len(self.collision_hist) > 0 else 0
 
         # reward for steering:
-        r_steer = -self.ego.get_control().steer ** 2
+        r_steer = -self.ego_vehicle.get_control().steer ** 2
 
         # reward for out of lane
-        ego_x, ego_y = get_pos(self.ego)
+        ego_x, ego_y = get_pos(self.ego_vehicle)
         dis, w = get_lane_dis(self.waypoints, ego_x, ego_y)
         r_out = -1 if abs(dis) > self.out_lane_thres else 0
 
         # reward for speed tracking
-        v = self.ego.get_velocity()
+        v = self.ego_vehicle.get_velocity()
 
         # cost for too fast
         lspeed = np.array([v.x, v.y])
@@ -551,7 +555,7 @@ class CarlaEnv(gym.Env):
         r_fast = -1 if lspeed_lon > self.desired_speed else 0
 
         # cost for lateral acceleration
-        r_lat = -abs(self.ego.get_control().steer) * lspeed_lon**2
+        r_lat = -abs(self.ego_vehicle.get_control().steer) * lspeed_lon**2
 
         # combine all rewards
         r = 1 * r_collision + 1 * lspeed_lon + 10 * r_fast + 1 * r_out + r_steer * 5 + 0.2 * r_lat
@@ -583,9 +587,9 @@ class CarlaEnv(gym.Env):
 
     def _remove_ego(self):
         # TODO: ego can be reused.
-        if self.ego is not None:
-            self.ego.destroy()
-            self.ego = None
+        if self.ego_vehicle is not None:
+            self.ego_vehicle.destroy()
+            self.ego_vehicle = None
 
     def clean_up(self):
         self._remove_sensor()

@@ -2,7 +2,7 @@
 Author: Haohong Lin
 Email: haohongl@andrew.cmu.edu
 Date: 2023-02-04 16:30:08
-LastEditTime: 2023-03-04 15:21:46
+LastEditTime: 2023-03-05 14:55:39
 Description: 
 '''
 
@@ -102,7 +102,7 @@ class YoloAgent(object):
         else: 
             self.model.eval()
     
-    def get_action(self, obs, deterministic=False):
+    def get_action(self, obs, infos, deterministic=False):
         # print(len(obs), len(obs[0]), type(obs), type(obs[0]))
         self.model.eval()
         self.model.model.eval()

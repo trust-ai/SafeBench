@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-03 12:38:59
+LastEditTime: 2023-03-05 14:55:02
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -24,7 +24,7 @@ class BasePolicy:
     def set_mode(self, mode):
         raise NotImplementedError()
 
-    def get_action(self, state, deterministic):
+    def get_action(self, state, infos, deterministic):
         raise NotImplementedError()
     
     def get_init_action(self, scenario_config, deterministic=False):

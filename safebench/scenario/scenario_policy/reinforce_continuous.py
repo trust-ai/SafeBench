@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 19:55:20
+LastEditTime: 2023-03-05 15:17:55
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -218,7 +218,7 @@ class REINFORCE(BasePolicy):
         processed_state_list = np.stack(processed_state_list, axis=0)
         return processed_state_list
 
-    def get_action(self, state, deterministic=False):
+    def get_action(self, state, infos, deterministic=False):
         return [None] * self.num_scenario
 
     def get_init_action(self, state, deterministic=False):
@@ -245,7 +245,7 @@ class REINFORCE(BasePolicy):
             self.logger.log(f'>> Loading LC model from {self.model_path}')
             with open(self.model_path, 'rb') as f:
                 checkpoint = torch.load(f)
-            self.model.load_state_dict(checkpoint['parameters'])
+            #self.model.load_state_dict(checkpoint['parameters'])
         else:
             self.logger.log(f'>> Fail to load LC model from {self.model_path}', color='red')
 

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 19:57:03
+LastEditTime: 2023-03-05 14:51:24
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,7 +15,10 @@ class BasePolicy:
     type = 'unlearnable'
 
     def __init__(self, config, logger):
-        pass
+        self.ego_vehicles = None
+
+    def set_ego_vehicles(self, ego_vehicles):
+        self.ego_vehicles = ego_vehicles
 
     def train(self, replay_buffer):
         raise NotImplementedError()
@@ -23,7 +26,7 @@ class BasePolicy:
     def set_mode(self, mode):
         raise NotImplementedError()
 
-    def get_action(self, state, deterministic):
+    def get_action(self, state, infos, deterministic):
         raise NotImplementedError()
 
     def load_model(self):
