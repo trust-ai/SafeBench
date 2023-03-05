@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 15:45:18
+LastEditTime: 2023-03-05 17:08:09
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -319,7 +319,8 @@ class CarlaEnv(gym.Env):
                         throttle = 0
                         brake = np.clip(-acc / 8, 0, 1)
 
-                    # Apply control
+                    # apply control
+                    # TODO: no idea why steering takes opposite sign. should be removed 
                     act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
                     self.ego_vehicle.apply_control(act)
             else:

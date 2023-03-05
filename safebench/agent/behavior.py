@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 15:57:09
+LastEditTime: 2023-03-05 17:10:26
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -35,6 +35,7 @@ class CarlaBehaviorAgent(BasePolicy):
 
     def set_ego_and_route(self, ego_vehicles, info):
         self.ego_vehicles = ego_vehicles
+        self.controller_list = []
         for e_i in range(self.num_scenario):
             controller = BehaviorAgent(self.ego_vehicles[e_i], behavior=self.behavior)
             dest_waypoint = info[e_i]['route_waypoints'][-1]
@@ -55,8 +56,8 @@ class CarlaBehaviorAgent(BasePolicy):
             control = self.controller_list[e_i['scenario_id']].run_step()
             throttle = control.throttle
             steer = control.steer
-            actions.append([throttle, steer])
-        actions = np.array(actions)
+            actions.append([throttle, -steer]) # TODO: consistent with gym-carla
+        actions = np.array(actions, dtype=np.float32)
         return actions
 
     def load_model(self):
