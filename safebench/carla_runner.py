@@ -69,21 +69,21 @@ class CarlaRunner:
             'scenario_category': self.scenario_category,
             'ROOT_DIR': scenario_config['ROOT_DIR'],
             'disable_lidar': True,
-            'display_size': 128,                    # screen size of one bird-eye view windowd=
-            'obs_range': 32,                        # observation range (meter)
-            'd_behind': 12,                         # distance behind the ego vehicle (meter)
-            'max_past_step': 1,                     # the number of past steps to draw
-            'discrete': False,                      # whether to use discrete control space
-            'discrete_acc': [-3.0, 0.0, 3.0],       # discrete value of accelerations
-            'discrete_steer': [-0.2, 0.0, 0.2],     # discrete value of steering angles
-            'continuous_accel_range': [-3.0, 3.0],  # continuous acceleration range
-            'continuous_steer_range': [-0.3, 0.3],  # continuous steering angle range
-            'max_episode_step': 100,                # maximum timesteps per episode
-            'max_waypt': 12,                        # maximum number of waypoints
-            'lidar_bin': 0.125,                     # bin size of lidar sensor (meter)
-            'out_lane_thres': 4,                    # threshold for out of lane (meter)
-            'desired_speed': 8,                     # desired speed (m/s)
-            'image_sz': 1024,                       # TODO: move to config of od scenario
+            'display_size': 128,                                       # screen size of one bird-eye view windowd=
+            'obs_range': 32,                                           # observation range (meter)
+            'd_behind': 12,                                            # distance behind the ego vehicle (meter)
+            'max_past_step': 1,                                        # the number of past steps to draw
+            'discrete': False,                                         # whether to use discrete control space
+            'discrete_acc': [-3.0, 0.0, 3.0],                          # discrete value of accelerations
+            'discrete_steer': [-0.2, 0.0, 0.2],                        # discrete value of steering angles
+            'continuous_accel_range': [-3.0, 3.0],                     # continuous acceleration range
+            'continuous_steer_range': [-0.3, 0.3],                     # continuous steering angle range
+            'max_episode_step': scenario_config['max_episode_step'],   # maximum timesteps per episode
+            'max_waypt': 12,                                           # maximum number of waypoints
+            'lidar_bin': 0.125,                                        # bin size of lidar sensor (meter)
+            'out_lane_thres': 4,                                       # threshold for out of lane (meter)
+            'desired_speed': 8,                                        # desired speed (m/s)
+            'image_sz': 1024,                                          # TODO: move to config of od scenario
         }
 
         # pass info from scenario to agent
@@ -223,11 +223,10 @@ class CarlaRunner:
         video_count = 0
         data_loader.reset_idx_counter()
 
-        video_file = None
+        video_dir = None
         if self.save_video:
             video_dir = os.path.join(self.output_dir, 'video')
             os.makedirs(video_dir, exist_ok=True)
-            video_file = os.path.join(video_dir, f'video_{video_count:04}.gif')
 
         while len(data_loader) > 0:
             # sample scenarios
@@ -266,6 +265,7 @@ class CarlaRunner:
 
             # save video
             if self.save_video:
+                video_file = os.path.join(video_dir, f'video_{video_count:04}.gif')
                 self.logger.log(f'>> Saving video to {video_file}')
                 save_video(frame_list, video_file)
                 video_count += 1

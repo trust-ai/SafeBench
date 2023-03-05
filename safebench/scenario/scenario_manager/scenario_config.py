@@ -23,6 +23,7 @@ class ScenarioConfig(object):
 
     auto_ego = False
     num_scenario = None
+    route_region = 0
     data_id = 0
     scenario_generation_method = None
     scenario_id = 0

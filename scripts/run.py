@@ -41,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=2000, help='port to communicate with carla')
     parser.add_argument('--tm_port', type=int, default=8000, help='traffic manager port')
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
+    parser.add_argument('--max_episode_step', type=int, default=300)
     args = parser.parse_args()
     args_dict = vars(args)
 
