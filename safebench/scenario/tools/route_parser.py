@@ -18,7 +18,7 @@ import math
 import xml.etree.ElementTree as ET
 
 import carla
-from carla.agents.navigation.local_planner import RoadOption
+from agents.navigation.local_planner import RoadOption
 from safebench.scenario.scenario_manager.scenario_config import ScenarioConfig
 
 

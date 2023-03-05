@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 17:20:17
+LastEditTime: 2023-03-05 14:11:49
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -90,7 +90,7 @@ class Util(object):
 
 class MapImage(object):
     def __init__(self, carla_world, carla_map, pixels_per_meter, logger):
-        logger.log('>> Drawing the map of the entire town')
+        logger.log('>> Drawing the map of the entire town. This may take a while...')
         self._pixels_per_meter = pixels_per_meter
         self.scale = 1.0
 

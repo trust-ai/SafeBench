@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 13:45:51
+LastEditTime: 2023-03-05 14:08:34
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -13,9 +13,8 @@ Description:
 import numpy as np
 
 from safebench.agent.base_policy import BasePolicy
-from carla.agents.navigation.behavior_agent import BehaviorAgent 
-from carla.agents.navigation.basic_agent import BasicAgent  
-from carla.agents.navigation.constant_velocity_agent import ConstantVelocityAgent
+from agents.navigation.behavior_agent import BehaviorAgent 
+from agents.navigation.basic_agent import BasicAgent  
 
 
 class PIDAgent(BasePolicy):

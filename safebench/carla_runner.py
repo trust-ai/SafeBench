@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 13:47:35
+LastEditTime: 2023-03-05 14:14:51
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -11,12 +11,10 @@ Description:
 '''
 
 import copy
-import os
 
 import numpy as np
 import carla
 import pygame
-import joblib
 from tqdm import tqdm
 
 from safebench.gym_carla.env_wrapper import VectorWrapper
@@ -31,7 +29,7 @@ from safebench.scenario.scenario_data_loader import ScenarioDataLoader
 from safebench.scenario.tools.scenario_utils import scenario_parse
 
 from safebench.util.logger import Logger, setup_logger_kwargs
-from safebench.util.run_util import save_video
+from safebench.util.run_util import VideoRecorder
 from safebench.util.metric_util import get_route_scores, get_perception_scores
 
 
@@ -43,9 +41,7 @@ class CarlaRunner:
         self.seed = scenario_config['seed']
         self.exp_name = scenario_config['exp_name']
         self.output_dir = scenario_config['output_dir']
-        self.save_video = scenario_config['save_video']
         self.mode = scenario_config['mode']
-        assert not self.save_video or (self.save_video and self.mode == 'eval'), "only allowed saving video in eval mode"
 
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
@@ -123,6 +119,7 @@ class CarlaRunner:
         self.logger.log('>> ' + '-' * 40)
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
+        self.video_recorder = VideoRecorder(scenario_config, logger=self.logger)
 
     def _init_world(self, town):
         self.logger.log(f">> Initializing carla world: {town}")
@@ -136,7 +133,7 @@ class CarlaRunner:
         CarlaDataProvider.set_traffic_manager_port(self.scenario_config['tm_port'])
         self.world.set_weather(carla.WeatherParameters.ClearNoon)
 
-    def _init_renderer(self, num_envs):
+    def _init_renderer(self):
         self.logger.log(">> Initializing pygame birdeye renderer")
         pygame.init()
         flag = pygame.HWSURFACE | pygame.DOUBLEBUF
@@ -145,11 +142,11 @@ class CarlaRunner:
         if self.scenario_category == 'planning': 
             # [bird-eye view, Lidar, front view] or [bird-eye view, front view]
             if self.env_params['disable_lidar']:
-                window_size = (self.env_params['display_size'] * 2, self.env_params['display_size'] * num_envs)
+                window_size = (self.env_params['display_size'] * 2, self.env_params['display_size'] * self.num_scenario)
             else:
-                window_size = (self.env_params['display_size'] * 3, self.env_params['display_size'] * num_envs)
+                window_size = (self.env_params['display_size'] * 3, self.env_params['display_size'] * self.num_scenario)
         else:
-            window_size = (self.env_params['display_size'], self.env_params['display_size'] * num_envs)
+            window_size = (self.env_params['display_size'], self.env_params['display_size'] * self.num_scenario)
         self.display = pygame.display.set_mode(window_size, flag)
 
         # initialize the render for generating observation and visualization
@@ -164,10 +161,8 @@ class CarlaRunner:
 
     def train(self, data_loader, start_episode=0):
         # general buffer for both agent and scenario
-        if self.scenario_category == 'planning':
-            replay_buffer = RouteReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
-        else:
-            replay_buffer = PerceptionReplayBuffer(self.num_scenario, self.mode, self.buffer_capacity)
+        Buffer = RouteReplayBuffer if self.scenario_category == 'planning' else PerceptionReplayBuffer
+        replay_buffer = Buffer(self.num_scenario, self.mode, self.buffer_capacity)
 
         for e_i in tqdm(range(start_episode, self.train_episode)):
             # sample scenarios
@@ -227,12 +222,6 @@ class CarlaRunner:
         num_finished_scenario = 0
         video_count = 0
         data_loader.reset_idx_counter()
-
-        video_dir = None
-        if self.save_video:
-            video_dir = os.path.join(self.output_dir, 'video')
-            os.makedirs(video_dir, exist_ok=True)
-
         while len(data_loader) > 0:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
@@ -244,7 +233,6 @@ class CarlaRunner:
             obs = self.env.reset(sampled_scenario_configs, scenario_init_action)
             
             score_list = {s_i: [] for s_i in range(num_sampled_scenario)}
-            frame_list = []
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
                 ego_actions = self.agent_policy.get_action(obs, deterministic=True)
@@ -254,10 +242,9 @@ class CarlaRunner:
                 obs, rewards, _, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
 
                 # save video
-                if self.save_video:
-                    frame_list.append(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
+                self.video_recorder.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
 
-                # accumulate scores to corresponding scenario
+                # accumulate scores of corresponding scenario
                 reward_idx = 0
                 for s_i in infos:
                     score = rewards[reward_idx] if self.scenario_category == 'planning' else 1-infos[reward_idx]['iou_loss']
@@ -269,11 +256,8 @@ class CarlaRunner:
             self.env.clean_up()
 
             # save video
-            if self.save_video:
-                video_file = os.path.join(video_dir, f'video_{video_count:04}.gif')
-                self.logger.log(f'>> Saving video to {video_file}')
-                save_video(frame_list, video_file)
-                video_count += 1
+            self.video_recorder.save(video_name=f'video_{video_count}.gif')
+            video_count += 1
 
             # print score for ranking
             self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', color='yellow')
@@ -291,11 +275,9 @@ class CarlaRunner:
         # get scenario data of different maps
         config_by_map = scenario_parse(self.scenario_config, self.logger)
         for m_i in config_by_map.keys():
-            # initialize a map
+            # initialize map and render
             self._init_world(m_i)
-
-            # initialize renderer
-            self._init_renderer(self.num_scenario)
+            self._init_renderer()
 
             # create scenarios within the vectorized wrapper
             self.env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
@@ -336,7 +318,6 @@ class CarlaRunner:
         return start_episode
 
     def close(self):
-        # close pygame renderer
-        pygame.quit()
+        pygame.quit() # close pygame renderer
         if self.env:
             self.env.clean_up()

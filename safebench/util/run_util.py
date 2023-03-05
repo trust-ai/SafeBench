@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:55:23
+LastEditTime: 2023-03-05 14:14:23
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -18,8 +18,37 @@ import yaml
 import imageio
 
 
-def save_video(frame_list, filename):
+def save_gif(frame_list, filename):
     imageio.v2.mimsave(filename, frame_list, fps=30)
+
+
+class VideoRecorder(object):
+    def __init__(self, config, logger):
+        self.logger = logger
+        self.save_video = config['save_video']
+        self.mode = config['mode']
+        self.output_dir = config['output_dir']
+        assert not self.save_video or (self.save_video and self.mode == 'eval'), "only allowed saving video in eval mode"
+
+        self.frame_list = []
+        if self.save_video:
+            self.video_dir = os.path.join(self.output_dir, 'video')
+            os.makedirs(self.video_dir, exist_ok=True)
+        else:
+            self.video_dir = None
+
+    def add_frame(self, frame):
+        if self.save_video:
+            self.frame_list.append(frame)
+        else:
+            pass
+    
+    def save(self, video_name):
+        if self.save_video:
+            video_file = os.path.join(self.video_dir, video_name)
+            self.logger.log(f'>> Saving video to {video_file}')
+            save_gif(self.frame_list, video_file)
+            self.frame_list = []
 
 
 def print_dict(d):

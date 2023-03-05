@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 13:46:14
+LastEditTime: 2023-03-05 14:06:04
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -17,7 +17,7 @@ from collections import deque
 import math
 import numpy as np
 import carla
-from carla.agents.tools.misc import get_speed
+from agents.tools.misc import get_speed
 
 
 class VehiclePIDController():
