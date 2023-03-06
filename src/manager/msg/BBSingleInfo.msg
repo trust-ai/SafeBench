@@ -1,1 +1,0 @@
-geometry_msgs/Vector3 vertex_location
