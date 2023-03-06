@@ -6,6 +6,10 @@
 
 # SafeBench
 
+##### We are hosting the Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge at CVPR 2023! Please check our [website](https://ai-secure.github.io/SSAD2023/) for more details.
+
+---
+
 <div style="text-align: center; width:100%; margin: 0 auto; display: inline-block">
 <strong>
 [
@@ -13,7 +17,7 @@
 |
 <a href="">Demo Video</a>
 |
-<a href="https://ai-secure.github.io/SSAD2023/challenge">Website</a>
+<a href="https://safebench.github.io">Website</a>
 |
 <a href="https://arxiv.org/pdf/2206.09682.pdf">Paper</a>
 ]
