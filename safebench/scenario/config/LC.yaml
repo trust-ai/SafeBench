@@ -18,4 +18,4 @@ batch_size: 32
 lr: 0.001
 eval_in_train_freq: 10
 save_freq: 10
-train_episode: 100
+train_episode: 1000

@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 15:17:55
+LastEditTime: 2023-03-05 21:27:36
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -245,9 +245,9 @@ class REINFORCE(BasePolicy):
             self.logger.log(f'>> Loading LC model from {self.model_path}')
             with open(self.model_path, 'rb') as f:
                 checkpoint = torch.load(f)
-            #self.model.load_state_dict(checkpoint['parameters'])
+            self.model.load_state_dict(checkpoint['parameters'])
         else:
-            self.logger.log(f'>> Fail to load LC model from {self.model_path}', color='red')
+            self.logger.log(f'>> Fail to find LC model from {self.model_path}', color='yellow')
 
     def save_model(self, epoch):
         self.logger.log(f'>> Saving LC model to {self.model_path}')

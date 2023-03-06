@@ -2,7 +2,7 @@
 Author:
 Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 17:08:09
+LastEditTime: 2023-03-05 17:23:25
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -295,7 +295,7 @@ class CarlaEnv(gym.Env):
                     image_w, image_h = self.obs_size, self.obs_size
                     self.scenario_manager.background_scenario.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
                     ego_action = ego_action['ego_action']
-                
+
                 # Calculate acceleration and steering
                 if not self.auto_ego:
                     if self.discrete:
