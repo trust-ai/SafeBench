@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-02-28 17:42:30
+LastEditTime: 2023-03-06 12:55:07
 Description: 
 '''
 
@@ -21,6 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_dir', type=str, default='log')
     parser.add_argument('--ROOT_DIR', type=str, default=osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__)))))
 
+    parser.add_argument('--max_episode_step', type=int, default=300)
     parser.add_argument('--auto_ego', action='store_true')
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
     parser.add_argument('--agent_cfg', type=str, default='dummy.yaml')
@@ -39,7 +40,6 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=2000, help='port to communicate with carla')
     parser.add_argument('--tm_port', type=int, default=8000, help='traffic manager port')
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
-    parser.add_argument('--max_episode_step', type=int, default=300)
     args = parser.parse_args()
     args_dict = vars(args)
 

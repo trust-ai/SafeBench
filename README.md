@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-03-06 00:20:40
+ * @LastEditTime: 2023-03-06 12:56:54
  * @Description: 
 -->
 
@@ -65,7 +65,7 @@ Enter the CARLA root folder, launch the CARLA server and run our platform with
 ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 
 # Launch SafeBench in another terminal
-python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
+python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
 ```
 
 ### 2. Remote Server Users
@@ -75,7 +75,7 @@ Enter the CARLA root folder, launch the CARLA server with headless mode, and run
 ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
 
 # Launch SafeBench in another terminal
-SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
+SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
 ```
 
 (Optional) You can also visualize the pygame window using [TurboVNC](https://sourceforge.net/projects/turbovnc/files/).
@@ -88,7 +88,7 @@ First, launch CARLA with headless mode, and run our platform on a virtual displa
 /opt/TurboVNC/bin/vncserver :8 -noxstartup
 
 # Launch SafeBench on the virtual display
-DISPLAY=:8 python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
+DISPLAY=:8 python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
 ```
 
 You can use the TurboVNC client on your local machine to connect to the virtual display.
@@ -102,3 +102,16 @@ ssh -L fp:localhost:5900+n user@host
 /opt/TurboVNC/bin/vncviewer localhost::fp
 ```
 where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
+
+
+## Running Argument
+
+| Argument | Choice | Usage |
+| :----: | :----: | :----: |
+| `mode` | `[train_agent\train_scenario\eval]` | We provide three modes for training agent, training scenario, and evaluation. |
+| `max_episode_step`      | int     | Number of episode used for training agents and scenario. |
+| `agent_cfg`      | path of .yaml  |  configuration file of agent. |
+| `scenario_cfg`   | path of .yaml  |  configuration file of scenario. |
+| `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
+| `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
+| `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |
