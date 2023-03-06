@@ -3,7 +3,7 @@
  * @LastEditTime: 2021-08-25 19:45:48
  * @Description: 
 -->
-# SafeBench: A Benchmarking Platform for Safety Evaluation of Autonomous Vehicles
+# SafeBench
 
 ## This version is out-of-date, please check the main branch of [Safebench](https://github.com/trust-ai/SafeBench).
 
