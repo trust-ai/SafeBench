@@ -70,7 +70,13 @@ class PerceptionScenario(RouteScenario):
         self._iou = 0.0
 
     def get_running_status(self, running_record):
-        running_status = {'iou': self._iou, 'current_game_time': GameTime.get_time()}
+        running_status = {
+            "iou": self._iou, 
+            'gt': self._gt,
+            'scores': self._scores,
+            'logits': self._logits,
+            'current_game_time': GameTime.get_time()
+        }
 
         for criterion_name, criterion in self.criteria.items():
             running_status[criterion_name] = criterion.update()
@@ -193,33 +199,31 @@ class PerceptionScenario(RouteScenario):
                         box_cnt = np.expand_dims(np.array(box_cnt), axis=1)
                         # get bounding rectangle of the cube as labels
                         x, y, w, h = cv2.boundingRect(box_cnt)
-                        self.ground_truth_bbox[key].append(np.array([[x, y], [x+w, y], [x, y+h], [x+w, y+h]]))
+                        self.ground_truth_bbox[key].append(np.array([[x, y, x+w, y+h]]))
 
     def eval(self, bbox_pred, bbox_gt):
         scenario = self.list_scenarios[0]
-        ret = scenario.eval(bbox_pred, bbox_gt)
+        ret_dict = scenario.eval(bbox_pred, bbox_gt)
 
-        return ret
+        return ret_dict
     
-    def get_img_label(self, label, ):
-        saved_list = []
-        for k in label.keys():
-            cls = names_coco128.index(k)
-            bbox_true = label[k]
-            for box_true in bbox_true:
-                box_save = xyxy2xywhn(get_xyxy(box_true)[None, :])[0]
-                saved_list.append(np.concatenate([np.array([cls]), box_save.numpy()], axis=0))
-
-        self.n_step += 1
-        return saved_list
     
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
         bbox_pred = ego_action['od_result']
         self.get_bbox(world_2_camera, image_w, image_h, fov)
         bbox_label = self.ground_truth_bbox
-        self._iou = self.eval(bbox_pred, bbox_label)
-        return self._iou
-    
+        ret = self.eval(bbox_pred, bbox_label)
+        self._iou = ret['iou']
+        self._gt = ret['gt']
+        self._scores = ret['scores']
+        self._logits = ret['logits']
+
+
+
+
     def update_info(self):
-        bbox_label = {"stopsign": self.ground_truth_bbox["stopsign"]} # local labels
-        return {"bbox_label": self.get_img_label(bbox_label), "iou_loss": 1-self._iou}
+        return {
+            # "bbox_label": self.ground_truth_bbox, 
+            "iou_loss": 1-self._iou, 
+            "iou": self._iou, 
+        }

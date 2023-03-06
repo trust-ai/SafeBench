@@ -285,9 +285,7 @@ class CarlaEnv(gym.Env):
             snapshot = self.world.get_snapshot()
             if snapshot:
                 timestamp = snapshot.timestamp
-                # TODO: input an action into the scenario
-                self.scenario_manager.get_update(timestamp, scenario_action)
-                self.is_running = self.scenario_manager._running
+                # Update: get update on evaluation results before getting update of running status
                 if self.scenario_category in ['perception']:
                     assert isinstance(ego_action, dict), 'ego action in ObjectDetectionScenario should be a dict'
                     world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
@@ -296,6 +294,10 @@ class CarlaEnv(gym.Env):
                     self.scenario_manager.background_scenario.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
                     ego_action = ego_action['ego_action']
                 
+                # TODO: input an action into the scenario
+                self.scenario_manager.get_update(timestamp, scenario_action)
+                self.is_running = self.scenario_manager._running
+
                 # Calculate acceleration and steering
                 if not self.auto_ego:
                     if self.discrete:

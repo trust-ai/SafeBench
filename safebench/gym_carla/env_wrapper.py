@@ -38,7 +38,7 @@ class VectorWrapper():
         # flags for env list 
         self.finished_env = [False] * self.num_scenario
         self.running_results = {}
-
+    
     def obs_postprocess(self, obs_list):
         # assume all variables are array
         obs_list = np.array(obs_list)
@@ -96,7 +96,7 @@ class VectorWrapper():
                 # TODO: pre-process scenario action
                 self.env_list[e_i].step_before_tick(processed_action, scenario_actions[action_idx])
                 action_idx += 1
-
+        
         # tick all scenarios
         for _ in range(self.frame_skip):
             self.world.tick()
