@@ -1,11 +1,11 @@
 <!--
- * @Author: Wenhao Ding
- * @Email: wenhaod@andrew.cmu.edu
  * @Date: 2021-07-18 21:43:53
  * @LastEditTime: 2021-08-25 19:45:48
  * @Description: 
 -->
 # SafeBench: A Benchmarking Platform for Safety Evaluation of Autonomous Vehicles
+
+## This version is out-of-date, please check the laste repo of [Safebench](https://github.com/trust-ai/SafeBench)
 
 This is an evaluation platform based on Carla Simulator. The structure of this platform is shown in this figure:
 ![pipeline](./misc/pipeline_2.png)
