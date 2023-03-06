@@ -5,7 +5,7 @@
 -->
 # SafeBench: A Benchmarking Platform for Safety Evaluation of Autonomous Vehicles
 
-## This version is out-of-date, please check the laste repo of [Safebench](https://github.com/trust-ai/SafeBench)
+## This version is out-of-date, please check the main branch of [Safebench](https://github.com/trust-ai/SafeBench).
 
 This is an evaluation platform based on Carla Simulator. The structure of this platform is shown in this figure:
 ![pipeline](./misc/pipeline_2.png)
