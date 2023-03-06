@@ -1,0 +1,25 @@
+{
+    "available_scenarios": [
+        {
+            "Town_Safebench_Heavy": [
+                {
+                    "available_event_configurations": [
+                        {
+                            "other_actors": {
+                                "left": []
+                            },
+                            "transform": {
+                                "pitch": "0.00",
+                                "x": "92.50",
+                                "y": "5.25",
+                                "yaw": "-0.00",
+                                "z": "0.15"
+                            }
+                        }
+                    ],
+                    "scenario_type": "Scenario_Ped"
+                }
+            ]
+        }
+    ]
+}

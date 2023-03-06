@@ -1,0 +1,18 @@
+type_dir: 'safebench/scenario/config/scenario_type'
+type_name: 'ordinary.json'
+type_category: 'planning'
+
+route_dir: 'safebench/scenario/scenario_data/route'
+method: null
+scenario_id: 0
+route_id: null
+
+ego_action_dim: 2
+ego_state_dim: 4
+ego_action_limit: 3.0
+
+# useless
+buffer_capacity: 1
+eval_in_train_freq: 10
+save_freq: 10
+train_episode: 100
