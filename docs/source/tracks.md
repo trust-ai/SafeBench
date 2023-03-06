@@ -42,7 +42,8 @@ The metric we evaluate is the IoU and accuracy of the detection results.
 This track still focuses on control tasks but the goal is to design scenarios that can make agents either fail to finish the route or collide with other objects.
 
 ### Metric
-The metrics we evaluate are ...
+The metrics we evaluate are collision rate, out of road length, distance to driving route, incomplete driving route, and running time.
+We will calculate a final score based on the 5 metrics.
 
 
 ## Track 4 (Planning Defense)
@@ -54,4 +55,5 @@ The goal is to design robust agents that can avoid collision and finish route.
 TODO: add one screenshot
 
 ### Metric
-The metrics we evaluate are ...
+The metrics we evaluate are collision rate, out of road length, distance to driving route, incomplete driving route, and running time.
+We will calculate a final score based on the 5 metrics.
