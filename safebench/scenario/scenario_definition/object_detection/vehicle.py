@@ -11,7 +11,7 @@ from safebench.util.od_util import *
 
 class Detection_Vehicle(BasicScenario):
     """
-        This scenario create stopsign textures in the current scenarios.
+        This scenario create car textures in the current scenarios.
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
@@ -74,28 +74,51 @@ class Detection_Vehicle(BasicScenario):
 
 
     def eval(self, bbox_pred, bbox_gt):
+        '''
+            bbox_pred: dictionary from detection modules (torch)
+            bbox_gt: dictionary from carla envs (numpy)
+        '''
         types = bbox_pred['labels']
+        types_flag = -torch.ones_like(bbox_pred['scores'])
+
         if isinstance(types, torch.Tensor) or 'car' not in types:
-            return 0
+            return {
+                "iou": 0., 
+                "logits": types_flag, 
+                "gt": bbox_gt['car'], 
+                "scores": bbox_pred['scores'],
+                "pred": bbox_pred['boxes'], 
+                "TP+FP": 0,
+                "TP+FP+FN": len(bbox_pred['scores']),
+            }
         
-        index = types.index('car')
-
-        objectiveness = bbox_pred['scores'][[index]]
-        pred = bbox_pred['boxes'][[index]]
-
-
+        index = torch.LongTensor(self._find_indices(types, 'car'))
+        pred = bbox_pred['boxes'][index]
+        types_flag[index] += 1
         match_ret = 0.
         
         if 'car' in bbox_gt.keys():
             box_true = bbox_gt['car']
             if len(box_true) > 0:
-                for b_true in box_true:
-                    b_true = get_xyxy(b_true)[None, :]
-                    ret = box_iou(pred, b_true)[0][0].item()
-                    if ret > match_ret:
-                        match_ret = ret
-        return match_ret
+                b_true = torch.from_numpy(np.concatenate(box_true))
+                ret = box_iou(pred, b_true)
+                match_ret = ret.max().item()
+                logits, idx_tp = torch.max(ret, dim=0)
+                types_flag[index[idx_tp]] = logits
         
+        return {
+            "iou": match_ret, 
+            "logits": types_flag, 
+            "gt": bbox_gt['car'], 
+            "scores": bbox_pred['scores'], 
+        }
+    
+    def _find_indices(self, types, name):
+        index = []
+        for i in range(len(types)):
+            if types[i] == name:
+                index.append(i)
+        return index
     
     def _try_spawn_random_walker_at(self, transform):
         """

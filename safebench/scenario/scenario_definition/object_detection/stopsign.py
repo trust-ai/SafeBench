@@ -1,6 +1,8 @@
 import carla
 import os
 import random
+import time
+
 import numpy as np
 import cv2
 
@@ -27,6 +29,8 @@ class Detection_StopSign(BasicScenario):
         resized = cv2.resize(self.image_list[0], (1024,1024), interpolation=cv2.INTER_AREA)
         resized = np.rot90(resized,k=1)
         self.resized = cv2.flip(resized,1)
+        self.iou_thres = torch.arange(0.5, 1.1, 0.25)[:, None]
+        self.recall_interval = 0.1
 
         super(Detection_StopSign, self).__init__("Detection_StopSign", config, world)
 
@@ -79,29 +83,49 @@ class Detection_StopSign(BasicScenario):
             bbox_pred: dictionary from detection modules (torch)
             bbox_gt: dictionary from carla envs (numpy)
         '''
+        t1 = time.time()
         types = bbox_pred['labels']
+        types_flag = -torch.ones_like(bbox_pred['scores'])
+
         if isinstance(types, torch.Tensor) or 'stopsign' not in types:
-            return 0
+            return {
+                "iou": 0., 
+                "logits": types_flag, 
+                "gt": bbox_gt['stopsign'], 
+                "scores": bbox_pred['scores'],
+                "pred": bbox_pred['boxes'], 
+                "TP+FP": 0,
+                "TP+FP+FN": len(bbox_pred['scores']),
+            }
         
-        index = types.index('stopsign')
-
-        objectiveness = bbox_pred['scores'][[index]]
-        pred = bbox_pred['boxes'][[index]]
-
-
+        index = torch.LongTensor(self._find_indices(types, 'stopsign'))
+        pred = bbox_pred['boxes'][index]
+        types_flag[index] += 1
         match_ret = 0.
         
         if 'stopsign' in bbox_gt.keys():
             box_true = bbox_gt['stopsign']
             if len(box_true) > 0:
-                for b_true in box_true:
-                    b_true = get_xyxy(b_true)[None, :]
-                    ret = box_iou(pred, b_true)[0][0].item()
-                    if ret > match_ret:
-                        match_ret = ret
-        return match_ret
-                
+                b_true = torch.from_numpy(np.concatenate(box_true))
+                ret = box_iou(pred, b_true)
+                match_ret = ret.max().item()
+                logits, idx_tp = torch.max(ret, dim=0)
+                types_flag[index[idx_tp]] = logits
         
+        return {
+            "iou": match_ret, 
+            "logits": types_flag, 
+            "gt": bbox_gt['stopsign'], 
+            "scores": bbox_pred['scores'], 
+        }
+    
+    def _find_indices(self, types, name):
+        index = []
+        for i in range(len(types)):
+            if types[i] == name:
+                index.append(i)
+        return index
+    
     def _try_spawn_random_walker_at(self, transform):
         """
             Try to spawn a walker at specific transform with random bluprint.

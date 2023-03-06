@@ -234,7 +234,7 @@ class RouteScenario():
         else:
             route = interpolate_trajectory(self.world, self.config.trajectory)
             ego_vehicle = self._spawn_ego_vehicle(route[0][0], self.config.auto_ego)
-
+        
         # scan route to get exactly 1 scenario definition
         possible_scenarios, _ = RouteParser.scan_route_for_scenarios(
             self.config.town,
@@ -246,6 +246,7 @@ class RouteScenario():
         scenarios_definitions = []
         for trigger in possible_scenarios.keys():
             scenarios_definitions.extend(possible_scenarios[trigger])
+
         assert len(scenarios_definitions) == 1, "There should be exactly 1 scenario definition in the route"
 
         # TODO: ego route will be overwritten by other scenarios

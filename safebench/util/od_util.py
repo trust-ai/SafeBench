@@ -61,6 +61,7 @@ def box_iou(box1, box2, eps=1e-7):
     # inter(N,M) = (rb(N,M,2) - lt(N,M,2)).clamp(0).prod(2)
     # diff = box 
     (a1, a2), (b1, b2) = box1[:, None].chunk(2, 2), box2.chunk(2, 1)
+    
     inter = (torch.min(a2, b2) - torch.max(a1, b1)).clamp(0).prod(2)
 
     # IoU = inter / (area1 + area2 - inter)
@@ -69,7 +70,7 @@ def box_iou(box1, box2, eps=1e-7):
 
 def xywh2xyxy(x):
     # Convert nx4 boxes from [x, y, w, h] to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
-    y = x.clone()
+    y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
     y[:, 0] = x[:, 0] - x[:, 2] / 2  # top left x
     y[:, 1] = x[:, 1] - x[:, 3] / 2  # top left y
     y[:, 2] = x[:, 0] + x[:, 2] / 2  # bottom right x
@@ -102,25 +103,6 @@ def get_xyxy(x):
     return torch.tensor([np.min(x[:, 0]), np.min(x[:, 1]), np.max(x[:, 0]), np.max(x[:, 1])])
 
 
-class xverse_video_writer:
-    def __init__(self,save_path,w,h) -> None:
-        self.writer = VideoWriter(filename=save_path,fps=20.0)
-        self.index = 0
-        self.last_frame = np.zeros((w,h,3), dtype=np.uint64)
-        self.width = w
-        self.height = h
-
-    def write_frame(self,frame):
-        if frame is not None:
-            frame = cv2.resize(frame, (self.width,self.height), interpolation=cv2.INTER_AREA)
-            self.writer.add(frame)
-            self.last_frame = frame
-        else:
-            self.writer.add(self.last_frame)
-    def release(self,):
-        self.writer.close()
-
-
 # coco_name
 names_coco128 = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
         'fire hydrant', 'stopsign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -142,3 +124,9 @@ names_coco_paper = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
         'dining table', 'window', 'desk', 'toilet', 'door', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 
         'oven', 'toaster', 'sink', 'refrigerator', 'blender', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 
         'toothbrush', 'hair brush']
+
+
+if __name__ == '__main__':
+    a = torch.rand(5, 4)
+    b = torch.rand(4, 4)
+    print(box_iou(a, b))

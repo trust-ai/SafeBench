@@ -1,7 +1,11 @@
 import joblib
 import math
+import numpy as np
+
 from copy import deepcopy
 import argparse
+
+import torch
 from safebench.scenario.scenario_definition.atomic_criteria import Status
 
 
@@ -115,9 +119,65 @@ def get_route_scores(record_dict, time_out=30):
 
     return all_scores
 
+def compute_ap(recall, precision):
+    """ Compute the average precision, given the recall and precision curves
+    # Arguments
+        recall:    The recall curve (list)
+        precision: The precision curve (list)
+    # Returns
+        Average precision, precision curve, recall curve
+    """
 
-def get_perception_scores(record_dict):
-    return {}
+    # Append sentinel values to beginning and end
+    mrec = np.concatenate(([0.0], recall, [1.0]))
+    mpre_input = np.concatenate(([1.0], precision, [0.0]))
+
+    # Compute the precision envelope
+    mpre = np.flip(np.maximum.accumulate(np.flip(mpre_input)))
+
+    # Integrate area under curve
+    method = 'interp'  # methods: 'continuous', 'interp'
+    if method == 'interp':
+        x = np.linspace(0, 1, 101)  # 101-point interp (COCO)
+        ap = np.trapz(np.interp(x, mrec, mpre), x)  # integrate
+    else:  # 'continuous'
+        i = np.where(mrec[1:] != mrec[:-1])[0]  # points where x axis (recall) changes
+        ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])  # area under curve
+
+    return ap, mpre_input, mpre, mrec
+
+
+def _get_pr_curve(conf_scores, logits, num_gt, data_id, iou_thres=0.5):
+    eps = 1e-8
+    idx = torch.argsort(conf_scores, descending=True)
+    logits = logits[idx]
+    tp = torch.cumsum(logits >= iou_thres, dim=0)
+    tp_fp = torch.cumsum(logits >= -0., dim=0)
+    print(tp.shape, tp_fp.shape)
+    precision = (tp / tp_fp).numpy()
+    recall = (tp / (num_gt + eps)).numpy()
+
+    ap, mpre_input, mpre, mrec = compute_ap(recall, precision)
+    return ap
+
+def get_perception_scores(record_dict): 
+    
+    mAP = []
+    IoU_list = []
+    for data_id in record_dict.keys():
+        IoU_list.append([rec['iou'] for rec in record_dict[data_id]])
+        conf_scores = torch.cat([rec['scores'] for rec in record_dict[data_id]])
+        logits = torch.cat([rec['logits'] for rec in record_dict[data_id]])
+        num_gt = len(record_dict[data_id])
+        mAP.append(_get_pr_curve(conf_scores, logits, num_gt, data_id))
+
+    IoU_mean = [np.mean(iou) for iou in IoU_list]
+    
+    
+    return {
+        'mean_iou': IoU_mean,
+        'mAP_evaluate': mAP, 
+    }
 
 
 def parse_args():
@@ -130,5 +190,5 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     record = joblib.load(args.record_file)
-    all_scores, normalized_scores, final_score = get_scores(record)
-    print('overall score:', final_score)
+    # all_scores, normalized_scores, final_score = get_scores(record)
+    # print('overall score:', final_score)

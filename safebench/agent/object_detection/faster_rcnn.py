@@ -1,5 +1,5 @@
+import time
 import cv2
-import torch
 import numpy as np
 
 import torch
@@ -30,12 +30,12 @@ class FasterRCNNAgent(object):
         self.imgsz = (1024, 1024)
         self.model = CUDA(fasterrcnn_resnet50_fpn(pretrained=True))
         self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
-        self.conf_thres = 0.3
+        # self.conf_thres = 0.3
 
     def get_action(self, obs, infos, deterministic=False):
         # print(len(obs), len(obs[0]), type(obs), type(obs[0]))
         self.model.eval()
-
+        t1 = time.time()
         n_envs = len(obs)
         pred_list = []
         for i in range(n_envs):
@@ -57,7 +57,6 @@ class FasterRCNNAgent(object):
             
             # TODO: CUDA Memory Management
             torch.cuda.empty_cache()
-
         return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred_list[i]} for i in range(n_envs)]
     
 
@@ -155,9 +154,9 @@ class FasterRCNNAgent(object):
         if len(pred["scores"]) == 0:
             pred = {"scores": torch.Tensor([-1]), "labels": torch.Tensor([-1]), "boxes": torch.Tensor([-1, -1, -1, -1])}
         else:
-            index = torch.where(pred["scores"] > self.conf_thres)
-            pred = {"scores": pred["scores"][index].detach().cpu(), 
-                    "labels": [names_coco_paper[idx-1] for idx in pred["labels"][index].detach().cpu().numpy()],
-                    "boxes": pred["boxes"][index].detach().cpu()}
+            # index = torch.where(pred["scores"] > self.conf_thres)
+            pred = {"scores": pred["scores"].detach().cpu(), 
+                    "labels": [names_coco_paper[idx-1] for idx in pred["labels"].detach().cpu().numpy()],
+                    "boxes": pred["boxes"].detach().cpu()}
 
         return pred
