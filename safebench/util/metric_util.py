@@ -1,11 +1,11 @@
-import joblib
 import math
-import numpy as np
-
 from copy import deepcopy
 import argparse
 
+import numpy as np
+import joblib
 import torch
+
 from safebench.scenario.scenario_definition.atomic_criteria import Status
 
 
@@ -119,6 +119,7 @@ def get_route_scores(record_dict, time_out=30):
 
     return all_scores
 
+
 def compute_ap(recall, precision):
     """ Compute the average precision, given the recall and precision curves
     # Arguments
@@ -160,8 +161,8 @@ def _get_pr_curve(conf_scores, logits, num_gt, data_id, iou_thres=0.5):
     ap, mpre_input, mpre, mrec = compute_ap(recall, precision)
     return ap
 
+
 def get_perception_scores(record_dict): 
-    
     mAP = []
     IoU_list = []
     for data_id in record_dict.keys():
@@ -172,8 +173,7 @@ def get_perception_scores(record_dict):
         mAP.append(_get_pr_curve(conf_scores, logits, num_gt, data_id))
 
     IoU_mean = [np.mean(iou) for iou in IoU_list]
-    
-    
+
     return {
         'mean_iou': IoU_mean,
         'mAP_evaluate': mAP, 

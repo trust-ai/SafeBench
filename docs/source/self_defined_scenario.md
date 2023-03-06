@@ -84,7 +84,7 @@ To switch the mode of the models (e.g., neural networks), you should implement t
 
 **4. Get action from policy.**
 ```python
-    def get_action(self, state, deterministic):
+    def get_action(self, state, infos, deterministic):
 ```
 This function takes the state as input and return the action. If the deterministic is True, the action should be deterministic.
 The information of state can be found in the code environment.
