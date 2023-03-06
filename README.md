@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-03-06 12:56:54
+ * @LastEditTime: 2023-03-06 13:12:59
  * @Description: 
 -->
 
@@ -33,7 +33,7 @@ conda activate safebench
 
 2. Clone this git repo in an appropriate folder
 ```
-git clone git@github.com:trust-ai/SafeBench_v2.git
+git clone git@github.com:trust-ai/SafeBench.git
 ```
 
 3. Enter the repo root folder and install the packages:
@@ -42,7 +42,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1Ta5qtEIrOnpsToQfJ-j0cdRiF7xCbLM3/view?usp=share_link), extract it to your folder.
+4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1v1pqrt9dOUxZOYBRtZN-_06cXSneO61D/view?usp=sharing) and extract it to your folder.
 
 5. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
@@ -107,11 +107,11 @@ where `user@host` is your remote server, `fp` is a free TCP port on the local ma
 ## Running Argument
 
 | Argument | Choice | Usage |
-| :----: | :----: | :----: |
+| :----: | :----: | :---- |
 | `mode` | `[train_agent\train_scenario\eval]` | We provide three modes for training agent, training scenario, and evaluation. |
-| `max_episode_step`      | int     | Number of episode used for training agents and scenario. |
 | `agent_cfg`      | path of .yaml  |  configuration file of agent. |
 | `scenario_cfg`   | path of .yaml  |  configuration file of scenario. |
+| `max_episode_step`      | int     | Number of episode used for training agents and scenario. |
 | `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
 | `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
 | `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |
