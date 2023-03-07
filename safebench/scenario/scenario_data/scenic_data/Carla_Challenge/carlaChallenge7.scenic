@@ -21,7 +21,8 @@ BRAKE_INTENSITY = 1.0
 behavior CrossingCarBehavior(trajectory):
 	while True:
 		do FollowTrajectoryBehavior(trajectory = trajectory)
-
+		do FollowLaneBehavior(10)
+        
 behavior EgoBehavior(trajectory):
 	
 	try:

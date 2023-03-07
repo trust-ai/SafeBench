@@ -9,8 +9,9 @@ Description:
 '''
 
 import copy
-
+import os
 import numpy as np
+import json
 import carla
 import pygame
 from tqdm import tqdm
@@ -98,11 +99,8 @@ class ScenicRunner:
             self.train_episode = agent_config['train_episode']
             self.logger.save_config(agent_config)
         elif self.mode == 'train_scenario':
-            self.buffer_capacity = scenario_config['buffer_capacity']
-            self.eval_in_train_freq = scenario_config['eval_in_train_freq']
-            self.save_freq = scenario_config['save_freq']
-            self.train_episode = scenario_config['train_episode']
-            self.logger.save_config(scenario_config)
+            self.scene_map = {}
+            self.logger.create_eval_dir(load_existing_results=False)
         elif self.mode == 'eval':
             self.logger.log('>> Evaluation Mode, skip config saving', 'yellow')
             self.logger.create_eval_dir(load_existing_results=True)
@@ -127,34 +125,20 @@ class ScenicRunner:
 
     def _init_world(self):
         self.logger.log(">> Initializing carla world")
-        self.update_scene()
         self.world = self.client.get_world()
         self.world.scenic = self.scenic
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
         CarlaDataProvider.set_traffic_manager_port(self.scenario_config['tm_port'])
+        # end dummy simulation
+        self.scenic.endSimulation()
         
     def _init_scenic(self, config):
         self.logger.log(f">> Initializing scenic simulator: {config.scenic_file}")
         self.scenic = ScenicSimulator(config.scenic_file)
-        
-    def update_scene(self):
-        self.logger.log(f">> Updating the scene...")
-        while(True):
-            scene, _ = self.scenic.generateScene()
-            if self.set_scene(scene):
-                break
-                
-    def set_scene(self, scene):
-        if self.scenic.setSimulation(scene):
-            self.scene = scene
-            return True
-        return False
-                
-    def run_scene(self):
-        self.logger.log(f">> Begin to run the scene...")
-        self.scenic.update_behavior = self.scenic.runSimulation()
-        next(self.scenic.update_behavior)
+        # dummy scene 
+        scene, _ = self.scenic.generateScene()
+        self.run_scenes([scene])
         
     def _init_renderer(self):
         self.logger.log(">> Initializing pygame birdeye renderer")
@@ -182,6 +166,14 @@ class ScenicRunner:
         }
         self.birdeye_render = BirdeyeRender(self.world, self.birdeye_params, logger=self.logger)
 
+    def run_scenes(self, scenes):
+        self.logger.log(f">> Begin to run the scene...")
+        ## currently there is only one scene in this list ##
+        for scene in scenes:
+            self.scenic.setSimulation(scene)
+            self.scenic.update_behavior = self.scenic.runSimulation()
+            next(self.scenic.update_behavior)
+        
     def train(self, data_loader, start_episode=0):
         # general buffer for both agent and scenario
         Buffer = RouteReplayBuffer if self.scenario_category in ['planning', 'scenic'] else PerceptionReplayBuffer
@@ -216,8 +208,6 @@ class ScenicRunner:
                 # train on-policy agent or scenario
                 if self.mode == 'train_agent' and self.agent_policy.type == 'offpolicy':
                     self.agent_policy.train(replay_buffer)
-                elif self.mode == 'train_scenario' and self.scenario_policy.type == 'offpolicy':
-                    self.scenario_policy.train(replay_buffer)
 
             # end up environment
             self.env.clean_up()
@@ -226,8 +216,6 @@ class ScenicRunner:
             # train off-policy agent or scenario
             if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':
                 self.agent_policy.train(replay_buffer)
-            elif self.mode == 'train_scenario' and self.scenario_policy.type in ['init_state', 'onpolicy']:
-                self.scenario_policy.train(replay_buffer)
 
             # eval during training
             if (e_i+1) % self.eval_in_train_freq == 0:
@@ -236,22 +224,24 @@ class ScenicRunner:
 
             # save checkpoints
             if (e_i+1) % self.save_freq == 0:
-                if self.mode == 'train_agent':
-                    self.agent_policy.save_model(e_i)
-                if self.mode == 'train_scenario':
-                    self.scenario_policy.save_model(e_i)
-
-    def eval(self, data_loader):
+                self.agent_policy.save_model(e_i)
+        
+    def eval(self, data_loader, select = False):
         num_finished_scenario = 0
         video_count = 0
         data_loader.reset_idx_counter()
+        # recording the score and the id of corresponding selected scenes
+        map_id_score = {}
+            
         while len(data_loader) > 0:
             # sample scenarios
             sampled_scenario_configs, num_sampled_scenario = data_loader.sampler()
             num_finished_scenario += num_sampled_scenario
+            assert num_sampled_scenario == 1, 'scenic can only run one scene at one time'
             
+            scenes = [config.scene for config in sampled_scenario_configs]
             # begin to run the scene
-            self.run_scene()
+            self.run_scenes(scenes)
             
             # reset envs with new config, get init action from scenario policy, and run scenario
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
@@ -299,17 +289,20 @@ class ScenicRunner:
             self.logger.add_eval_results(all_scores)
             self.logger.print_eval_results()
             self.logger.save_eval_results()
-            
-            # update the next scene 
-            if len(data_loader):
-                self.update_scene()
-
+            for config in sampled_scenario_configs:
+                map_id_score[config.data_id] = all_scores['final_score']
+                
+        if select:
+            behavior_name = data_loader.behavior
+            # TODO: define new selection mechanism
+            self.scene_map[behavior_name] = sorted([item[0] for item in sorted(map_id_score.items(), key=lambda x:x[1])][:data_loader.select_num])
+            self.dump_scene_map()
+        
     def run(self):
         # get scenario data of different maps
         config_list = scenic_parse(self.scenario_config, self.logger)
         
         for config in config_list:
-            
             # initialize scenic
             self._init_scenic(config)
             # initialize map and render
@@ -320,7 +313,7 @@ class ScenicRunner:
             self.env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
 
             # prepare data loader and buffer
-            data_loader = ScenicDataLoader(config, self.num_scenario)
+            data_loader = ScenicDataLoader(self.scenic, config, self.num_scenario)
 
             # run with different modes
             if self.mode == 'eval':
@@ -336,11 +329,11 @@ class ScenicRunner:
                 self.scenario_policy.set_mode('eval')
                 self.train(data_loader, start_episode)
             elif self.mode == 'train_scenario':
-                start_episode = self.check_continue_training(self.scenario_policy)
                 self.agent_policy.load_model()
+                self.scenario_policy.load_model()
                 self.agent_policy.set_mode('eval')
-                self.scenario_policy.set_mode('train')
-                self.train(data_loader, start_episode)
+                self.scenario_policy.set_mode('eval')
+                self.eval(data_loader, select = True)
             else:
                 raise NotImplementedError(f"Unsupported mode: {self.mode}.")
 
@@ -353,8 +346,17 @@ class ScenicRunner:
             start_episode = policy.continue_episode
             self.logger.log('>> Continue training from previous checkpoint.')
         return start_episode
-
+    
+    def dump_scene_map(self):
+        # load previous checkpoint
+        scenic_dir = self.scenario_config['scenic_dir']
+        f = open(os.path.join(scenic_dir, f"{scenic_dir.split('/')[-1]}.json"), 'w')
+        json.dump(self.scene_map, f)
+        f.close()
+    
     def close(self):
         pygame.quit() # close pygame renderer
         if self.env:
             self.env.clean_up()
+            
+    

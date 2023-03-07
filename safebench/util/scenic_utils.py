@@ -144,7 +144,7 @@ class ScenicSimulator:
 
         if self.args.simulate:
             self.simulator = errors.callBeginningScenicTrace(self.scenario.getSimulator)
-
+            self.simulator.render = False
     def generateScene(self):
         scene, iterations = errors.callBeginningScenicTrace(
             lambda: self.scenario.generate(verbosity=self.args.verbosity)
@@ -155,7 +155,6 @@ class ScenicSimulator:
         if self.args.verbosity >= 1:
             print(f'  Beginning simulation of {scene.dynamicScenario}...')
         try:     
-            self.simulator.render = False
             self.simulation = self.simulator.createSimulation(scene, verbosity=self.args.verbosity)
         except SimulationCreationError as e:
             if self.args.verbosity >= 1:
@@ -247,9 +246,9 @@ class ScenicSimulator:
                 if len(actions) == 1 and isinstance(actions[0], (list, tuple)):
                     actions = tuple(actions[0])
                     
-                if not self.simulation.actionsAreCompatible(agent, actions):
-                    raise InvalidScenarioError(f'agent {agent} tried incompatible '
-                                               f' action(s) {actions}')
+#                 if not self.simulation.actionsAreCompatible(agent, actions):
+#                     raise InvalidScenarioError(f'agent {agent} tried incompatible '
+#                                                f' action(s) {actions}')
                 allActions[agent] = actions
             if terminationReason is not None:
                 break

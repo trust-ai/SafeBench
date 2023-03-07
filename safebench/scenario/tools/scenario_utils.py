@@ -95,21 +95,45 @@ def scenic_parse(config, logger):
     """
         Parse scenic config, especially for loading the scenic files.
     """
+    mode = config['mode']
     scenic_dir = config['scenic_dir']
-    scenic_listdir = sorted([osp.join(scenic_dir, i) for i in os.listdir(scenic_dir) if i.split('.')[1] == 'scenic'])
-    assert len(scenic_listdir) > 0, 'no scenic file in this dir'
+    scenic_rel_listdir = sorted([path for path in os.listdir(scenic_dir) if path.split('.')[1] == 'scenic'])
+    scenic_abs_listdir = [osp.join(scenic_dir, path) for path in scenic_rel_listdir]
+    behaviors = [path.split('.')[0] for path in scenic_rel_listdir]
+    assert len(scenic_rel_listdir) > 0, 'no scenic file in this dir'
     
+    try:
+        scene_map_dir = [path for path in os.listdir(scenic_dir) if path.split('.')[1] == 'json']
+        if len(scene_map_dir) == 0:
+            pass
+        else:
+            scene_map_dir = scene_map_dir[0]
+            f = open(osp.join(scenic_dir, scene_map_dir))
+            scene_index_map = json.load(f)
+            for behavior in behaviors:
+                if len(scene_index_map[behavior]) != config['select_num']:
+                    scene_map_dir = []
+                    break
+    except:
+        scene_map_dir = []
+
     config_list = []
-    for i, scenic_file in enumerate(scenic_listdir):
+    for i, scenic_file in enumerate(scenic_abs_listdir):
         parsed_config = ScenarioConfig()
         parsed_config.auto_ego = config['auto_ego']
         parsed_config.num_scenario = config['num_scenario']
         parsed_config.data_id = i
         parsed_config.scenic_file = scenic_file
+        parsed_config.behavior = behaviors[i]
         parsed_config.scenario_generation_method = config['method']
         parsed_config.scenario_id = config['scenario_id']
         parsed_config.sample_num = config['sample_num']
         parsed_config.trajectory = []
+        parsed_config.select_num = config['select_num']
+        if mode == 'eval' and len(scene_map_dir):
+            parsed_config.scene_index = scene_index_map[behaviors[i]]
+        else:
+            parsed_config.scene_index = list(range(config['sample_num']))
         config_list.append(parsed_config)
     return config_list
 

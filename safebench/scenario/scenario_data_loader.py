@@ -53,14 +53,24 @@ class ScenarioDataLoader:
 
 
 class ScenicDataLoader:
-    def __init__(self, config, num_scenario):
+    def __init__(self, scenic, config, num_scenario):
         self.num_scenario = num_scenario
         self.config = config
-        self.num_total_scenario = self.config.sample_num
+        self.behavior = config.behavior
+        self.scene_index = config.scene_index
+        self.select_num = config.select_num
+        self.num_total_scenario = len(self.scene_index)
         self.reset_idx_counter()
-
+        self.generate_scene(scenic)
+        
+    def generate_scene(self, scenic):
+        self.scene = []
+        while len(self.scene) < self.config.sample_num:
+            scene, _ = scenic.generateScene()
+            self.scene.append(scene)
+            
     def reset_idx_counter(self):
-        self.scenario_idx = list(range(self.num_total_scenario))
+        self.scenario_idx = self.scene_index
 
     def __len__(self):
         return len(self.scenario_idx)
@@ -68,7 +78,9 @@ class ScenicDataLoader:
     def sampler(self):
         ## no need to be random for scenic loading file ###
         selected_scenario = []
-        self.config.data_id = self.scenario_idx.pop(0)
+        idx = self.scenario_idx.pop(0)
+        self.config.data_id = idx
+        self.config.scene = self.scene[idx]
         selected_scenario.append(self.config)
         assert len(selected_scenario) <= self.num_scenario, f"number of scenarios is larger than {self.num_scenario}"
         return selected_scenario, len(selected_scenario)

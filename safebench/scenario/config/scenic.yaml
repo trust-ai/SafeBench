@@ -4,7 +4,8 @@ type_name: 'scenic.json'
 type_category: 'scenic'
 
 scenic_dir: 'safebench/scenario/scenario_data/scenic_data/Carla_Challenge'
-sample_num: 10
+sample_num: 20
+select_num: 5
 method: null
 scenario_id: null
 route_id: null
