@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-06 00:18:42
+LastEditTime: 2023-03-06 23:37:16
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,7 +15,7 @@ class BasePolicy:
     def __init__(self, config, logger):
         self.ego_vehicles = None
 
-    def set_ego_vehicles(self, ego_vehicles):
+    def set_ego_and_route(self, ego_vehicles, info):
         self.ego_vehicles = ego_vehicles
 
     def train(self, replay_buffer):
