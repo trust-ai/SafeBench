@@ -22,8 +22,10 @@ class ScenarioManager(object):
         required to initialize, trigger, update and stop a scenario.
     """
 
-    def __init__(self, logger):
+    def __init__(self, logger, use_scenic = False):
         self.logger = logger
+        self.scenic = use_scenic
+        print(f"use_scenic!!!!! :{use_scenic}")
         self._reset()
 
     def _reset(self):
@@ -77,24 +79,30 @@ class ScenarioManager(object):
             GameTime.on_carla_tick(timestamp)
             CarlaDataProvider.on_carla_tick()
             
-            # check whether the scenario should be triggered
-            for spawned_scenario in self.scenario_list:
-                ego_location = CarlaDataProvider.get_location(self.ego_vehicle)
-                cur_distance = None
-                reference_location = None
-                if spawned_scenario.reference_actor:
-                    reference_location = CarlaDataProvider.get_location(spawned_scenario.reference_actor)
-                if reference_location:
-                    cur_distance = calculate_distance_locations(ego_location, reference_location)
+            if self.scenic:
+                # update behavior of triggered scenarios
+                for running_scenario in self.scenario_list: 
+                    # update behavior of agents in scenario
+                    running_scenario.update_behavior(scenario_action)
+            else:
+                # check whether the scenario should be triggered
+                for spawned_scenario in self.scenario_list:
+                    ego_location = CarlaDataProvider.get_location(self.ego_vehicle)
+                    cur_distance = None
+                    reference_location = None
+                    if spawned_scenario.reference_actor:
+                        reference_location = CarlaDataProvider.get_location(spawned_scenario.reference_actor)
+                    if reference_location:
+                        cur_distance = calculate_distance_locations(ego_location, reference_location)
 
-                if cur_distance and cur_distance < spawned_scenario.trigger_distance_threshold:
-                    if spawned_scenario not in self.triggered_scenario:
-                        self.logger.log(">> Trigger scenario: " + spawned_scenario.name)
-                        self.triggered_scenario.add(spawned_scenario)
+                    if cur_distance and cur_distance < spawned_scenario.trigger_distance_threshold:
+                        if spawned_scenario not in self.triggered_scenario:
+                            self.logger.log(">> Trigger scenario: " + spawned_scenario.name)
+                            self.triggered_scenario.add(spawned_scenario)
 
-            # update behavior of triggered scenarios
-            for running_scenario in self.triggered_scenario: 
-                # update behavior of agents in scenario
-                running_scenario.update_behavior(scenario_action)
+                # update behavior of triggered scenarios
+                for running_scenario in self.triggered_scenario: 
+                    # update behavior of agents in scenario
+                    running_scenario.update_behavior(scenario_action)
 
             self.update_running_status()

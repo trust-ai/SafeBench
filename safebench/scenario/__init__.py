@@ -16,6 +16,7 @@ from safebench.scenario.scenario_policy.adv_patch import ObjectDetection
 SCENARIO_POLICY_LIST = {
     'standard': DummyPolicy,
     'ordinary': DummyPolicy,
+    'scenic': DummyPolicy,
     'LC': REINFORCE,
     'od': ObjectDetection
 }

@@ -11,8 +11,9 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-import math
+import os
 import os.path as osp
+import math
 import json
 import random
 
@@ -20,6 +21,7 @@ import carla
 import xml.etree.ElementTree as ET
 
 from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
+from safebench.scenario.scenario_manager.scenario_config import ScenarioConfig
 
 
 def calculate_distance_transforms(transform_1, transform_2):
@@ -89,6 +91,27 @@ def scenario_parse(config, logger):
 
     return config_by_map
 
+def scenic_parse(config, logger):
+    """
+        Parse scenic config, especially for loading the scenic files.
+    """
+    scenic_dir = config['scenic_dir']
+    scenic_listdir = sorted([osp.join(scenic_dir, i) for i in os.listdir(scenic_dir) if i.split('.')[1] == 'scenic'])
+    assert len(scenic_listdir) > 0, 'no scenic file in this dir'
+    
+    config_list = []
+    for i, scenic_file in enumerate(scenic_listdir):
+        parsed_config = ScenarioConfig()
+        parsed_config.auto_ego = config['auto_ego']
+        parsed_config.num_scenario = config['num_scenario']
+        parsed_config.data_id = i
+        parsed_config.scenic_file = scenic_file
+        parsed_config.scenario_generation_method = config['method']
+        parsed_config.scenario_id = config['scenario_id']
+        parsed_config.sample_num = config['sample_num']
+        parsed_config.trajectory = []
+        config_list.append(parsed_config)
+    return config_list
 
 def get_valid_spawn_points(world):
     vehicle_spawn_points = list(world.get_map().get_spawn_points())
