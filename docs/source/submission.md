@@ -1,10 +1,10 @@
 <!--
  * @Date: 2023-02-20 20:13:41
- * @LastEditTime: 2023-03-06 00:21:20
+ * @LastEditTime: 2023-03-07 12:26:15
  * @Description: 
 -->
 
-# Hosting a Challenge via EvalAI
+<!-- # Hosting a Challenge via EvalAI
 
 This document provides an overview on how to host a code-upload based challenge on EvalAI. A code-upload based challenge is usually a reinforcement learning challenge in which participants upload their trained model in the form of a Docker image. The environment is also a docker image.
 
@@ -199,6 +199,8 @@ evalai push <image>:<tag> --phase <phase_name>
 ```
 <br>
 At this point, the challenge configuration has been submitted for review and the EvalAI team has been notified. They will review and approve the challenge.
-<br>
+<br> -->
 
 # How to Submit Results
+
+To be announced.
