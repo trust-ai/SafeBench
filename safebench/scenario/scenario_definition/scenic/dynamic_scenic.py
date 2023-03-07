@@ -44,10 +44,10 @@ class DynamicScenic(BasicScenario):
         """
         update behavior via scenic
         """
-        try:
-            next(self.world.scenic.update_behavior)
-        except:
-            self.stop = True
+#         try:
+        next(self.world.scenic.update_behavior)
+#         except:
+#             self.stop = True
         
     def check_stop_condition(self):
         """

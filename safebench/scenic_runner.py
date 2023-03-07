@@ -253,7 +253,6 @@ class ScenicRunner:
             # begin to run the scene
             self.run_scene()
             
-            sampled_scenario_configs[0].trajectory = [self.world.scenic.simulation.ego.carlaActor.get_transform()]
             # reset envs with new config, get init action from scenario policy, and run scenario
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs)

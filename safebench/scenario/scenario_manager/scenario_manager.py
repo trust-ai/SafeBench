@@ -25,7 +25,6 @@ class ScenarioManager(object):
     def __init__(self, logger, use_scenic = False):
         self.logger = logger
         self.scenic = use_scenic
-        print(f"use_scenic!!!!! :{use_scenic}")
         self._reset()
 
     def _reset(self):

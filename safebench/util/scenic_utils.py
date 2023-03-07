@@ -1,6 +1,8 @@
 
 ### Top-level functionality of the scenic package as a script:
 ### load a scenario and generate scenes in an infinite loop.
+### modified from https://github.com/BerkeleyLearnVerify/Scenic/blob/main/src/scenic/__main__.py
+### & https://github.com/BerkeleyLearnVerify/Scenic/blob/main/src/scenic/core/simulators.py
 
 import enum
 import sys
@@ -303,6 +305,34 @@ class ScenicSimulator:
         for scenario in tuple(veneer.runningScenarios):
             scenario._stop('exception', quiet=True)
         veneer.endSimulation(self.simulation)
+        
+class Action:
+    """An :term:`action` which can be taken by an agent for one step of a simulation."""
+    def canBeTakenBy(self, agent):
+        return True
+
+    def applyTo(self, agent, simulation):
+        raise NotImplementedError
+
+class EndSimulationAction(Action):
+    """Special action indicating it is time to end the simulation.
+    Only for internal use.
+    """
+    def __init__(self, line):
+        self.line = line
+
+    def __str__(self):
+        return f'"terminate" executed on line {self.line}'
+
+class EndScenarioAction(Action):
+    """Special action indicating it is time to end the current scenario.
+    Only for internal use.
+    """
+    def __init__(self, line):
+        self.line = line
+
+    def __str__(self):
+        return f'"terminate scenario" executed on line {self.line}'
 
 @enum.unique
 class TerminationType(enum.Enum):
@@ -317,7 +347,7 @@ class TerminationType(enum.Enum):
     terminatedByMonitor = 'a monitor terminated the simulation'
     #: A :term:`dynamic behavior` used :keyword:`terminate` to end the simulation.
     terminatedByBehavior = 'a behavior terminated the simulation'
-    
+
 class SimulationResult:
     """Result of running a simulation.
     Attributes:
@@ -340,6 +370,3 @@ class SimulationResult:
         self.terminationType = terminationType
         self.terminationReason = str(terminationReason)
         self.records = dict(records)
-    
-def dummy():    # for the 'scenic' entry point to call after importing this module
-    pass
