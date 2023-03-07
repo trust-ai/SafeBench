@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-07 01:33:28
+LastEditTime: 2023-03-07 12:18:47
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -11,7 +11,6 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-import copy
 import random
 
 import numpy as np
@@ -41,9 +40,9 @@ class CarlaEnv(gym.Env):
         An OpenAI-gym style interface for CARLA simulator. 
     """
     def __init__(self, env_params, birdeye_render=None, display=None, world=None, logger=None):
-        self.config = None
-        # TODO: only initialize textures for once in parallel rollout
         assert world is not None, "the world passed into CarlaEnv is None"
+
+        self.config = None
         self.world = world
         self.display = display
         self.logger = logger
@@ -64,10 +63,8 @@ class CarlaEnv(gym.Env):
         self.lidar_height = 2.1
         
         # scenario manager
-        if  env_params['scenario_category'] == 'scenic':
-            self.scenario_manager = ScenarioManager(self.logger, True)
-        else:
-            self.scenario_manager = ScenarioManager(self.logger)
+        use_scenic = True if  env_params['scenario_category'] == 'scenic' else False
+        self.scenario_manager = ScenarioManager(self.logger, use_scenic=use_scenic)
 
         # for birdeye view and front view visualization
         self.display_size = env_params['display_size']
@@ -295,7 +292,7 @@ class CarlaEnv(gym.Env):
             snapshot = self.world.get_snapshot()
             if snapshot:
                 timestamp = snapshot.timestamp
-                # Update: get update on evaluation results before getting update of running status
+                # get update on evaluation results before getting update of running status
                 if self.scenario_category in ['perception']:
                     assert isinstance(ego_action, dict), 'ego action in ObjectDetectionScenario should be a dict'
                     world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
@@ -304,7 +301,7 @@ class CarlaEnv(gym.Env):
                     self.scenario_manager.background_scenario.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
                     ego_action = ego_action['ego_action']
 
-                # TODO: input an action into the scenario
+                # pass scenario action into manager
                 self.scenario_manager.get_update(timestamp, scenario_action)
                 self.is_running = self.scenario_manager._running
 
@@ -332,7 +329,6 @@ class CarlaEnv(gym.Env):
                         brake = np.clip(-acc / 8, 0, 1)
 
                     # apply control
-                    # TODO: no idea why steering takes opposite sign. should be removed 
                     act = carla.VehicleControl(throttle=float(throttle), steer=float(steer), brake=float(brake))
                     self.ego_vehicle.apply_control(act)
             else:
@@ -521,9 +517,6 @@ class CarlaEnv(gym.Env):
                 camera_surface = rgb_to_display_surface(camera, self.display_size)
                 self.display.blit(camera_surface, (self.display_size, self.env_id*self.display_size))
 
-            # show image on window (move outside of env)
-            #pygame.display.flip()
-
             obs = {
                 'camera': camera.astype(np.uint8),
                 'lidar': None if self.disable_lidar else lidar.astype(np.uint8),
@@ -532,13 +525,9 @@ class CarlaEnv(gym.Env):
             }
         else:
             """ Get the observations for object detection. """
-            # display camera image
             camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
             camera_surface = rgb_to_display_surface(camera, self.display_size)
             self.display.blit(camera_surface, (0, self.env_id*self.display_size))
-
-            # show image on window
-            #pygame.display.flip()
 
             obs = {
                 'camera': camera.astype(np.uint8),
@@ -582,7 +571,7 @@ class CarlaEnv(gym.Env):
         return r_collision
 
     def _terminal(self):
-        return not self.scenario_manager._running # the max step critie is included in scenario_manager
+        return not self.scenario_manager._running 
 
     def _remove_sensor(self):
         if self.collision_sensor is not None:
