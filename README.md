@@ -118,10 +118,16 @@ cd Scenic
 python -m pip install -e .
 ```
 
-And run our demo example with (```num_scenario  ```  has to be 1 currently):
+And run our demo example with (```num_scenario```  has to be 1 currently):
 
 ```
 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1
+```
+
+Or if you want to Launch it on the virtual display
+
+```
+DISPLAY=:8 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1
 ```
 
 ## Running Argument
