@@ -107,6 +107,22 @@ ssh -L fp:localhost:5900+n user@host
 ```
 where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
 
+###  3. Scenic users
+
+If you want to use scenic to control the surrounding adversarial agents, and use RL to control the ego, then first install scenic as follows:
+
+```
+# Download Scenic repository
+git clone https://github.com/BerkeleyLearnVerify/Scenic.git
+cd Scenic
+python -m pip install -e .
+```
+
+And run our demo example with (```num_scenario  ```  has to be 1 currently):
+
+```
+python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1
+```
 
 ## Running Argument
 
