@@ -42,4 +42,3 @@ ego = Car following roadDirection from spawnPt for Range(-50, -30),
     with behavior EgoBehavior(EGO_SPEED)
 
 require (distance to intersection) > 75
-terminate when ego.speed < 0.1 and (distance to obstacle) < 15

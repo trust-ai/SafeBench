@@ -36,4 +36,3 @@ debris2 = Debris following roadDirection from debris1 for Range(5, 10)
 debris3 = Debris following roadDirection from debris2 for Range(5, 10)
 
 require (distance to intersection) > 50
-terminate when (distance from debris3 to ego) > 10 and (distance to start) > 50

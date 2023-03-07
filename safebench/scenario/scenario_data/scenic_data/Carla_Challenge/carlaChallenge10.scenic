@@ -57,4 +57,3 @@ adversary = Car at adv_spawn_pt,
 
 require 20 <= (distance to intersec) <= 25
 require 15 <= (distance from adversary to intersec) <= 20
-terminate when (distance to ego_spawn_pt) > 70

@@ -77,4 +77,3 @@ adversary = Car at adv_spawn_pt,
 require (ego_start_section.laneToLeft == adv_end_section)  # make sure the ego and adversary are spawned in opposite lanes
 require 25 <= (distance to intersec) <= 30
 require 15 <= (distance from adversary to intersec) <= 20
-terminate when (distance to ego_spawn_pt) > 70

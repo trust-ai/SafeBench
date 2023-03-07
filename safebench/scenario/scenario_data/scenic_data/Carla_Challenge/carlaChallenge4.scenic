@@ -49,4 +49,3 @@ bicycle = Bicycle at spotBicycle offset by 3.5@0,
 
 require 10 <= (distance to intersec) <= 15
 require 10 <= (distance from bicycle to intersec) <= 15
-terminate when (distance to spot) > 50

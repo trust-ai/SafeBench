@@ -143,8 +143,8 @@ class ScenicScenario():
                 stop = True
                 self.logger.log('>> Stop due to timeout', color='yellow') 
                 break
-            if scenario.check_stop_condition():
-                self.logger.log('>> Stop due to scenic error', color='yellow') 
+            if scenario.check_scenic_terminate():
+                self.logger.log('>> Stop due to scenic termination', color='yellow') 
                 stop = True
                 break
         return running_status, stop

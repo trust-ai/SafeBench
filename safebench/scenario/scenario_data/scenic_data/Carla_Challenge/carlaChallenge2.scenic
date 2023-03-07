@@ -54,4 +54,3 @@ ego = Car following roadDirection from leadCar for Range(-15, -10),
         with behavior EgoBehavior(EGO_SPEED)
 
 require (distance to intersection) > 80
-terminate when ego.speed < 0.1 and (distance to obstacle) < 30

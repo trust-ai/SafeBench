@@ -32,7 +32,7 @@ class DynamicScenic(BasicScenario):
         super(DynamicScenic, self).__init__("DynamicScenic", config, world)
         self._wmap = CarlaDataProvider.get_map()
         self.timeout = timeout
-        self.stop = False
+        self.terminate = False
         
     def _spawn_blocker(self, transform, orientation_yaw):
         pass
@@ -44,16 +44,16 @@ class DynamicScenic(BasicScenario):
         """
         update behavior via scenic
         """
-#         try:
-        next(self.world.scenic.update_behavior)
-#         except:
-#             self.stop = True
+        try:
+            next(self.world.scenic.update_behavior)
+        except:
+            self.terminate = True
         
-    def check_stop_condition(self):
+    def check_scenic_terminate(self):
         """
         This condition is just for small scenarios
         """
-        return self.stop
+        return self.terminate
 
     def create_behavior(self, scenario_init_action):
         pass

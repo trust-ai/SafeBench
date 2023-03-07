@@ -54,4 +54,3 @@ ego = Car following roadDirection from spot for Range(-30, -20),
 
 require (distance to intersection) > 75
 require (ego.laneSection._slowerLane is None)
-terminate when (distance to spot) > 50
