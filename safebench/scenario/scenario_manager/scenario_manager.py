@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-03 22:15:00
+LastEditTime: 2023-03-07 01:26:56
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -22,7 +22,7 @@ class ScenarioManager(object):
         required to initialize, trigger, update and stop a scenario.
     """
 
-    def __init__(self, logger, use_scenic = False):
+    def __init__(self, logger, use_scenic=False):
         self.logger = logger
         self.scenic = use_scenic
         self._reset()

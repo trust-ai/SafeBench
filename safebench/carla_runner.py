@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-06 00:19:51
+LastEditTime: 2023-03-06 23:38:58
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -235,7 +235,7 @@ class CarlaRunner:
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs)
             obs, infos = self.env.reset(sampled_scenario_configs, scenario_init_action)
-            
+
             # get ego vehicle from scenario
             self.agent_policy.set_ego_and_route(self.env.get_ego_vehicles(), infos)
 

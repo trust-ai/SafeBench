@@ -71,7 +71,6 @@ class ScenicScenario():
         self.timeout = self._estimate_route_timeout(_waypoint_buffer) if timeout is None else timeout
         return _waypoint_buffer, ego_vehicle
 
-    
     def _estimate_route_timeout(self, route):
         route_length = 0.0  # in meters
         min_length = 100.0

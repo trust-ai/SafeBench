@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 21:32:52
+LastEditTime: 2023-03-07 01:33:28
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -333,7 +333,7 @@ class CarlaEnv(gym.Env):
 
                     # apply control
                     # TODO: no idea why steering takes opposite sign. should be removed 
-                    act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
+                    act = carla.VehicleControl(throttle=float(throttle), steer=float(steer), brake=float(brake))
                     self.ego_vehicle.apply_control(act)
             else:
                 self.logger.log('>> Can not get snapshot!', color='red')

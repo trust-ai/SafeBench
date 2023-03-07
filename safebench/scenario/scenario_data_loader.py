@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:42:18
+LastEditTime: 2023-03-07 01:28:53
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -51,6 +51,7 @@ class ScenarioDataLoader:
         assert len(selected_scenario) <= self.num_scenario, f"number of scenarios is larger than {self.num_scenario}"
         return selected_scenario, len(selected_scenario)
 
+
 class ScenicDataLoader:
     def __init__(self, config, num_scenario):
         self.num_scenario = num_scenario
@@ -65,7 +66,6 @@ class ScenicDataLoader:
         return len(self.scenario_idx)
 
     def sampler(self):
-        
         ## no need to be random for scenic loading file ###
         selected_scenario = []
         self.config.data_id = self.scenario_idx.pop(0)

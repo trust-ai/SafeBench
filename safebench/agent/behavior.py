@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-06 23:37:55
+LastEditTime: 2023-03-07 01:33:53
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -54,7 +54,7 @@ class CarlaBehaviorAgent(BasePolicy):
             control = self.controller_list[e_i['scenario_id']].run_step()
             throttle = control.throttle
             steer = control.steer
-            actions.append([throttle, -steer]) # TODO: consistent with gym-carla
+            actions.append([throttle, steer]) 
         actions = np.array(actions, dtype=np.float32)
         return actions
 
