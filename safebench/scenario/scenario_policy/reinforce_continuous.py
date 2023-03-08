@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:17:55
+LastEditTime: 2023-03-08 14:29:08
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -248,6 +248,9 @@ class REINFORCE(BasePolicy):
             self.logger.log(f'>> Fail to find LC model from {self.model_path}', color='yellow')
 
     def save_model(self, epoch):
+        if not os.path.exists(self.model_path):
+            self.logger.log(f'>> Creating folder for saving model: {self.model_path}')
+            os.makedirs(self.model_path)
         self.logger.log(f'>> Saving LC model to {self.model_path}')
         with open(self.model_path, 'wb+') as f:
             torch.save({'parameters': self.model.state_dict()}, f)

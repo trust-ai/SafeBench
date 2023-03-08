@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 21:40:47
+LastEditTime: 2023-03-08 14:34:13
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -368,35 +368,35 @@ class RouteScenario():
         # collision with other objects
         if running_status['collision'] == Status.FAILURE:
             stop = True
-            self.logger.log('>> Stop due to collision', color='yellow')
+            self.logger.log('>> Scenario stops due to collision', color='yellow')
 
         # out of the road detection
         if running_status['off_road'] == Status.FAILURE:
             stop = True
-            self.logger.log('>> Stop due to off road', color='yellow')
+            self.logger.log('>> Scenario stops due to off road', color='yellow')
 
         # only check when evaluating
         if self.config.scenario_id != 0:  
             # route completed
             if running_status['route_complete'] == 100:
                 stop = True
-                self.logger.log('>> Stop due to route completion', color='yellow')
+                self.logger.log('>> Scenario stops due to route completion', color='yellow')
 
         # stop at max step
         if len(running_record) >= self.max_running_step: 
             stop = True
-            self.logger.log('>> Stop due to max steps', color='yellow')
+            self.logger.log('>> Scenario stops due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
             # only check when evaluating
             if self.config.scenario_id != 0:  
                 if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
                     stop = True
-                    self.logger.log('>> Stop due to max driven distance', color='yellow')
+                    self.logger.log('>> Scenario stops due to max driven distance', color='yellow')
                     break
             if running_status['current_game_time'] >= scenario.timeout:
                 stop = True
-                self.logger.log('>> Stop due to timeout', color='yellow') 
+                self.logger.log('>> Scenario stops due to timeout', color='yellow') 
                 break
 
         return running_status, stop
