@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-07 13:06:41
+LastEditTime: 2023-03-08 14:14:51
 Description: 
 '''
 
@@ -12,7 +12,6 @@ import torch
 from safebench.util.run_util import load_config
 from safebench.util.torch_util import set_seed, set_torch_variable
 from safebench.carla_runner import CarlaRunner
-from safebench.scenic_runner import ScenicRunner
 
 
 if __name__ == '__main__':
@@ -61,6 +60,7 @@ if __name__ == '__main__':
     agent_config.update(args_dict)
     scenario_config.update(args_dict)
     if scenario_config['type_category'] == 'scenic':
+        from safebench.scenic_runner import ScenicRunner
         assert scenario_config['num_scenario'] == 1, 'the num_scenario can only be one for scenic now'
         runner = ScenicRunner(agent_config, scenario_config)
     else:

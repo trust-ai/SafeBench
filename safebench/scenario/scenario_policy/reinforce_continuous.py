@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 21:27:36
+LastEditTime: 2023-03-08 14:17:55
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -58,7 +58,7 @@ class IndependantModel(nn.Module):
         sigma = F.softplus(normal_action[:, action_os:])
 
         # calculate the probability by mu and sigma of normal distribution
-        eps = CUDA(Variable(torch.randn(mu.size())))
+        eps = CUDA(torch.randn(mu.size()))
         action = (mu + sigma*eps)
         return action, mu, sigma
 
@@ -175,7 +175,6 @@ class REINFORCE(BasePolicy):
         log_prob = batch['log_prob']
         entropy = batch['entropy']
         
-        # TODO: reward normalization
         episode_reward = CUDA(torch.tensor(episode_reward, dtype=torch.float32))
         episode_reward = -episode_reward # objective is to minimize the reward
 
@@ -205,7 +204,7 @@ class REINFORCE(BasePolicy):
         processed_state_list = []
         for s_i in range(len(state)):
             route = state[s_i]['route']
-            target_speed = state[s_i]['target_speed']
+            target_speed = state[s_i]['target_speed'] / 10.0
 
             index = np.linspace(1, len(route) - 1, self.num_waypoint).tolist()
             index = [int(i) for i in index]
@@ -223,6 +222,7 @@ class REINFORCE(BasePolicy):
         # the state should be a sequence of route waypoints
         processed_state = self.proceess_init_state(state)
         processed_state = CUDA(torch.from_numpy(processed_state))
+
         mu, sigma, action = self.model.forward(processed_state, deterministic)
 
         # calculate the probability that this distribution outputs this action
