@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-06 00:19:51
+LastEditTime: 2023-03-07 12:28:17
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -10,6 +10,7 @@ Description:
 
 import copy
 import os
+
 import numpy as np
 import json
 import carla
@@ -86,7 +87,7 @@ class ScenicRunner:
         agent_config['ego_action_dim'] = scenario_config['ego_action_dim']
         agent_config['ego_state_dim'] = scenario_config['ego_state_dim']
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
- 
+
         # define logger
         logger_kwargs = setup_logger_kwargs(self.exp_name, self.output_dir, self.seed)
         self.logger = Logger(**logger_kwargs)
