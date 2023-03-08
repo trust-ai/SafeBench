@@ -12,7 +12,8 @@ ego_state_dim: 4
 ego_action_limit: 3.0
 
 # for REINFORCE policy model
-model_path: 'safebench/scenario/scenario_data/models/lc/1/0.pth'
+model_path: 'safebench/scenario/scenario_data/models/lc'
+model_id: 1
 buffer_capacity: 100
 batch_size: 32
 lr: 0.001
