@@ -329,7 +329,7 @@ class CarlaEnv(gym.Env):
                         brake = np.clip(-acc / 8, 0, 1)
 
                     # apply control
-                    act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
+                    act = carla.VehicleControl(throttle=float(throttle), steer=float(steer), brake=float(brake))
                     self.ego_vehicle.apply_control(act)
             else:
                 self.logger.log('>> Can not get snapshot!', color='red')
