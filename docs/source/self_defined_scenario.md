@@ -7,7 +7,6 @@ We provide step-by-step instructions on how to create your own (perception / pla
 TBD
 
 
-
 ## Create Planning Agent
 There are three steps to create a new scenario with static objects and dynamic actors.
 The first step is to define the route file, scenario type file, and scenario config file.
@@ -19,7 +18,6 @@ The third step is to implement the scenario policy, which controls the behavior 
 Firt, you should define the routes of the scenario in `safebench/scenario/scenario_data/route`. 
 Then, you should define the combination of scenarios and route by writing a json file in `safebench/scenario/config/scenario_type`. Each item in this file represent a specific scenario.
 Finally, a configuration file of your scenario should be written in `safebench/scenario/config`. This file contains the configuration of the scenario, e.g., the number of actors, the number of time steps, the number of static objects, etc.
-
 
 
 ### Step 2: Implement Scenario Class

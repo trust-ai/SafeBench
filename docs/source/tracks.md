@@ -1,6 +1,6 @@
 <!--
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2023-03-06 00:21:15
+ * @LastEditTime: 2023-03-09 15:58:25
  * @Description: 
 -->
 
@@ -13,6 +13,7 @@ The detailed description of these tracks are introduced below.
 
 ![tracks](./images/tracks.png)
 
+---
 ## Track 1 (Perception Attack)
 
 ### Mission
@@ -21,7 +22,7 @@ This track still focuses on the object detection task but the goal is to design 
 ### Metric
 The metrics we evaluate are the IoU and accuracy of the detection results.
 
-
+---
 ## Track 2 (Perception Defense)
 
 ### Mission
@@ -33,7 +34,7 @@ TODO: add one screenshot
 ### Metric
 The metric we evaluate is the IoU and accuracy of the detection results.
 
-
+---
 ## Track 3 (Planning Attack)
 
 ### Mission
@@ -43,7 +44,7 @@ This track still focuses on control tasks but the goal is to design scenarios th
 The metrics we evaluate are collision rate, out of road length, distance to driving route, incomplete driving route, and running time.
 We will calculate a final score based on the 5 metrics.
 
-
+---
 ## Track 4 (Planning Defense)
 
 ### Mission
