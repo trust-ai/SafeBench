@@ -67,7 +67,9 @@ class ScenicDataLoader:
         self.scene = []
         while len(self.scene) < self.config.sample_num:
             scene, _ = scenic.generateScene()
-            self.scene.append(scene)
+            if scenic.setSimulation(scene):
+                self.scene.append(scene)
+                scenic.endSimulation()
             
     def reset_idx_counter(self):
         self.scenario_idx = self.scene_index

@@ -39,8 +39,8 @@ def get_parser(scenicFile):
                              help='run dynamic simulations from scenes '
                                   'instead of simply showing diagrams of scenes')
     mainOptions.add_argument('-s', '--seed', help='random seed', default=0, type=int)
-    mainOptions.add_argument('-v', '--verbosity', help='verbosity level (default 1)',
-                             type=int, choices=(0, 1, 2, 3), default=1)
+    mainOptions.add_argument('-v', '--verbosity', help='verbosity level (default 0)',
+                             type=int, choices=(0, 1, 2, 3), default=0)
     mainOptions.add_argument('-p', '--param', help='override a global parameter',
                              nargs=2, default=[], action='append', metavar=('PARAM', 'VALUE'))
     mainOptions.add_argument('-m', '--model', help='specify a Scenic world model', default='scenic.simulators.carla.model')
@@ -145,6 +145,7 @@ class ScenicSimulator:
         if self.args.simulate:
             self.simulator = errors.callBeginningScenicTrace(self.scenario.getSimulator)
             self.simulator.render = False
+            
     def generateScene(self):
         scene, iterations = errors.callBeginningScenicTrace(
             lambda: self.scenario.generate(verbosity=self.args.verbosity)
@@ -155,7 +156,9 @@ class ScenicSimulator:
         if self.args.verbosity >= 1:
             print(f'  Beginning simulation of {scene.dynamicScenario}...')
         try:     
-            self.simulation = self.simulator.createSimulation(scene, verbosity=self.args.verbosity)
+            self.simulation = errors.callBeginningScenicTrace(
+            lambda: self.simulator.createSimulation(scene, verbosity=self.args.verbosity)
+                )
         except SimulationCreationError as e:
             if self.args.verbosity >= 1:
                 print(f'  Failed to create simulation: {e}')
