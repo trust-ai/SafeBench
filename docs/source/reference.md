@@ -1,6 +1,6 @@
 <!--
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2023-03-01 23:26:35
+ * @LastEditTime: 2023-03-09 16:20:37
  * @Description: 
 -->
 
@@ -24,11 +24,11 @@ More details about Safebench can be found in our [Neurips 2022 paper](https://ar
 ```
 
 The source code of Safebench is contributed by:
-- Wenhao Ding, CMU
-- Chejian Xu, UIUC
+- Wenhao Ding, CMU, wenhaod@andrew.cmu.edu.
+- Chejian Xu, UIUC, chejian2@illinois.edu.
 - Haohong Lin, CMU
-- Shuai Wang, CMU
 - Jiawei Zhang, UIUC
-- Weijie Lyu, CMU
-- Shiqi Liu, CMU
+- Shuai Wang, CMU
+- Weijie Lyu, UIUC
 - Zuxin Liu, CMU
+- Shiqi Liu, CMU
