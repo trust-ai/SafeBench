@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-07 13:09:20
+LastEditTime: 2023-03-09 17:03:37
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -194,7 +194,7 @@ class CarlaRunner:
                 replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones], additional_dict=infos)
                 obs = copy.deepcopy(next_obs)
 
-                # train on-policy agent or scenario
+                # train off-policy agent or scenario
                 if self.mode == 'train_agent' and self.agent_policy.type == 'offpolicy':
                     self.agent_policy.train(replay_buffer)
                 elif self.mode == 'train_scenario' and self.scenario_policy.type == 'offpolicy':
@@ -204,7 +204,7 @@ class CarlaRunner:
             self.env.clean_up()
             replay_buffer.finish_one_episode()
 
-            # train off-policy agent or scenario
+            # train on-policy agent or scenario
             if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':
                 self.agent_policy.train(replay_buffer)
             elif self.mode == 'train_scenario' and self.scenario_policy.type in ['init_state', 'onpolicy']:
