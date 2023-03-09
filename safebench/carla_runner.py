@@ -316,6 +316,7 @@ class CarlaRunner:
 
     def check_continue_training(self, policy):
         # load previous checkpoint
+        policy.load_model()
         if policy.continue_episode == 0:
             start_episode = 0
             self.logger.log('>> Previous checkpoint not found. Training from scratch.')

@@ -16,7 +16,7 @@ save_freq: 1
 exp_name: null
 # data dir to save the logger files
 data_dir: 'output'
-load_dir: 'safebench/agent/model_ckpt/sac'
+load_dir: 'safebench/agent/model_ckpt/safe_rl/sac'
 pretrain_dir: null
 load_iteration: null
 

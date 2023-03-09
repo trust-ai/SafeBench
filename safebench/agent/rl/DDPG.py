@@ -17,6 +17,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from safebench.util.torch_util import CUDA, CPU, hidden_init
+from safebench.agent.base_policy import BasePolicy
 
 
 class Actor(nn.Module):
@@ -71,8 +72,8 @@ class DDPG(object):
     def __init__(self, config, logger):
         self.logger = logger
 
-        self.state_dim = config['state_dim']
-        self.action_dim = config['action_dim']
+        self.state_dim = config['ego_state_dim']
+        self.action_dim = config['ego_action_dim']
         self.actor_lr = config['actor_lr']
         self.critic_lr = config['critic_lr']
         self.tau = config['tau']
