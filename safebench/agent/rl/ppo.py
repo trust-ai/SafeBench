@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:55:23
+LastEditTime: 2023-03-09 17:07:24
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -109,7 +109,6 @@ class PPO(BasePolicy):
         self.optim = torch.optim.Adam(self.policy.parameters(), lr=self.policy_lr)
         self.value = CUDA(ValueNetwork(state_dim=self.state_dim))
         self.value_optim = torch.optim.Adam(self.value.parameters(), lr=self.value_lr)
-        # self.reset_buffer()
 
         self.mode = 'train'
 
@@ -188,7 +187,7 @@ class PPO(BasePolicy):
             self.value_optim.step()
         
         # reset buffer
-        replay_buffer.reset_init_buffer()
+        replay_buffer.reset_buffer()
 
     def save_model(self, episode):
         states = {
