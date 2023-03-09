@@ -242,4 +242,4 @@ class SAC(BasePolicy):
             self.policy_net.load_state_dict(checkpoint['policy_net'])
             self.value_net.load_state_dict(checkpoint['value_net'])
             self.Q_net.load_state_dict(checkpoint['Q_net'])
-            self.load_episode = episode
+            self.continue_episode = episode
