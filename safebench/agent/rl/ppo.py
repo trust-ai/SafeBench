@@ -188,7 +188,7 @@ class PPO(BasePolicy):
             self.value_optim.step()
         
         # reset buffer
-        replay_buffer.reset_init_buffer()
+        replay_buffer.reset_buffer()
 
     def save_model(self, episode):
         states = {
