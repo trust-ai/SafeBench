@@ -9,7 +9,7 @@ Description:
 '''
 
 import numpy as np
-
+import random
 
 class ScenarioDataLoader:
     def __init__(self, config_lists, num_scenario):
@@ -53,7 +53,7 @@ class ScenarioDataLoader:
 
 
 class ScenicDataLoader:
-    def __init__(self, scenic, config, num_scenario):
+    def __init__(self, scenic, config, num_scenario, seed = 0):
         self.num_scenario = num_scenario
         self.config = config
         self.behavior = config.behavior
@@ -62,8 +62,10 @@ class ScenicDataLoader:
         self.num_total_scenario = len(self.scene_index)
         self.reset_idx_counter()
         self.generate_scene(scenic)
+        self.seed = seed 
         
     def generate_scene(self, scenic):
+        random.seed(self.seed)
         self.scene = []
         while len(self.scene) < self.config.sample_num:
             scene, _ = scenic.generateScene()
