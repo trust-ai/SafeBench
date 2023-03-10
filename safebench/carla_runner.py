@@ -274,7 +274,7 @@ class CarlaRunner:
             # calculate evaluation results
             score_function = get_route_scores if self.scenario_category == 'planning' else get_perception_scores
             all_scores = score_function(self.env.running_results)
-            self.logger.add_eval_results(all_scores)
+            self.logger.add_eval_results(all_scores, self.env.running_results)
             self.logger.print_eval_results()
             self.logger.save_eval_results()
 
