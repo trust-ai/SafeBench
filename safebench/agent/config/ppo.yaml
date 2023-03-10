@@ -7,7 +7,7 @@ obs_type: 0
 train_episode: 2000
 eval_in_train_freq: 1
 save_freq: 10
-buffer_capacity: 1000
+buffer_capacity: 2000
 
 clip_epsilon: 0.2
 gamma: 0.99
@@ -15,4 +15,4 @@ train_iteration: 30   # how many times training
 train_interval: 1     # how often training
 policy_lr: 1.0e-4
 value_lr: 1.0e-4
-batch_size: 32
+batch_size: 64
