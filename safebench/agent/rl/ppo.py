@@ -109,7 +109,6 @@ class PPO(BasePolicy):
         self.optim = torch.optim.Adam(self.policy.parameters(), lr=self.policy_lr)
         self.value = CUDA(ValueNetwork(state_dim=self.state_dim))
         self.value_optim = torch.optim.Adam(self.value.parameters(), lr=self.value_lr)
-        # self.reset_buffer()
 
         self.mode = 'train'
 
@@ -126,12 +125,6 @@ class PPO(BasePolicy):
         else:
             raise ValueError(f'Unknown mode {mode}')
 
-    # def reset_buffer(self):
-    #     # reset buffer
-    #     self.rewards = []
-    #     self.states = []
-    #     self.actions = []
-
     def get_action(self, state, infos, deterministic=False):
         state_tensor = CUDA(torch.FloatTensor(state))
         action = self.policy.select_action(state_tensor, deterministic)
@@ -139,16 +132,6 @@ class PPO(BasePolicy):
 
     def train(self, replay_buffer):
         self.old_policy.load_state_dict(self.policy.state_dict())
-        
-        # # process the last state
-        # with torch.no_grad():
-        #     next_state_tensor = CUDA(torch.FloatTensor(next_state).unsqueeze(0))
-        #     R = self.value(next_state_tensor)
-        # # computer rewards
-        # for i in reversed(range(len(self.rewards))):
-        #     R = self.gamma * R + self.rewards[i]
-        #     self.rewards[i] = R
-        # bn_r = CUDA(torch.FloatTensor(self.rewards).unsqueeze(1))
         
         # start to train, use gradient descent without batch size
         for K in range(self.train_iteration):
@@ -159,8 +142,6 @@ class PPO(BasePolicy):
             bn_s_ = CUDA(torch.FloatTensor(batch['n_state']))
             bn_d = CUDA(torch.FloatTensor(1-batch['done'])).unsqueeze(-1) # [B, 1]
 
-            # bn_s = CUDA(torch.FloatTensor(self.states))
-            # bn_a = CUDA(torch.FloatTensor(self.actions))
             with torch.no_grad():
                 value_target = bn_r + self.gamma * self.value(bn_s_)
                 advantage = value_target - self.value(bn_s)
