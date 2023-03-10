@@ -183,7 +183,7 @@ class Logger:
     def save_eval_results(self):
         self.log(f'>> Saving evaluation results to {self.result_file}')
         joblib.dump(self.eval_results, self.result_file)
-        self.log(f'>> Saving evaluation results to {self.record_file}')
+        self.log(f'>> Saving evaluation records to {self.record_file}')
         joblib.dump(self.eval_records, self.record_file)
 
     def print_eval_results(self):
