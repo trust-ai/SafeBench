@@ -159,27 +159,32 @@ class Logger:
         self.output_file = open(osp.join(self.output_dir, output_fname), 'a')
         atexit.register(self.output_file.close)
         self.log(">> Logging data to %s" % self.output_file.name, 'green')
+        self.eval_results = {}
+        self.eval_records = {}
 
     def create_eval_dir(self, load_existing_results=True):
         result_dir = os.path.join(self.output_dir, 'eval_results')
         os.makedirs(result_dir, exist_ok=True)
         self.result_file = os.path.join(result_dir, 'results.pkl')
+        self.record_file = os.path.join(result_dir, 'records.pkl')
         if load_existing_results:
-            if os.path.exists(self.result_file):
-                self.log(f'>> Loading existing evaluation results from {self.result_file}')
-                self.eval_results = joblib.load(self.result_file)
+            if os.path.exists(self.record_file):
+                self.log(f'>> Loading existing evaluation records from {self.record_file}')
+                self.eval_records = joblib.load(self.record_file)
             else:
-                self.log(f'>> Loading existing fail because no results.pkl is found.')
-                self.eval_results = {}
-        else:
-            self.eval_results = {}
+                self.log(f'>> Loading existing fail because no records.pkl is found.')
+                self.eval_records = {}
 
-    def add_eval_results(self, results):
+    def add_eval_results(self, results, records=None):
         self.eval_results.update(results)
+        if records is not None:
+            self.eval_records = records
 
     def save_eval_results(self):
         self.log(f'>> Saving evaluation results to {self.result_file}')
         joblib.dump(self.eval_results, self.result_file)
+        self.log(f'>> Saving evaluation records to {self.record_file}')
+        joblib.dump(self.eval_records, self.record_file)
 
     def print_eval_results(self):
         self.log("Evaluation results:")
