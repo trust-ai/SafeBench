@@ -1,6 +1,6 @@
 '''
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-06 00:20:25
+LastEditTime: 2023-03-09 17:06:26
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -156,7 +156,6 @@ class RouteReplayBuffer:
         return batch
 
 
-
 class PerceptionReplayBuffer:
     """
         This buffer supports parallel storing image states and labels for object detection
@@ -192,7 +191,6 @@ class PerceptionReplayBuffer:
         ego_actions = data_list[0]
         scenario_actions = data_list[1]
         obs = data_list[2]
-        
         self.buffer_len += len(ego_actions)
 
         # separate trajectories according to infos
@@ -204,7 +202,6 @@ class PerceptionReplayBuffer:
             self.buffer_bbox_label[sid].append(additional_dict[s_i]['bbox_label'])
             self.buffer_loss[sid].append(additional_dict[s_i]['iou_loss'])
 
-    
     def sample(self, batch_size):
         # prepare concatenated list
         prepared_bbox_label = []
@@ -238,5 +235,3 @@ class PerceptionReplayBuffer:
         }
         
         return batch
-    
-    

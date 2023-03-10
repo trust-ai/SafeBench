@@ -61,8 +61,8 @@ class ScenicDataLoader:
         self.select_num = config.select_num
         self.num_total_scenario = len(self.scene_index)
         self.reset_idx_counter()
+        self.seed = seed
         self.generate_scene(scenic)
-        self.seed = seed 
         
     def generate_scene(self, scenic):
         random.seed(self.seed)
