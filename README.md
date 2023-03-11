@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-03-07 20:41:03
+ * @LastEditTime: 2023-03-11 16:59:14
  * @Description: 
 -->
 
@@ -46,7 +46,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1Ta5qtEIrOnpsToQfJ-j0cdRiF7xCbLM3/view?usp=share_link) and extract it to your folder.
+4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder.
 
 5. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 

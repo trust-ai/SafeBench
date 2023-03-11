@@ -1,6 +1,6 @@
 <!--
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2023-03-09 15:56:16
+ * @LastEditTime: 2023-03-11 16:59:26
  * @Description: 
 -->
 
@@ -30,10 +30,10 @@ pip install -e .
 
 ## Step 2. Setup Carla
 
-Download our built [CARLA_0.9.13](https://drive.google.com/file/d/1Ta5qtEIrOnpsToQfJ-j0cdRiF7xCbLM3/view?usp=share_link) and extract it to your folder with
+Download our built [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder with
 ```
 mkdir carla && cd carla
-tar -zxvf CARLA_0.9.13_safebench.tar.gz
+tar -zxvf CARLA_0.9.13_safebench_2.tar.gz
 ```
 
 Add the Python API of Carla to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
