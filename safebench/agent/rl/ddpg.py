@@ -13,6 +13,7 @@ import numpy as np
 
 import torch
 import torch.nn as nn
+from fnmatch import fnmatch
 import torch.nn.functional as F
 import torch.optim as optim
 
@@ -65,13 +66,14 @@ class Critic(nn.Module):
         return x
 
 
-class DDPG(object):
+class DDPG(BasePolicy):
     name = 'DDPG'
     type = 'offpolicy'
 
     def __init__(self, config, logger):
         self.logger = logger
 
+        self.continue_episode = 0
         self.state_dim = config['ego_state_dim']
         self.action_dim = config['ego_action_dim']
         self.actor_lr = config['actor_lr']
@@ -81,9 +83,12 @@ class DDPG(object):
         self.batch_size = config['batch_size']
         self.update_iteration = config['update_iteration']
         self.buffer_start_training = config['buffer_start_training']
-        self.model_path = config['model_path']
-        self.model_id = config['model_id']
         self.epsilon = config['epsilon']
+
+        self.model_id = config['model_id']
+        self.model_path = os.path.join(config['ROOT_DIR'], config['model_path'])
+        if not os.path.exists(self.model_path):
+            os.makedirs(self.model_path)
 
         self.actor = CUDA(Actor(self.state_dim, self.action_dim))
         self.actor_target = CUDA(Actor(self.state_dim, self.action_dim))
@@ -95,12 +100,27 @@ class DDPG(object):
         self.critic_target.load_state_dict(self.critic.state_dict())
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.critic_lr)
 
-    def get_action(self, state, deterministic=False):
+    def set_mode(self, mode):
+        self.mode = mode
+        if mode == 'train':
+            self.actor.train()
+            self.actor_target.train()
+            self.critic.train()
+            self.critic_target.train()
+        elif mode == 'eval':
+            self.actor.eval()
+            self.actor_target.eval()
+            self.critic.eval()
+            self.critic_target.eval()
+        else:
+            raise ValueError(f'Unknown mode {mode}')
+
+    def get_action(self, state, infos, deterministic=False):
         if np.random.randn() > self.epsilon or deterministic: # greedy policy
-            state = CUDA(torch.FloatTensor(state.reshape(1, -1)))
-            action = self.actor(state).cpu().data.numpy().flatten()
+            state = CUDA(torch.FloatTensor(state))
+            action = self.actor(state).cpu().data.numpy()
         else: # random policy
-            action = np.random.uniform(-1.0, 1.0, size=self.action_dim)
+            action = np.random.uniform(-1.0, 1.0, size=(state.shape[0], self.action_dim))
         
         # decay epsilon
         self.epsilon *= 0.99
@@ -149,19 +169,35 @@ class DDPG(object):
             for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
                 target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-    def save_model(self):
-        states = {'actor': self.actor.state_dict(), 'critic': self.critic.state_dict()}
-        filepath = os.path.join(self.model_path, 'model.ddpg.'+str(self.model_id)+'.torch')
+    def save_model(self, episode):
+        states = {
+            'actor': self.actor.state_dict(),
+            'critic': self.critic.state_dict(),
+            'actor_target': self.actor_target.state_dict(),
+            'critic_target': self.critic_target.state_dict(),
+        }
+        filepath = os.path.join(self.model_path, f'model.ddpg.{self.model_id}.{episode:04}.torch')
+        self.logger.log(f'>> Saving {self.name} model to {filepath}')
         with open(filepath, 'wb+') as f:
             torch.save(states, f)
 
-    def load_model(self):
-        filepath = os.path.join(self.model_path, 'model.ddpg.'+str(self.model_id)+'.torch')
+    def load_model(self, episode=None):
+        if episode is None:
+            episode = -1
+            for _, _, files in os.walk(self.model_path):
+                for name in files:
+                    if fnmatch(name, "*torch"):
+                        cur_episode = int(name.split(".")[-2])
+                        if cur_episode > episode:
+                            episode = cur_episode
+        filepath = os.path.join(self.model_path, f'model.ddpg.{self.model_id}.{episode:04}.torch')
         if os.path.isfile(filepath):
+            self.logger.log(f'>> Loading {self.name} model from {filepath}')
             with open(filepath, 'rb') as f:
                 checkpoint = torch.load(f)
             self.actor.load_state_dict(checkpoint['actor'])
             self.critic.load_state_dict(checkpoint['critic'])
-        else:
-            raise Exception('No DDPG model found!')
+            self.actor_target.load_state_dict(checkpoint['actor_target'])
+            self.critic_target.load_state_dict(checkpoint['critic_target'])
+            self.continue_episode = episode
 
