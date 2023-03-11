@@ -30,5 +30,5 @@ class BasePolicy:
     def load_model(self):
         raise NotImplementedError()
 
-    def save_model(self):
+    def save_model(self, episode):
         raise NotImplementedError()
