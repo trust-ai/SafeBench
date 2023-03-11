@@ -156,9 +156,7 @@ class ScenicSimulator:
         if self.args.verbosity >= 1:
             print(f'  Beginning simulation of {scene.dynamicScenario}...')
         try:     
-            self.simulation = errors.callBeginningScenicTrace(
-            lambda: self.simulator.createSimulation(scene, verbosity=self.args.verbosity)
-                )
+            self.simulation = self.simulator.createSimulation(scene, verbosity=self.args.verbosity)
         except SimulationCreationError as e:
             if self.args.verbosity >= 1:
                 print(f'  Failed to create simulation: {e}')
@@ -281,18 +279,18 @@ class ScenicSimulator:
         import scenic.syntax.veneer as veneer
         for scenario in tuple(veneer.runningScenarios):
             scenario._stop('simulation terminated')
-
+            
+        if not hasattr(self, "simulation"):
+            return 
+        
         # Record finally-recorded values
         dynamicScenario = self.simulation.scene.dynamicScenario
         values = dynamicScenario._evaluateRecordedExprs(RequirementType.recordFinal)
         for name, val in values.items():
             self.simulation.records[name] = val
-
+        
         ### destroy ###
-        try:
-            self.simulation.destroy()
-        except:
-            pass
+        self.simulation.destroy()
         for obj in self.simulation.scene.objects:
             disableDynamicProxyFor(obj)
         for agent in self.simulation.agents:
