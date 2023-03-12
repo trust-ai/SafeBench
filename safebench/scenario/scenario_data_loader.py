@@ -8,8 +8,7 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-import numpy as np
-import random
+from safebench.util.scenic_utils import setseed
 
 class ScenarioDataLoader:
     def __init__(self, config_lists, num_scenario):
@@ -65,7 +64,7 @@ class ScenicDataLoader:
         self.generate_scene(scenic)
         
     def generate_scene(self, scenic):
-        random.seed(self.seed)
+        setseed(self.seed)
         self.scene = []
         while len(self.scene) < self.config.sample_num:
             scene, _ = scenic.generateScene()

@@ -292,12 +292,14 @@ class ScenicRunner:
             self.logger.save_eval_results()
             for config in sampled_scenario_configs:
                 map_id_score[config.data_id] = all_scores['final_score']
-                
+        
         if select:
             behavior_name = data_loader.behavior
             # TODO: define new selection mechanism
             self.scene_map[behavior_name] = sorted([item[0] for item in sorted(map_id_score.items(), key=lambda x:x[1])][:data_loader.select_num])
             self.dump_scene_map()
+            
+        self.scenic.destroy()
         
     def run(self):
         # get scenario data of different maps

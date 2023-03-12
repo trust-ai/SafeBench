@@ -4,11 +4,14 @@
 ### modified from https://github.com/BerkeleyLearnVerify/Scenic/blob/main/src/scenic/__main__.py
 ### & https://github.com/BerkeleyLearnVerify/Scenic/blob/main/src/scenic/core/simulators.py
 
+import os 
+import random
+import numpy as np 
+import torch
 import enum
 import sys
 import time
 import argparse
-import random
 import pygame
 from collections import OrderedDict, defaultdict
 
@@ -306,6 +309,9 @@ class ScenicSimulator:
             scenario._stop('exception', quiet=True)
         veneer.endSimulation(self.simulation)
         
+    def destroy(self):
+        self.simulator.destroy()
+        
 class Action:
     """An :term:`action` which can be taken by an agent for one step of a simulation."""
     def canBeTakenBy(self, agent):
@@ -370,3 +376,13 @@ class SimulationResult:
         self.terminationType = terminationType
         self.terminationReason = str(terminationReason)
         self.records = dict(records)
+        
+def setseed(seed=0):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
