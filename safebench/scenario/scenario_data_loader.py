@@ -70,7 +70,7 @@ class ScenicDataLoader:
             scene, _ = scenic.generateScene()
             if scenic.setSimulation(scene):
                 self.scene.append(scene)
-            self.scenic.endSimulation()
+                self.scenic.endSimulation()
             
     def reset_idx_counter(self):
         self.scenario_idx = self.scene_index

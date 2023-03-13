@@ -131,15 +131,14 @@ class ScenicRunner:
         CarlaDataProvider.set_client(self.client)
         CarlaDataProvider.set_world(self.world)
         CarlaDataProvider.set_traffic_manager_port(self.scenario_config['tm_port'])
-        # end dummy simulation
-        self.scenic.endSimulation()
         
     def _init_scenic(self, config):
         self.logger.log(f">> Initializing scenic simulator: {config.scenic_file}")
         self.scenic = ScenicSimulator(config.scenic_file)
         # dummy scene 
         scene, _ = self.scenic.generateScene()
-        self.run_scenes([scene])
+        if self.run_scenes([scene]):
+            self.scenic.endSimulation()
         
     def _init_renderer(self):
         self.logger.log(">> Initializing pygame birdeye renderer")
@@ -171,9 +170,12 @@ class ScenicRunner:
         self.logger.log(f">> Begin to run the scene...")
         ## currently there is only one scene in this list ##
         for scene in scenes:
-            self.scenic.setSimulation(scene)
-            self.scenic.update_behavior = self.scenic.runSimulation()
-            next(self.scenic.update_behavior)
+            if self.scenic.setSimulation(scene):
+                self.scenic.update_behavior = self.scenic.runSimulation()
+                next(self.scenic.update_behavior)
+                return True
+            else:
+                return False
         
     def train(self, data_loader, start_episode=0):
         # general buffer for both agent and scenario
