@@ -55,8 +55,6 @@ class ScenicScenario():
             pop = routeplanner._waypoints_queue.popleft()
             _waypoint_buffer.append(pop[0].transform.location)
             
-        self.trajectory = _waypoint_buffer
-        
         ### 150 meter dense route planning ###
         route = interpolate_trajectory(self.world, _waypoint_buffer)
         index = 1
