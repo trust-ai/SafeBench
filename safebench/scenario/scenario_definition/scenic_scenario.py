@@ -51,7 +51,7 @@ class ScenicScenario():
         _waypoint_buffer = []
         
         ### 150 meter route planning ###
-        while len(_waypoint_buffer) < 30:
+        while len(_waypoint_buffer) < 31:
             pop = routeplanner._waypoints_queue.popleft()
             _waypoint_buffer.append((pop[0].transform, pop[1]))
         
