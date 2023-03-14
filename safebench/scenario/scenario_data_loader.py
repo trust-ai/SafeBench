@@ -8,7 +8,7 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-from safebench.util.set_seed import set_seed
+from safebench.util.torch_util import set_seed
 
 class ScenarioDataLoader:
     def __init__(self, config_lists, num_scenario):
