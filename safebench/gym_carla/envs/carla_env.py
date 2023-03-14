@@ -166,6 +166,7 @@ class CarlaEnv(gym.Env):
                 max_running_step=self.max_episode_step, 
                 logger=self.logger
             )
+            self.config.trajectory = scenario.trajectory
         else:
             raise ValueError(f'Unknown scenario category: {self.scenario_category}')
 
@@ -220,12 +221,12 @@ class CarlaEnv(gym.Env):
 
         # create sensors, load and run scenarios
         self._create_sensors()
-        self._create_scenario(config, env_id)
+        self._create_scenario(self.config, self.env_id)
         self._run_scenario(scenario_init_action)
         self._attack_sensor()
 
         # route planner for ego vehicle
-        self.route_waypoints = self._parse_route(config)
+        self.route_waypoints = self._parse_route(self.config)
         self.routeplanner = RoutePlanner(self.ego_vehicle, self.max_waypt, self.route_waypoints)
         self.waypoints, _, _, _, _, self.vehicle_front, = self.routeplanner.run_step()
 

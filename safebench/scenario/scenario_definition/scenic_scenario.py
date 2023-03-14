@@ -46,18 +46,19 @@ class ScenicScenario():
         CarlaDataProvider._carla_actor_pool[actor.id] = actor
         CarlaDataProvider.register_actor(actor)       
         
+        ## coarse traj ##
         init_waypoints = []
-        routeplanner = RoutePlanner(ego_vehicle, 12, init_waypoints)
+        routeplanner = RoutePlanner(ego_vehicle, 200, init_waypoints, ego_route=self.config.ego_route)
         
         _waypoint_buffer = []
-        
-        ### 150 meter route planning ###
-        while len(_waypoint_buffer) < 200:
+        while len(_waypoint_buffer) < 100:
             pop = routeplanner._waypoints_queue.popleft()
             _waypoint_buffer.append(pop[0].transform.location)
             
-        route = interpolate_trajectory(self.world, _waypoint_buffer)
+        self.trajectory = _waypoint_buffer
         
+        ### 150 meter dense route planning ###
+        route = interpolate_trajectory(self.world, _waypoint_buffer)
         index = 1
         prev_wp = route[0][0].location
         _accum_meters = 0
