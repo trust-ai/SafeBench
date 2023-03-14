@@ -8,7 +8,7 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-from safebench.util.scenic_utils import setseed
+from safebench.util.set_seed import set_seed
 
 class ScenarioDataLoader:
     def __init__(self, config_lists, num_scenario):
@@ -64,7 +64,7 @@ class ScenicDataLoader:
         self.generate_scene(scenic)
         
     def generate_scene(self, scenic):
-        setseed(self.seed)
+        set_seed(self.seed)
         self.scene = []
         while len(self.scene) < self.config.sample_num:
             scene, _ = scenic.generateScene()
