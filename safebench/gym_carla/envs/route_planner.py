@@ -47,7 +47,6 @@ class RoutePlanner():
 
         if len(init_waypoints) == 0:
             self._waypoints_queue.append((self._current_waypoint, RoadOption.LANEFOLLOW))
-            self._waypoints_queue.append((self._current_waypoint.next(self._sampling_radius)[0], RoadOption.LANEFOLLOW))
         else:
             for i, waypoint in enumerate(init_waypoints):
                 if i == 0:
