@@ -8,6 +8,7 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
+import numpy as np
 from safebench.util.torch_util import set_seed
 
 class ScenarioDataLoader:

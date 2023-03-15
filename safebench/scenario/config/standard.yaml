@@ -4,7 +4,7 @@ type_category: 'planning'
 
 route_dir: 'safebench/scenario/scenario_data/route'
 method: null
-scenario_id: null
+scenario_id: 2
 route_id: null
 
 ego_action_dim: 2

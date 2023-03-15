@@ -13,6 +13,7 @@ from safebench.agent.dummy import DummyAgent
 from safebench.agent.rl.sac import SAC
 from safebench.agent.rl.ddpg import DDPG
 from safebench.agent.rl.ppo import PPO
+from safebench.agent.rl.td3 import TD3
 from safebench.agent.basic import CarlaBasicAgent
 from safebench.agent.behavior import CarlaBehaviorAgent
 
@@ -28,5 +29,6 @@ AGENT_POLICY_LIST = {
     'sac': SAC,
     'ddpg': DDPG,
     'ppo': PPO,
+    'td3': TD3,
     'faster_rcnn': FasterRCNNAgent,
 }
