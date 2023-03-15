@@ -126,12 +126,9 @@ class TD3(BasePolicy):
         with torch.no_grad():
             action = self.policy(state)
         if not deterministic:
-            # action += self.explore_noise * torch.randn_like(action)
-            action = np.random.uniform(-self.action_lim, self.action_lim, size=(state.shape[0], self.action_dim))
-        else:
-            action.clamp_(-self.action_lim, self.action_lim)
-            action = CPU(action)
-        return action
+            action += self.explore_noise * torch.randn_like(action)
+        action.clamp_(-self.action_lim, self.action_lim)
+        return CPU(action)
 
     def update_target(self):
         """moving average update of target networks"""
