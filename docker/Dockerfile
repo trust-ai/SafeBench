@@ -6,7 +6,8 @@ RUN apt-get update \
     && apt install -y software-properties-common \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt install -y sudo htop tmux psmisc python3 python3-pip python-is-python3 git wget unzip g++ cmake tar \
-    && apt-get install -y libpng16-16 libjpeg-turbo8 libtiff5 libomp5
+    && apt-get install -y libpng16-16 libjpeg-turbo8 libtiff5 libomp5 \
+    && apt-get install -y libice6 libsm6 libxaw7 libxkbfile1 libxmu6 libxpm4 libxt6 x11-common x11-xkb-utils xkb-data
 #    && apt install -y htop tmux psmisc python3.7 python3.7-distutils python3-pip python-is-python3 git wget unzip g++ cmake
 
 RUN useradd -ms /bin/bash safebench \
@@ -31,6 +32,6 @@ RUN echo "export CARLA_ROOT=/home/safebench/carla" >> ~/.bashrc \
 
 RUN git clone https://github.com/trust-ai/SafeBench.git \
     && cd SafeBench \
-    && pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
+    && pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117  \
     && pip install -r requirements.txt \
     && pip install -e .
