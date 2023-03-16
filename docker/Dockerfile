@@ -30,6 +30,10 @@ RUN echo "export CARLA_ROOT=/home/safebench/carla" >> ~/.bashrc \
     && echo "export PYTHONPATH=\$PYTHONPATH:\${CARLA_ROOT}/PythonAPI/carla" >> ~/.bashrc \
     && echo "export PYTHONPATH=\$PYTHONPATH:\${CARLA_ROOT}/PythonAPI" >> ~/.bashrc
 
+RUN wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/3.0.3/turbovnc_3.0.3_amd64.deb \
+    && dpkg -i turbovnc*.deb \
+    && rm -f turbovnc*.deb
+
 RUN git clone https://github.com/trust-ai/SafeBench.git \
     && cd SafeBench \
     && pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117  \
