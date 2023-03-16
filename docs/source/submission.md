@@ -203,4 +203,16 @@ At this point, the challenge configuration has been submitted for review and the
 
 # How to Submit Results
 
-To be announced.
+## General Submission via Docker
+TBA
+
+## Perception Track
+- In perception attack tracks, the participants are required to submit a file named after `stopsign.jpg` and `car.jpg` in `safebench/scenario/scenario_data/submission/`.
+- In perception defense tracks, the participants are required to submit an object detection script in `safebench/agent/object_detection/submission.py`, where we've already provided a template and some example detection model like YOLO-v5 and Faster-RCNN. You should include any utility function and checkpoints you need in the `agent/object_detection/` folder.
+
+During the evaluation, only two folders (`safebench/agent/object_detection/` and `safebench/scenario/scenario_data/submission`) will be kept, while the rest of the code will be replaced by our evaluation template. So please make sure to **include all the codes and files** you need in these two folders.
+
+After the evaluation finishes, you will get a feedback as the mean Average Precision
+
+## Planning Track
+TBA

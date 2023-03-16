@@ -17,10 +17,10 @@ The detailed description of these tracks are introduced below.
 ## Track 1 (Perception Attack)
 
 ### Mission
-This track still focuses on the object detection task but the goal is to design texture of traffic objects to attack object detection models.
-
+This track focuses on the object detection task. The goal is to design adversarial texture of traffic objects to attack the given object detection models.
+The victim models include both one-stage and two-stage models, including but not limited to Faster-RCNN, SSD, and YOLO-v5.
 ### Metric
-The metrics we evaluate are the IoU and accuracy of the detection results.
+The metrics we evaluate are the average of mean Average Precision on 10 different IoU thresholds, i.e. mAP@[0.5:0.05:0.95].
 
 ---
 ## Track 2 (Perception Defense)
@@ -29,10 +29,13 @@ The metrics we evaluate are the IoU and accuracy of the detection results.
 This track focuses on the object detection task for front view images. There are many powerful off-the-shelf models but they may not be strong enough to defense attacks happen traffic scenarios, e.g., a mask on stop sign.
 In this track, the participants are required to design a robust object detection model. This model will be evaluated under scenarios that contains attacks on textures of stop sign and surrounding vehicle.
 
-TODO: add one screenshot
+<!-- <img src="./source/images/perception.jpg"  width="60%" height="60%"> -->
 
 ### Metric
-The metric we evaluate is the IoU and accuracy of the detection results.
+The metrics we evaluate are the average of mean Average Precision on 10 different IoU thresholds, i.e. mAP@[0.5:0.05:0.95].
+
+![perception](./images/perception.png)
+
 
 ---
 ## Track 3 (Planning Attack)

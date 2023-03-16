@@ -26,7 +26,7 @@ More details about Safebench can be found in our [Neurips 2022 paper](https://ar
 The source code of Safebench is contributed by:
 - Wenhao Ding, CMU, wenhaod@andrew.cmu.edu.
 - Chejian Xu, UIUC, chejian2@illinois.edu.
-- Haohong Lin, CMU
+- Haohong Lin, CMU, haohongl@andrew.cmu.edu.
 - Jiawei Zhang, UIUC
 - Shuai Wang, CMU
 - Weijie Lyu, UIUC
