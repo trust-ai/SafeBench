@@ -10,6 +10,10 @@ RUN apt-get update \
     && apt-get install -y libice6 libsm6 libxaw7 libxkbfile1 libxmu6 libxpm4 libxt6 x11-common x11-xkb-utils xkb-data
 #    && apt install -y htop tmux psmisc python3.7 python3.7-distutils python3-pip python-is-python3 git wget unzip g++ cmake
 
+RUN wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/3.0.3/turbovnc_3.0.3_amd64.deb \
+    && dpkg -i turbovnc*.deb \
+    && rm -f turbovnc*.deb
+
 RUN useradd -ms /bin/bash safebench \
     && usermod -aG sudo safebench \
     && echo "safebench:safe" | chpasswd
@@ -29,10 +33,6 @@ RUN echo "export CARLA_ROOT=/home/safebench/carla" >> ~/.bashrc \
     && echo "export PYTHONPATH=\$PYTHONPATH:\${CARLA_ROOT}/PythonAPI/carla/agents" >> ~/.bashrc \
     && echo "export PYTHONPATH=\$PYTHONPATH:\${CARLA_ROOT}/PythonAPI/carla" >> ~/.bashrc \
     && echo "export PYTHONPATH=\$PYTHONPATH:\${CARLA_ROOT}/PythonAPI" >> ~/.bashrc
-
-RUN wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/3.0.3/turbovnc_3.0.3_amd64.deb \
-    && dpkg -i turbovnc*.deb \
-    && rm -f turbovnc*.deb
 
 RUN git clone https://github.com/trust-ai/SafeBench.git \
     && cd SafeBench \
