@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-03-17 13:33:58
+ * @LastEditTime: 2023-03-17 13:41:40
  * @Description: 
 -->
 
@@ -26,7 +26,7 @@
 
 This is the source code of Safebench platform, which is designed based on Carla to evaluate the security and safety of autonomous driving vehicles. More details about this platform can be found in this [NeurIPS 2022](https://arxiv.org/pdf/2206.09682.pdf) paper.
 
-![pipeline](./misc/pipeline.png)
+![pipeline](./docs/source/images/pipeline.png)
 
 ## Installation
 1. Setup conda environment
@@ -110,7 +110,7 @@ where `user@host` is your remote server, `fp` is a free TCP port on the local ma
 
 ### 3. Visualization with CarlaViz
 
-![carlaviz](./misc/carlaviz.png)
+![carlaviz](./docs/source/images/carlaviz.png)
 CarlaViz is a convenient visualization tool for CARLA developed by a former member [mjxu96](https://github.com/mjxu96) of our team. To use CarlaViz, please open another terminal and follow the intructions:
 ```bash
 # pull docker image from docker hub
