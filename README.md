@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-03-11 16:59:14
+ * @LastEditTime: 2023-03-17 13:41:40
  * @Description: 
 -->
 
@@ -26,22 +26,23 @@
 
 This is the source code of Safebench platform, which is designed based on Carla to evaluate the security and safety of autonomous driving vehicles. More details about this platform can be found in this [NeurIPS 2022](https://arxiv.org/pdf/2206.09682.pdf) paper.
 
-![pipeline](./misc/pipeline.png)
+![pipeline](./docs/source/images/pipeline.png)
 
 ## Installation
 1. Setup conda environment
-```
+```bash
 conda create -n safebench python=3.8
 conda activate safebench
 ```
 
 2. Clone this git repo in an appropriate folder
-```
+```bash
 git clone git@github.com:trust-ai/SafeBench.git
 ```
 
 3. Enter the repo root folder and install the packages:
-```
+```bash
+cd SafeBench
 pip install -r requirements.txt
 pip install -e .
 ```
@@ -51,7 +52,7 @@ pip install -e .
 5. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
 6. Add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
-```
+```bash
 export CARLA_ROOT={path/to/your/carla}
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.8-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
@@ -64,7 +65,7 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ### 1. Desktop Users
 
 Enter the CARLA root folder, launch the CARLA server and run our platform with
-```
+```bash
 # Launch CARLA
 ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 
@@ -74,7 +75,7 @@ python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode
 
 ### 2. Remote Server Users
 Enter the CARLA root folder, launch the CARLA server with headless mode, and run our platform with
-```
+```bash
 # Launch CARLA
 ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
 
@@ -84,7 +85,7 @@ SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=basic.yaml --scenario_
 
 (Optional) You can also visualize the pygame window using [TurboVNC](https://sourceforge.net/projects/turbovnc/files/).
 First, launch CARLA with headless mode, and run our platform on a virtual display.
-```
+```bash
 # Launch CARLA
 ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
 
@@ -96,7 +97,7 @@ DISPLAY=:8 python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.
 ```
 
 You can use the TurboVNC client on your local machine to connect to the virtual display.
-```
+```bash
 # Use the built-in SSH client of TurboVNC Viewer
 /opt/TurboVNC/bin/vncviewer -via user@host localhost:n
 
@@ -107,11 +108,26 @@ ssh -L fp:localhost:5900+n user@host
 ```
 where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
 
-###  3. Scenic users
+### 3. Visualization with CarlaViz
+
+![carlaviz](./docs/source/images/carlaviz.png)
+CarlaViz is a convenient visualization tool for CARLA developed by a former member [mjxu96](https://github.com/mjxu96) of our team. To use CarlaViz, please open another terminal and follow the intructions:
+```bash
+# pull docker image from docker hub
+docker pull mjxu96/carlaviz:0.9.13
+
+# run docker container of CarlaViz
+cd Safebench/scripts
+sh start_carlaviz.sh
+```
+Then, you can open the CarlaViz window at http://localhost:8080. You can also remotely access the CarlaViz window by forwarding the port 8080 to your local machine.
+
+
+### 4. Scenic users
 
 If you want to use scenic to control the surrounding adversarial agents, and use RL to control the ego, then first install scenic as follows:
 
-```
+```bash
 # Download Scenic repository
 git clone https://github.com/BerkeleyLearnVerify/Scenic.git
 cd Scenic
@@ -124,19 +140,19 @@ Next, set the param ```scenic_dir``` in ```safebench/scenario/config/scenic.yaml
 
 For selecting the most adversarial scenes, the param ```sample_num``` within the ```scenic.yaml``` serves to determine the number of scenes sampled for each scenic file and the param ```select_num``` is used to specify the number of the most adversarial scenes to be selected from among the sample_num scenes:
 
-```
+```bash
 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode train_scenario
 ```
 
 Now you can test the ego with these selected adversarial scenes:
 
-```
+```bash
 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
 ```
 
 Or if you want to Launch it on the virtual display
 
-```
+```bash
 DISPLAY=:8 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
 ``` 
 

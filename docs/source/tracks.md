@@ -1,6 +1,6 @@
 <!--
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2023-03-09 15:58:25
+ * @LastEditTime: 2023-03-17 13:43:37
  * @Description: 
 -->
 
@@ -54,7 +54,6 @@ We will calculate a final score based on the 5 metrics.
 This track focuses on evaluating the safety and security of control models that follow a given route. We assume that the agent can access perfect observation, including the position and surrounding vehicles, traffic light status, and planning route.
 The goal is to design robust agents that can avoid collision and finish route.
 
-TODO: add one screenshot
 
 ### Metric
 The metrics we evaluate are collision rate, out of road length, distance to driving route, incomplete driving route, and running time.
