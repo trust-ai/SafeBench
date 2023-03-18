@@ -29,29 +29,32 @@ This is the source code of Safebench platform, which is designed based on Carla 
 ![pipeline](./docs/source/images/pipeline.png)
 
 ## Installation
-1. Setup conda environment
+
+1. Recommended system: Ubuntu 20.04 or 22.04
+
+2. Setup conda environment
 ```bash
 conda create -n safebench python=3.8
 conda activate safebench
 ```
 
-2. Clone this git repo in an appropriate folder
+3. Clone this git repo in an appropriate folder
 ```bash
 git clone git@github.com:trust-ai/SafeBench.git
 ```
 
-3. Enter the repo root folder and install the packages:
+4. Enter the repo root folder and install the packages:
 ```bash
 cd SafeBench
 pip install -r requirements.txt
 pip install -e .
 ```
 
-4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder.
+5. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder.
 
-5. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
+6. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
-6. Add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
+7. Add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
 ```bash
 export CARLA_ROOT={path/to/your/carla}
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.8-linux-x86_64.egg
