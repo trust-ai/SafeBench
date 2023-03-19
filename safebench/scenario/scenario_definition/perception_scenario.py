@@ -1,6 +1,8 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:34:32
+LastEditTime: 2023-03-04 16:46:15
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -73,6 +75,9 @@ class PerceptionScenario(RouteScenario):
             'gt': self._gt,
             'scores': self._scores,
             'logits': self._logits,
+            'pred': self._pred,
+            'class': self._class,
+            'scores': self._scores,
             'current_game_time': GameTime.get_time()
         }
 
@@ -82,31 +87,25 @@ class PerceptionScenario(RouteScenario):
         stop = False
         if running_status['collision'] == Status.FAILURE:
             stop = True
-            self.logger.log('>> Scenario stops due to collision', color='yellow')
+            self.logger.log('>> Stop due to collision', color='yellow')
         if self.config.scenario_id != 0:  # only check when evaluating
             if running_status['route_complete'] == 100:
                 stop = True
-                self.logger.log('>> Scenario stops due to route completion', color='yellow')
-            if running_status['speed_above_threshold'] == Status.FAILURE:
-                if running_status['route_complete'] == 0:
-                    raise RuntimeError("Agent not moving")
-                else:
-                    stop = True
-                    self.logger.log('>> Scenario stops due to low speed', color='yellow')
+                self.logger.log('>> Stop due to route completion', color='yellow')
         else:
             if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
-                self.logger.log('>> Scenario stops due to max steps', color='yellow')
+                self.logger.log('>> Stop due to max steps', color='yellow')
 
         for scenario in self.list_scenarios:
             if self.config.scenario_id != 0:  # only check when evaluating
                 if running_status['driven_distance'] >= scenario.ego_max_driven_distance:
                     stop = True
-                    self.logger.log('>> Scenario stops due to max driven distance', color='yellow')
+                    self.logger.log('>> Stop due to max driven distance', color='yellow')
                     break
             if running_status['current_game_time'] >= scenario.timeout:
                 stop = True
-                self.logger.log('>> Scenario stops due to timeout', color='yellow') 
+                self.logger.log('>> Stop due to timeout', color='yellow') 
                 break
 
         return running_status, stop
@@ -202,8 +201,10 @@ class PerceptionScenario(RouteScenario):
     def eval(self, bbox_pred, bbox_gt):
         scenario = self.list_scenarios[0]
         ret_dict = scenario.eval(bbox_pred, bbox_gt)
-        return ret_dict
 
+        return ret_dict
+    
+    
     def evaluate(self, ego_action, world_2_camera, image_w, image_h, fov, obs):
         bbox_pred = ego_action['od_result']
         self.get_bbox(world_2_camera, image_w, image_h, fov)
@@ -213,6 +214,12 @@ class PerceptionScenario(RouteScenario):
         self._gt = ret['gt']
         self._scores = ret['scores']
         self._logits = ret['logits']
+        self._pred = ret['pred']
+        self._class = ret['class']
+        self._scores = ret['scores']
+
+
+
 
     def update_info(self):
         return {

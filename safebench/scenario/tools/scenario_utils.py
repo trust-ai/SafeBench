@@ -1,4 +1,6 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
 LastEditTime: 2023-03-02 17:42:44
 Description: 
@@ -11,9 +13,8 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
-import os
-import os.path as osp
 import math
+import os.path as osp
 import json
 import random
 
@@ -21,7 +22,6 @@ import carla
 import xml.etree.ElementTree as ET
 
 from safebench.scenario.tools.route_parser import RouteParser, TRIGGER_THRESHOLD, TRIGGER_ANGLE_THRESHOLD
-from safebench.scenario.scenario_manager.scenario_config import ScenarioConfig
 
 
 def calculate_distance_transforms(transform_1, transform_2):
@@ -91,51 +91,6 @@ def scenario_parse(config, logger):
 
     return config_by_map
 
-def scenic_parse(config, logger):
-    """
-        Parse scenic config, especially for loading the scenic files.
-    """
-    mode = config['mode']
-    scenic_dir = config['scenic_dir']
-    scenic_rel_listdir = sorted([path for path in os.listdir(scenic_dir) if path.split('.')[1] == 'scenic'])
-    scenic_abs_listdir = [osp.join(scenic_dir, path) for path in scenic_rel_listdir]
-    behaviors = [path.split('.')[0] for path in scenic_rel_listdir]
-    assert len(scenic_rel_listdir) > 0, 'no scenic file in this dir'
-    
-    try:
-        scene_map_dir = [path for path in os.listdir(scenic_dir) if path.split('.')[1] == 'json']
-        if len(scene_map_dir) == 0:
-            pass
-        else:
-            scene_map_dir = scene_map_dir[0]
-            f = open(osp.join(scenic_dir, scene_map_dir))
-            scene_index_map = json.load(f)
-            for behavior in behaviors:
-                if len(scene_index_map[behavior]) != config['select_num']:
-                    scene_map_dir = []
-                    break
-    except:
-        scene_map_dir = []
-
-    config_list = []
-    for i, scenic_file in enumerate(scenic_abs_listdir):
-        parsed_config = ScenarioConfig()
-        parsed_config.auto_ego = config['auto_ego']
-        parsed_config.num_scenario = config['num_scenario']
-        parsed_config.data_id = i
-        parsed_config.scenic_file = scenic_file
-        parsed_config.behavior = behaviors[i]
-        parsed_config.scenario_generation_method = config['method']
-        parsed_config.scenario_id = config['scenario_id']
-        parsed_config.sample_num = config['sample_num']
-        parsed_config.trajectory = []
-        parsed_config.select_num = config['select_num']
-        if mode == 'eval' and len(scene_map_dir):
-            parsed_config.scene_index = scene_index_map[behaviors[i]]
-        else:
-            parsed_config.scene_index = list(range(config['sample_num']))
-        config_list.append(parsed_config)
-    return config_list
 
 def get_valid_spawn_points(world):
     vehicle_spawn_points = list(world.get_map().get_spawn_points())

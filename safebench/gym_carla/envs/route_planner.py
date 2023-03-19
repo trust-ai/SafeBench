@@ -1,4 +1,6 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
 LastEditTime: 2023-03-05 15:00:17
 Description: 
@@ -46,9 +48,7 @@ class RoutePlanner():
         self._current_waypoint = self._map.get_waypoint(self._vehicle.get_location())
 
         if len(init_waypoints) == 0:
-            project_waypoint =  self._map.get_waypoint(self._vehicle.get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
-            self._waypoints_queue.append((self._current_waypoint, RoadOption.VOID))
-            self._waypoints_queue.append((project_waypoint, RoadOption.LANEFOLLOW))
+            self._waypoints_queue.append((self._current_waypoint.next(self._sampling_radius)[0], RoadOption.LANEFOLLOW))
         else:
             for i, waypoint in enumerate(init_waypoints):
                 if i == 0:

@@ -1,6 +1,8 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-07 12:18:47
+LastEditTime: 2023-03-05 17:08:09
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -11,6 +13,7 @@ Description:
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
+import copy
 import random
 
 import numpy as np
@@ -30,7 +33,6 @@ from safebench.gym_carla.envs.misc import (
 )
 from safebench.scenario.scenario_definition.route_scenario import RouteScenario
 from safebench.scenario.scenario_definition.perception_scenario import PerceptionScenario
-from safebench.scenario.scenario_definition.scenic_scenario import ScenicScenario
 from safebench.scenario.scenario_manager.scenario_manager import ScenarioManager
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 
@@ -40,9 +42,9 @@ class CarlaEnv(gym.Env):
         An OpenAI-gym style interface for CARLA simulator. 
     """
     def __init__(self, env_params, birdeye_render=None, display=None, world=None, logger=None):
-        assert world is not None, "the world passed into CarlaEnv is None"
-
         self.config = None
+        # TODO: only initialize textures for once in parallel rollout
+        assert world is not None, "the world passed into CarlaEnv is None"
         self.world = world
         self.display = display
         self.logger = logger
@@ -63,8 +65,7 @@ class CarlaEnv(gym.Env):
         self.lidar_height = 2.1
         
         # scenario manager
-        use_scenic = True if  env_params['scenario_category'] == 'scenic' else False
-        self.scenario_manager = ScenarioManager(self.logger, use_scenic=use_scenic)
+        self.scenario_manager = ScenarioManager(self.logger)
 
         # for birdeye view and front view visualization
         self.display_size = env_params['display_size']
@@ -86,7 +87,7 @@ class CarlaEnv(gym.Env):
         self.ROOT_DIR = env_params['ROOT_DIR']
         self.scenario_category = env_params['scenario_category']
 
-        if self.scenario_category in ['planning', 'scenic']:
+        if self.scenario_category == 'planning':
             self.obs_size = int(self.obs_range/self.lidar_bin)
             observation_space_dict = {
                 'camera': spaces.Box(low=0, high=255, shape=(self.obs_size, self.obs_size, 3), dtype=np.uint8),
@@ -152,14 +153,6 @@ class CarlaEnv(gym.Env):
             )
         elif self.scenario_category == 'planning':
             scenario = RouteScenario(
-                world=self.world, 
-                config=config, 
-                ego_id=env_id, 
-                max_running_step=self.max_episode_step, 
-                logger=self.logger
-            )
-        elif self.scenario_category == 'scenic':
-            scenario = ScenicScenario(
                 world=self.world, 
                 config=config, 
                 ego_id=env_id, 
@@ -292,7 +285,7 @@ class CarlaEnv(gym.Env):
             snapshot = self.world.get_snapshot()
             if snapshot:
                 timestamp = snapshot.timestamp
-                # get update on evaluation results before getting update of running status
+                # Update: get update on evaluation results before getting update of running status
                 if self.scenario_category in ['perception']:
                     assert isinstance(ego_action, dict), 'ego action in ObjectDetectionScenario should be a dict'
                     world_2_camera = np.array(self.camera_sensor.get_transform().get_inverse_matrix())
@@ -300,8 +293,8 @@ class CarlaEnv(gym.Env):
                     image_w, image_h = self.obs_size, self.obs_size
                     self.scenario_manager.background_scenario.evaluate(ego_action, world_2_camera, image_w, image_h, fov, self.camera_img)
                     ego_action = ego_action['ego_action']
-
-                # pass scenario action into manager
+                
+                # TODO: input an action into the scenario
                 self.scenario_manager.get_update(timestamp, scenario_action)
                 self.is_running = self.scenario_manager._running
 
@@ -329,7 +322,8 @@ class CarlaEnv(gym.Env):
                         brake = np.clip(-acc / 8, 0, 1)
 
                     # apply control
-                    act = carla.VehicleControl(throttle=float(throttle), steer=float(steer), brake=float(brake))
+                    # TODO: no idea why steering takes opposite sign. should be removed 
+                    act = carla.VehicleControl(throttle=float(throttle), steer=float(-steer), brake=float(brake))
                     self.ego_vehicle.apply_control(act)
             else:
                 self.logger.log('>> Can not get snapshot!', color='red')
@@ -517,6 +511,9 @@ class CarlaEnv(gym.Env):
                 camera_surface = rgb_to_display_surface(camera, self.display_size)
                 self.display.blit(camera_surface, (self.display_size, self.env_id*self.display_size))
 
+            # show image on window (move outside of env)
+            #pygame.display.flip()
+
             obs = {
                 'camera': camera.astype(np.uint8),
                 'lidar': None if self.disable_lidar else lidar.astype(np.uint8),
@@ -525,9 +522,13 @@ class CarlaEnv(gym.Env):
             }
         else:
             """ Get the observations for object detection. """
+            # display camera image
             camera = resize(self.camera_img, (self.obs_size, self.obs_size)) * 255
             camera_surface = rgb_to_display_surface(camera, self.display_size)
             self.display.blit(camera_surface, (0, self.env_id*self.display_size))
+
+            # show image on window
+            #pygame.display.flip()
 
             obs = {
                 'camera': camera.astype(np.uint8),
@@ -571,7 +572,7 @@ class CarlaEnv(gym.Env):
         return r_collision
 
     def _terminal(self):
-        return not self.scenario_manager._running 
+        return not self.scenario_manager._running # the max step critie is included in scenario_manager
 
     def _remove_sensor(self):
         if self.collision_sensor is not None:
@@ -595,6 +596,5 @@ class CarlaEnv(gym.Env):
 
     def clean_up(self):
         self._remove_sensor()
-        if self.scenario_category != 'scenic':
-            self._remove_ego()
+        self._remove_ego()
         self.scenario_manager.clean_up()

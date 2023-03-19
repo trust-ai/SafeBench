@@ -1,10 +1,12 @@
 <!--
+ * @Author: 
+ * @Email: 
  * @Date: 2023-02-20 20:13:41
- * @LastEditTime: 2023-03-07 12:26:15
+ * @LastEditTime: 2023-03-01 22:23:32
  * @Description: 
 -->
 
-<!-- # Hosting a Challenge via EvalAI
+# Hosting a Challenge via EvalAI
 
 This document provides an overview on how to host a code-upload based challenge on EvalAI. A code-upload based challenge is usually a reinforcement learning challenge in which participants upload their trained model in the form of a Docker image. The environment is also a docker image.
 
@@ -199,20 +201,6 @@ evalai push <image>:<tag> --phase <phase_name>
 ```
 <br>
 At this point, the challenge configuration has been submitted for review and the EvalAI team has been notified. They will review and approve the challenge.
-<br> -->
+<br>
 
 # How to Submit Results
-
-## General Submission via Docker
-TBA
-
-## Perception Track
-- In perception attack tracks, the participants are required to submit a file named after `stopsign.jpg` and `car.jpg` in `safebench/scenario/scenario_data/submission/`.
-- In perception defense tracks, the participants are required to submit an object detection script in `safebench/agent/object_detection/submission.py`, where we've already provided a template and some example detection model like YOLO-v5 and Faster-RCNN. You should include any utility function and checkpoints you need in the `agent/object_detection/` folder.
-
-During the evaluation, only two folders (`safebench/agent/object_detection/` and `safebench/scenario/scenario_data/submission`) will be kept, while the rest of the code will be replaced by our evaluation template. So please make sure to **include all the codes and files** you need in these two folders.
-
-After the evaluation finishes, you will get a feedback as the mean Average Precision
-
-## Planning Track
-TBA

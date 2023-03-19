@@ -1,6 +1,8 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:42:00
+LastEditTime: 2023-03-05 15:17:55
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -58,7 +60,7 @@ class IndependantModel(nn.Module):
         sigma = F.softplus(normal_action[:, action_os:])
 
         # calculate the probability by mu and sigma of normal distribution
-        eps = CUDA(torch.randn(mu.size()))
+        eps = CUDA(Variable(torch.randn(mu.size())))
         action = (mu + sigma*eps)
         return action, mu, sigma
 
@@ -160,7 +162,6 @@ class REINFORCE(BasePolicy):
         self.num_scenario = scenario_config['num_scenario']
         self.batch_size = scenario_config['batch_size']
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
-        self.model_id = scenario_config['model_id']
         self.entropy_weight = 0.0001
 
         self.model = CUDA(AutoregressiveModel(self.num_waypoint))
@@ -176,6 +177,7 @@ class REINFORCE(BasePolicy):
         log_prob = batch['log_prob']
         entropy = batch['entropy']
         
+        # TODO: reward normalization
         episode_reward = CUDA(torch.tensor(episode_reward, dtype=torch.float32))
         episode_reward = -episode_reward # objective is to minimize the reward
 
@@ -205,7 +207,7 @@ class REINFORCE(BasePolicy):
         processed_state_list = []
         for s_i in range(len(state)):
             route = state[s_i]['route']
-            target_speed = state[s_i]['target_speed'] / 10.0
+            target_speed = state[s_i]['target_speed']
 
             index = np.linspace(1, len(route) - 1, self.num_waypoint).tolist()
             index = [int(i) for i in index]
@@ -223,7 +225,6 @@ class REINFORCE(BasePolicy):
         # the state should be a sequence of route waypoints
         processed_state = self.proceess_init_state(state)
         processed_state = CUDA(torch.from_numpy(processed_state))
-
         mu, sigma, action = self.model.forward(processed_state, deterministic)
 
         # calculate the probability that this distribution outputs this action
@@ -240,20 +241,15 @@ class REINFORCE(BasePolicy):
         return action, additional_info
 
     def load_model(self):
-        model_filename = os.path.join(self.model_path, f'{self.model_id}.pt')
-        if os.path.exists(model_filename):
-            self.logger.log(f'>> Loading LC model from {model_filename}')
-            with open(model_filename, 'rb') as f:
+        if os.path.exists(self.model_path):
+            self.logger.log(f'>> Loading LC model from {self.model_path}')
+            with open(self.model_path, 'rb') as f:
                 checkpoint = torch.load(f)
-            self.model.load_state_dict(checkpoint['parameters'])
+            #self.model.load_state_dict(checkpoint['parameters'])
         else:
-            self.logger.log(f'>> Fail to find LC model from {self.model_path}', color='yellow')
+            self.logger.log(f'>> Fail to load LC model from {self.model_path}', color='red')
 
     def save_model(self, epoch):
-        if not os.path.exists(self.model_path):
-            self.logger.log(f'>> Creating folder for saving model: {self.model_path}')
-            os.makedirs(self.model_path)
-        model_filename = os.path.join(self.model_path, f'{self.model_id}.pt')
-        self.logger.log(f'>> Saving LC model to {model_filename}')
-        with open(model_filename, 'wb+') as f:
+        self.logger.log(f'>> Saving LC model to {self.model_path}')
+        with open(self.model_path, 'wb+') as f:
             torch.save({'parameters': self.model.state_dict()}, f)

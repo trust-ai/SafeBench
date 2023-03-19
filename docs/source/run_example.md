@@ -1,6 +1,8 @@
 <!--
+ * @Author: 
+ * @Email: 
  * @Date: 2021-07-18 21:43:53
- * @LastEditTime: 2023-03-09 15:57:51
+ * @LastEditTime: 2023-02-21 13:48:48
  * @Description: 
 -->
 
@@ -59,33 +61,3 @@ ssh -L fp:localhost:5900+n user@host
 /opt/TurboVNC/bin/vncviewer localhost::fp
 ```
 where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
-
-
-## Scenic users
-
-If you want to use scenic to control the surrounding adversarial agents, and use RL to control the ego, then first install scenic as follows:
-
-```
-# Download Scenic repository
-git clone https://github.com/BerkeleyLearnVerify/Scenic.git
-cd Scenic
-python -m pip install -e .
-```
-
-For seleting the most adversarial scenes (```num_scenario```  has to be 1 currently), use
-
-```
-python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode train_scenario
-```
-
-And then test the agent with these selected adversarial scenes:
-
-```
-python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
-```
-
-Or if you want to Launch it on the virtual display
-
-```
-DISPLAY=:8 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
-``` 

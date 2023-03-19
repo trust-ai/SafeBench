@@ -1,5 +1,5 @@
 '''
- Haohong Lin
+Author: Haohong Lin
 Email: haohongl@andrew.cmu.edu
 Date: 2023-02-04 16:30:08
 LastEditTime: 2023-03-05 14:55:39
@@ -22,11 +22,12 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
-from safebench.util.od_util import names_coco128, CUDA, CPU
+from safebench.agent.base_policy import BasePolicy
 from safebench.agent.object_detection.models.common import DetectMultiBackend
 from safebench.agent.object_detection.utils.dataloader_label import LoadImagesAndBoxLabels
 from safebench.agent.object_detection.utils.loss import ComputeLoss
 from safebench.agent.object_detection.utils.plots import Annotator, colors
+from safebench.util.od_util import names_coco128, CUDA, CPU
 
 from safebench.agent.object_detection.utils.general import (
     check_img_size, 
@@ -52,7 +53,7 @@ DEFAULT_CONFIG = dict(
 )
 
 
-class YoloAgent(object):
+class YoloAgent(BasePolicy):
     def __init__(self, config, logger, train_mode='none') -> None:
 
         self.ego_action_dim = config['ego_action_dim']
@@ -109,6 +110,7 @@ class YoloAgent(object):
 
         n_envs = len(obs)
         pred_list = []
+        img_annot_list = []
         for i in range(n_envs):
             image = obs[i]['img']
             # print(image.shape)
@@ -120,13 +122,18 @@ class YoloAgent(object):
 
             pred = self.model(image, augment=False, visualize=False).detach().cpu()
             pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, None, False, max_det=100)
-
+            
+            if pred[0].shape[0] == 0:
+                pass
+            else:
+                img_annot_list.append(self.annotate(pred.copy(), image))
+            
             pred = self._transform_predictions(pred)
             pred_list.append(pred)
             # TODO: CUDA Memory Management
             torch.cuda.empty_cache()
-
-        return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred_list[i]} for i in range(n_envs)]
+                    
+        return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred_list[i], 'annotated_image': img_annot_list[i]} for i in range(n_envs)]
     
     def load_model(self):
         pass
@@ -182,21 +189,26 @@ class YoloAgent(object):
         
         return optimizer
 
-    def annotate(self, pred, img):
+    def annotate(self, pred, image):
+        # print(image)
+        shape_scale = image.shape
+        image = image.permute(0, 2, 3, 1).detach().cpu().numpy()[0]
+        image = np.ascontiguousarray(255*image, np.uint8)
         for i, det in enumerate(pred):
-            if self.annotator is None:
-                self.annotator = Annotator(image, line_width=3, example=str(names_coco128))
 
-            if len(det):
-                det[:, :4] = scale_coords(image.shape[2:], det[:, :4], image.shape).round()
+            self.annotator = Annotator(image, line_width=1, example=str(names_coco128))
+            # if len(det):
+            #     det[:, :4] = scale_coords(shape_scale, det[:, :4], image.shape).round()
             
             for *xyxy, conf, cls in reversed(det):
+                if conf.item() < 0.25: # threshold when annotating
+                    continue
                 c = int(cls)
                 label = str(self.model.names[c]) + ' {:.2f}'.format(conf)
                 self.annotator.box_label(xyxy, label, color=colors(c, True)) 
-        image = image.permute(0, 2, 3, 1).detach().cpu().numpy()[0]
-        image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
-        image = np.array(255*image, np.uint8)
+        # image = cv2.resize(image, self.imgsz, interpolation=cv2.INTER_LINEAR)
+        # image = np.array(255*image, np.uint8)
+        image = self.annotator.result()
         return image
 
     def add_patch(self, img, input_patch):

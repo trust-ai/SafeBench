@@ -1,6 +1,8 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:14:51
+LastEditTime: 2023-02-28 17:42:30
 Description: 
 '''
 
@@ -21,7 +23,6 @@ if __name__ == '__main__':
     parser.add_argument('--output_dir', type=str, default='log')
     parser.add_argument('--ROOT_DIR', type=str, default=osp.abspath(osp.dirname(osp.dirname(osp.realpath(__file__)))))
 
-    parser.add_argument('--max_episode_step', type=int, default=300)
     parser.add_argument('--auto_ego', action='store_true')
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
     parser.add_argument('--agent_cfg', type=str, default='dummy.yaml')
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--port', type=int, default=2000, help='port to communicate with carla')
     parser.add_argument('--tm_port', type=int, default=8000, help='traffic manager port')
     parser.add_argument('--fixed_delta_seconds', type=float, default=0.1)
+    parser.add_argument('--max_episode_step', type=int, default=300)
     args = parser.parse_args()
     args_dict = vars(args)
 
@@ -47,7 +49,7 @@ if __name__ == '__main__':
     set_torch_variable(args.device)
     torch.set_num_threads(args.threads)
     set_seed(args.seed)
-
+    
     # load agent config
     agent_config_path = osp.join(args.ROOT_DIR, 'safebench/agent/config', args.agent_cfg)
     agent_config = load_config(agent_config_path)
@@ -59,14 +61,7 @@ if __name__ == '__main__':
     # main entry with a selected mode
     agent_config.update(args_dict)
     scenario_config.update(args_dict)
-    if scenario_config['type_category'] == 'scenic':
-        from safebench.scenic_runner import ScenicRunner
-        assert scenario_config['num_scenario'] == 1, 'the num_scenario can only be one for scenic now'
-        runner = ScenicRunner(agent_config, scenario_config)
-    else:
-        runner = CarlaRunner(agent_config, scenario_config)
-    
-    # start running
+    runner = CarlaRunner(agent_config, scenario_config)
     try:
         runner.run()
     except:

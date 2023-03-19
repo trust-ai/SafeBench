@@ -1,4 +1,6 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
 LastEditTime: 2023-03-05 14:55:51
 Description: 
@@ -242,4 +244,4 @@ class SAC(BasePolicy):
             self.policy_net.load_state_dict(checkpoint['policy_net'])
             self.value_net.load_state_dict(checkpoint['value_net'])
             self.Q_net.load_state_dict(checkpoint['Q_net'])
-            self.continue_episode = episode
+            self.load_episode = episode

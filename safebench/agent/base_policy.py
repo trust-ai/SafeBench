@@ -1,6 +1,8 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-06 23:37:16
+LastEditTime: 2023-03-05 14:51:24
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -30,5 +32,5 @@ class BasePolicy:
     def load_model(self):
         raise NotImplementedError()
 
-    def save_model(self, episode):
+    def save_model(self):
         raise NotImplementedError()

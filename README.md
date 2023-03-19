@@ -1,23 +1,21 @@
 <!--
+ * @Author: 
+ * @Email: 
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-03-11 16:59:14
+ * @LastEditTime: 2023-03-04 16:55:58
  * @Description: 
 -->
 
 # SafeBench
-
-### :mega: **We are hosting the Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge at CVPR 2023! Please check our [website](https://ai-secure.github.io/SSAD2023/) for more details.**
-
----
 
 <div style="text-align: center; width:100%; margin: 0 auto; display: inline-block">
 <strong>
 [
 <a href="https://safebench.readthedocs.io">Documentation</a>
 |
-<a href="https://drive.google.com/file/d/1x09q0DYkVBtSAaJPDi3GpQo1bITSXrv2/view?usp=sharing">Demo Video</a>
+<a href="">Demo Video</a>
 |
-<a href="https://safebench.github.io">Website</a>
+<a href="https://ai-secure.github.io/SSAD2023/challenge">Website</a>
 |
 <a href="https://arxiv.org/pdf/2206.09682.pdf">Paper</a>
 ]
@@ -37,7 +35,7 @@ conda activate safebench
 
 2. Clone this git repo in an appropriate folder
 ```
-git clone git@github.com:trust-ai/SafeBench.git
+git clone git@github.com:trust-ai/SafeBench_v2.git
 ```
 
 3. Enter the repo root folder and install the packages:
@@ -46,7 +44,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder.
+4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/1Ta5qtEIrOnpsToQfJ-j0cdRiF7xCbLM3/view?usp=share_link), extract it to your folder.
 
 5. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
@@ -69,7 +67,7 @@ Enter the CARLA root folder, launch the CARLA server and run our platform with
 ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 
 # Launch SafeBench in another terminal
-python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
+python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
 ```
 
 ### 2. Remote Server Users
@@ -79,7 +77,7 @@ Enter the CARLA root folder, launch the CARLA server with headless mode, and run
 ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
 
 # Launch SafeBench in another terminal
-SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
+SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
 ```
 
 (Optional) You can also visualize the pygame window using [TurboVNC](https://sourceforge.net/projects/turbovnc/files/).
@@ -92,7 +90,7 @@ First, launch CARLA with headless mode, and run our platform on a virtual displa
 /opt/TurboVNC/bin/vncserver :8 -noxstartup
 
 # Launch SafeBench on the virtual display
-DISPLAY=:8 python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
+DISPLAY=:8 python scripts/run.py --agent_cfg=dummy.yaml --scenario_cfg=example.yaml
 ```
 
 You can use the TurboVNC client on your local machine to connect to the virtual display.
@@ -106,48 +104,3 @@ ssh -L fp:localhost:5900+n user@host
 /opt/TurboVNC/bin/vncviewer localhost::fp
 ```
 where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
-
-###  3. Scenic users
-
-If you want to use scenic to control the surrounding adversarial agents, and use RL to control the ego, then first install scenic as follows:
-
-```
-# Download Scenic repository
-git clone https://github.com/BerkeleyLearnVerify/Scenic.git
-cd Scenic
-python -m pip install -e .
-```
-
-Then you can create a directory in ```safebench/scenario/scenario_data/scenic_data```, e.g., ```Carla_Challenge```, and put your scenic files in that directory (the relative map path defined in scenic file should be ```../maps/*.xodr```).
-
-Next, set the param ```scenic_dir``` in ```safebench/scenario/config/scenic.yaml``` with the directory where you store the scenic files, e.g., ```safebench/scenario/scenario_data/scenic_data/Carla_Challenge```, and our code will automatically load all scenic files in that directory.
-
-For selecting the most adversarial scenes, the param ```sample_num``` within the ```scenic.yaml``` serves to determine the number of scenes sampled for each scenic file and the param ```select_num``` is used to specify the number of the most adversarial scenes to be selected from among the sample_num scenes:
-
-```
-python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode train_scenario
-```
-
-Now you can test the ego with these selected adversarial scenes:
-
-```
-python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
-```
-
-Or if you want to Launch it on the virtual display
-
-```
-DISPLAY=:8 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
-``` 
-
-## Running Argument
-
-| Argument | Choice | Usage |
-| :----: | :----: | :---- |
-| `mode` | `[train_agent\train_scenario\eval]` | We provide three modes for training agent, training scenario, and evaluation. |
-| `agent_cfg`      | path of .yaml  |  configuration file of agent. |
-| `scenario_cfg`   | path of .yaml  |  configuration file of scenario. |
-| `max_episode_step`      | int     | Number of episode used for training agents and scenario. |
-| `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
-| `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
-| `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |

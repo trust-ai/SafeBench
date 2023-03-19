@@ -1,4 +1,6 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
 LastEditTime: 2023-03-01 20:20:52
 Description: 
@@ -16,7 +18,6 @@ from safebench.scenario.scenario_policy.adv_patch import ObjectDetection
 SCENARIO_POLICY_LIST = {
     'standard': DummyPolicy,
     'ordinary': DummyPolicy,
-    'scenic': DummyPolicy,
     'LC': REINFORCE,
     'od': ObjectDetection
 }

@@ -50,7 +50,6 @@ class Detection_Vehicle(BasicScenario):
             inputs = np.array(scenario_init_action['image'].detach().cpu().numpy()*255, dtype=np.int)[0].transpose(1, 2, 0)
             height = 1024
             texture = carla.TextureColor(height,height)
-            # TODO: run in multi-processing?
             for x in range(height):
                 for y in range(height):
                     r = int(inputs[x,y,0])

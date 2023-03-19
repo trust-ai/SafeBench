@@ -1,9 +1,10 @@
-''' 
+'''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-09 17:03:37
+LastEditTime: 2023-03-05 16:06:16
 Description: 
     Copyright (c) 2022-2023 Safebench Team
-
     This work is licensed under the terms of the MIT license.
     For a copy, see <https://opensource.org/licenses/MIT>
 '''
@@ -27,7 +28,7 @@ from safebench.scenario.scenario_data_loader import ScenarioDataLoader
 from safebench.scenario.tools.scenario_utils import scenario_parse
 
 from safebench.util.logger import Logger, setup_logger_kwargs
-from safebench.util.run_util import VideoRecorder
+from safebench.util.run_util import VideoRecorder, VideoRecorder_Perception
 from safebench.util.metric_util import get_route_scores, get_perception_scores
 
 
@@ -123,7 +124,13 @@ class CarlaRunner:
         # define agent and scenario policy
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
-        self.video_recorder = VideoRecorder(scenario_config, logger=self.logger)
+        if self.scenario_category == 'planning': 
+            self.video_recorder = VideoRecorder(scenario_config, logger=self.logger)
+        else:
+            self.video_recorder = VideoRecorder_Perception(scenario_config, 
+                                                           logger=self.logger, 
+                                                           width=self.env_params['image_sz'], 
+                                                           height=self.env_params['image_sz'])
 
     def _init_world(self, town):
         self.logger.log(f">> Initializing carla world: {town}")
@@ -194,7 +201,7 @@ class CarlaRunner:
                 replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones], additional_dict=infos)
                 obs = copy.deepcopy(next_obs)
 
-                # train off-policy agent or scenario
+                # train on-policy agent or scenario
                 if self.mode == 'train_agent' and self.agent_policy.type == 'offpolicy':
                     self.agent_policy.train(replay_buffer)
                 elif self.mode == 'train_scenario' and self.scenario_policy.type == 'offpolicy':
@@ -204,7 +211,7 @@ class CarlaRunner:
             self.env.clean_up()
             replay_buffer.finish_one_episode()
 
-            # train on-policy agent or scenario
+            # train off-policy agent or scenario
             if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':
                 self.agent_policy.train(replay_buffer)
             elif self.mode == 'train_scenario' and self.scenario_policy.type in ['init_state', 'onpolicy']:
@@ -235,7 +242,7 @@ class CarlaRunner:
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
             scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs)
             obs, infos = self.env.reset(sampled_scenario_configs, scenario_init_action)
-
+            
             # get ego vehicle from scenario
             self.agent_policy.set_ego_and_route(self.env.get_ego_vehicles(), infos)
 
@@ -249,7 +256,10 @@ class CarlaRunner:
                 obs, rewards, _, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
 
                 # save video
-                self.video_recorder.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
+                if self.scenario_category == 'planning':
+                    self.video_recorder.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
+                else: 
+                    self.video_recorder.add_frame(ego_actions[0]['annotated_image'])
 
                 # accumulate scores of corresponding scenario
                 reward_idx = 0
@@ -263,7 +273,11 @@ class CarlaRunner:
             self.env.clean_up()
 
             # save video
-            self.video_recorder.save(video_name=f'video_{video_count}.gif')
+            if self.scenario_category == 'planning':
+                self.video_recorder.save(video_name=f'video_{video_count}.gif')
+            else: 
+                self.video_recorder.save(video_name=f'video_{video_count}.mp4')
+            
             video_count += 1
 
             # print score for ranking
@@ -274,7 +288,7 @@ class CarlaRunner:
             # calculate evaluation results
             score_function = get_route_scores if self.scenario_category == 'planning' else get_perception_scores
             all_scores = score_function(self.env.running_results)
-            self.logger.add_eval_results(all_scores, self.env.running_results)
+            self.logger.add_eval_results(all_scores)
             self.logger.print_eval_results()
             self.logger.save_eval_results()
 
@@ -316,7 +330,6 @@ class CarlaRunner:
 
     def check_continue_training(self, policy):
         # load previous checkpoint
-        policy.load_model()
         if policy.continue_episode == 0:
             start_episode = 0
             self.logger.log('>> Previous checkpoint not found. Training from scratch.')

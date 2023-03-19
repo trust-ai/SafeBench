@@ -1,6 +1,8 @@
 '''
+Author:
+Email: 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-06 00:21:23
+LastEditTime: 2023-03-05 15:59:03
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -11,9 +13,6 @@ Description:
 # for planning scenario
 from safebench.agent.dummy import DummyAgent
 from safebench.agent.rl.sac import SAC
-from safebench.agent.rl.ddpg import DDPG
-from safebench.agent.rl.ppo import PPO
-from safebench.agent.rl.td3 import TD3
 from safebench.agent.basic import CarlaBasicAgent
 from safebench.agent.behavior import CarlaBehaviorAgent
 
@@ -27,8 +26,5 @@ AGENT_POLICY_LIST = {
     'behavior': CarlaBehaviorAgent,
     'yolo': YoloAgent,
     'sac': SAC,
-    'ddpg': DDPG,
-    'ppo': PPO,
-    'td3': TD3,
     'faster_rcnn': FasterRCNNAgent,
 }

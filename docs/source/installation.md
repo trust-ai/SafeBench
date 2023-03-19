@@ -1,6 +1,8 @@
 <!--
+ * @Author: Wenhao Ding
+ * @Email: wenhaod@andrew.cmu.edu
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2023-03-11 16:59:26
+ * @LastEditTime: 2023-02-21 13:35:50
  * @Description: 
 -->
 
@@ -18,22 +20,22 @@ conda activate safebench
 
 Then, clone the code from github in an appropriate folder with
 ```
-git clone git@github.com:trust-ai/SafeBench.git
+git clone git@github.com:trust-ai/SafeBench_v2.git
 ```
 
 Enter the folder of safebench and install some necessary packages
 ```
-cd SafeBench
+cd SafeBench_v2
 pip install -r requirements.txt
 pip install -e .
 ```
 
 ## Step 2. Setup Carla
 
-Download our built [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder with
+Download our built [CARLA_0.9.13](https://drive.google.com/file/d/1Ta5qtEIrOnpsToQfJ-j0cdRiF7xCbLM3/view?usp=share_link) and extract it to your folder with
 ```
 mkdir carla && cd carla
-tar -zxvf CARLA_0.9.13_safebench_2.tar.gz
+tar -zxvf CARLA_0.9.13-2-g0c41f167c-dirty.tar.gz
 ```
 
 Add the Python API of Carla to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:

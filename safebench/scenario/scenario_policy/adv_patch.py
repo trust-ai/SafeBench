@@ -1,5 +1,5 @@
 '''
- Haohong Lin
+Author: Haohong Lin
 Email: haohongl@andrew.cmu.edu
 Date: 2023-02-04 16:30:08
 LastEditTime: 2023-03-05 14:55:10
@@ -81,7 +81,7 @@ class ObjectDetection(object):
             img = CUDA(self.add_patch(CUDA(self.raw_image), CUDA(eps)))
             self._eps = eps
 
-        elif self.mode == 'eval': # TODO
+        elif self.mode == 'eval':
             eps = CUDA(self._dist.sample((self.batch_size, )))
             img = CUDA(self.add_patch(CUDA(self.raw_image), CUDA(eps)))
         # self._init_actions = [{'attack': eps, 'image': img} for _ in range(len(obs))]
