@@ -1,6 +1,6 @@
 gym==0.23.1
 numpy==1.23.1
-torch
+torch==1.13.0
 torchvision
 pygame
 scikit-image
