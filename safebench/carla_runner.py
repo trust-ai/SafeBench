@@ -115,7 +115,7 @@ class CarlaRunner:
 
         if self.scenario_config['auto_ego']:
             self.logger.log('>> Using auto-polit for ego vehicle, the action of agent policy will be ignored', 'yellow')
-        if self.scenario_policy_type == 'odrinary' and self.mode != 'train_agent':
+        if self.scenario_policy_type == 'ordinary' and self.mode != 'train_agent':
             self.logger.log('>> Ordinary scenario can only be used in agent training', 'red')
             raise Exception()
         self.logger.log('>> ' + '-' * 40)
