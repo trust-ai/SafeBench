@@ -136,6 +136,7 @@ class DynamicObjectCrossing(BasicScenario):
         while True:  
             try:
                 self.transform, orientation_yaw = self._calculate_base_transform(_start_distance, waypoint)
+                self._spawn_blocker(self.transform, orientation_yaw)
                 forward_vector = self.transform.rotation.get_forward_vector() * y * self._reference_waypoint.lane_width
                 self.transform.location += forward_vector
                 yaw = self.transform.rotation.yaw + yaw
@@ -147,8 +148,6 @@ class DynamicObjectCrossing(BasicScenario):
                     self.transform.location,
                     carla.Rotation(self.transform.rotation.pitch, yaw, self.transform.rotation.roll)
                 )
-                orientation_yaw = yaw
-                self._spawn_blocker(self.transform, orientation_yaw)
                 break
             except RuntimeError as r:
                 print("Base transform is blocking objects ", self.transform)
