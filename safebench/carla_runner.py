@@ -63,7 +63,7 @@ class CarlaRunner:
             'scenario_category': self.scenario_category,
             'ROOT_DIR': scenario_config['ROOT_DIR'],
             'disable_lidar': True,                                     # show bird-eye view lidar or not
-            'display_size': 128,                                       # screen size of one bird-eye view windowd=
+            'display_size': 128,                                       # screen size of one bird-eye view window
             'obs_range': 32,                                           # observation range (meter)
             'd_behind': 12,                                            # distance behind the ego vehicle (meter)
             'max_past_step': 1,                                        # the number of past steps to draw
