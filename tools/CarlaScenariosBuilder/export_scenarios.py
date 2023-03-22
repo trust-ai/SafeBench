@@ -41,8 +41,7 @@ def create_scenario(config, center, center_new, selected_waypoints, waypoints_de
             real_scenario_waypoints.append(real_scenario_waypoint)
             yaw_diff = (real_scenario_waypoint[4] - scenario_waypoint[4]) % 360
             if dist > 2 or yaw_diff > 10:
-                print(f"waypoint {scenario_waypoint} can not be found on the map, \n"
-                      f"assigned to the nearist waypoint {real_scenario_waypoint}")
+                print(f"waypoint {scenario_waypoint} can not be found on the map, assigned to the nearist waypoint {real_scenario_waypoint}")
 
         scenario_config = build_scenarios(real_scenario_waypoints)
         all_scenarios_configs.append(scenario_config)
@@ -61,7 +60,7 @@ def save_scenarios(config, scenarios_configs):
                 config.map: [
                     {
                         "available_event_configurations": scenarios_configs,
-                        "scenario_type": f"Scenario{scenario_id + 2}"
+                        "scenario_name": f"Scenario{scenario_id + 2}"
                     }
                 ]
             }

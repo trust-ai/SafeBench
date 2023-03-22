@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 13:46:06
+LastEditTime: 2023-03-22 17:57:53
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -175,83 +175,6 @@ class RouteParser(object):
         return None
 
     @staticmethod
-    def get_scenario_type(scenario, match_position, trajectory):
-        """
-            Some scenarios have different types depending on the route.
-                :param scenario: the scenario name
-                :param match_position: the matching position for the scenarion
-                :param trajectory: the route trajectory the ego is following
-                :return: tag representing this subtype
-
-            Also used to check which are not viable (Such as an scenario that triggers when turning but the route doesnt')
-            WARNING: These tags are used at:
-                - VehicleTurningRoute
-                - SignalJunctionCrossingRoute and changes to these tags will affect them
-        """
-
-        def check_this_waypoint(tuple_wp_turn):
-            """
-                Decides whether or not the waypoint will define the scenario behavior
-            """
-            if RoadOption.LANEFOLLOW == tuple_wp_turn[1]:
-                return False
-            elif RoadOption.CHANGELANELEFT == tuple_wp_turn[1]:
-                return False
-            elif RoadOption.CHANGELANERIGHT == tuple_wp_turn[1]:
-                return False
-            return True
-
-        # Unused tag for the rest of scenarios, can't be None as they are still valid scenarios
-        subtype = 'valid'
-        if scenario == 'Scenario4':
-            for tuple_wp_turn in trajectory[match_position:]:
-                if check_this_waypoint(tuple_wp_turn):
-                    if RoadOption.LEFT == tuple_wp_turn[1]:
-                        subtype = 'S4left'
-                    elif RoadOption.RIGHT == tuple_wp_turn[1]:
-                        subtype = 'S4right'
-                    else:
-                        subtype = None
-                    break  # Avoid checking all of them
-                subtype = None
-
-        if scenario == 'Scenario7':
-            for tuple_wp_turn in trajectory[match_position:]:
-                if check_this_waypoint(tuple_wp_turn):
-                    if RoadOption.LEFT == tuple_wp_turn[1]:
-                        subtype = 'S7left'
-                    elif RoadOption.RIGHT == tuple_wp_turn[1]:
-                        subtype = 'S7right'
-                    elif RoadOption.STRAIGHT == tuple_wp_turn[1]:
-                        subtype = 'S7opposite'
-                    else:
-                        subtype = None
-                    break  # Avoid checking all of them
-                subtype = None
-
-        if scenario == 'Scenario8':
-            for tuple_wp_turn in trajectory[match_position:]:
-                if check_this_waypoint(tuple_wp_turn):
-                    if RoadOption.LEFT == tuple_wp_turn[1]:
-                        subtype = 'S8left'
-                    else:
-                        subtype = None
-                    break  # Avoid checking all of them
-                subtype = None
-
-        if scenario == 'Scenario9':
-            for tuple_wp_turn in trajectory[match_position:]:
-                if check_this_waypoint(tuple_wp_turn):
-                    if RoadOption.RIGHT == tuple_wp_turn[1]:
-                        subtype = 'S9right'
-                    else:
-                        subtype = None
-                    break  # Avoid checking all of them
-                subtype = None
-
-        return subtype
-
-    @staticmethod
     def scan_route_for_scenarios(route_name, trajectory, world_annotations, scenario_id=None):
         """
             Returns a plain list of possible scenarios that can happen in this route 
@@ -276,9 +199,10 @@ class RouteParser(object):
 
             scenarios = world_annotations[town_name]
             for scenario in scenarios:  # For each existent scenario
-                if "scenario_type" not in scenario:
-                    break
-                scenario_name = scenario["scenario_type"]
+                if "scenario_name" not in scenario:
+                    raise ValueError('Scenario type not found in scenario description')
+
+                scenario_name = scenario["scenario_name"]
                 for event in scenario["available_event_configurations"]:
                     waypoint = event['transform']  # trigger point of this scenario
                     if scenario_id == 0:
@@ -304,16 +228,11 @@ class RouteParser(object):
                         other_vehicles = None
                         if 'other_actors' in event:
                             other_vehicles = event['other_actors']
-                        scenario_subtype = RouteParser.get_scenario_type(scenario_name, match_position, trajectory)
 
-                        # TODO: check trigger location
-                        if scenario_subtype is None:
-                            continue
                         scenario_description = {
                             'name': scenario_name,
                             'other_actors': other_vehicles,
                             'trigger_position': waypoint,
-                            'scenario_type': scenario_subtype,  # some scenarios have route dependent configs
                         }
 
                         trigger_id = RouteParser.check_trigger_position(waypoint, existent_triggers)
@@ -339,10 +258,10 @@ class RouteParser(object):
             scenarios = possible_scenarios[town_name]
             for scenario in scenarios: 
                 # scenario must have scenario type
-                if "scenario_type" not in scenario:
+                if "scenario_name" not in scenario:
                     raise ValueError('Scenario type not found in scenario description')
 
-                scenario_name = scenario["scenario_type"]
+                scenario_name = scenario["scenario_name"]
                 for event in scenario["available_event_configurations"]:
                     waypoint = event['transform']  # trigger point of this scenario
                     if scenario_id == 0:

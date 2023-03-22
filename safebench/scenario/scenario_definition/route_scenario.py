@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-22 17:00:59
+LastEditTime: 2023-03-22 17:57:25
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -298,7 +298,6 @@ class RouteScenario():
             route_config = RouteScenarioConfig()
             route_config.other_actors = list_of_actor_conf_instances
             route_config.trigger_points = [egoactor_trigger_position]
-            #route_config.subtype = definition['scenario_type']
             route_config.parameters = self.config.parameters
             route_config.num_scenario = self.config.num_scenario
             if self.config.weather is not None:
