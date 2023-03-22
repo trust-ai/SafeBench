@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 14:54:19
+LastEditTime: 2023-03-22 17:57:34
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -23,7 +23,7 @@ class HardCodePolicy(BasePolicy):
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
         self.parameters = []
         self.mode = 'eval'
-        self.scenario_type = scenario_config['type_name'].split('.')[0]
+        self.scenario_type = scenario_config['scenario_type']
 
     def train(self, replay_buffer):
         pass

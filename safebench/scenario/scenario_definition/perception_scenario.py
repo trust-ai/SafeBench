@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:34:32
+LastEditTime: 2023-03-22 17:57:21
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -132,7 +132,6 @@ class PerceptionScenario(RouteScenario):
             perception_config = PerceptionScenarioConfig()
             perception_config.other_actors = list_of_actor_conf_instances
             perception_config.trigger_points = [egoactor_trigger_position]
-            #perception_config.subtype = definition['scenario_type']
             perception_config.parameters = self.config.parameters
             perception_config.num_scenario = self.config.num_scenario
             perception_config.texture_dir = self.texture_dir

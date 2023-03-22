@@ -1,7 +1,7 @@
-type_dir: 'safebench/scenario/config/scenario_type'
-# dummy type name
-type_name: 'scenic.json'
-type_category: 'scenic'
+scenario_type_dir: 'safebench/scenario/config/scenario_type'
+scenario_type: 'scenic.json'
+scenario_category: 'scenic'
+policy_type: 'scenic'
 
 scenic_dir: 'safebench/scenario/scenario_data/scenic_data/Carla_Challenge'
 sample_num: 20

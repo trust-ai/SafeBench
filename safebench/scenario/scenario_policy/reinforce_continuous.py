@@ -1,11 +1,15 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:42:00
+LastEditTime: 2023-03-22 17:01:35
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
     This work is licensed under the terms of the MIT license.
     For a copy, see <https://opensource.org/licenses/MIT>
+
+    This file implements the method proposed in paper:
+        Learning to Collide: An Adaptive Safety-Critical Scenarios Generating Method
+        <https://arxiv.org/pdf/2003.01197.pdf>
 '''
 
 import os
@@ -251,6 +255,7 @@ class REINFORCE(BasePolicy):
         return action, additional_info
 
     def load_model(self, scenario_configs=None):
+        assert scenario_configs is not None, 'Scenario configs should be provided for loading model.'
         scenario_id = scenario_configs[0].scenario_id
         model_file = scenario_configs[0].parameters[0]
         self.standard_action_dim = scenario_configs[0].parameters[1]
@@ -258,22 +263,24 @@ class REINFORCE(BasePolicy):
             assert scenario_id == config.scenario_id, 'Scenarios should be the same in a batch.'
             assert model_file == config.parameters[0], 'Model filenames should be the same in a batch.'
             assert self.standard_action_dim == config.parameters[1], 'Action dimensions should be the same in a batch.'
+
+        # TODO: remove this after obtaining new models with consistent action dim
         self.model = CUDA(AutoregressiveModel(self.num_waypoint, self.standard_action_dim))
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
         model_filename = os.path.join(self.model_path, str(scenario_id), model_file)
         if os.path.exists(model_filename):
-            self.logger.log(f'>> Loading LC model from {model_filename}')
+            self.logger.log(f'>> Loading lc model from {model_filename}')
             with open(model_filename, 'rb') as f:
                 checkpoint = torch.load(f)
             self.model.load_state_dict(checkpoint['parameters'])
         else:
-            self.logger.log(f'>> Fail to find LC model from {model_filename}', color='yellow')
+            self.logger.log(f'>> Fail to find lc model from {model_filename}', color='yellow')
 
     def save_model(self, epoch):
         if not os.path.exists(self.model_path):
             self.logger.log(f'>> Creating folder for saving model: {self.model_path}')
             os.makedirs(self.model_path)
         model_filename = os.path.join(self.model_path, f'{self.model_id}.pt')
-        self.logger.log(f'>> Saving LC model to {model_filename}')
+        self.logger.log(f'>> Saving lc model to {model_filename}')
         with open(model_filename, 'wb+') as f:
             torch.save({'parameters': self.model.state_dict()}, f)

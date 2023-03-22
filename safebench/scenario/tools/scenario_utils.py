@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 17:42:44
+LastEditTime: 2023-03-22 17:58:18
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -42,10 +42,10 @@ def scenario_parse(config, logger):
     """
     ROOT_DIR = config['ROOT_DIR']
     logger.log(">> Parsing scenario route and data")
-    list_of_scenario_config = osp.join(ROOT_DIR, config['type_dir'], config['type_name'])
+    list_of_scenario_config = osp.join(ROOT_DIR, config['scenario_type_dir'], config['scenario_type'])
     route_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenario_%02d_routes/scenario_%02d_route_%02d.xml')
     scenario_file_formatter = osp.join(ROOT_DIR, config['route_dir'], 'scenarios/scenario_%02d.json')
-    
+
     # scenario_id, method, route_id, risk_level
     with open(list_of_scenario_config, 'r') as f:
         data_full = json.loads(f.read())

@@ -1,6 +1,7 @@
-type_dir: 'safebench/scenario/config/scenario_type'
-type_name: 'od.json' 
-type_category: 'perception'
+scenario_type_dir: 'safebench/scenario/config/scenario_type'
+scenario_type: 'od.json' 
+scenario_category: 'perception'
+policy_type: 'od'
 save_video: True
 
 route_dir: 'safebench/scenario/scenario_data/route_perception'

@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:34:13
+LastEditTime: 2023-03-22 17:57:25
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -73,15 +73,15 @@ from safebench.scenario.scenario_definition.carla_challenge.junction_crossing_ro
 from safebench.scenario.scenario_definition.carla_challenge.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_carla_challenge
 from safebench.scenario.scenario_definition.carla_challenge.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_carla_challenge
 
-# LC
-from safebench.scenario.scenario_definition.LC.object_crash_vehicle import DynamicObjectCrossing as scenario_03_lc
-from safebench.scenario.scenario_definition.LC.object_crash_intersection import VehicleTurningRoute as scenario_04_lc
-from safebench.scenario.scenario_definition.LC.other_leading_vehicle import OtherLeadingVehicle as scenario_05_lc
-from safebench.scenario.scenario_definition.LC.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_lc
-from safebench.scenario.scenario_definition.LC.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_lc
-from safebench.scenario.scenario_definition.LC.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_lc
-from safebench.scenario.scenario_definition.LC.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_lc
-from safebench.scenario.scenario_definition.LC.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_lc
+# lc
+from safebench.scenario.scenario_definition.lc.object_crash_vehicle import DynamicObjectCrossing as scenario_03_lc
+from safebench.scenario.scenario_definition.lc.object_crash_intersection import VehicleTurningRoute as scenario_04_lc
+from safebench.scenario.scenario_definition.lc.other_leading_vehicle import OtherLeadingVehicle as scenario_05_lc
+from safebench.scenario.scenario_definition.lc.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_lc
+from safebench.scenario.scenario_definition.lc.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_lc
+from safebench.scenario.scenario_definition.lc.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_lc
+from safebench.scenario.scenario_definition.lc.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_lc
+from safebench.scenario.scenario_definition.lc.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_lc
 
 # AdvTraj
 from safebench.scenario.scenario_definition.adv_trajectory.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advtraj
@@ -149,7 +149,7 @@ SCENARIO_CLASS_MAPPING = {
         "Scenario9": scenario_09_carla_challenge,
         "Scenario10": scenario_10_carla_challenge,
     },
-    'LC': {
+    'lc': {
         "Scenario3": scenario_03_lc,
         "Scenario4": scenario_04_lc,
         "Scenario5": scenario_05_lc,
@@ -298,7 +298,6 @@ class RouteScenario():
             route_config = RouteScenarioConfig()
             route_config.other_actors = list_of_actor_conf_instances
             route_config.trigger_points = [egoactor_trigger_position]
-            #route_config.subtype = definition['scenario_type']
             route_config.parameters = self.config.parameters
             route_config.num_scenario = self.config.num_scenario
             if self.config.weather is not None:

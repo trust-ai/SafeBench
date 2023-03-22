@@ -245,7 +245,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario9"
+                    "scenario_name": "Scenario9"
                 }
             ],
             "Town02": [
@@ -412,7 +412,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario9"
+                    "scenario_name": "Scenario9"
                 }
             ],
             "Town03": [
@@ -1216,7 +1216,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario9"
+                    "scenario_name": "Scenario9"
                 }
             ],
             "Town04": [
@@ -1890,7 +1890,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario9"
+                    "scenario_name": "Scenario9"
                 }
             ],
             "Town05": [
@@ -4222,7 +4222,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario9"
+                    "scenario_name": "Scenario9"
                 }
             ],
             "Town06": [
@@ -4605,7 +4605,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario9"
+                    "scenario_name": "Scenario9"
                 }
             ]
         }

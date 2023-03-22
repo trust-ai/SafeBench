@@ -53,7 +53,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario_Vehicle"
+                    "scenario_name": "Scenario_Vehicle"
                 }
             ]
         }

@@ -1,6 +1,6 @@
 '''
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-09 17:06:26
+LastEditTime: 2023-03-22 17:14:37
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -99,14 +99,17 @@ class RouteReplayBuffer:
         start_idx = np.max([0, num_trajectory - self.buffer_capacity]) 
 
         # select up-to-date samples from buffer
-        prepared_init_action =  self.buffer_init_action[start_idx:]
+        prepared_static_obs = self.buffer_static_obs[start_idx:]
+        prepared_init_action = self.buffer_init_action[start_idx:]
         prepared_episode_reward = self.buffer_episode_reward[start_idx:]
 
         # sample action and episode reward
         sample_index = np.random.randint(0, len(prepared_init_action), size=batch_size)
+        static_obs = np.concatenate(prepared_static_obs, axis=0)[sample_index]
         init_action = np.concatenate(prepared_init_action, axis=0)[sample_index]
         episode_reward = np.array(prepared_episode_reward)[sample_index]
         batch = {
+            'static_obs': static_obs,
             'init_action': init_action,
             'episode_reward': episode_reward,
         }

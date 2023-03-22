@@ -4,13 +4,13 @@
             "Town01": [
                 {
                     "available_event_configurations": [],
-                    "scenario_type": "Scenario10"
+                    "scenario_name": "Scenario10"
                 }
             ],
             "Town02": [
                 {
                     "available_event_configurations": [],
-                    "scenario_type": "Scenario10"
+                    "scenario_name": "Scenario10"
                 }
             ],
             "Town03": [
@@ -660,7 +660,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario10"
+                    "scenario_name": "Scenario10"
                 }
             ],
             "Town04": [
@@ -827,7 +827,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario10"
+                    "scenario_name": "Scenario10"
                 }
             ],
             "Town05": [
@@ -1519,13 +1519,13 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario10"
+                    "scenario_name": "Scenario10"
                 }
             ],
             "Town06": [
                 {
                     "available_event_configurations": [],
-                    "scenario_type": "Scenario10"
+                    "scenario_name": "Scenario10"
                 }
             ]
         }

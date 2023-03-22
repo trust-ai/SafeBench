@@ -17,7 +17,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "Scenario_Ped"
+                    "scenario_name": "Scenario_Ped"
                 }
             ]
         }
