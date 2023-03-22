@@ -1,5 +1,5 @@
 scenario_type_dir: 'safebench/scenario/config/scenario_type'
-scenario_name: 'od.json' 
+scenario_type: 'od.json' 
 scenario_category: 'perception'
 policy_type: od
 save_video: True

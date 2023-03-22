@@ -1,5 +1,5 @@
 scenario_type_dir: 'safebench/scenario/config/scenario_type'
-scenario_name: 'scenic.json'
+scenario_type: 'scenic.json'
 scenario_category: 'scenic'
 policy_type: 'scenic'
 

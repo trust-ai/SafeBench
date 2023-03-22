@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-08 14:14:51
+LastEditTime: 2023-03-22 17:35:21
 Description: 
 '''
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     # main entry with a selected mode
     agent_config.update(args_dict)
     scenario_config.update(args_dict)
-    if scenario_config['type_category'] == 'scenic':
+    if scenario_config['scenario_type'] == 'scenic':
         from safebench.scenic_runner import ScenicRunner
         assert scenario_config['num_scenario'] == 1, 'the num_scenario can only be one for scenic now'
         runner = ScenicRunner(agent_config, scenario_config)

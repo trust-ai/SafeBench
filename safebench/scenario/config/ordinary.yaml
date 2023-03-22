@@ -1,5 +1,5 @@
 scenario_type_dir: 'safebench/scenario/config/scenario_type'
-scenario_name: 'ordinary.json'
+scenario_type: 'ordinary.json'
 scenario_category: 'planning'
 policy_type: 'ordinary'
 
