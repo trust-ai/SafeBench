@@ -104,6 +104,7 @@ class CarlaRunner:
             self.train_episode = scenario_config['train_episode']
             self.logger.save_config(scenario_config)
         elif self.mode == 'eval':
+            self.save_freq = scenario_config['save_freq']
             self.logger.log('>> Evaluation Mode, skip config saving', 'yellow')
             self.logger.create_eval_dir(load_existing_results=True)
         else:
@@ -277,7 +278,8 @@ class CarlaRunner:
             all_scores = score_function(self.env.running_results)
             self.logger.add_eval_results(all_scores, self.env.running_results)
             self.logger.print_eval_results()
-            self.logger.save_eval_results()
+            if len(self.env.running_results) % self.save_freq == 0:
+                self.logger.save_eval_results()
 
     def run(self):
         # get scenario data of different maps
