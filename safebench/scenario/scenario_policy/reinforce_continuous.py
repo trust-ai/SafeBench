@@ -91,22 +91,25 @@ class IndependantModel(nn.Module):
 
 
 class AutoregressiveModel(nn.Module):
-    def __init__(self, num_waypoint=20):
+    def __init__(self, num_waypoint=30, standard_action_dim=True):
         super(AutoregressiveModel, self).__init__()
+        self.standard_action_dim = standard_action_dim
         input_size = num_waypoint*2 + 1
         hidden_size_1 = 32
 
         self.a_os = 1
         self.b_os = 1
         self.c_os = 1
-        self.d_os = 1
+        if self.standard_action_dim:
+            self.d_os = 1
 
         self.relu = nn.ReLU()
         self.fc_input = nn.Sequential(nn.Linear(input_size, hidden_size_1))
         self.fc_action_a = nn.Sequential(nn.Linear(hidden_size_1, self.a_os*2))
         self.fc_action_b = nn.Sequential(nn.Linear(1+hidden_size_1, self.b_os*2))
         self.fc_action_c = nn.Sequential(nn.Linear(1+1+hidden_size_1, self.c_os*2))
-        self.fc_action_d = nn.Sequential(nn.Linear(1+1+1+hidden_size_1, self.d_os*2))
+        if self.standard_action_dim:
+            self.fc_action_d = nn.Sequential(nn.Linear(1+1+1+hidden_size_1, self.d_os*2))
 
     def sample_action(self, normal_action, action_os):
         # get the mu and sigma
@@ -138,14 +141,20 @@ class AutoregressiveModel(nn.Module):
         action_c, mu_c, sigma_c = self.sample_action(normal_c, self.c_os)
 
         # p(d|a,b,c,s)
-        state_sample_a_b_c = torch.cat((s, mu_a, mu_b, mu_c), dim=1) if determinstic else torch.cat((s, action_a, action_b, action_c), dim=1)
-        normal_d = self.fc_action_d(state_sample_a_b_c)
-        action_d, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
+        if self.standard_action_dim:
+            state_sample_a_b_c = torch.cat((s, mu_a, mu_b, mu_c), dim=1) if determinstic else torch.cat((s, action_a, action_b, action_c), dim=1)
+            normal_d = self.fc_action_d(state_sample_a_b_c)
+            action_d, mu_d, sigma_d = self.sample_action(normal_d, self.d_os)
 
         # concate
-        action = torch.cat((action_a, action_b, action_c, action_d), dim=1) # [B, 4]
-        mu = torch.cat((mu_a, mu_b, mu_c, mu_d), dim=1)                     # [B, 4]
-        sigma = torch.cat((sigma_a, sigma_b, sigma_c, sigma_d), dim=1)      # [B, 4]
+        if self.standard_action_dim:
+            action = torch.cat((action_a, action_b, action_c, action_d), dim=1) # [B, 4]
+            mu = torch.cat((mu_a, mu_b, mu_c, mu_d), dim=1)                     # [B, 4]
+            sigma = torch.cat((sigma_a, sigma_b, sigma_c, sigma_d), dim=1)      # [B, 4]
+        else:
+            action = torch.cat((action_a, action_b, action_c), dim=1)           # [B, 3]
+            mu = torch.cat((mu_a, mu_b, mu_c), dim=1)                           # [B, 3]
+            sigma = torch.cat((sigma_a, sigma_b, sigma_c), dim=1)               # [B, 3]
         return mu, sigma, action
 
 
@@ -161,10 +170,12 @@ class REINFORCE(BasePolicy):
         self.batch_size = scenario_config['batch_size']
         self.model_path = os.path.join(scenario_config['ROOT_DIR'], scenario_config['model_path'])
         self.model_id = scenario_config['model_id']
+        self.lr = scenario_config['lr']
         self.entropy_weight = 0.0001
 
+        self.standard_action_dim = True
         self.model = CUDA(AutoregressiveModel(self.num_waypoint))
-        self.optimizer = optim.Adam(self.model.parameters(), lr=scenario_config['lr'])
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
     def train(self, replay_buffer):
         if replay_buffer.init_buffer_len < self.batch_size:
@@ -239,15 +250,24 @@ class REINFORCE(BasePolicy):
         additional_info = {'log_prob': log_prob, 'entropy': entropy}
         return action, additional_info
 
-    def load_model(self):
-        model_filename = os.path.join(self.model_path, f'{self.model_id}.pt')
+    def load_model(self, scenario_configs=None):
+        scenario_id = scenario_configs[0].scenario_id
+        model_file = scenario_configs[0].parameters[0]
+        self.standard_action_dim = scenario_configs[0].parameters[1]
+        for config in scenario_configs:
+            assert scenario_id == config.scenario_id, 'Scenarios should be the same in a batch.'
+            assert model_file == config.parameters[0], 'Model filenames should be the same in a batch.'
+            assert self.standard_action_dim == config.parameters[1], 'Action dimensions should be the same in a batch.'
+        self.model = CUDA(AutoregressiveModel(self.num_waypoint, self.standard_action_dim))
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
+        model_filename = os.path.join(self.model_path, str(scenario_id), model_file)
         if os.path.exists(model_filename):
             self.logger.log(f'>> Loading LC model from {model_filename}')
             with open(model_filename, 'rb') as f:
                 checkpoint = torch.load(f)
             self.model.load_state_dict(checkpoint['parameters'])
         else:
-            self.logger.log(f'>> Fail to find LC model from {self.model_path}', color='yellow')
+            self.logger.log(f'>> Fail to find LC model from {model_filename}', color='yellow')
 
     def save_model(self, epoch):
         if not os.path.exists(self.model_path):

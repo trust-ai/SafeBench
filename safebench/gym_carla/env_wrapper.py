@@ -75,7 +75,7 @@ class VectorWrapper():
         self.running_results = {}
         
         # store scenario id
-        for s_i in range(self.num_scenario):
+        for s_i in range(len(scenario_configs)):
             info_list[s_i].update({'scenario_id': s_i})
 
         # return obs

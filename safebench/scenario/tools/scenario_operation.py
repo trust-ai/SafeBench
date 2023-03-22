@@ -35,7 +35,8 @@ class ScenarioOperation(object):
         else:
             for i in range(len(actor_type_list)):
                 actor = CarlaDataProvider.request_new_actor(actor_type_list[i], actor_transform_list[i])
-                actor.set_simulate_physics(enabled=True)
+                if actor is not None:
+                    actor.set_simulate_physics(enabled=True)
                 other_actor_list.append(actor)
 
         self.other_actors = other_actor_list
