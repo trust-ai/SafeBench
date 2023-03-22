@@ -10,18 +10,57 @@ Description:
 
 import numpy as np
 from safebench.util.torch_util import set_seed
+from safebench.scenario.tools.route_manipulation import interpolate_trajectory
+
+
+def calculate_interpolate_trajectory(config, world):
+    # get route
+    origin_waypoints_loc = []
+    for loc in config.trajectory:
+        origin_waypoints_loc.append(loc)
+    route = interpolate_trajectory(world, origin_waypoints_loc, 5.0)
+
+    # get [x, y] along the route
+    waypoint_xy = []
+    for transform_tuple in route:
+        waypoint_xy.append([transform_tuple[0].location.x, transform_tuple[0].location.y])
+
+    return waypoint_xy
+
+
+def check_route_overlap(current_routes, route, distance_threshold=10):
+    overlap = False
+    for current_route in current_routes:
+        for current_waypoint in current_route:
+            for waypoint in route:
+                distance = np.linalg.norm([current_waypoint[0] - waypoint[0], current_waypoint[1] - waypoint[1]])
+                if distance < distance_threshold:
+                    overlap = True
+                    return overlap
+
+    return overlap
+
 
 class ScenarioDataLoader:
-    def __init__(self, config_lists, num_scenario):
+    def __init__(self, config_lists, num_scenario, town, world):
         self.num_scenario = num_scenario
         self.config_lists = config_lists
+        self.town = town.lower()
+        self.world = world
+        self.routes = []
+
+        # If using CARLA maps, manually check overlaps
+        if 'safebench' not in self.town:
+            for config in config_lists:
+                self.routes.append(calculate_interpolate_trajectory(config, world))
+
         self.num_total_scenario = len(config_lists)
         self.reset_idx_counter()
 
     def reset_idx_counter(self):
         self.scenario_idx = list(range(self.num_total_scenario))
 
-    def _select_non_overlap_idx(self, remaining_ids, sample_num):
+    def _select_non_overlap_idx_safebench(self, remaining_ids, sample_num):
         selected_idx = []
         current_regions = []
         for s_i in remaining_ids:
@@ -32,6 +71,25 @@ class ScenarioDataLoader:
             if len(selected_idx) >= sample_num:
                 break
         return selected_idx
+
+    def _select_non_overlap_idx_carla(self, remaining_ids, sample_num):
+        selected_idx = []
+        selected_routes = []
+        for s_i in remaining_ids:
+            if not check_route_overlap(selected_routes, self.routes[s_i]):
+                selected_idx.append(s_i)
+                selected_routes.append(self.routes[s_i])
+            if len(selected_idx) >= sample_num:
+                break
+        return selected_idx
+
+    def _select_non_overlap_idx(self, remaining_ids, sample_num):
+        if 'safebench' in self.town:
+            # If using SafeBench map, check overlap based on regions
+            return self._select_non_overlap_idx_safebench(remaining_ids, sample_num)
+        else:
+            # If using CARLA maps, manually check overlaps
+            return self._select_non_overlap_idx_carla(remaining_ids, sample_num)
 
     def __len__(self):
         return len(self.scenario_idx)

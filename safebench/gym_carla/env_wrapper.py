@@ -45,10 +45,10 @@ class VectorWrapper():
     def get_ego_vehicles(self):
         ego_vehicles = []
         for env in self.env_list:
-            if env.ego_vehicle is None:
-                self.logger.log('>> Ego vehicle is None. Please call reset() first.', 'red')
-                raise Exception()
-            ego_vehicles.append(env.ego_vehicle)
+            if env.ego_vehicle is not None:
+                # self.logger.log('>> Ego vehicle is None. Please call reset() first.', 'red')
+                # raise Exception()
+                ego_vehicles.append(env.ego_vehicle)
         return ego_vehicles
 
     def get_static_obs(self, scenario_configs):
@@ -135,11 +135,11 @@ class VectorWrapper():
             pygame.display.flip()
         return self.obs_postprocess(obs_list), rewards, dones, infos
 
-    def sample_action_space(self):
-        action = []
-        for action_space in self.action_space_list:
-            action.append(action_space.sample())
-        return np.array(action)
+    # def sample_action_space(self):
+    #     action = []
+    #     for action_space in self.action_space_list:
+    #         action.append(action_space.sample())
+    #     return np.array(action)
 
     def all_scenario_done(self):
         if np.sum(self.finished_env) == self.num_scenario:

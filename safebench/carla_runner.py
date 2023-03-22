@@ -293,7 +293,7 @@ class CarlaRunner:
             self.env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
 
             # prepare data loader and buffer
-            data_loader = ScenarioDataLoader(config_by_map[m_i], self.num_scenario)
+            data_loader = ScenarioDataLoader(config_by_map[m_i], self.num_scenario, m_i, self.world)
 
             # run with different modes
             if self.mode == 'eval':

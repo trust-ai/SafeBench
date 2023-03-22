@@ -178,7 +178,7 @@ class Logger:
     def add_eval_results(self, results, records=None):
         self.eval_results.update(results)
         if records is not None:
-            self.eval_records = records
+            self.eval_records.update(records)
 
     def save_eval_results(self):
         self.log(f'>> Saving evaluation results to {self.result_file}')

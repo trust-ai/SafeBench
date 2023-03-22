@@ -34,7 +34,7 @@ class CarlaBehaviorAgent(BasePolicy):
     def set_ego_and_route(self, ego_vehicles, info):
         self.ego_vehicles = ego_vehicles
         self.controller_list = []
-        for e_i in range(self.num_scenario):
+        for e_i in range(len(ego_vehicles)):
             controller = BehaviorAgent(self.ego_vehicles[e_i], behavior=self.behavior)
             dest_waypoint = info[e_i]['route_waypoints'][-1]
             location = dest_waypoint.transform.location
