@@ -33,5 +33,5 @@ class DummyPolicy(BasePolicy):
     def get_init_action(self, scenario_config, deterministic=False):
         return [None] * self.num_scenario, None
 
-    def load_model(self):
+    def load_model(self, scenario_configs=None):
         return None

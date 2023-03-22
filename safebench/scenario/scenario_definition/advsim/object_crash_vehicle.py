@@ -32,51 +32,35 @@ class DynamicObjectCrossing(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, adversary_type=False, timeout=60):
+    def __init__(self, world, ego_vehicle, config, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
-        self._wmap = CarlaDataProvider.get_map()
+        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing-AdvSim", config, world)
+        self.ego_vehicle = ego_vehicle
+        self.timeout = timeout
 
-        self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
-        # ego vehicle parameters
-        # self._ego_vehicle_distance_driven = 40
+        self._map = CarlaDataProvider.get_map()
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
+
         # other vehicle parameters
         self._other_actor_target_velocity = 2.5
-        # self._other_actor_max_brake = 1.0
-        # self._time_to_reach = 10
-        self._adversary_type = adversary_type  # flag to select either pedestrian (False) or cyclist (True)
-        # self._walker_yaw = 0
         self._num_lane_changes = 1
+
         # Note: transforms for walker and blocker
         self.transform = None
         self.transform2 = None
-        self.timeout = timeout
         self._trigger_location = config.trigger_points[0].location
-        # Total Number of attempts to relocate a vehicle before spawning
-        self._number_of_attempts = 20
-        # Number of attempts made so far
-        self._spawn_attempted = 0
+        self._number_of_attempts = 20  # Total Number of attempts to relocate a vehicle before spawning
+        self._spawn_attempted = 0  # Number of attempts made so far
 
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
-
-        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossingDynamic",
-                                                    ego_vehicles,
-                                                    config,
-                                                    world,
-                                                    debug_mode,
-                                                    criteria_enable=criteria_enable)
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
+        self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 20
-        self.actor_type_list.append('walker.*')
-        self.actor_type_list.append('static.prop.vendingmachine')
         self.ego_max_driven_distance = 150
+        self.actor_type_list = ['walker.*', 'static.prop.vendingmachine']
 
         self.step = 0
-        with open(config.parameters, 'r') as f:
-            parameters = json.load(f)
-        self.control_seq = parameters
-        # print(self.control_seq)
+        self.control_seq = []
         self._other_actor_max_velocity = self._other_actor_target_velocity * 2
 
     def _calculate_base_transform(self, _start_distance, waypoint):
@@ -90,7 +74,7 @@ class DynamicObjectCrossing(BasicScenario):
             stop_at_junction = True
 
         location, _ = get_location_in_distance_from_wp(waypoint, _start_distance, stop_at_junction)
-        waypoint = self._wmap.get_waypoint(location)
+        waypoint = self._map.get_waypoint(location)
         offset = {"orientation": 270, "position": 90, "z": 0.6, "k": 1.0}
         position_yaw = waypoint.transform.rotation.yaw + offset['position']
         orientation_yaw = waypoint.transform.rotation.yaw + offset['orientation']
@@ -114,13 +98,12 @@ class DynamicObjectCrossing(BasicScenario):
         y_cycle = transform.location.y
         x_static = x_ego + shift * (x_cycle - x_ego)
         y_static = y_ego + shift * (y_cycle - y_ego)
-        spawn_point_wp = self.ego_vehicles[0].get_world().get_map().get_waypoint(transform.location)
+        spawn_point_wp = self.ego_vehicle.get_world().get_map().get_waypoint(transform.location)
 
         #Note: if need to change tranform for blocker, here
         self.transform2 = carla.Transform(carla.Location(x_static, y_static,
                                                          spawn_point_wp.transform.location.z + 0.3),
                                           carla.Rotation(yaw=orientation_yaw + 180))
-
 
     def initialize_actors(self):
         """
@@ -177,24 +160,19 @@ class DynamicObjectCrossing(BasicScenario):
                            self.transform2.location.z),
             self.transform2.rotation)
 
-        self.other_actor_transform.append(disp_transform)
-        self.other_actor_transform.append(prop_disp_transform)
-
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
+        self.actor_transform_list = [disp_transform, prop_disp_transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
         self.reference_actor = self.other_actors[0]
 
-
-
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
         """
         the walker starts crossing the road
         """
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
         current_velocity = self.control_seq[self.step if self.step < len(self.control_seq) else -1] * self._other_actor_max_velocity
         self.step += 1
         self.scenario_operation.walker_go_straight(current_velocity, 0)
-        # print(self.step, current_velocity, CarlaDataProvider.get_velocity(self.other_actors[0]))
-        # print(self.other_actors[0].get_velocity())
 
     def check_stop_condition(self):
         """
@@ -207,5 +185,5 @@ class DynamicObjectCrossing(BasicScenario):
             return True
         return False
 
-    def _create_behavior(self):
-        pass
+    def create_behavior(self, scenario_init_action):
+        self.control_seq = scenario_init_action

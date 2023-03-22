@@ -26,56 +26,34 @@ class ManeuverOppositeDirection(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True, obstacle_type='vehicle', timeout=60):
+    def __init__(self, world, ego_vehicle, config, timeout=60):
         """
         Setup all relevant parameters and create scenario
         obstacle_type -> flag to select type of leading obstacle. Values: vehicle, barrier
         """
-        self._world = world
-        self._map = CarlaDataProvider.get_map()
-        self._first_vehicle_location = 50
-        self._second_vehicle_location = self._first_vehicle_location + 30
-        # self._ego_vehicle_drive_distance = self._second_vehicle_location * 2
-        # self._start_distance = self._first_vehicle_location * 0.9
-        self._opposite_speed = 8   # m/s
-        # self._source_gap = 40   # m
-        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
-        # self._source_transform = None
-        # self._sink_location = None
-        # self._blackboard_queue_name = 'ManeuverOppositeDirection/actor_flow_queue'
-        self._obstacle_type = obstacle_type
-        self._first_actor_transform = None
-        self._second_actor_transform = None
-        # self._third_actor_transform = None
-        # Timeout of scenario in seconds
+        super(ManeuverOppositeDirection, self).__init__("ManeuverOppositeDirection-AdvSim", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
-        # self.first_actor_speed = 0
-        # self.second_actor_speed = 30
+        self._map = CarlaDataProvider.get_map()
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
 
-        super(ManeuverOppositeDirection, self).__init__(
-            "ManeuverOppositeDirection",
-            ego_vehicles,
-            config,
-            world,
-            debug_mode,
-            criteria_enable=criteria_enable)
+        self._first_vehicle_location = 50
+        self._second_vehicle_location = self._first_vehicle_location + 30
+        self._opposite_speed = 8   # m/s
+        self._first_actor_transform = None
+        self._second_actor_transform = None
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
+        self.scenario_operation = ScenarioOperation()
 
-        self.actor_type_list.append('vehicle.nissan.micra')
-        self.actor_type_list.append('vehicle.nissan.micra')
-        # self.actor_type_list.append('vehicle.nissan.patrol')
+        self.actor_type_list = ['vehicle.nissan.micra', 'vehicle.nissan.micra']
 
         self.reference_actor = None
         self.trigger_distance_threshold = 45
         self.ego_max_driven_distance = 200
 
         self.step = 0
-        with open(config.parameters, 'r') as f:
-            parameters = json.load(f)
-        self.control_seq = parameters
-        # print(self.control_seq)
+        self.control_seq = []
         self._other_actor_max_velocity = self._opposite_speed * 2
 
 
@@ -91,30 +69,23 @@ class ManeuverOppositeDirection(BasicScenario):
             first_actor_waypoint.transform.location,
             first_actor_waypoint.transform.rotation)
 
-        self.other_actor_transform.append(first_actor_transform)
-
-        self.other_actor_transform.append(second_actor_waypoint.transform)
-
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
+        self.actor_transform_list = [first_actor_transform, second_actor_waypoint.transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
         self.reference_actor = self.other_actors[0]
 
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
         """
         first actor run in low speed
         second actor run in normal speed from oncoming route
         """
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
         current_velocity = self.control_seq[self.step if self.step < len(self.control_seq) else -1] * self._other_actor_max_velocity
         self.step += 1
         self.scenario_operation.go_straight(current_velocity, 1)
-        # print(self.step, current_velocity, CarlaDataProvider.get_velocity(self.other_actors[1]))
-        # print(self.other_actors[1].get_velocity())
 
-
-
-    def _create_behavior(self):
-        pass
+    def create_behavior(self, scenario_init_action):
+        self.control_seq = scenario_init_action
 
     def check_stop_condition(self):
         pass

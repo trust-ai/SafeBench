@@ -106,15 +106,18 @@ class VehicleTurningRoute(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
+    def __init__(self, world, ego_vehicle, config, timeout=60):
         """
         Setup all relevant parameters and create scenario
         """
-        self._wmap = CarlaDataProvider.get_map()
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-AdvSim", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
+
+        self._map = CarlaDataProvider.get_map()
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
+
         self._other_actor_target_velocity = 10
-        self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
         self._trigger_location = config.trigger_points[0].location
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
@@ -122,27 +125,16 @@ class VehicleTurningRoute(BasicScenario):
 
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRouteDynamic",
-                                                  ego_vehicles,
-                                                  config,
-                                                  world,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable,
-                                                  terminate_on_failure=True)
+        self.scenario_operation = ScenarioOperation()
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-
-        self.actor_type_list.append('vehicle.diamondback.century')
+        self.actor_type_list = ['vehicle.diamondback.century']
 
         self.reference_actor = None
         self.trigger_distance_threshold = 17
         self.ego_max_driven_distance = 180
 
         self.step = 0
-        with open(config.parameters, 'r') as f:
-            parameters = json.load(f)
-        self.control_seq = parameters
-        # print(self.control_seq)
+        self.control_seq = []
         self._other_actor_max_velocity = self._other_actor_target_velocity * 2
 
     def initialize_actors(self):
@@ -162,19 +154,18 @@ class VehicleTurningRoute(BasicScenario):
 
         _other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
 
-        self.other_actor_transform.append(_other_actor_transform)
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
+        self.actor_transform_list = [_other_actor_transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
         """Also need to specify reference actor"""
         self.reference_actor = self.other_actors[0]
 
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
         current_velocity = self.control_seq[self.step if self.step < len(self.control_seq) else -1] * self._other_actor_max_velocity
         self.step += 1
         for i in range(len(self.other_actors)):
             self.scenario_operation.go_straight(current_velocity, i)
-            # print(self.step, current_velocity)
-            # print(i, CarlaDataProvider.get_velocity(self.other_actors[i]), self.other_actors[i].get_velocity())
 
     def check_stop_condition(self):
         """
@@ -183,6 +174,5 @@ class VehicleTurningRoute(BasicScenario):
 
         return False
 
-
-    def _create_behavior(self):
-        pass
+    def create_behavior(self, scenario_init_action):
+        self.control_seq = scenario_init_action

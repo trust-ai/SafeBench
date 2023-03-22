@@ -72,7 +72,6 @@ class VectorWrapper():
         self.finished_env = [False] * self.num_scenario
         for s_i in range(len(scenario_configs), self.num_scenario):
             self.finished_env[s_i] = True
-        self.running_results = {}
         
         # store scenario id
         for s_i in range(len(scenario_configs)):

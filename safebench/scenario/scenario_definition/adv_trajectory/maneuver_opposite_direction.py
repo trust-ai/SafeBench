@@ -27,58 +27,36 @@ class ManeuverOppositeDirection(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 obstacle_type='vehicle', timeout=120):
+    def __init__(self, world, ego_vehicle, config, timeout=120):
         """
         Setup all relevant parameters and create scenario
         obstacle_type -> flag to select type of leading obstacle. Values: vehicle, barrier
         """
-        self._world = world
-        self._map = CarlaDataProvider.get_map()
-        self._first_vehicle_location = 50
-        self._second_vehicle_location = self._first_vehicle_location + 20
-        # self._ego_vehicle_drive_distance = self._second_vehicle_location * 2
-        # self._start_distance = self._first_vehicle_location * 0.9
-        self._opposite_speed = 30   # m/s
-        # self._source_gap = 40   # m
-        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
-        # self._source_transform = None
-        # self._sink_location = None
-        # self._blackboard_queue_name = 'ManeuverOppositeDirection/actor_flow_queue'
-        self._obstacle_type = obstacle_type
-        self._first_actor_transform = None
-        self._second_actor_transform = None
-        # self._third_actor_transform = None
-        # Timeout of scenario in seconds
+        super(ManeuverOppositeDirection, self).__init__("ManeuverOppositeDirection-AdvTraj", config, world)
+        self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
-        # self.first_actor_speed = 0
-        # self.second_actor_speed = 30
+        self._map = CarlaDataProvider.get_map()
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
 
-        super(ManeuverOppositeDirection, self).__init__(
-            "ManeuverOppositeDirection",
-            ego_vehicles,
-            config,
-            world,
-            debug_mode,
-            criteria_enable=criteria_enable)
+        self._first_vehicle_location = 50
+        self._second_vehicle_location = self._first_vehicle_location + 20
+        self._opposite_speed = 30   # m/s
+        self._first_actor_transform = None
+        self._second_actor_transform = None
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
+        self.scenario_operation = ScenarioOperation()
 
-        self.actor_type_list.append('vehicle.nissan.micra')
-        self.actor_type_list.append('vehicle.nissan.micra')
-        # self.actor_type_list.append('vehicle.nissan.patrol')
+        self.actor_type_list = ['vehicle.nissan.micra', 'vehicle.nissan.micra']
 
         self.reference_actor = None
         self.trigger_distance_threshold = 45
         self.ego_max_driven_distance = 200
 
         self.step = 0
-        with open(config.parameters, 'r') as f:
-            parameters = json.load(f)
-        self.control_seq = [(control * 2 - 1) * 2 for control in parameters]
+        self.control_seq = []
         self.total_steps = len(self.control_seq)
-        self.actor_transform_list = []
+        self.planned_actor_transform_list = []
         self.perturbed_actor_transform_list = []
         self.running_distance = 50
 
@@ -95,49 +73,39 @@ class ManeuverOppositeDirection(BasicScenario):
             first_actor_waypoint.transform.location,
             first_actor_waypoint.transform.rotation)
 
-        self.other_actor_transform.append(first_actor_transform)
-
-        self.other_actor_transform.append(second_actor_waypoint.transform)
-
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
+        self.actor_transform_list = [first_actor_transform, second_actor_waypoint.transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
 
         self.reference_actor = self.other_actors[0]
 
-        forward_vector = self.other_actor_transform[1].rotation.get_forward_vector() * self.running_distance
-        right_vector = self.other_actor_transform[1].rotation.get_right_vector()
+        forward_vector = self.actor_transform_list[1].rotation.get_forward_vector() * self.running_distance
+        right_vector = self.actor_transform_list[1].rotation.get_right_vector()
         self.other_actor_final_transform = carla.Transform(
-            self.other_actor_transform[1].location,
-            self.other_actor_transform[1].rotation)
+            self.actor_transform_list[1].location,
+            self.actor_transform_list[1].rotation)
         self.other_actor_final_transform.location += forward_vector
         for i in range(self.total_steps):
-            self.actor_transform_list.append(carla.Transform(
-                carla.Location(self.other_actor_transform[1].location + forward_vector * i / self.total_steps),
-                self.other_actor_transform[1].rotation))
+            self.planned_actor_transform_list.append(carla.Transform(
+                carla.Location(self.actor_transform_list[1].location + forward_vector * i / self.total_steps),
+                self.actor_transform_list[1].rotation))
         for i in range(self.total_steps):
             self.perturbed_actor_transform_list.append(carla.Transform(
-                carla.Location(self.actor_transform_list[i].location + right_vector * self.control_seq[i]),
-                self.other_actor_transform[1].rotation))
+                carla.Location(self.planned_actor_transform_list[i].location + right_vector * self.control_seq[i]),
+                self.actor_transform_list[1].rotation))
 
-        # print('other_actor_transform')
-        # for i in self.other_actor_transform:
-        #     print(i)
-        # print('perturbed_actor_transform_list')
-        # for i in self.perturbed_actor_transform_list:
-        #     print(i)
-
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
         """
         first actor run in low speed
         second actor run in normal speed from oncoming route
         """
-        # print(self.step)
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
         target_transform = self.perturbed_actor_transform_list[self.step if self.step < self.total_steps else -1]
         self.step += 1  # <= 50 steps
         self.scenario_operation.drive_to_target_followlane(1, target_transform, self._opposite_speed)
 
-    def _create_behavior(self):
-        pass
+    def create_behavior(self, scenario_init_action):
+        self.control_seq = [(control * 2 - 1) * 2 for control in scenario_init_action]
+        self.total_steps = len(self.control_seq)
 
     def check_stop_condition(self):
         pass

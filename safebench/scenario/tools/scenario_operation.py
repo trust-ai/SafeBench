@@ -31,7 +31,7 @@ class ScenarioOperation(object):
     def initialize_vehicle_actors(self, actor_transform_list, actor_type_list):
         other_actor_list = []
         if len(actor_type_list) != len(actor_transform_list):
-            print("Error caused by length match")
+            print("Error caused by length match:", len(actor_type_list), len(actor_transform_list))
         else:
             for i in range(len(actor_type_list)):
                 actor = CarlaDataProvider.request_new_actor(actor_type_list[i], actor_transform_list[i])

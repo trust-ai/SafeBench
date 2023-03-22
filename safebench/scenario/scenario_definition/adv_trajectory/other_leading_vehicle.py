@@ -31,40 +31,32 @@ class OtherLeadingVehicle(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=80):
+    def __init__(self, world, ego_vehicle, config, timeout=80):
         """
         Setup all relevant parameters and create scenario
         """
-        self._world = world
+        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle-AdvTraj", config, world)
+        self.ego_vehicle = ego_vehicle
+        self.timeout = timeout
+
         self._map = CarlaDataProvider.get_map()
+        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._first_vehicle_location = 35
         self._second_vehicle_location = self._first_vehicle_location + 1
         self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
         self._first_vehicle_speed = 12
         self._second_vehicle_speed = 12
-        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._first_actor_transform = None
         self._second_actor_transform = None
-        # Timeout of scenario in seconds
-        self.timeout = timeout
 
         self.dece_distance = 2
         self.dece_target_speed = 3  # 3 will be safe
 
         self.need_decelerate = False
 
-        super(OtherLeadingVehicle, self).__init__("VehicleDeceleratingInMultiLaneSetUpDynamic",
-                                                  ego_vehicles,
-                                                  config,
-                                                  world,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable)
-
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.actor_type_list.append('vehicle.nissan.patrol')
-        self.actor_type_list.append('vehicle.audi.tt')
+        self.scenario_operation = ScenarioOperation()
+        self.actor_type_list = ['vehicle.nissan.patrol', 'vehicle.audi.tt']
         self.trigger_distance_threshold = 35
         self.other_actor_speed = []
         self.other_actor_speed.append(self._first_vehicle_speed)
@@ -72,11 +64,9 @@ class OtherLeadingVehicle(BasicScenario):
         self.ego_max_driven_distance = 200
 
         self.step = 0
-        with open(config.parameters, 'r') as f:
-            parameters = json.load(f)
-        self.control_seq = [(control * 2 - 1) * 2 for control in parameters]
+        self.control_seq = []
         self.total_steps = len(self.control_seq)
-        self.actor_transform_list = []
+        self.planned_actor_transform_list = []
         self.perturbed_actor_transform_list = []
         self.running_distance = 50
 
@@ -89,9 +79,8 @@ class OtherLeadingVehicle(BasicScenario):
         second_vehicle_transform = carla.Transform(second_vehicle_waypoint.transform.location,
                                                    second_vehicle_waypoint.transform.rotation)
 
-        self.other_actor_transform.append(first_vehicle_transform)
-        self.other_actor_transform.append(second_vehicle_transform)
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
+        self.actor_transform_list = [first_vehicle_transform, second_vehicle_transform]
+        self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
         # self.reference_actor = self.other_actors[1]
         self.reference_actor = self.other_actors[0]
 
@@ -106,44 +95,35 @@ class OtherLeadingVehicle(BasicScenario):
             self._first_actor_transform.rotation)
         self.other_actor_final_transform.location += forward_vector
         for i in range(self.total_steps):
-            self.actor_transform_list.append(carla.Transform(
+            self.planned_actor_transform_list.append(carla.Transform(
                 carla.Location(self._first_actor_transform.location + forward_vector * i / self.total_steps),
                 self._first_actor_transform.rotation))
         for i in range(self.total_steps):
             self.perturbed_actor_transform_list.append(carla.Transform(
-                carla.Location(self.actor_transform_list[i].location + right_vector * self.control_seq[i]),
+                carla.Location(self.planned_actor_transform_list[i].location + right_vector * self.control_seq[i]),
                 self._first_actor_transform.rotation))
 
-        # print('other_actor_transform')
-        # for i in self.other_actor_transform:
-        #     print(i)
-        # print('perturbed_actor_transform_list')
-        # for i in self.perturbed_actor_transform_list:
-        #     print(i)
-
-    def update_behavior(self):
+    def update_behavior(self, scenario_action):
         """
         Just make two vehicles move forward with specific speed
         At specific point, vehicle in front of ego will decelerate
         other_actors[0] is the vehicle before the ego
         """
-        # cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.ego_vehicles[0]),
-        #                                              CarlaDataProvider.get_transform(self.other_actors[1]))
-        cur_distance = calculate_distance_transforms(self.other_actor_transform[0], CarlaDataProvider.get_transform(self.other_actors[0]))
+        cur_distance = calculate_distance_transforms(self.actor_transform_list[0], CarlaDataProvider.get_transform(self.other_actors[0]))
 
         if cur_distance > self.dece_distance:
             self.need_decelerate = True
         for i in range(len(self.other_actors)):
             if i == 0 and self.need_decelerate:
-                # print(self.step)
                 target_transform = self.perturbed_actor_transform_list[self.step if self.step < self.total_steps else -1]
                 self.step += 1  # max 100
                 self.scenario_operation.drive_to_target_followlane(i, target_transform, self.dece_target_speed)
             else:
                 self.scenario_operation.go_straight(self.other_actor_speed[i], i, throttle_value=2.0)
 
-    def _create_behavior(self):
-        pass
+    def create_behavior(self, scenario_init_action):
+        self.control_seq = [(control * 2 - 1) * 2 for control in scenario_init_action]
+        self.total_steps = len(self.control_seq)
 
     def check_stop_condition(self):
         pass
