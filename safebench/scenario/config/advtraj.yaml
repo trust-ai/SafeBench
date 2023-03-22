@@ -12,10 +12,3 @@ ego_state_dim: 4
 ego_action_limit: 3.0
 
 model_path: 'safebench/scenario/scenario_data/model_ckpt/advtraj'
-#model_id: 1
-#buffer_capacity: 100
-#batch_size: 32
-#lr: 0.001
-#eval_in_train_freq: 10
-#save_freq: 10
-#train_episode: 1000
