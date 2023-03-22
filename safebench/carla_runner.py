@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-09 17:03:37
+LastEditTime: 2023-03-22 15:25:09
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -44,8 +44,7 @@ class CarlaRunner:
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
-        self.scenario_category = scenario_config['type_category']
-        self.scenario_policy_type = scenario_config['type_name'].split('.')[0]
+        self.scenario_category = scenario_config['scenario_category']
 
         # continue training flag
         self.continue_agent_training = scenario_config['continue_agent_training']
@@ -112,18 +111,18 @@ class CarlaRunner:
 
         # define agent and scenario
         self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
-        self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
+        self.logger.log('>> Scenario Policy: ' + scenario_config['policy_type'])
 
         if self.scenario_config['auto_ego']:
             self.logger.log('>> Using auto-polit for ego vehicle, the action of agent policy will be ignored', 'yellow')
-        if self.scenario_policy_type == 'ordinary' and self.mode != 'train_agent':
+        if scenario_config['policy_type'] == 'ordinary' and self.mode != 'train_agent':
             self.logger.log('>> Ordinary scenario can only be used in agent training', 'red')
             raise Exception()
         self.logger.log('>> ' + '-' * 40)
 
         # define agent and scenario policy
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
-        self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
+        self.scenario_policy = SCENARIO_POLICY_LIST[scenario_config['policy_type']](scenario_config, logger=self.logger)
         self.video_recorder = VideoRecorder(scenario_config, logger=self.logger)
 
     def _init_world(self, town):
