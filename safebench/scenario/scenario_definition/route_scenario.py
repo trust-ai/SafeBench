@@ -245,7 +245,7 @@ class RouteScenario():
         for trigger in possible_scenarios.keys():
             scenarios_definitions.extend(possible_scenarios[trigger])
 
-        assert len(scenarios_definitions) == 1, "There should be exactly 1 scenario definition in the route"
+        assert len(scenarios_definitions) == 1, f"There should be exactly 1 scenario definition in the route, got {len(scenarios_definitions)}"
 
         # TODO: ego route will be overwritten by other scenarios
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(route))
