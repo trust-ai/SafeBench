@@ -63,7 +63,7 @@ class RouteParser(object):
 
             new_config = ScenarioConfig()
             new_config.town = route.attrib['town']
-            new_config.route_region = route.attrib['region']
+            new_config.route_region = route.attrib['region'] if 'region' in route.attrib else None
             new_config.name = "RouteScenario_{}".format(route_id)
             new_config.weather = RouteParser.parse_weather(route)
             new_config.scenario_file = scenario_file

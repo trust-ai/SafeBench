@@ -537,8 +537,7 @@ class CarlaDataProvider(object):
             actor = CarlaDataProvider._world.try_spawn_actor(blueprint, _spawn_point)
 
         if actor is None:
-            print("WARNING: Cannot spawn actor {} at position {}".format(model, spawn_point.location))
-            return None
+            raise RuntimeError("Error: Cannot spawn actor {} at position {}".format(model, spawn_point.location))
 
         # De/activate the autopilot of the actor if it belongs to vehicle
         if autopilot:

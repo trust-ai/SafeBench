@@ -270,12 +270,18 @@ class RouteScenario():
         return int(SECONDS_GIVEN_PER_METERS * route_length)
 
     def _spawn_ego_vehicle(self, elevate_transform, autopilot=False):
-        try:
-            role_name = 'ego_vehicle' + str(self.ego_id)
-            ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform, rolename=role_name, autopilot=autopilot)
-            ego_vehicle.set_autopilot(autopilot, CarlaDataProvider.get_traffic_manager_port())
-        except Exception as e:
-            raise RuntimeError("Error while spawning ego vehicle: {}".format(e))
+        role_name = 'ego_vehicle' + str(self.ego_id)
+
+        success = False
+        ego_vehicle = None
+        while not success:
+            try:
+                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform,
+                                                                  rolename=role_name, autopilot=autopilot)
+                ego_vehicle.set_autopilot(autopilot, CarlaDataProvider.get_traffic_manager_port())
+                success = True
+            except RuntimeError:
+                elevate_transform.location.z += 0.1
         return ego_vehicle
 
     def _build_scenario_instances(self, scenario_definitions):

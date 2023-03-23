@@ -274,11 +274,13 @@ class CarlaRunner:
 
             # calculate evaluation results
             score_function = get_route_scores if self.scenario_category == 'planning' else get_perception_scores
-            all_scores = score_function(self.env.running_results)
-            self.logger.add_eval_results(all_scores, self.env.running_results)
+            all_running_results = self.logger.add_eval_results(records=self.env.running_results)
+            all_scores = score_function(all_running_results)
+            self.logger.add_eval_results(scores=all_scores)
             self.logger.print_eval_results()
             if len(self.env.running_results) % self.save_freq == 0:
                 self.logger.save_eval_results()
+        self.logger.save_eval_results()
 
     def run(self):
         # get scenario data of different maps

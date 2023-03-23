@@ -175,10 +175,12 @@ class Logger:
                 self.log(f'>> Loading existing fail because no records.pkl is found.')
                 self.eval_records = {}
 
-    def add_eval_results(self, results, records=None):
-        self.eval_results.update(results)
+    def add_eval_results(self, scores=None, records=None):
+        if scores is not None:
+            self.eval_results.update(scores)
         if records is not None:
             self.eval_records.update(records)
+            return self.eval_records
 
     def save_eval_results(self):
         self.log(f'>> Saving evaluation results to {self.result_file}')
