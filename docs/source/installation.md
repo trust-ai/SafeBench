@@ -1,14 +1,16 @@
 <!--
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2023-03-11 16:59:26
+ * @LastEditTime: 2023-03-25 12:08:28
  * @Description: 
 -->
 
 # Installation
 
-We provide a detailed instruction of how to install Safebench. The installation does not require docker or ROS.
+We provide a detailed instruction of how to install Safebench in either local machine or docker container.
 
-## Step 1. Setup Safebench
+## Local Installation
+
+### Step 1. Setup Safebench
 
 We recommand using anaconda for creating a clean environment.
 ```
@@ -28,7 +30,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-## Step 2. Setup Carla
+### Step 2. Setup Carla
 
 Download our built [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder with
 ```
@@ -45,7 +47,17 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
 
-## Potential Issue
+### Potential Issue
 
 Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
+
+## Docker Installation
+
+We also provide a docker image with CARLA and SafeBench installed. Use the following command to launch a docker container:
+
+```bash
+bash docker/run_docker.sh
+```
+
+The CARLA simulator is installed at `/home/safebench/carla` and SafeBench is installed at `/home/safebench/SafeBench`.
