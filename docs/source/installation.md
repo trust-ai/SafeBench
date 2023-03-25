@@ -1,6 +1,6 @@
 <!--
  * @Date: 2021-07-18 21:46:37
- * @LastEditTime: 2023-03-11 16:59:26
+ * @LastEditTime: 2023-03-25 12:05:22
  * @Description: 
 -->
 
@@ -49,3 +49,13 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 
 Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
+
+## Docker Installation
+
+We also provide a docker image with CARLA and SafeBench installed. Use the following command to launch a docker container:
+
+```bash
+bash docker/run_docker.sh
+```
+
+The CARLA simulator is installed at `/home/safebench/carla` and SafeBench is installed at `/home/safebench/SafeBench`.
