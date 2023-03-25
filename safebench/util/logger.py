@@ -169,7 +169,7 @@ class Logger:
         self.record_file = os.path.join(result_dir, 'records.pkl')
         if load_existing_results:
             if os.path.exists(self.record_file):
-                self.log(f'>> Loading existing evaluation records from {self.record_file}')
+                self.log(f'>> Loading existing evaluation records from {self.record_file}, ')
                 self.eval_records = joblib.load(self.record_file)
             else:
                 self.log(f'>> Loading existing fail because no records.pkl is found.')
@@ -185,7 +185,7 @@ class Logger:
     def save_eval_results(self):
         self.log(f'>> Saving evaluation results to {self.result_file}')
         joblib.dump(self.eval_results, self.result_file)
-        self.log(f'>> Saving evaluation records to {self.record_file}')
+        self.log(f'>> Saving evaluation records to {self.record_file}, length: {len(self.eval_records)}')
         joblib.dump(self.eval_records, self.record_file)
 
     def print_eval_results(self):
