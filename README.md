@@ -30,6 +30,8 @@ This is the source code of Safebench platform, which is designed based on Carla 
 
 ## Installation
 
+### Local Installation
+
 1. Recommended system: Ubuntu 20.04 or 22.04
 
 2. Setup conda environment
@@ -62,6 +64,16 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
+
+### Docker Installation
+
+We also provide a docker image with CARLA and SafeBench installed. Use the following command to launch a docker container:
+
+```bash
+bash docker/run_docker.sh
+```
+
+The CARLA simulator is installed at `/home/safebench/carla` and SafeBench is installed at `/home/safebench/SafeBench`.
 
 ## Usage
 
