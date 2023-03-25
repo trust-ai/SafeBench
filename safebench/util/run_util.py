@@ -26,6 +26,7 @@ class VideoRecorder(object):
         self.save_video = config['save_video']
         self.mode = config['mode']
         self.output_dir = config['output_dir']
+        self.video_count = 0
         assert not self.save_video or (self.save_video and self.mode == 'eval'), "only allowed saving video in eval mode"
 
         self.frame_list = []
@@ -47,6 +48,7 @@ class VideoRecorder(object):
             self.logger.log(f'>> Saving video to {video_file}')
             save_gif(self.frame_list, video_file)
             self.frame_list = []
+            self.video_count += 1
 
 
 def print_dict(d):
