@@ -263,7 +263,7 @@ class CarlaRunner:
             self.env.clean_up()
 
             # save video
-            data_ids = ['{:04d}'.format(config.data_id) for config in sampled_scenario_configs]
+            data_ids = [config.data_id for config in sampled_scenario_configs]
             self.video_recorder.save(data_ids=data_ids)
 
             # print score for ranking
