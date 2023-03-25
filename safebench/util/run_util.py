@@ -42,7 +42,9 @@ class VideoRecorder(object):
         else:
             pass
     
-    def save(self, video_name):
+    def save(self, data_ids):
+        data_ids = ['{:04d}'.format(data_id) for data_id in data_ids]
+        video_name = f'video_{"{:04d}".format(self.video_count)}_id_{"_".join(data_ids)}.gif'
         if self.save_video:
             video_file = os.path.join(self.video_dir, video_name)
             self.logger.log(f'>> Saving video to {video_file}')

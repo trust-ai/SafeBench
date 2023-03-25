@@ -264,7 +264,7 @@ class CarlaRunner:
 
             # save video
             data_ids = ['{:04d}'.format(config.data_id) for config in sampled_scenario_configs]
-            self.video_recorder.save(video_name=f'video_{self.video_recorder.video_count}_id_{"_".join(data_ids)}.gif')
+            self.video_recorder.save(data_ids=data_ids)
 
             # print score for ranking
             self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', color='yellow')
