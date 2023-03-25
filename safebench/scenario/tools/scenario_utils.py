@@ -61,6 +61,9 @@ def scenario_parse(config, logger):
             data_full = [item for item in data_full if item["route_id"] == config['route_id']]
 
     logger.log(f'>> Loading {len(data_full)} data')
+    data_full = [item for item in data_full if item["data_id"] not in logger.eval_records.keys()]
+    logger.log(f'>> Parsing {len(data_full)} unfinished data')
+
     config_by_map = {}
     for item in data_full:
         route_file = route_file_formatter % (item['scenario_id'], item['scenario_id'], item['route_id'])

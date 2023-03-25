@@ -264,7 +264,8 @@ class CarlaRunner:
             self.env.clean_up()
 
             # save video
-            self.video_recorder.save(video_name=f'video_{video_count}.gif')
+            data_ids = ['{:04d}'.format(config.data_id) for config in sampled_scenario_configs]
+            self.video_recorder.save(video_name=f'video_{video_count}_id_{"_".join(data_ids)}.gif')
             video_count += 1
 
             # print score for ranking
