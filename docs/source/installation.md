@@ -32,7 +32,7 @@ pip install -e .
 
 ### Step 2. Setup Carla
 
-Download our built [CARLA_0.9.13](https://drive.google.com/file/d/1A4z3RKXqVYpOmsEZkPBV1Pbw3B8aeSMp/view?usp=sharing) and extract it to your folder with
+Download our built [CARLA_0.9.13](https://drive.google.com/file/d/139vLRgXP90Zk6Q_du9cRdOLx7GJIw_0v/view?usp=sharing) and extract it to your folder with
 ```
 mkdir carla && cd carla
 tar -zxvf CARLA_0.9.13_safebench_2.tar.gz
