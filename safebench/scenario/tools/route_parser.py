@@ -233,6 +233,7 @@ class RouteParser(object):
                             'name': scenario_name,
                             'other_actors': other_vehicles,
                             'trigger_position': waypoint,
+                            'match_position': match_position,
                         }
 
                         trigger_id = RouteParser.check_trigger_position(waypoint, existent_triggers)

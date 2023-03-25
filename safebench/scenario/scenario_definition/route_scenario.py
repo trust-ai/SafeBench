@@ -245,7 +245,16 @@ class RouteScenario():
         for trigger in possible_scenarios.keys():
             scenarios_definitions.extend(possible_scenarios[trigger])
 
-        assert len(scenarios_definitions) == 1, f"There should be exactly 1 scenario definition in the route, got {len(scenarios_definitions)}"
+        assert len(scenarios_definitions) >= 1, f"There should be at least 1 scenario definition in the route"
+
+        # select the first trigger point along the route
+        scenarios_definition_id = 0
+        min_match_position = 1e5
+        for idx, scenarios_definition in enumerate(scenarios_definitions):
+            if scenarios_definition['match_position'] < min_match_position:
+                min_match_position = scenarios_definition['match_position']
+                scenarios_definition_id = idx
+        scenarios_definitions = [scenarios_definitions[scenarios_definition_id]]
 
         # TODO: ego route will be overwritten by other scenarios
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(route))
