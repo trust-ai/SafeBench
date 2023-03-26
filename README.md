@@ -85,7 +85,7 @@ Enter the CARLA root folder, launch the CARLA server and run our platform with
 ./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 
 # Launch SafeBench in another terminal
-python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
+python scripts/run.py --agent_cfg basic.yaml --scenario_cfg standard.yaml --mode eval
 ```
 
 ### 2. Remote Server Users
@@ -95,7 +95,7 @@ Enter the CARLA root folder, launch the CARLA server with headless mode, and run
 ./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
 
 # Launch SafeBench in another terminal
-SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
+SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg basic.yaml --scenario_cfg standard.yaml --mode eval
 ```
 
 (Optional) You can also visualize the pygame window using [TurboVNC](https://sourceforge.net/projects/turbovnc/files/).
@@ -108,7 +108,7 @@ First, launch CARLA with headless mode, and run our platform on a virtual displa
 /opt/TurboVNC/bin/vncserver :8 -noxstartup
 
 # Launch SafeBench on the virtual display
-DISPLAY=:8 python scripts/run.py --agent_cfg=basic.yaml --scenario_cfg=standard.yaml --mode=eval
+DISPLAY=:8 python scripts/run.py --agent_cfg basic.yaml --scenario_cfg standard.yaml --mode eval
 ```
 
 You can use the TurboVNC client on your local machine to connect to the virtual display.
@@ -156,19 +156,19 @@ Next, set the param ```scenic_dir``` in ```safebench/scenario/config/scenic.yaml
 For selecting the most adversarial scenes, the param ```sample_num``` within the ```scenic.yaml``` serves to determine the number of scenes sampled for each scenic file and the param ```select_num``` is used to specify the number of the most adversarial scenes to be selected from among the sample_num scenes:
 
 ```bash
-python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode train_scenario
+python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode train_scenario
 ```
 
 Now you can test the ego with these selected adversarial scenes:
 
 ```bash
-python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
+python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode eval
 ```
 
 Or if you want to Launch it on the virtual display
 
 ```bash
-DISPLAY=:8 python scripts/run.py --agent_cfg=sac.yaml --scenario_cfg=scenic.yaml --num_scenario 1 --mode eval
+DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode eval
 ``` 
 
 ## Running Argument
