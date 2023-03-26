@@ -27,7 +27,6 @@ from safebench.scenario.scenario_data_loader import ScenarioDataLoader
 from safebench.scenario.tools.scenario_utils import scenario_parse
 
 from safebench.util.logger import Logger, setup_logger_kwargs
-from safebench.util.run_util import VideoRecorder
 from safebench.util.metric_util import get_route_scores, get_perception_scores
 
 
@@ -40,6 +39,7 @@ class CarlaRunner:
         self.exp_name = scenario_config['exp_name']
         self.output_dir = scenario_config['output_dir']
         self.mode = scenario_config['mode']
+        self.save_video = scenario_config['save_video']
 
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
@@ -86,7 +86,9 @@ class CarlaRunner:
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
         # define logger
-        logger_kwargs = setup_logger_kwargs(self.exp_name, self.output_dir, self.seed)
+        logger_kwargs = setup_logger_kwargs(self.exp_name, self.output_dir, self.seed,
+                                            agent=agent_config['policy_type'],
+                                            scenario=scenario_config['policy_type'])
         self.logger = Logger(**logger_kwargs)
         
         # prepare parameters
@@ -123,7 +125,9 @@ class CarlaRunner:
         # define agent and scenario policy
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
         self.scenario_policy = SCENARIO_POLICY_LIST[scenario_config['policy_type']](scenario_config, logger=self.logger)
-        self.video_recorder = VideoRecorder(scenario_config, logger=self.logger)
+        if self.save_video:
+            assert self.mode == 'eval', "only allow video saving in eval mode"
+            self.logger.init_video_recorder()
 
     def _init_world(self, town):
         self.logger.log(f">> Initializing carla world: {town}")
@@ -249,7 +253,8 @@ class CarlaRunner:
                 obs, rewards, _, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
 
                 # save video
-                self.video_recorder.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
+                if self.save_video:
+                    self.logger.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
 
                 # accumulate scores of corresponding scenario
                 reward_idx = 0
@@ -263,8 +268,9 @@ class CarlaRunner:
             self.env.clean_up()
 
             # save video
-            data_ids = [config.data_id for config in sampled_scenario_configs]
-            self.video_recorder.save(data_ids=data_ids)
+            if self.save_video:
+                data_ids = [config.data_id for config in sampled_scenario_configs]
+                self.logger.save_video(data_ids=data_ids)
 
             # print score for ranking
             self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', color='yellow')

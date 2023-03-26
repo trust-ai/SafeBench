@@ -10,6 +10,7 @@ Description:
 
 import os
 import os.path as osp
+import time
 from fnmatch import fnmatch
 
 import yaml
@@ -21,36 +22,26 @@ def save_gif(frame_list, filename):
 
 
 class VideoRecorder(object):
-    def __init__(self, config, logger):
+    def __init__(self, output_dir, logger):
         self.logger = logger
-        self.save_video = config['save_video']
-        self.mode = config['mode']
-        self.output_dir = config['output_dir']
+        self.output_dir = output_dir
         self.video_count = 0
-        assert not self.save_video or (self.save_video and self.mode == 'eval'), "only allowed saving video in eval mode"
-
         self.frame_list = []
-        if self.save_video:
-            self.video_dir = os.path.join(self.output_dir, 'video')
-            os.makedirs(self.video_dir, exist_ok=True)
-        else:
-            self.video_dir = None
+        hms_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        self.video_dir = os.path.join(self.output_dir, 'video', hms_time)
 
     def add_frame(self, frame):
-        if self.save_video:
-            self.frame_list.append(frame)
-        else:
-            pass
+        self.frame_list.append(frame)
     
     def save(self, data_ids):
         data_ids = ['{:04d}'.format(data_id) for data_id in data_ids]
         video_name = f'video_{"{:04d}".format(self.video_count)}_id_{"_".join(data_ids)}.gif'
-        if self.save_video:
-            video_file = os.path.join(self.video_dir, video_name)
-            self.logger.log(f'>> Saving video to {video_file}')
-            save_gif(self.frame_list, video_file)
-            self.frame_list = []
-            self.video_count += 1
+        os.makedirs(self.video_dir, exist_ok=True)
+        video_file = os.path.join(self.video_dir, video_name)
+        self.logger.log(f'>> Saving video to {video_file}')
+        save_gif(self.frame_list, video_file)
+        self.frame_list = []
+        self.video_count += 1
 
 
 def print_dict(d):

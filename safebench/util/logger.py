@@ -18,6 +18,8 @@ import joblib
 import numpy as np
 import yaml
 
+from safebench.util.run_util import VideoRecorder
+
 
 # Where experiment outputs are saved by default:
 DEFAULT_DATA_DIR = osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__))))
@@ -27,7 +29,7 @@ DEFAULT_DATA_DIR = osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__))))
 FORCE_DATESTAMP = False
 
 
-def setup_logger_kwargs(exp_name, output_dir, seed=None, datestamp=False):
+def setup_logger_kwargs(exp_name, output_dir, seed, datestamp=False, agent=None, scenario=None):
     # Datestamp forcing
     datestamp = datestamp or FORCE_DATESTAMP
 
@@ -35,14 +37,20 @@ def setup_logger_kwargs(exp_name, output_dir, seed=None, datestamp=False):
     ymd_time = time.strftime("%Y-%m-%d_") if datestamp else ''
     relpath = ''.join([ymd_time, exp_name])
 
-    if seed is not None:
-        # Make a seed-specific subfolder in the experiment directory.
-        if datestamp:
-            hms_time = time.strftime("%Y-%m-%d_%H-%M-%S")
-            subfolder = ''.join([hms_time, '-', exp_name, '_s', str(seed)])
-        else:
-            subfolder = ''.join([exp_name, '_seed_', str(seed)])
-        relpath = osp.join(relpath, subfolder)
+    # specify agent policy and scenario policy in the experiment directory.
+    agent_scenario_exp_name = exp_name
+    if agent is not None:
+        agent_scenario_exp_name = agent_scenario_exp_name + '_' + agent
+    if scenario is not None:
+        agent_scenario_exp_name = agent_scenario_exp_name + '_' + scenario
+
+    # Make a seed-specific subfolder in the experiment directory.
+    if datestamp:
+        hms_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        subfolder = ''.join([hms_time, '-', agent_scenario_exp_name, '_s', str(seed)])
+    else:
+        subfolder = ''.join([agent_scenario_exp_name, '_seed_', str(seed)])
+    relpath = osp.join(relpath, subfolder)
 
     data_dir = os.path.join(DEFAULT_DATA_DIR, output_dir)
     logger_kwargs = dict(
@@ -150,8 +158,10 @@ class Logger:
         self.log_current_row = {}
         self.exp_name = exp_name
         self.log_print_history = []
+        self.video_recorder = None
 
         self.output_dir = output_dir or "/tmp/experiments/%i" % int(time.time())
+        self.log('>> ' + '-' * 40)
         if osp.exists(self.output_dir):
             self.log(">> Log path %s already exists! Storing info there anyway." % self.output_dir, 'yellow')
         else:
@@ -284,3 +294,12 @@ class Logger:
         self.log_current_row.clear()
         self.first_row = False
         return data_dict
+
+    def init_video_recorder(self):
+        self.video_recorder = VideoRecorder(self.output_dir, logger=self)
+
+    def add_frame(self, frame):
+        self.video_recorder.add_frame(frame)
+
+    def save_video(self, data_ids):
+        self.video_recorder.save(data_ids=data_ids)

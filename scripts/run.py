@@ -28,8 +28,8 @@ if __name__ == '__main__':
     parser.add_argument('--max_episode_step', type=int, default=300)
     parser.add_argument('--auto_ego', action='store_true')
     parser.add_argument('--mode', '-m', type=str, default='eval', choices=['train_agent', 'train_scenario', 'eval'])
-    parser.add_argument('--agent_cfg', type=str, default='dummy.yaml')
-    parser.add_argument('--scenario_cfg', type=str, default='standard.yaml')
+    parser.add_argument('--agent_cfg', nargs='*', type=str, default='dummy.yaml')
+    parser.add_argument('--scenario_cfg', nargs='*', type=str, default='standard.yaml')
     parser.add_argument('--continue_agent_training', '-cat', type=bool, default=False)
     parser.add_argument('--continue_scenario_training', '-cst', type=bool, default=False)
 
@@ -47,32 +47,40 @@ if __name__ == '__main__':
     args = parser.parse_args()
     args_dict = vars(args)
 
-    # set global parameters
-    set_torch_variable(args.device)
-    torch.set_num_threads(args.threads)
-    set_seed(args.seed)
+    err_list = []
+    for agent_cfg in args.agent_cfg:
+        for scenario_cfg in args.scenario_cfg:
+            # set global parameters
+            set_torch_variable(args.device)
+            torch.set_num_threads(args.threads)
+            set_seed(args.seed)
 
-    # load agent config
-    agent_config_path = osp.join(args.ROOT_DIR, 'safebench/agent/config', args.agent_cfg)
-    agent_config = load_config(agent_config_path)
+            # load agent config
+            agent_config_path = osp.join(args.ROOT_DIR, 'safebench/agent/config', agent_cfg)
+            agent_config = load_config(agent_config_path)
 
-    # load scenario config
-    scenario_config_path = osp.join(args.ROOT_DIR, 'safebench/scenario/config', args.scenario_cfg)
-    scenario_config = load_config(scenario_config_path)
+            # load scenario config
+            scenario_config_path = osp.join(args.ROOT_DIR, 'safebench/scenario/config', scenario_cfg)
+            scenario_config = load_config(scenario_config_path)
 
-    # main entry with a selected mode
-    agent_config.update(args_dict)
-    scenario_config.update(args_dict)
-    if scenario_config['scenario_type'] == 'scenic':
-        from safebench.scenic_runner import ScenicRunner
-        assert scenario_config['num_scenario'] == 1, 'the num_scenario can only be one for scenic now'
-        runner = ScenicRunner(agent_config, scenario_config)
-    else:
-        runner = CarlaRunner(agent_config, scenario_config)
-    
-    # start running
-    try:
-        runner.run()
-    except:
-        runner.close()
-        traceback.print_exc()
+            # main entry with a selected mode
+            agent_config.update(args_dict)
+            scenario_config.update(args_dict)
+            if scenario_config['scenario_type'] == 'scenic':
+                from safebench.scenic_runner import ScenicRunner
+                assert scenario_config['num_scenario'] == 1, 'the num_scenario can only be one for scenic now'
+                runner = ScenicRunner(agent_config, scenario_config)
+            else:
+                runner = CarlaRunner(agent_config, scenario_config)
+
+            # start running
+            try:
+                runner.run()
+            except:
+                runner.close()
+                traceback.print_exc()
+                err_list.append([agent_cfg, scenario_cfg, traceback.format_exc()])
+
+    for err in err_list:
+        print(err[0], err[1], 'failed!')
+        print(err[2])
