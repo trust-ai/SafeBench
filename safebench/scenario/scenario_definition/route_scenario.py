@@ -53,16 +53,6 @@ from safebench.scenario.scenario_definition.standard.junction_crossing_route imp
 from safebench.scenario.scenario_definition.standard.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_standard
 from safebench.scenario.scenario_definition.standard.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_standard
 
-# benign
-from safebench.scenario.scenario_definition.benign.object_crash_vehicle import DynamicObjectCrossing as scenario_03_benign
-from safebench.scenario.scenario_definition.benign.object_crash_intersection import VehicleTurningRoute as scenario_04_benign
-from safebench.scenario.scenario_definition.benign.other_leading_vehicle import OtherLeadingVehicle as scenario_05_benign
-from safebench.scenario.scenario_definition.benign.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_benign
-from safebench.scenario.scenario_definition.benign.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_benign
-from safebench.scenario.scenario_definition.benign.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_benign
-from safebench.scenario.scenario_definition.benign.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_benign
-from safebench.scenario.scenario_definition.benign.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_benign
-
 # carla challenge
 from safebench.scenario.scenario_definition.carla_challenge.object_crash_vehicle import DynamicObjectCrossing as scenario_03_carla_challenge
 from safebench.scenario.scenario_definition.carla_challenge.object_crash_intersection import VehicleTurningRoute as scenario_04_carla_challenge
@@ -128,16 +118,6 @@ SCENARIO_CLASS_MAPPING = {
         "Scenario8": scenario_08_standard,
         "Scenario9": scenario_09_standard,
         "Scenario10": scenario_10_standard,
-    },
-    'benign': {
-        "Scenario3": scenario_03_benign,
-        "Scenario4": scenario_04_benign,
-        "Scenario5": scenario_05_benign,
-        "Scenario6": scenario_06_benign,
-        "Scenario7": scenario_07_benign,
-        "Scenario8": scenario_08_benign,
-        "Scenario9": scenario_09_benign,
-        "Scenario10": scenario_10_benign,
     },
     'carla_challenge': {
         "Scenario3": scenario_03_carla_challenge,
