@@ -2,7 +2,7 @@
 
 We provide step-by-step instructions on how to create your own (perception / planning) scenarios to be used in Safebench.
 
-## Create Perception Agent
+## Create Perception Scenario
 
 There are two steps to create a new scenario with static objects and dynamic pedestrians. 
 **Notice that the scenarios in perception tracks only differ in the texture, so the route and planning parts will be fixed.**
@@ -92,7 +92,7 @@ This function saves the model to file. You can leave this function blank if your
 
 
 
-## Create Planning Agent
+## Create Planning Scenario
 There are three steps to create a new scenario with static objects and dynamic actors.
 The first step is to define the route file, scenario type file, and scenario config file.
 The second step is to implement the scenario class, which create actors, define initial behavior of actors, and create static objects.

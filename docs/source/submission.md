@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-02-20 20:13:41
- * @LastEditTime: 2023-03-07 12:26:15
+ * @LastEditTime: 2023-03-27 12:15:34
  * @Description: 
 -->
 
@@ -204,7 +204,7 @@ At this point, the challenge configuration has been submitted for review and the
 # How to Submit Results
 
 ## General Submission via Docker
-TBA
+TBD
 
 ## Perception Track
 - In perception attack tracks, the participants are required to submit a file named after `stopsign.jpg` and `car.jpg` in `safebench/scenario/scenario_data/submission/`.
@@ -215,4 +215,4 @@ During the evaluation, only two folders (`safebench/agent/object_detection/` and
 After the evaluation finishes, you will get a feedback as the mean Average Precision
 
 ## Planning Track
-TBA
+TBD

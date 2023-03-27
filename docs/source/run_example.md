@@ -1,6 +1,6 @@
 <!--
  * @Date: 2021-07-18 21:43:53
- * @LastEditTime: 2023-03-17 13:37:49
+ * @LastEditTime: 2023-03-27 12:18:15
  * @Description: 
 -->
 
@@ -33,6 +33,8 @@ SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=dummy.yaml --scenario_
 ```
 
 ## Visualization on Remote Server
+
+![carlaviz](./images/pygame.jpg)
 
 You can also visualize the pygame window using [TurboVNC](https://sourceforge.net/projects/turbovnc/files/).
 First, launch CARLA with headless mode, and run our platform on a virtual display.
