@@ -15,6 +15,7 @@ import argparse
 import numpy as np
 import joblib
 import torch
+import json
 
 from safebench.scenario.scenario_definition.atomic_criteria import Status
 
@@ -194,7 +195,8 @@ def get_perception_scores(record_dict):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--record_file', default='/home/carla/output/testing_records/record.pkl')
+    parser.add_argument('--record_file', default='results.pkl')
+    parser.add_argument('--data_file', default='safebench/scenario/config/scenario_type/standard.json')
     arguments = parser.parse_args()
     return arguments
 
@@ -202,5 +204,16 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     record = joblib.load(args.record_file)
-    # all_scores, normalized_scores, final_score = get_scores(record)
-    # print('overall score:', final_score)
+    with open(args.data_file, 'r') as f:
+        dataset = json.loads(f.read())
+    for scenario_id in range(1, 9):
+        ids = [item['data_id'] for item in dataset if item['scenario_id'] == scenario_id]
+        current_record = {data_id: traj for data_id, traj in record.items() if data_id in ids}
+        current_result = get_route_scores(current_record)
+        print(scenario_id, len(current_record))
+        for key, value in current_result.items():
+            print(f"{key: <25}{value}")
+    current_result = get_route_scores(record)
+    print(len(record))
+    for key, value in current_result.items():
+        print(f"{key: <25}{value}")
