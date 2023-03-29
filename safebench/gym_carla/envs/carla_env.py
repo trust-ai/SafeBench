@@ -178,10 +178,7 @@ class CarlaEnv(gym.Env):
 
     def _parse_route(self, config):
         # interp waypoints as init waypoints
-        origin_waypoints_loc = []
-        for loc in config.trajectory:
-            origin_waypoints_loc.append(loc)
-        route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
+        route = interpolate_trajectory(self.world, config.trajectory)
 
         # TODO: these waypoints can be directly got from scenario
         waypoints_list = []
@@ -197,10 +194,7 @@ class CarlaEnv(gym.Env):
             This function returns static observation used for static scenario generation
         """
         # get route
-        origin_waypoints_loc = []
-        for loc in config.trajectory:
-            origin_waypoints_loc.append(loc)
-        route = interpolate_trajectory(self.world, origin_waypoints_loc, 5.0)
+        route = interpolate_trajectory(self.world, config.trajectory, 5.0)
 
         # get [x, y] along the route
         waypoint_xy = []
