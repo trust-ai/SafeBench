@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 14:22:24
+LastEditTime: 2023-03-29 18:20:00
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -30,22 +30,17 @@ from safebench.scenario.scenario_policy.maddpg.agent import Agent
 
 
 class OtherLeadingVehicle(BasicScenario):
-
     """
-    This class holds everything required for a simple "Other Leading Vehicle"
-    scenario involving a user controlled vehicle and two other actors.
-    Traffic Scenario 05
-
-    This is a single ego vehicle scenario
+        This class holds everything required for a simple "Other Leading Vehicle", scenario involving a user controlled vehicle and two other actors.
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=80):
-        """
-        Setup all relevant parameters and create scenario
-        """
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle-MADDPG", config, world)
+        self.ego_vehicle = ego_vehicle
         self._world = world
         self._map = CarlaDataProvider.get_map()
+        self.timeout = timeout
+        
         self._first_vehicle_location = 35
         self._second_vehicle_location = self._first_vehicle_location + 1
         self._ego_vehicle_drive_distance = self._first_vehicle_location * 4
@@ -55,9 +50,7 @@ class OtherLeadingVehicle(BasicScenario):
         self._other_actor_max_brake = 1.0
         self._first_actor_transform = None
         self._second_actor_transform = None
-        # Timeout of scenario in seconds
-        self.timeout = timeout
-        
+
         self._actor_distance = self._first_vehicle_location
         self.STEERING_MAX=0.3
         self.adv_agent = Agent(chkpt_dir = 'checkpoints/standard_scenario3')
@@ -73,17 +66,8 @@ class OtherLeadingVehicle(BasicScenario):
         self.dece_target_speed = 2  # 3 will be safe
 
         self.need_decelerate = False
+        self.scenario_operation = ScenarioOperation()
 
-        super(OtherLeadingVehicle, self).__init__("VehicleDeceleratingInMultiLaneSetUp",
-                                                  ego_vehicles,
-                                                  config,
-                                                  world,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable)
-
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-        self.actor_type_list.append('vehicle.nissan.patrol')
-        self.actor_type_list.append('vehicle.audi.tt')
         self.trigger_distance_threshold = 35
         self.other_actor_speed = []
         self.other_actor_speed.append(self._first_vehicle_speed)
@@ -94,27 +78,20 @@ class OtherLeadingVehicle(BasicScenario):
         with open(config.parameters, 'r') as f:
             parameters = json.load(f)
         self.control_seq = parameters
-        # print(self.control_seq)
         self._other_actor_max_velocity = self.dece_target_speed * 2
         
     def initialize_route_planner(self):
         carla_map = self.world.get_map()
         forward_vector = self.other_actor_transform[0].rotation.get_forward_vector() * self._actor_distance
-        self.target_transform = carla.Transform(carla.Location(self.other_actor_transform[0].location + forward_vector),
-                                           self.other_actor_transform[0].rotation)
+        self.target_transform = carla.Transform(carla.Location(self.other_actor_transform[0].location + forward_vector), self.other_actor_transform[0].rotation)
         self.target_waypoint = [self.target_transform.location.x, self.target_transform.location.y, self.target_transform.rotation.yaw]
-        print('self.target_waypoint', self.target_waypoint)
 
-        other_locations = [self.other_actor_transform[0].location,
-                           carla.Location(self.other_actor_transform[0].location + forward_vector)]
+        other_locations = [self.other_actor_transform[0].location, carla.Location(self.other_actor_transform[0].location + forward_vector)]
         route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))
-        
-        print('init_waypoints')
-        # for i in init_waypoints:
-        #     print(i)
+
         self.routeplanner = RoutePlanner(self.other_actors[0], self.max_waypt, init_waypoints)
         self.waypoints, _, _, _, _, self.vehicle_front = self.routeplanner.run_step()
         
@@ -122,32 +99,18 @@ class OtherLeadingVehicle(BasicScenario):
         first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
         second_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._second_vehicle_location)
         second_vehicle_waypoint = second_vehicle_waypoint.get_left_lane()
-        first_vehicle_transform = carla.Transform(first_vehicle_waypoint.transform.location,
-                                                  first_vehicle_waypoint.transform.rotation)
-        second_vehicle_transform = carla.Transform(second_vehicle_waypoint.transform.location,
-                                                   second_vehicle_waypoint.transform.rotation)
-
-        self.other_actor_transform.append(first_vehicle_transform)
-        self.other_actor_transform.append(second_vehicle_transform)
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        # self.reference_actor = self.other_actors[1]
+        first_vehicle_transform = carla.Transform(first_vehicle_waypoint.transform.location, first_vehicle_waypoint.transform.rotation)
+        second_vehicle_transform = carla.Transform(second_vehicle_waypoint.transform.location, second_vehicle_waypoint.transform.rotation)
+        
+        self.actor_type_list = ['vehicle.nissan.patrol', 'vehicle.audi.tt']
+        self.other_actor_transform = [first_vehicle_transform, second_vehicle_transform]
+        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
-
         self._first_actor_transform = first_vehicle_transform
-        # self.second_vehicle_transform = carla.Transform(second_vehicle_waypoint.transform.location,
-        #                                                second_vehicle_waypoint.transform.rotation)
         self.initialize_route_planner()
 
     def update_behavior(self):
-        """
-        Just make two vehicles move forward with specific speed
-        At specific point, vehicle in front of ego will decelerate
-        other_actors[0] is the vehicle before the ego
-        """
-        # cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.ego_vehicles[0]),
-        #                                              CarlaDataProvider.get_transform(self.other_actors[1]))
-        cur_distance = calculate_distance_transforms(self.other_actor_transform[0],
-                                                     CarlaDataProvider.get_transform(self.other_actors[0]))
+        cur_distance = calculate_distance_transforms(self.other_actor_transform[0], CarlaDataProvider.get_transform(self.other_actors[0]))
 
         if cur_distance > self.dece_distance:
             self.need_decelerate = True
@@ -160,13 +123,12 @@ class OtherLeadingVehicle(BasicScenario):
                     new_state = torch.tensor(state, dtype=torch.float).unsqueeze(0).to(self.adv_agent.actor.device)
                     action = self.adv_agent.actor.forward(new_state).detach().cpu().numpy()[0]
                     ## train ##
-        #             action = self.adv_agent.choose_action(state)
                     current_velocity = (action[0]+1)/2 * self._other_actor_max_velocity
                 self.scenario_operation.go_straight(current_velocity, 0, steering = action[1] * self.STEERING_MAX)
                 self.step += 1
             else:
                 self.scenario_operation.go_straight(self.other_actor_speed[i], i)
-                                                
+
     def _get_obs(self):
         self.ego = self.other_actors[0]
         ego_trans = self.ego.get_transform()
@@ -187,7 +149,7 @@ class OtherLeadingVehicle(BasicScenario):
         ], dtype=object)
         
         ### Relative Postion ###
-        ego_location = self.ego_vehicles[0].get_transform().location
+        ego_location = self.ego_vehicle.get_transform().location
         ego_location = np.array([ego_location.x, ego_location.y])
 
         actor = self.other_actors[0]
@@ -199,16 +161,15 @@ class OtherLeadingVehicle(BasicScenario):
         sv_forward_vector = np.array([sv_forward_vector.x, sv_forward_vector.y])
 
         projection_x = sum(rel_ego_location * sv_forward_vector)
-        projection_y = np.linalg.norm(rel_ego_location - projection_x * sv_forward_vector) * \
-                                np.sign(np.cross(sv_forward_vector, rel_ego_location))
+        projection_y = np.linalg.norm(rel_ego_location - projection_x * sv_forward_vector) * np.sign(np.cross(sv_forward_vector, rel_ego_location))
 
-        ego_forward_vector = self.ego_vehicles[0].get_transform().rotation.get_forward_vector()
+        ego_forward_vector = self.ego_vehicle.get_transform().rotation.get_forward_vector()
         ego_forward_vector = np.array([ego_forward_vector.x, ego_forward_vector.y])
         rel_ego_yaw = np.arcsin(np.cross(sv_forward_vector, ego_forward_vector))
         
         state = np.concatenate((state[:4], np.array([rel_ego_yaw, projection_x, projection_y]))).astype(float)
         return state
-                                                
+
     def _get_reward(self):
         """Calculate the step reward."""
         # reward for speed tracking

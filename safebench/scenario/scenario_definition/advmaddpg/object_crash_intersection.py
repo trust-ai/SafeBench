@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 16:38:02
+LastEditTime: 2023-03-29 18:00:43
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -114,17 +114,16 @@ class VehicleTurningRoute(BasicScenario):
     This is a single ego vehicle scenario
     """
 
-    def __init__(self, world, ego_vehicles, config, randomize=False, debug_mode=False, criteria_enable=True,
-                 timeout=60):
-        """
-        Setup all relevant parameters and create scenario
-        """
-        self._wmap = CarlaDataProvider.get_map()
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-MADDPG", config, world)
         self.timeout = timeout
+        self.ego_vehicle = ego_vehicle
+        self._wmap = CarlaDataProvider.get_map()
+        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
+
         self._other_actor_target_velocity = 10
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)
         self._trigger_location = config.trigger_points[0].location
-        self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
 
         self._num_lane_changes = 0
         
@@ -143,20 +142,8 @@ class VehicleTurningRoute(BasicScenario):
         self.vehicle_front = False
         
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
+        self.scenario_operation = ScenarioOperation()
 
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute",
-                                                  ego_vehicles,
-                                                  config,
-                                                  world,
-                                                  debug_mode,
-                                                  criteria_enable=criteria_enable,
-                                                  terminate_on_failure=True)
-
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-
-        self.actor_type_list.append('vehicle.diamondback.century')
-
-        self.reference_actor = None
         self.trigger_distance_threshold = 17
         self.ego_max_driven_distance = 180
 
@@ -169,29 +156,20 @@ class VehicleTurningRoute(BasicScenario):
 
     def initialize_route_planner(self):
         carla_map = self._wmap
-        forward_vector = self.other_actor_transform[0].rotation.get_forward_vector() * self._actor_distance
-        self.target_transform = carla.Transform(carla.Location(self.other_actor_transform[0].location + forward_vector),
-                                           self.other_actor_transform[0].rotation)
+        forward_vector = self.actor_transform_list[0].rotation.get_forward_vector() * self._actor_distance
+        self.target_transform = carla.Transform(carla.Location(self.actor_transform_list[0].location + forward_vector), self.actor_transform_list[0].rotation)
         self.target_waypoint = [self.target_transform.location.x, self.target_transform.location.y, self.target_transform.rotation.yaw]
-        print('self.target_waypoint', self.target_waypoint)
 
-        other_locations = [self.other_actor_transform[0].location,
-                           carla.Location(self.other_actor_transform[0].location + forward_vector)]
+        other_locations = [self.actor_transform_list[0].location, carla.Location(self.actor_transform_list[0].location + forward_vector)]
         route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))
-        
-        print('init_waypoints')
-        # for i in init_waypoints:
-        #     print(i)
+
         self.routeplanner = RoutePlanner(self.other_actors[0], self.max_waypt, init_waypoints)
         self.waypoints, _, _, _, _, self.vehicle_front = self.routeplanner.run_step()
         
     def initialize_actors(self):
-        """
-        Custom initialization
-        """
         waypoint = generate_target_waypoint_in_route(self._reference_waypoint, self._ego_route)
 
         # Move a certain distance to the front
@@ -204,12 +182,11 @@ class VehicleTurningRoute(BasicScenario):
         added_dist = self._num_lane_changes
 
         _other_actor_transform = get_opponent_transform(added_dist, waypoint, self._trigger_location)
-
-        self.other_actor_transform.append(_other_actor_transform)
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors, self.actor_type_list)
-        
-        """Also need to specify reference actor"""
+        self.actor_type_list = ['vehicle.diamondback.century']
+        self.actor_transform_list = [_other_actor_transform]
+        self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
+
         self.initialize_route_planner()
         self.initialize_waypoints()
         
@@ -245,11 +222,10 @@ class VehicleTurningRoute(BasicScenario):
             new_state = torch.tensor([state], dtype=torch.float).to(self.adv_agent.actor.device)
             action = self.adv_agent.actor.forward(new_state).detach().cpu().numpy()[0]
             ## train ##
-#             action = self.adv_agent.choose_action(state)
             current_velocity = (action[0]+1)/2 * self._other_actor_max_velocity
         self.scenario_operation.go_straight(current_velocity, 0, steering = action[1] * self.STEERING_MAX)
         self.step += 1
-                                                
+
     def _get_obs(self):
         self.ego = self.other_actors[0]
         ego_trans = self.ego.get_transform()
@@ -267,11 +243,10 @@ class VehicleTurningRoute(BasicScenario):
         state = np.array([
             lateral_dis, -delta_yaw, speed, int(self.vehicle_front),
             (ego_x, ego_y), ego_yaw, acceleration
-        ],
-                         dtype=object)
+        ], dtype=object)
         
         ### Relative Postion ###
-        ego_location = self.ego_vehicles[0].get_transform().location
+        ego_location = self.ego_vehicle.get_transform().location
         ego_location = np.array([ego_location.x, ego_location.y])
 
         actor = self.other_actors[0]
@@ -283,19 +258,16 @@ class VehicleTurningRoute(BasicScenario):
         sv_forward_vector = np.array([sv_forward_vector.x, sv_forward_vector.y])
 
         projection_x = sum(rel_ego_location * sv_forward_vector)
-        projection_y = np.linalg.norm(rel_ego_location - projection_x * sv_forward_vector) * \
-                                np.sign(np.cross(sv_forward_vector, rel_ego_location))
+        projection_y = np.linalg.norm(rel_ego_location - projection_x * sv_forward_vector) * np.sign(np.cross(sv_forward_vector, rel_ego_location))
 
-        ego_forward_vector = self.ego_vehicles[0].get_transform().rotation.get_forward_vector()
+        ego_forward_vector = self.ego_vehicle.get_transform().rotation.get_forward_vector()
         ego_forward_vector = np.array([ego_forward_vector.x, ego_forward_vector.y])
         rel_ego_yaw = np.arcsin(np.cross(sv_forward_vector, ego_forward_vector))
         
-        state = np.concatenate((state[:4], \
-                                 np.array([rel_ego_yaw, projection_x, projection_y]))).astype(float)
+        state = np.concatenate((state[:4], np.array([rel_ego_yaw, projection_x, projection_y]))).astype(float)
         return state
-                                                
+
     def _get_reward(self):
-        """Calculate the step reward."""
         # reward for speed tracking
         v = self.other_actors[0].get_velocity()
 
@@ -326,12 +298,7 @@ class VehicleTurningRoute(BasicScenario):
         return r
         
     def check_stop_condition(self):
-        """
-        This condition is just for small scenarios
-        """
-
         return False
-
 
     def _create_behavior(self):
         pass

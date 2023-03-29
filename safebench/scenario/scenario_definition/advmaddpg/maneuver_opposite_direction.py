@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 14:21:53
+LastEditTime: 2023-03-29 17:57:00
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -30,19 +30,16 @@ from safebench.scenario.scenario_policy.maddpg.agent import Agent
 
 
 class ManeuverOppositeDirection(BasicScenario):
-
     """
-    "Vehicle Maneuvering In Opposite Direction" (Traffic Scenario 06)
-    This is a single ego vehicle scenario
+        Vehicle is passing another vehicle in a rural area, in daylight, under clear weather conditions, 
+        at a non-junction and encroaches into another vehicle traveling in the opposite direction.
     """
-
-    def __init__(self, world, ego_vehicles, config, timeout=60):
-        """
-        Setup all relevant parameters and create scenario
-        obstacle_type -> flag to select type of leading obstacle. Values: vehicle, barrier
-        """
+    def __init__(self, world, ego_vehicle, config, timeout=60):
+        super(ManeuverOppositeDirection, self).__init__("ManeuverOppositeDirection-MADDPG", config, world)
+        self.ego_vehicle = ego_vehicle
         self._world = world
         self._map = CarlaDataProvider.get_map()
+
         self._first_vehicle_location = 50
         self._second_vehicle_location = self._first_vehicle_location + 30
         # self._ego_vehicle_drive_distance = self._second_vehicle_location * 2
@@ -71,20 +68,8 @@ class ManeuverOppositeDirection(BasicScenario):
         self.routeplanner = None
         self.waypoints = []
         self.vehicle_front = False
-        
-        super(ManeuverOppositeDirection, self).__init__(
-            "ManeuverOppositeDirection",
-            ego_vehicles,
-            config,
-            world,
-            debug_mode,
-            criteria_enable=criteria_enable)
 
-        self.scenario_operation = ScenarioOperation(self.ego_vehicles, self.other_actors)
-
-        self.actor_type_list.append('vehicle.nissan.micra')
-        self.actor_type_list.append('vehicle.nissan.micra')
-        # self.actor_type_list.append('vehicle.nissan.patrol')
+        self.scenario_operation = ScenarioOperation()
 
         self.reference_actor = None
         self.trigger_distance_threshold = 45
@@ -94,32 +79,24 @@ class ManeuverOppositeDirection(BasicScenario):
         with open(config.parameters, 'r') as f:
             parameters = json.load(f)
         self.control_seq = parameters
-        # print(self.control_seq)
         self._other_actor_max_velocity = self._opposite_speed * 2
 
     def initialize_route_planner(self):
         carla_map = self.world.get_map()
-        forward_vector = self.other_actor_transform[1].rotation.get_forward_vector() * self._actor_distance
-        self.target_transform = carla.Transform(carla.Location(self.other_actor_transform[1].location + forward_vector), self.other_actor_transform[1].rotation)
+        forward_vector = self.actor_transform_list[1].rotation.get_forward_vector() * self._actor_distance
+        self.target_transform = carla.Transform(carla.Location(self.actor_transform_list[1].location + forward_vector), self.actor_transform_list[1].rotation)
         self.target_waypoint = [self.target_transform.location.x, self.target_transform.location.y, self.target_transform.rotation.yaw]
-        print('self.target_waypoint', self.target_waypoint)
 
-        other_locations = [self.other_actor_transform[1].location, carla.Location(self.other_actor_transform[1].location + forward_vector)]
+        other_locations = [self.actor_transform_list[1].location, carla.Location(self.actor_transform_list[1].location + forward_vector)]
         route = interpolate_trajectory(self.world, other_locations)
         init_waypoints = []
         for wp in route:
             init_waypoints.append(carla_map.get_waypoint(wp[0].location))
-        
-        print('init_waypoints')
-        # for i in init_waypoints:
-        #     print(i)
+
         self.routeplanner = RoutePlanner(self.other_actors[1], self.max_waypt, init_waypoints)
         self.waypoints, _, _, _, _, self.vehicle_front = self.routeplanner.run_step()
 
     def initialize_actors(self):
-        """
-        Custom initialization
-        """
         first_actor_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
         second_actor_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._second_vehicle_location)
         second_actor_waypoint = second_actor_waypoint.get_left_lane()
@@ -128,20 +105,15 @@ class ManeuverOppositeDirection(BasicScenario):
             first_actor_waypoint.transform.location,
             first_actor_waypoint.transform.rotation)
 
-        self.other_actor_transform.append(first_actor_transform)
-
-        self.other_actor_transform.append(second_actor_waypoint.transform)
-
-        self.scenario_operation.initialize_vehicle_actors(self.other_actor_transform, self.other_actors,
-                                                          self.actor_type_list)
-
+        self.actor_type_list = ['vehicle.nissan.micra', 'vehicle.nissan.micra']
+        self.actor_transform_list = [first_actor_transform, second_actor_waypoint.transform]
+        self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
         self.reference_actor = self.other_actors[0]
         self.initialize_route_planner()
 
     def update_behavior(self):
         """
-        first actor run in low speed
-        second actor run in normal speed from oncoming route
+            first actor run in low speed, second actor run in normal speed from oncoming route
         """
         self.waypoints, _, _, _, _, self.vehicle_front = self.routeplanner.run_step()
         with torch.no_grad():
@@ -150,11 +122,10 @@ class ManeuverOppositeDirection(BasicScenario):
             new_state = torch.tensor([state], dtype=torch.float).to(self.adv_agent.actor.device)
             action = self.adv_agent.actor.forward(new_state).detach().cpu().numpy()[0]
             ## train ##
-#             action = self.adv_agent.choose_action(state)
             current_velocity = (action[0]+1)/2 * self._other_actor_max_velocity
         self.scenario_operation.go_straight(current_velocity, 1, steering = action[1] * self.STEERING_MAX)
         self.step += 1
-                                                
+
     def _get_obs(self):
         self.ego = self.other_actors[1]
         ego_trans = self.ego.get_transform()
@@ -172,11 +143,10 @@ class ManeuverOppositeDirection(BasicScenario):
         state = np.array([
             lateral_dis, -delta_yaw, speed, int(self.vehicle_front),
             (ego_x, ego_y), ego_yaw, acceleration
-        ],
-                         dtype=object)
+        ], dtype=object)
         
         ### Relative Postion ###
-        ego_location = self.ego_vehicles[0].get_transform().location
+        ego_location = self.ego_vehicle.get_transform().location
         ego_location = np.array([ego_location.x, ego_location.y])
 
         actor = self.other_actors[1]
@@ -188,17 +158,15 @@ class ManeuverOppositeDirection(BasicScenario):
         sv_forward_vector = np.array([sv_forward_vector.x, sv_forward_vector.y])
 
         projection_x = sum(rel_ego_location * sv_forward_vector)
-        projection_y = np.linalg.norm(rel_ego_location - projection_x * sv_forward_vector) * \
-                                np.sign(np.cross(sv_forward_vector, rel_ego_location))
+        projection_y = np.linalg.norm(rel_ego_location - projection_x * sv_forward_vector) * np.sign(np.cross(sv_forward_vector, rel_ego_location))
 
-        ego_forward_vector = self.ego_vehicles[0].get_transform().rotation.get_forward_vector()
+        ego_forward_vector = self.ego_vehicle.get_transform().rotation.get_forward_vector()
         ego_forward_vector = np.array([ego_forward_vector.x, ego_forward_vector.y])
         rel_ego_yaw = np.arcsin(np.cross(sv_forward_vector, ego_forward_vector))
         
-        state = np.concatenate((state[:4], \
-                                 np.array([rel_ego_yaw, projection_x, projection_y]))).astype(float)
+        state = np.concatenate((state[:4], np.array([rel_ego_yaw, projection_x, projection_y]))).astype(float)
         return state
-                                                
+
     def _get_reward(self):
         """Calculate the step reward."""
         # reward for speed tracking

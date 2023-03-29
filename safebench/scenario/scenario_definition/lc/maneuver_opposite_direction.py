@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:49:34
+LastEditTime: 2023-03-29 17:44:33
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -22,7 +22,7 @@ from safebench.scenario.tools.scenario_operation import ScenarioOperation
 class ManeuverOppositeDirection(BasicScenario):
     """
         Vehicle is passing another vehicle in a rural area, in daylight, under clear weather conditions, 
-        at a non-junction and encroaches into another vehicle traveling in the opposite direction. (Traffic Scenario 06)
+        at a non-junction and encroaches into another vehicle traveling in the opposite direction.
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
