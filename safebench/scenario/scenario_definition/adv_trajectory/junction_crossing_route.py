@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:52:46
+LastEditTime: 2023-03-27 18:52:39
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -12,7 +12,6 @@ Description:
 '''
 
 import json
-
 import carla
 
 from safebench.scenario.tools.scenario_operation import ScenarioOperation
@@ -63,7 +62,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         self.total_steps = len(self.control_seq)
         self.planned_actor_transform_list = []
         self.perturbed_actor_transform_list = []
-
 
     def initialize_actors(self):
         """

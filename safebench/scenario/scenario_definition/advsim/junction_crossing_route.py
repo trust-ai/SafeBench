@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:51:27
+LastEditTime: 2023-03-27 18:52:43
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -30,10 +30,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=180):
-        """
-        Setup all relevant parameters and create scenario
-        and instantiate scenario manager
-        """
         super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-AdvSim", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
@@ -62,7 +58,6 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         self.step = 0
         self.control_seq = []
         self._other_actor_max_velocity = self.actor_speed * 2
-
 
     def initialize_actors(self):
         """
