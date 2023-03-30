@@ -66,7 +66,7 @@ if __name__ == '__main__':
             # main entry with a selected mode
             agent_config.update(args_dict)
             scenario_config.update(args_dict)
-            if scenario_config['scenario_type'] == 'scenic':
+            if scenario_config['policy_type'] == 'scenic':
                 from safebench.scenic_runner import ScenicRunner
                 assert scenario_config['num_scenario'] == 1, 'the num_scenario can only be one for scenic now'
                 runner = ScenicRunner(agent_config, scenario_config)

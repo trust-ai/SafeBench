@@ -46,30 +46,31 @@ class ScenicScenario():
         CarlaDataProvider._carla_actor_pool[actor.id] = actor
         CarlaDataProvider.register_actor(actor)       
         
-        ## coarse traj ##
-        init_waypoints = []
-        routeplanner = RoutePlanner(ego_vehicle, 200, init_waypoints, ego_route=self.config.ego_route)
-        
-        _waypoint_buffer = []
-        while len(_waypoint_buffer) < 100:
-            pop = routeplanner._waypoints_queue.popleft()
-            _waypoint_buffer.append(pop[0].transform.location)
-            
-        ### 150 meter dense route planning ###
-        route = interpolate_trajectory(self.world, _waypoint_buffer)
-        index = 1
-        prev_wp = route[0][0].location
-        _accum_meters = 0
-        
-        while _accum_meters < 150:
-            pop = route[index]
-            wp = pop[0].location
-            d = wp.distance(prev_wp)
-            _accum_meters += d
-            prev_wp = wp
-            index += 1
-        route = route[:index]
-        
+        if len(self.config.trajectory) == 0:
+            # coarse traj ##
+            routeplanner = RoutePlanner(ego_vehicle, 200, [])
+
+            _waypoint_buffer = []
+            while len(_waypoint_buffer) < 50:
+                pop = routeplanner._waypoints_queue.popleft()
+                _waypoint_buffer.append(pop[0].transform.location)
+
+            ### dense route planning ###
+            route = interpolate_trajectory(self.world, _waypoint_buffer)
+            index = 1
+            prev_wp = route[0][0].location
+            _accum_meters = 0
+            while _accum_meters < 100:
+                pop = route[index]
+                wp = pop[0].location
+                d = wp.distance(prev_wp)
+                _accum_meters += d
+                prev_wp = wp
+                index += 1
+            route = route[:index]
+        else:
+            route = interpolate_trajectory(self.world, self.config.trajectory)
+
         CarlaDataProvider.set_ego_vehicle_route(convert_transform_to_location(route))
         CarlaDataProvider.set_scenario_config(self.config)
         

@@ -3,6 +3,7 @@ Based on 2019 Carla Challenge Traffic Scenario 09.
 Ego-vehicle is performing a right turn at an intersection, yielding to crossing traffic.
 """
 param map = localPath('../maps/Town_Safebench_Light.xodr')  # or other CARLA map that definitely works
+param carla_map = 'Town_Safebench_Light'
 model scenic.domains.driving.model
 
 DELAY_TIME_1 = 1 # the delay time for ego

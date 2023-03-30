@@ -10,9 +10,9 @@ Description:
 
 import copy
 import os
+import json
 
 import numpy as np
-import json
 import carla
 import pygame
 from tqdm import tqdm
@@ -29,7 +29,6 @@ from safebench.scenario.scenario_data_loader import ScenarioDataLoader, ScenicDa
 from safebench.scenario.tools.scenario_utils import scenario_parse, scenic_parse
 
 from safebench.util.logger import Logger, setup_logger_kwargs
-from safebench.util.run_util import VideoRecorder
 from safebench.util.metric_util import get_route_scores, get_perception_scores
 from safebench.util.scenic_utils import ScenicSimulator
 
@@ -42,12 +41,12 @@ class ScenicRunner:
         self.exp_name = scenario_config['exp_name']
         self.output_dir = scenario_config['output_dir']
         self.mode = scenario_config['mode']
+        self.save_video = scenario_config['save_video']
 
         self.render = scenario_config['render']
         self.num_scenario = scenario_config['num_scenario']
         self.fixed_delta_seconds = scenario_config['fixed_delta_seconds']
-        self.scenario_category = scenario_config['type_category']
-        self.scenario_policy_type = scenario_config['type_name'].split('.')[0]
+        self.scenario_category = scenario_config['scenario_category']
 
         # continue training flag
         self.continue_agent_training = scenario_config['continue_agent_training']
@@ -65,7 +64,7 @@ class ScenicRunner:
             'scenario_category': self.scenario_category,
             'ROOT_DIR': scenario_config['ROOT_DIR'],
             'disable_lidar': True,                                     # show bird-eye view lidar or not
-            'display_size': 128,                                       # screen size of one bird-eye view windowd=
+            'display_size': 128,                                       # screen size of one bird-eye view window
             'obs_range': 32,                                           # observation range (meter)
             'd_behind': 12,                                            # distance behind the ego vehicle (meter)
             'max_past_step': 1,                                        # the number of past steps to draw
@@ -89,7 +88,9 @@ class ScenicRunner:
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
         # define logger
-        logger_kwargs = setup_logger_kwargs(self.exp_name, self.output_dir, self.seed)
+        logger_kwargs = setup_logger_kwargs(self.exp_name, self.output_dir, self.seed,
+                                            agent=agent_config['policy_type'],
+                                            scenario=scenario_config['policy_type'])
         self.logger = Logger(**logger_kwargs)
         
         # prepare parameters
@@ -101,8 +102,10 @@ class ScenicRunner:
             self.logger.save_config(agent_config)
         elif self.mode == 'train_scenario':
             self.scene_map = {}
+            self.save_freq = scenario_config['save_freq']
             self.logger.create_eval_dir(load_existing_results=False)
         elif self.mode == 'eval':
+            self.save_freq = scenario_config['save_freq']
             self.logger.log('>> Evaluation Mode, skip config saving', 'yellow')
             self.logger.create_eval_dir(load_existing_results=True)
         else:
@@ -110,19 +113,21 @@ class ScenicRunner:
 
         # define agent and scenario
         self.logger.log('>> Agent Policy: ' + agent_config['policy_type'])
-        self.logger.log('>> Scenario Policy: ' + self.scenario_policy_type)
+        self.logger.log('>> Scenario Policy: ' + scenario_config['policy_type'])
 
         if self.scenario_config['auto_ego']:
             self.logger.log('>> Using auto-polit for ego vehicle, the action of agent policy will be ignored', 'yellow')
-        if self.scenario_policy_type == 'odrinary' and self.mode != 'train_agent':
+        if scenario_config['policy_type'] == 'ordinary' and self.mode != 'train_agent':
             self.logger.log('>> Ordinary scenario can only be used in agent training', 'red')
             raise Exception()
         self.logger.log('>> ' + '-' * 40)
 
         # define agent and scenario policy
         self.agent_policy = AGENT_POLICY_LIST[agent_config['policy_type']](agent_config, logger=self.logger)
-        self.scenario_policy = SCENARIO_POLICY_LIST[self.scenario_policy_type](scenario_config, logger=self.logger)
-        self.video_recorder = VideoRecorder(scenario_config, logger=self.logger)
+        self.scenario_policy = SCENARIO_POLICY_LIST[scenario_config['policy_type']](scenario_config, logger=self.logger)
+        if self.save_video:
+            assert self.mode == 'eval', "only allow video saving in eval mode"
+            self.logger.init_video_recorder()
 
     def _init_world(self):
         self.logger.log(">> Initializing carla world")
@@ -264,7 +269,8 @@ class ScenicRunner:
                 obs, rewards, _, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
 
                 # save video
-                self.video_recorder.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
+                if self.save_video:
+                    self.logger.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
 
                 # accumulate scores of corresponding scenario
                 reward_idx = 0
@@ -278,8 +284,9 @@ class ScenicRunner:
             self.env.clean_up()
 
             # save video
-            self.video_recorder.save(video_name=f'video_{video_count}.gif')
-            video_count += 1
+            if self.save_video:
+                data_ids = [config.data_id for config in sampled_scenario_configs]
+                self.logger.save_video(data_ids=data_ids)
 
             # print score for ranking
             self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', color='yellow')
@@ -288,19 +295,21 @@ class ScenicRunner:
 
             # calculate evaluation results
             score_function = get_route_scores if self.scenario_category in ['planning', 'scenic'] else get_perception_scores
-            all_scores = score_function(self.env.running_results)
-            self.logger.add_eval_results(all_scores, self.env.running_results)
+            all_running_results = self.logger.add_eval_results(records=self.env.running_results)
+            all_scores = score_function(all_running_results)
+            self.logger.add_eval_results(scores=all_scores)
             self.logger.print_eval_results()
-            self.logger.save_eval_results()
+            if len(self.env.running_results) % self.save_freq == 0:
+                self.logger.save_eval_results()
             for config in sampled_scenario_configs:
                 map_id_score[config.data_id] = all_scores['final_score']
+        self.logger.save_eval_results()
         
         if select:
             behavior_name = data_loader.behavior
             # TODO: define new selection mechanism
             self.scene_map[behavior_name] = sorted([item[0] for item in sorted(map_id_score.items(), key=lambda x:x[1])][:data_loader.select_num])
             self.dump_scene_map()
-            
         self.scenic.destroy()
         
     def run(self):
@@ -356,7 +365,8 @@ class ScenicRunner:
         # load previous checkpoint
         scenic_dir = self.scenario_config['scenic_dir']
         f = open(os.path.join(scenic_dir, f"{scenic_dir.split('/')[-1]}.json"), 'w')
-        json.dump(self.scene_map, f)
+        json_dumps_str = json.dumps(self.scene_map, indent=4)
+        print(json_dumps_str, file=f)
         f.close()
     
     def close(self):

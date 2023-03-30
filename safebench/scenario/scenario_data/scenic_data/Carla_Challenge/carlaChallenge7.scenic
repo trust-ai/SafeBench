@@ -5,6 +5,7 @@ runs a red light, forcing the ego-vehicle to perform a collision avoidance maneu
 Note: The traffic light control is not implemented yet, but it will soon be. 
 """
 param map = localPath('../maps/Town_Safebench_Light.xodr')  # or other CARLA map that definitely works
+param carla_map = 'Town_Safebench_Light'
 model scenic.domains.driving.model
 
 DELAY_TIME_1 = 1 # the delay time for ego
