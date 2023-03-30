@@ -165,9 +165,10 @@ Now you can test the ego with these selected adversarial scenes:
 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode eval
 ```
 
-Or if you want to Launch it on the virtual display
+Or if you want to Launch it on the virtual display:
 
 ```bash
+DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode train_scenario
 DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode eval
 ``` 
 

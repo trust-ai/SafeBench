@@ -101,7 +101,7 @@ def get_parser(scenicFile):
     return args
 
 class ScenicSimulator:
-    def __init__(self, scenicFile):
+    def __init__(self, scenicFile, config):
         self.args = get_parser(scenicFile)
         delay = self.args.delay
         errors.showInternalBacktrace = self.args.full_backtrace
@@ -112,16 +112,8 @@ class ScenicSimulator:
             errors.postMortemRejections = True
             errors.showInternalBacktrace = True
         params = {}
-        for name, value in self.args.param:
-            # Convert params to ints or floats if possible
-            try:
-                value = int(value)
-            except ValueError:
-                try:
-                    value = float(value)
-                except ValueError:
-                    pass
-            params[name] = value
+        params['port'] = config['port']
+        params['traffic_manager_port'] = config['tm_port']
         translator.dumpTranslatedPython = self.args.dump_initial_python
         translator.dumpFinalAST = self.args.dump_ast
         translator.dumpASTPython = self.args.dump_python
@@ -144,7 +136,6 @@ class ScenicSimulator:
         totalTime = time.time() - startTime
         if self.args.verbosity >= 1:
             print(f'Scenario constructed in {totalTime:.2f} seconds.')
-
         if self.args.simulate:
             self.simulator = errors.callBeginningScenicTrace(self.scenario.getSimulator)
             self.simulator.render = False

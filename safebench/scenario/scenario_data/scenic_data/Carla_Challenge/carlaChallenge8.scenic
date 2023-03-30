@@ -7,6 +7,7 @@ traffic.
 
 ## SET MAP AND MODEL (i.e. definitions of all referenceable vehicle types, road library, etc)
 param map = localPath('../maps/Town_Safebench_Light.xodr')  # or other CARLA map that definitely works
+param carla_map = 'Town_Safebench_Light'
 model scenic.simulators.carla.model
 
 ## CONSTANTS
@@ -41,7 +42,7 @@ behavior EgoBehavior(speed, trajectory):
 # 'network' is the 'class Network' object in roads.py
 
 # The meaning of filter() function is explained in examples/carla/Carla_Challenge/carlaChallenge7.scenic
-fourWayIntersection = filter(lambda i: i.is4Way and i.isSignalized, network.intersections)
+fourWayIntersection = filter(lambda i: i.is4Way, network.intersections)
 
 # make sure to put '*' to uniformly randomly select from all elements of the list
 intersec = Uniform(*fourWayIntersection)

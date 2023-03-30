@@ -9,6 +9,7 @@ Description:
 '''
 
 import numpy as np
+from copy import deepcopy
 from safebench.util.torch_util import set_seed
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
 
@@ -129,13 +130,7 @@ class ScenicDataLoader:
             scene, _ = scenic.generateScene()
             if scenic.setSimulation(scene):
                 scenic.update_behavior = scenic.runSimulation()
-                next(scenic.update_behavior)
-                try:
-                    ### skip the scene that the adv agent can not update
-                    next(scenic.update_behavior)
-                    self.scene.append(scene)
-                except:
-                    pass
+                self.scene.append(scene)
                 scenic.endSimulation()
             
     def reset_idx_counter(self):
@@ -148,8 +143,22 @@ class ScenicDataLoader:
         ## no need to be random for scenic loading file ###
         selected_scenario = []
         idx = self.scenario_idx.pop(0)
-        self.config.data_id = idx
-        self.config.scene = self.scene[idx]
-        selected_scenario.append(self.config)
+        new_config = deepcopy(self.config)
+        new_config.scene = self.scene[idx]
+        new_config.data_id = idx
+        try:
+            new_config.trajectory = self.scenicToCarlaLocation(new_config.scene.params['Trajectory'])
+        except:
+            new_config.trajectory = []
+        selected_scenario.append(new_config)
         assert len(selected_scenario) <= self.num_scenario, f"number of scenarios is larger than {self.num_scenario}"
         return selected_scenario, len(selected_scenario)
+
+    def scenicToCarlaLocation(self, points):
+        waypoints = []
+        for point in points:
+            location = carla.Location(point[0], -point[1], 0.0)
+            waypoint = CarlaDataProvider.get_map().get_waypoint(location)
+            location.z = waypoint.transform.location.z + 0.5
+            waypoints.append(location)
+        return waypoints
