@@ -157,7 +157,7 @@ class RouteScenario():
             # get the class of the scenario
             scenario_path = [
                 'safebench.scenario.scenario_definition',
-                self.config.scenario_generation_method,
+                self.config.scenario_folder,
                 definition['name'],
             ]
             scenario_class = class_from_path('.'.join(scenario_path))

@@ -1,7 +1,7 @@
 [
   {
     "data_id": 0,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 1,
     "route_id": 0,
     "risk_level": null,
@@ -9,7 +9,7 @@
   },
   {
     "data_id": 1,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 1,
     "route_id": 1,
     "risk_level": null,
@@ -17,7 +17,7 @@
   },
   {
     "data_id": 2,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 1,
     "route_id": 2,
     "risk_level": null,
@@ -25,7 +25,7 @@
   },
   {
     "data_id": 3,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 1,
     "route_id": 3,
     "risk_level": null,
@@ -33,7 +33,7 @@
   },
   {
     "data_id": 4,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 2,
     "route_id": 0,
     "risk_level": null,
@@ -41,7 +41,7 @@
   },
   {
     "data_id": 5,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 2,
     "route_id": 1,
     "risk_level": null,
@@ -49,7 +49,7 @@
   },
   {
     "data_id": 6,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 2,
     "route_id": 2,
     "risk_level": null,
@@ -57,7 +57,7 @@
   },
   {
     "data_id": 7,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 2,
     "route_id": 3,
     "risk_level": null,
@@ -65,7 +65,7 @@
   },
   {
     "data_id": 8,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 3,
     "route_id": 0,
     "risk_level": null,
@@ -73,7 +73,7 @@
   },
   {
     "data_id": 9,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 3,
     "route_id": 1,
     "risk_level": null,
@@ -81,7 +81,7 @@
   },
   {
     "data_id": 10,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 3,
     "route_id": 2,
     "risk_level": null,
@@ -89,7 +89,7 @@
   },
   {
     "data_id": 11,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 3,
     "route_id": 3,
     "risk_level": null,
@@ -97,7 +97,7 @@
   },
   {
     "data_id": 12,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 4,
     "route_id": 0,
     "risk_level": null,
@@ -105,7 +105,7 @@
   },
   {
     "data_id": 13,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 4,
     "route_id": 1,
     "risk_level": null,
@@ -113,7 +113,7 @@
   },
   {
     "data_id": 14,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 4,
     "route_id": 2,
     "risk_level": null,
@@ -121,7 +121,7 @@
   },
   {
     "data_id": 15,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 4,
     "route_id": 3,
     "risk_level": null,
@@ -129,7 +129,7 @@
   },
   {
     "data_id": 16,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 5,
     "route_id": 0,
     "risk_level": null,
@@ -137,7 +137,7 @@
   },
   {
     "data_id": 17,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 5,
     "route_id": 1,
     "risk_level": null,
@@ -145,7 +145,7 @@
   },
   {
     "data_id": 18,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 5,
     "route_id": 2,
     "risk_level": null,
@@ -153,7 +153,7 @@
   },
   {
     "data_id": 19,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 5,
     "route_id": 3,
     "risk_level": null,
@@ -161,7 +161,7 @@
   },
   {
     "data_id": 20,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 6,
     "route_id": 0,
     "risk_level": null,
@@ -169,7 +169,7 @@
   },
   {
     "data_id": 21,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 6,
     "route_id": 1,
     "risk_level": null,
@@ -177,7 +177,7 @@
   },
   {
     "data_id": 22,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 6,
     "route_id": 2,
     "risk_level": null,
@@ -185,7 +185,7 @@
   },
   {
     "data_id": 23,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 6,
     "route_id": 3,
     "risk_level": null,
@@ -193,7 +193,7 @@
   },
   {
     "data_id": 24,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 7,
     "route_id": 0,
     "risk_level": null,
@@ -201,7 +201,7 @@
   },
   {
     "data_id": 25,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 7,
     "route_id": 1,
     "risk_level": null,
@@ -209,7 +209,7 @@
   },
   {
     "data_id": 26,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 7,
     "route_id": 2,
     "risk_level": null,
@@ -217,7 +217,7 @@
   },
   {
     "data_id": 27,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 7,
     "route_id": 3,
     "risk_level": null,
@@ -225,7 +225,7 @@
   },
   {
     "data_id": 28,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 8,
     "route_id": 0,
     "risk_level": null,
@@ -233,7 +233,7 @@
   },
   {
     "data_id": 29,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 8,
     "route_id": 1,
     "risk_level": null,
@@ -241,7 +241,7 @@
   },
   {
     "data_id": 30,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 8,
     "route_id": 2,
     "risk_level": null,
@@ -249,7 +249,7 @@
   },
   {
     "data_id": 31,
-    "method": "standard",
+    "scenario_folder": "standard",
     "scenario_id": 8,
     "route_id": 3,
     "risk_level": null,

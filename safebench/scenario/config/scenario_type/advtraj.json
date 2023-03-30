@@ -1,7 +1,7 @@
 [
     {
         "data_id": 0,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -9,7 +9,7 @@
     },
     {
         "data_id": 1,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -17,7 +17,7 @@
     },
     {
         "data_id": 2,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -25,7 +25,7 @@
     },
     {
         "data_id": 3,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -33,7 +33,7 @@
     },
     {
         "data_id": 4,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -41,7 +41,7 @@
     },
     {
         "data_id": 5,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -49,7 +49,7 @@
     },
     {
         "data_id": 6,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -57,7 +57,7 @@
     },
     {
         "data_id": 7,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -65,7 +65,7 @@
     },
     {
         "data_id": 8,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -73,7 +73,7 @@
     },
     {
         "data_id": 9,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 4,
         "risk_level": null,
@@ -81,7 +81,7 @@
     },
     {
         "data_id": 10,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -89,7 +89,7 @@
     },
     {
         "data_id": 11,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -97,7 +97,7 @@
     },
     {
         "data_id": 12,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -105,7 +105,7 @@
     },
     {
         "data_id": 13,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -113,7 +113,7 @@
     },
     {
         "data_id": 14,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -121,7 +121,7 @@
     },
     {
         "data_id": 15,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -129,7 +129,7 @@
     },
     {
         "data_id": 16,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -137,7 +137,7 @@
     },
     {
         "data_id": 17,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -145,7 +145,7 @@
     },
     {
         "data_id": 18,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -153,7 +153,7 @@
     },
     {
         "data_id": 19,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 5,
         "risk_level": null,
@@ -161,7 +161,7 @@
     },
     {
         "data_id": 20,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -169,7 +169,7 @@
     },
     {
         "data_id": 21,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -177,7 +177,7 @@
     },
     {
         "data_id": 22,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -185,7 +185,7 @@
     },
     {
         "data_id": 23,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -193,7 +193,7 @@
     },
     {
         "data_id": 24,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -201,7 +201,7 @@
     },
     {
         "data_id": 25,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -209,7 +209,7 @@
     },
     {
         "data_id": 26,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -217,7 +217,7 @@
     },
     {
         "data_id": 27,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -225,7 +225,7 @@
     },
     {
         "data_id": 28,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -233,7 +233,7 @@
     },
     {
         "data_id": 29,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 6,
         "risk_level": null,
@@ -241,7 +241,7 @@
     },
     {
         "data_id": 30,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -249,7 +249,7 @@
     },
     {
         "data_id": 31,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -257,7 +257,7 @@
     },
     {
         "data_id": 32,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -265,7 +265,7 @@
     },
     {
         "data_id": 33,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -273,7 +273,7 @@
     },
     {
         "data_id": 34,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -281,7 +281,7 @@
     },
     {
         "data_id": 35,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -289,7 +289,7 @@
     },
     {
         "data_id": 36,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -297,7 +297,7 @@
     },
     {
         "data_id": 37,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -305,7 +305,7 @@
     },
     {
         "data_id": 38,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -313,7 +313,7 @@
     },
     {
         "data_id": 39,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 7,
         "risk_level": null,
@@ -321,7 +321,7 @@
     },
     {
         "data_id": 40,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -329,7 +329,7 @@
     },
     {
         "data_id": 41,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -337,7 +337,7 @@
     },
     {
         "data_id": 42,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -345,7 +345,7 @@
     },
     {
         "data_id": 43,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -353,7 +353,7 @@
     },
     {
         "data_id": 44,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -361,7 +361,7 @@
     },
     {
         "data_id": 45,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -369,7 +369,7 @@
     },
     {
         "data_id": 46,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -377,7 +377,7 @@
     },
     {
         "data_id": 47,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -385,7 +385,7 @@
     },
     {
         "data_id": 48,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -393,7 +393,7 @@
     },
     {
         "data_id": 49,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 8,
         "risk_level": null,
@@ -401,7 +401,7 @@
     },
     {
         "data_id": 50,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -409,7 +409,7 @@
     },
     {
         "data_id": 51,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -417,7 +417,7 @@
     },
     {
         "data_id": 52,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -425,7 +425,7 @@
     },
     {
         "data_id": 53,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -433,7 +433,7 @@
     },
     {
         "data_id": 54,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -441,7 +441,7 @@
     },
     {
         "data_id": 55,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -449,7 +449,7 @@
     },
     {
         "data_id": 56,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -457,7 +457,7 @@
     },
     {
         "data_id": 57,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -465,7 +465,7 @@
     },
     {
         "data_id": 58,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -473,7 +473,7 @@
     },
     {
         "data_id": 59,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 9,
         "risk_level": null,
@@ -481,7 +481,7 @@
     },
     {
         "data_id": 60,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -489,7 +489,7 @@
     },
     {
         "data_id": 61,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -497,7 +497,7 @@
     },
     {
         "data_id": 62,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -505,7 +505,7 @@
     },
     {
         "data_id": 63,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -513,7 +513,7 @@
     },
     {
         "data_id": 64,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -521,7 +521,7 @@
     },
     {
         "data_id": 65,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -529,7 +529,7 @@
     },
     {
         "data_id": 66,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -537,7 +537,7 @@
     },
     {
         "data_id": 67,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -545,7 +545,7 @@
     },
     {
         "data_id": 68,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -553,7 +553,7 @@
     },
     {
         "data_id": 69,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 10,
         "risk_level": null,
@@ -561,7 +561,7 @@
     },
     {
         "data_id": 70,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -569,7 +569,7 @@
     },
     {
         "data_id": 71,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -577,7 +577,7 @@
     },
     {
         "data_id": 72,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -585,7 +585,7 @@
     },
     {
         "data_id": 73,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -593,7 +593,7 @@
     },
     {
         "data_id": 74,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -601,7 +601,7 @@
     },
     {
         "data_id": 75,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -609,7 +609,7 @@
     },
     {
         "data_id": 76,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -617,7 +617,7 @@
     },
     {
         "data_id": 77,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -625,7 +625,7 @@
     },
     {
         "data_id": 78,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -633,7 +633,7 @@
     },
     {
         "data_id": 79,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 11,
         "risk_level": null,
@@ -641,7 +641,7 @@
     },
     {
         "data_id": 80,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -649,7 +649,7 @@
     },
     {
         "data_id": 81,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -657,7 +657,7 @@
     },
     {
         "data_id": 82,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -665,7 +665,7 @@
     },
     {
         "data_id": 83,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -673,7 +673,7 @@
     },
     {
         "data_id": 84,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -681,7 +681,7 @@
     },
     {
         "data_id": 85,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -689,7 +689,7 @@
     },
     {
         "data_id": 86,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -697,7 +697,7 @@
     },
     {
         "data_id": 87,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -705,7 +705,7 @@
     },
     {
         "data_id": 88,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -713,7 +713,7 @@
     },
     {
         "data_id": 89,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 12,
         "risk_level": null,
@@ -721,7 +721,7 @@
     },
     {
         "data_id": 90,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -729,7 +729,7 @@
     },
     {
         "data_id": 91,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -737,7 +737,7 @@
     },
     {
         "data_id": 92,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -745,7 +745,7 @@
     },
     {
         "data_id": 93,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -753,7 +753,7 @@
     },
     {
         "data_id": 94,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -761,7 +761,7 @@
     },
     {
         "data_id": 95,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -769,7 +769,7 @@
     },
     {
         "data_id": 96,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -777,7 +777,7 @@
     },
     {
         "data_id": 97,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -785,7 +785,7 @@
     },
     {
         "data_id": 98,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -793,7 +793,7 @@
     },
     {
         "data_id": 99,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 1,
         "route_id": 13,
         "risk_level": null,
@@ -801,7 +801,7 @@
     },
     {
         "data_id": 100,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -809,7 +809,7 @@
     },
     {
         "data_id": 101,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -817,7 +817,7 @@
     },
     {
         "data_id": 102,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -825,7 +825,7 @@
     },
     {
         "data_id": 103,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -833,7 +833,7 @@
     },
     {
         "data_id": 104,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -841,7 +841,7 @@
     },
     {
         "data_id": 105,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -849,7 +849,7 @@
     },
     {
         "data_id": 106,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -857,7 +857,7 @@
     },
     {
         "data_id": 107,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -865,7 +865,7 @@
     },
     {
         "data_id": 108,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -873,7 +873,7 @@
     },
     {
         "data_id": 109,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 4,
         "risk_level": null,
@@ -881,7 +881,7 @@
     },
     {
         "data_id": 110,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -889,7 +889,7 @@
     },
     {
         "data_id": 111,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -897,7 +897,7 @@
     },
     {
         "data_id": 112,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -905,7 +905,7 @@
     },
     {
         "data_id": 113,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -913,7 +913,7 @@
     },
     {
         "data_id": 114,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -921,7 +921,7 @@
     },
     {
         "data_id": 115,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -929,7 +929,7 @@
     },
     {
         "data_id": 116,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -937,7 +937,7 @@
     },
     {
         "data_id": 117,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -945,7 +945,7 @@
     },
     {
         "data_id": 118,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -953,7 +953,7 @@
     },
     {
         "data_id": 119,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 5,
         "risk_level": null,
@@ -961,7 +961,7 @@
     },
     {
         "data_id": 120,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -969,7 +969,7 @@
     },
     {
         "data_id": 121,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -977,7 +977,7 @@
     },
     {
         "data_id": 122,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -985,7 +985,7 @@
     },
     {
         "data_id": 123,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -993,7 +993,7 @@
     },
     {
         "data_id": 124,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -1001,7 +1001,7 @@
     },
     {
         "data_id": 125,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -1009,7 +1009,7 @@
     },
     {
         "data_id": 126,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -1017,7 +1017,7 @@
     },
     {
         "data_id": 127,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -1025,7 +1025,7 @@
     },
     {
         "data_id": 128,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -1033,7 +1033,7 @@
     },
     {
         "data_id": 129,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 6,
         "risk_level": null,
@@ -1041,7 +1041,7 @@
     },
     {
         "data_id": 130,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1049,7 +1049,7 @@
     },
     {
         "data_id": 131,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1057,7 +1057,7 @@
     },
     {
         "data_id": 132,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1065,7 +1065,7 @@
     },
     {
         "data_id": 133,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1073,7 +1073,7 @@
     },
     {
         "data_id": 134,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1081,7 +1081,7 @@
     },
     {
         "data_id": 135,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1089,7 +1089,7 @@
     },
     {
         "data_id": 136,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1097,7 +1097,7 @@
     },
     {
         "data_id": 137,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1105,7 +1105,7 @@
     },
     {
         "data_id": 138,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1113,7 +1113,7 @@
     },
     {
         "data_id": 139,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 7,
         "risk_level": null,
@@ -1121,7 +1121,7 @@
     },
     {
         "data_id": 140,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1129,7 +1129,7 @@
     },
     {
         "data_id": 141,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1137,7 +1137,7 @@
     },
     {
         "data_id": 142,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1145,7 +1145,7 @@
     },
     {
         "data_id": 143,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1153,7 +1153,7 @@
     },
     {
         "data_id": 144,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1161,7 +1161,7 @@
     },
     {
         "data_id": 145,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1169,7 +1169,7 @@
     },
     {
         "data_id": 146,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1177,7 +1177,7 @@
     },
     {
         "data_id": 147,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1185,7 +1185,7 @@
     },
     {
         "data_id": 148,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1193,7 +1193,7 @@
     },
     {
         "data_id": 149,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 8,
         "risk_level": null,
@@ -1201,7 +1201,7 @@
     },
     {
         "data_id": 150,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1209,7 +1209,7 @@
     },
     {
         "data_id": 151,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1217,7 +1217,7 @@
     },
     {
         "data_id": 152,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1225,7 +1225,7 @@
     },
     {
         "data_id": 153,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1233,7 +1233,7 @@
     },
     {
         "data_id": 154,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1241,7 +1241,7 @@
     },
     {
         "data_id": 155,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1249,7 +1249,7 @@
     },
     {
         "data_id": 156,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1257,7 +1257,7 @@
     },
     {
         "data_id": 157,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1265,7 +1265,7 @@
     },
     {
         "data_id": 158,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1273,7 +1273,7 @@
     },
     {
         "data_id": 159,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 9,
         "risk_level": null,
@@ -1281,7 +1281,7 @@
     },
     {
         "data_id": 160,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1289,7 +1289,7 @@
     },
     {
         "data_id": 161,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1297,7 +1297,7 @@
     },
     {
         "data_id": 162,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1305,7 +1305,7 @@
     },
     {
         "data_id": 163,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1313,7 +1313,7 @@
     },
     {
         "data_id": 164,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1321,7 +1321,7 @@
     },
     {
         "data_id": 165,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1329,7 +1329,7 @@
     },
     {
         "data_id": 166,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1337,7 +1337,7 @@
     },
     {
         "data_id": 167,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1345,7 +1345,7 @@
     },
     {
         "data_id": 168,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1353,7 +1353,7 @@
     },
     {
         "data_id": 169,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 10,
         "risk_level": null,
@@ -1361,7 +1361,7 @@
     },
     {
         "data_id": 170,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1369,7 +1369,7 @@
     },
     {
         "data_id": 171,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1377,7 +1377,7 @@
     },
     {
         "data_id": 172,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1385,7 +1385,7 @@
     },
     {
         "data_id": 173,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1393,7 +1393,7 @@
     },
     {
         "data_id": 174,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1401,7 +1401,7 @@
     },
     {
         "data_id": 175,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1409,7 +1409,7 @@
     },
     {
         "data_id": 176,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1417,7 +1417,7 @@
     },
     {
         "data_id": 177,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1425,7 +1425,7 @@
     },
     {
         "data_id": 178,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1433,7 +1433,7 @@
     },
     {
         "data_id": 179,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 11,
         "risk_level": null,
@@ -1441,7 +1441,7 @@
     },
     {
         "data_id": 180,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1449,7 +1449,7 @@
     },
     {
         "data_id": 181,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1457,7 +1457,7 @@
     },
     {
         "data_id": 182,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1465,7 +1465,7 @@
     },
     {
         "data_id": 183,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1473,7 +1473,7 @@
     },
     {
         "data_id": 184,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1481,7 +1481,7 @@
     },
     {
         "data_id": 185,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1489,7 +1489,7 @@
     },
     {
         "data_id": 186,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1497,7 +1497,7 @@
     },
     {
         "data_id": 187,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1505,7 +1505,7 @@
     },
     {
         "data_id": 188,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1513,7 +1513,7 @@
     },
     {
         "data_id": 189,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 12,
         "risk_level": null,
@@ -1521,7 +1521,7 @@
     },
     {
         "data_id": 190,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1529,7 +1529,7 @@
     },
     {
         "data_id": 191,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1537,7 +1537,7 @@
     },
     {
         "data_id": 192,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1545,7 +1545,7 @@
     },
     {
         "data_id": 193,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1553,7 +1553,7 @@
     },
     {
         "data_id": 194,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1561,7 +1561,7 @@
     },
     {
         "data_id": 195,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1569,7 +1569,7 @@
     },
     {
         "data_id": 196,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1577,7 +1577,7 @@
     },
     {
         "data_id": 197,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1585,7 +1585,7 @@
     },
     {
         "data_id": 198,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1593,7 +1593,7 @@
     },
     {
         "data_id": 199,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 2,
         "route_id": 13,
         "risk_level": null,
@@ -1601,7 +1601,7 @@
     },
     {
         "data_id": 200,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1609,7 +1609,7 @@
     },
     {
         "data_id": 201,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1617,7 +1617,7 @@
     },
     {
         "data_id": 202,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1625,7 +1625,7 @@
     },
     {
         "data_id": 203,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1633,7 +1633,7 @@
     },
     {
         "data_id": 204,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1641,7 +1641,7 @@
     },
     {
         "data_id": 205,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1649,7 +1649,7 @@
     },
     {
         "data_id": 206,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1657,7 +1657,7 @@
     },
     {
         "data_id": 207,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1665,7 +1665,7 @@
     },
     {
         "data_id": 208,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1673,7 +1673,7 @@
     },
     {
         "data_id": 209,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 4,
         "risk_level": null,
@@ -1681,7 +1681,7 @@
     },
     {
         "data_id": 210,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1689,7 +1689,7 @@
     },
     {
         "data_id": 211,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1697,7 +1697,7 @@
     },
     {
         "data_id": 212,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1705,7 +1705,7 @@
     },
     {
         "data_id": 213,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1713,7 +1713,7 @@
     },
     {
         "data_id": 214,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1721,7 +1721,7 @@
     },
     {
         "data_id": 215,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1729,7 +1729,7 @@
     },
     {
         "data_id": 216,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1737,7 +1737,7 @@
     },
     {
         "data_id": 217,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1745,7 +1745,7 @@
     },
     {
         "data_id": 218,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1753,7 +1753,7 @@
     },
     {
         "data_id": 219,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 5,
         "risk_level": null,
@@ -1761,7 +1761,7 @@
     },
     {
         "data_id": 220,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1769,7 +1769,7 @@
     },
     {
         "data_id": 221,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1777,7 +1777,7 @@
     },
     {
         "data_id": 222,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1785,7 +1785,7 @@
     },
     {
         "data_id": 223,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1793,7 +1793,7 @@
     },
     {
         "data_id": 224,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1801,7 +1801,7 @@
     },
     {
         "data_id": 225,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1809,7 +1809,7 @@
     },
     {
         "data_id": 226,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1817,7 +1817,7 @@
     },
     {
         "data_id": 227,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1825,7 +1825,7 @@
     },
     {
         "data_id": 228,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1833,7 +1833,7 @@
     },
     {
         "data_id": 229,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 6,
         "risk_level": null,
@@ -1841,7 +1841,7 @@
     },
     {
         "data_id": 230,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1849,7 +1849,7 @@
     },
     {
         "data_id": 231,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1857,7 +1857,7 @@
     },
     {
         "data_id": 232,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1865,7 +1865,7 @@
     },
     {
         "data_id": 233,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1873,7 +1873,7 @@
     },
     {
         "data_id": 234,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1881,7 +1881,7 @@
     },
     {
         "data_id": 235,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1889,7 +1889,7 @@
     },
     {
         "data_id": 236,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1897,7 +1897,7 @@
     },
     {
         "data_id": 237,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1905,7 +1905,7 @@
     },
     {
         "data_id": 238,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1913,7 +1913,7 @@
     },
     {
         "data_id": 239,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 7,
         "risk_level": null,
@@ -1921,7 +1921,7 @@
     },
     {
         "data_id": 240,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1929,7 +1929,7 @@
     },
     {
         "data_id": 241,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1937,7 +1937,7 @@
     },
     {
         "data_id": 242,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1945,7 +1945,7 @@
     },
     {
         "data_id": 243,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1953,7 +1953,7 @@
     },
     {
         "data_id": 244,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1961,7 +1961,7 @@
     },
     {
         "data_id": 245,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1969,7 +1969,7 @@
     },
     {
         "data_id": 246,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1977,7 +1977,7 @@
     },
     {
         "data_id": 247,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1985,7 +1985,7 @@
     },
     {
         "data_id": 248,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -1993,7 +1993,7 @@
     },
     {
         "data_id": 249,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 8,
         "risk_level": null,
@@ -2001,7 +2001,7 @@
     },
     {
         "data_id": 250,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2009,7 +2009,7 @@
     },
     {
         "data_id": 251,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2017,7 +2017,7 @@
     },
     {
         "data_id": 252,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2025,7 +2025,7 @@
     },
     {
         "data_id": 253,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2033,7 +2033,7 @@
     },
     {
         "data_id": 254,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2041,7 +2041,7 @@
     },
     {
         "data_id": 255,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2049,7 +2049,7 @@
     },
     {
         "data_id": 256,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2057,7 +2057,7 @@
     },
     {
         "data_id": 257,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2065,7 +2065,7 @@
     },
     {
         "data_id": 258,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2073,7 +2073,7 @@
     },
     {
         "data_id": 259,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 9,
         "risk_level": null,
@@ -2081,7 +2081,7 @@
     },
     {
         "data_id": 260,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2089,7 +2089,7 @@
     },
     {
         "data_id": 261,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2097,7 +2097,7 @@
     },
     {
         "data_id": 262,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2105,7 +2105,7 @@
     },
     {
         "data_id": 263,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2113,7 +2113,7 @@
     },
     {
         "data_id": 264,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2121,7 +2121,7 @@
     },
     {
         "data_id": 265,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2129,7 +2129,7 @@
     },
     {
         "data_id": 266,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2137,7 +2137,7 @@
     },
     {
         "data_id": 267,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2145,7 +2145,7 @@
     },
     {
         "data_id": 268,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2153,7 +2153,7 @@
     },
     {
         "data_id": 269,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 10,
         "risk_level": null,
@@ -2161,7 +2161,7 @@
     },
     {
         "data_id": 270,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2169,7 +2169,7 @@
     },
     {
         "data_id": 271,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2177,7 +2177,7 @@
     },
     {
         "data_id": 272,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2185,7 +2185,7 @@
     },
     {
         "data_id": 273,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2193,7 +2193,7 @@
     },
     {
         "data_id": 274,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2201,7 +2201,7 @@
     },
     {
         "data_id": 275,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2209,7 +2209,7 @@
     },
     {
         "data_id": 276,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2217,7 +2217,7 @@
     },
     {
         "data_id": 277,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2225,7 +2225,7 @@
     },
     {
         "data_id": 278,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2233,7 +2233,7 @@
     },
     {
         "data_id": 279,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 11,
         "risk_level": null,
@@ -2241,7 +2241,7 @@
     },
     {
         "data_id": 280,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2249,7 +2249,7 @@
     },
     {
         "data_id": 281,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2257,7 +2257,7 @@
     },
     {
         "data_id": 282,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2265,7 +2265,7 @@
     },
     {
         "data_id": 283,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2273,7 +2273,7 @@
     },
     {
         "data_id": 284,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2281,7 +2281,7 @@
     },
     {
         "data_id": 285,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2289,7 +2289,7 @@
     },
     {
         "data_id": 286,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2297,7 +2297,7 @@
     },
     {
         "data_id": 287,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2305,7 +2305,7 @@
     },
     {
         "data_id": 288,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2313,7 +2313,7 @@
     },
     {
         "data_id": 289,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 12,
         "risk_level": null,
@@ -2321,7 +2321,7 @@
     },
     {
         "data_id": 290,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2329,7 +2329,7 @@
     },
     {
         "data_id": 291,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2337,7 +2337,7 @@
     },
     {
         "data_id": 292,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2345,7 +2345,7 @@
     },
     {
         "data_id": 293,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2353,7 +2353,7 @@
     },
     {
         "data_id": 294,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2361,7 +2361,7 @@
     },
     {
         "data_id": 295,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2369,7 +2369,7 @@
     },
     {
         "data_id": 296,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2377,7 +2377,7 @@
     },
     {
         "data_id": 297,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2385,7 +2385,7 @@
     },
     {
         "data_id": 298,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2393,7 +2393,7 @@
     },
     {
         "data_id": 299,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 3,
         "route_id": 13,
         "risk_level": null,
@@ -2401,7 +2401,7 @@
     },
     {
         "data_id": 300,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2409,7 +2409,7 @@
     },
     {
         "data_id": 301,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2417,7 +2417,7 @@
     },
     {
         "data_id": 302,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2425,7 +2425,7 @@
     },
     {
         "data_id": 303,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2433,7 +2433,7 @@
     },
     {
         "data_id": 304,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2441,7 +2441,7 @@
     },
     {
         "data_id": 305,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2449,7 +2449,7 @@
     },
     {
         "data_id": 306,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2457,7 +2457,7 @@
     },
     {
         "data_id": 307,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2465,7 +2465,7 @@
     },
     {
         "data_id": 308,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2473,7 +2473,7 @@
     },
     {
         "data_id": 309,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 4,
         "risk_level": null,
@@ -2481,7 +2481,7 @@
     },
     {
         "data_id": 310,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2489,7 +2489,7 @@
     },
     {
         "data_id": 311,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2497,7 +2497,7 @@
     },
     {
         "data_id": 312,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2505,7 +2505,7 @@
     },
     {
         "data_id": 313,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2513,7 +2513,7 @@
     },
     {
         "data_id": 314,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2521,7 +2521,7 @@
     },
     {
         "data_id": 315,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2529,7 +2529,7 @@
     },
     {
         "data_id": 316,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2537,7 +2537,7 @@
     },
     {
         "data_id": 317,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2545,7 +2545,7 @@
     },
     {
         "data_id": 318,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2553,7 +2553,7 @@
     },
     {
         "data_id": 319,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 5,
         "risk_level": null,
@@ -2561,7 +2561,7 @@
     },
     {
         "data_id": 320,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2569,7 +2569,7 @@
     },
     {
         "data_id": 321,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2577,7 +2577,7 @@
     },
     {
         "data_id": 322,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2585,7 +2585,7 @@
     },
     {
         "data_id": 323,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2593,7 +2593,7 @@
     },
     {
         "data_id": 324,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2601,7 +2601,7 @@
     },
     {
         "data_id": 325,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2609,7 +2609,7 @@
     },
     {
         "data_id": 326,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2617,7 +2617,7 @@
     },
     {
         "data_id": 327,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2625,7 +2625,7 @@
     },
     {
         "data_id": 328,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2633,7 +2633,7 @@
     },
     {
         "data_id": 329,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 6,
         "risk_level": null,
@@ -2641,7 +2641,7 @@
     },
     {
         "data_id": 330,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2649,7 +2649,7 @@
     },
     {
         "data_id": 331,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2657,7 +2657,7 @@
     },
     {
         "data_id": 332,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2665,7 +2665,7 @@
     },
     {
         "data_id": 333,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2673,7 +2673,7 @@
     },
     {
         "data_id": 334,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2681,7 +2681,7 @@
     },
     {
         "data_id": 335,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2689,7 +2689,7 @@
     },
     {
         "data_id": 336,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2697,7 +2697,7 @@
     },
     {
         "data_id": 337,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2705,7 +2705,7 @@
     },
     {
         "data_id": 338,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2713,7 +2713,7 @@
     },
     {
         "data_id": 339,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 7,
         "risk_level": null,
@@ -2721,7 +2721,7 @@
     },
     {
         "data_id": 340,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2729,7 +2729,7 @@
     },
     {
         "data_id": 341,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2737,7 +2737,7 @@
     },
     {
         "data_id": 342,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2745,7 +2745,7 @@
     },
     {
         "data_id": 343,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2753,7 +2753,7 @@
     },
     {
         "data_id": 344,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2761,7 +2761,7 @@
     },
     {
         "data_id": 345,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2769,7 +2769,7 @@
     },
     {
         "data_id": 346,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2777,7 +2777,7 @@
     },
     {
         "data_id": 347,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2785,7 +2785,7 @@
     },
     {
         "data_id": 348,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2793,7 +2793,7 @@
     },
     {
         "data_id": 349,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 8,
         "risk_level": null,
@@ -2801,7 +2801,7 @@
     },
     {
         "data_id": 350,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2809,7 +2809,7 @@
     },
     {
         "data_id": 351,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2817,7 +2817,7 @@
     },
     {
         "data_id": 352,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2825,7 +2825,7 @@
     },
     {
         "data_id": 353,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2833,7 +2833,7 @@
     },
     {
         "data_id": 354,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2841,7 +2841,7 @@
     },
     {
         "data_id": 355,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2849,7 +2849,7 @@
     },
     {
         "data_id": 356,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2857,7 +2857,7 @@
     },
     {
         "data_id": 357,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2865,7 +2865,7 @@
     },
     {
         "data_id": 358,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2873,7 +2873,7 @@
     },
     {
         "data_id": 359,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 9,
         "risk_level": null,
@@ -2881,7 +2881,7 @@
     },
     {
         "data_id": 360,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2889,7 +2889,7 @@
     },
     {
         "data_id": 361,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2897,7 +2897,7 @@
     },
     {
         "data_id": 362,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2905,7 +2905,7 @@
     },
     {
         "data_id": 363,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2913,7 +2913,7 @@
     },
     {
         "data_id": 364,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2921,7 +2921,7 @@
     },
     {
         "data_id": 365,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2929,7 +2929,7 @@
     },
     {
         "data_id": 366,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2937,7 +2937,7 @@
     },
     {
         "data_id": 367,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2945,7 +2945,7 @@
     },
     {
         "data_id": 368,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2953,7 +2953,7 @@
     },
     {
         "data_id": 369,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 10,
         "risk_level": null,
@@ -2961,7 +2961,7 @@
     },
     {
         "data_id": 370,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -2969,7 +2969,7 @@
     },
     {
         "data_id": 371,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -2977,7 +2977,7 @@
     },
     {
         "data_id": 372,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -2985,7 +2985,7 @@
     },
     {
         "data_id": 373,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -2993,7 +2993,7 @@
     },
     {
         "data_id": 374,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -3001,7 +3001,7 @@
     },
     {
         "data_id": 375,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -3009,7 +3009,7 @@
     },
     {
         "data_id": 376,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -3017,7 +3017,7 @@
     },
     {
         "data_id": 377,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -3025,7 +3025,7 @@
     },
     {
         "data_id": 378,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -3033,7 +3033,7 @@
     },
     {
         "data_id": 379,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 11,
         "risk_level": null,
@@ -3041,7 +3041,7 @@
     },
     {
         "data_id": 380,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3049,7 +3049,7 @@
     },
     {
         "data_id": 381,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3057,7 +3057,7 @@
     },
     {
         "data_id": 382,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3065,7 +3065,7 @@
     },
     {
         "data_id": 383,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3073,7 +3073,7 @@
     },
     {
         "data_id": 384,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3081,7 +3081,7 @@
     },
     {
         "data_id": 385,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3089,7 +3089,7 @@
     },
     {
         "data_id": 386,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3097,7 +3097,7 @@
     },
     {
         "data_id": 387,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3105,7 +3105,7 @@
     },
     {
         "data_id": 388,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3113,7 +3113,7 @@
     },
     {
         "data_id": 389,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 12,
         "risk_level": null,
@@ -3121,7 +3121,7 @@
     },
     {
         "data_id": 390,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3129,7 +3129,7 @@
     },
     {
         "data_id": 391,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3137,7 +3137,7 @@
     },
     {
         "data_id": 392,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3145,7 +3145,7 @@
     },
     {
         "data_id": 393,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3153,7 +3153,7 @@
     },
     {
         "data_id": 394,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3161,7 +3161,7 @@
     },
     {
         "data_id": 395,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3169,7 +3169,7 @@
     },
     {
         "data_id": 396,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3177,7 +3177,7 @@
     },
     {
         "data_id": 397,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3185,7 +3185,7 @@
     },
     {
         "data_id": 398,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3193,7 +3193,7 @@
     },
     {
         "data_id": 399,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 4,
         "route_id": 13,
         "risk_level": null,
@@ -3201,7 +3201,7 @@
     },
     {
         "data_id": 400,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3209,7 +3209,7 @@
     },
     {
         "data_id": 401,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3217,7 +3217,7 @@
     },
     {
         "data_id": 402,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3225,7 +3225,7 @@
     },
     {
         "data_id": 403,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3233,7 +3233,7 @@
     },
     {
         "data_id": 404,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3241,7 +3241,7 @@
     },
     {
         "data_id": 405,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3249,7 +3249,7 @@
     },
     {
         "data_id": 406,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3257,7 +3257,7 @@
     },
     {
         "data_id": 407,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3265,7 +3265,7 @@
     },
     {
         "data_id": 408,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3273,7 +3273,7 @@
     },
     {
         "data_id": 409,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 4,
         "risk_level": null,
@@ -3281,7 +3281,7 @@
     },
     {
         "data_id": 410,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3289,7 +3289,7 @@
     },
     {
         "data_id": 411,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3297,7 +3297,7 @@
     },
     {
         "data_id": 412,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3305,7 +3305,7 @@
     },
     {
         "data_id": 413,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3313,7 +3313,7 @@
     },
     {
         "data_id": 414,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3321,7 +3321,7 @@
     },
     {
         "data_id": 415,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3329,7 +3329,7 @@
     },
     {
         "data_id": 416,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3337,7 +3337,7 @@
     },
     {
         "data_id": 417,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3345,7 +3345,7 @@
     },
     {
         "data_id": 418,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3353,7 +3353,7 @@
     },
     {
         "data_id": 419,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 5,
         "risk_level": null,
@@ -3361,7 +3361,7 @@
     },
     {
         "data_id": 420,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3369,7 +3369,7 @@
     },
     {
         "data_id": 421,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3377,7 +3377,7 @@
     },
     {
         "data_id": 422,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3385,7 +3385,7 @@
     },
     {
         "data_id": 423,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3393,7 +3393,7 @@
     },
     {
         "data_id": 424,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3401,7 +3401,7 @@
     },
     {
         "data_id": 425,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3409,7 +3409,7 @@
     },
     {
         "data_id": 426,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3417,7 +3417,7 @@
     },
     {
         "data_id": 427,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3425,7 +3425,7 @@
     },
     {
         "data_id": 428,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3433,7 +3433,7 @@
     },
     {
         "data_id": 429,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 6,
         "risk_level": null,
@@ -3441,7 +3441,7 @@
     },
     {
         "data_id": 430,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3449,7 +3449,7 @@
     },
     {
         "data_id": 431,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3457,7 +3457,7 @@
     },
     {
         "data_id": 432,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3465,7 +3465,7 @@
     },
     {
         "data_id": 433,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3473,7 +3473,7 @@
     },
     {
         "data_id": 434,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3481,7 +3481,7 @@
     },
     {
         "data_id": 435,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3489,7 +3489,7 @@
     },
     {
         "data_id": 436,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3497,7 +3497,7 @@
     },
     {
         "data_id": 437,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3505,7 +3505,7 @@
     },
     {
         "data_id": 438,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3513,7 +3513,7 @@
     },
     {
         "data_id": 439,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 7,
         "risk_level": null,
@@ -3521,7 +3521,7 @@
     },
     {
         "data_id": 440,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3529,7 +3529,7 @@
     },
     {
         "data_id": 441,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3537,7 +3537,7 @@
     },
     {
         "data_id": 442,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3545,7 +3545,7 @@
     },
     {
         "data_id": 443,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3553,7 +3553,7 @@
     },
     {
         "data_id": 444,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3561,7 +3561,7 @@
     },
     {
         "data_id": 445,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3569,7 +3569,7 @@
     },
     {
         "data_id": 446,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3577,7 +3577,7 @@
     },
     {
         "data_id": 447,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3585,7 +3585,7 @@
     },
     {
         "data_id": 448,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3593,7 +3593,7 @@
     },
     {
         "data_id": 449,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 8,
         "risk_level": null,
@@ -3601,7 +3601,7 @@
     },
     {
         "data_id": 450,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3609,7 +3609,7 @@
     },
     {
         "data_id": 451,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3617,7 +3617,7 @@
     },
     {
         "data_id": 452,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3625,7 +3625,7 @@
     },
     {
         "data_id": 453,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3633,7 +3633,7 @@
     },
     {
         "data_id": 454,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3641,7 +3641,7 @@
     },
     {
         "data_id": 455,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3649,7 +3649,7 @@
     },
     {
         "data_id": 456,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3657,7 +3657,7 @@
     },
     {
         "data_id": 457,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3665,7 +3665,7 @@
     },
     {
         "data_id": 458,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3673,7 +3673,7 @@
     },
     {
         "data_id": 459,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 9,
         "risk_level": null,
@@ -3681,7 +3681,7 @@
     },
     {
         "data_id": 460,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3689,7 +3689,7 @@
     },
     {
         "data_id": 461,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3697,7 +3697,7 @@
     },
     {
         "data_id": 462,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3705,7 +3705,7 @@
     },
     {
         "data_id": 463,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3713,7 +3713,7 @@
     },
     {
         "data_id": 464,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3721,7 +3721,7 @@
     },
     {
         "data_id": 465,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3729,7 +3729,7 @@
     },
     {
         "data_id": 466,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3737,7 +3737,7 @@
     },
     {
         "data_id": 467,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3745,7 +3745,7 @@
     },
     {
         "data_id": 468,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3753,7 +3753,7 @@
     },
     {
         "data_id": 469,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 10,
         "risk_level": null,
@@ -3761,7 +3761,7 @@
     },
     {
         "data_id": 470,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3769,7 +3769,7 @@
     },
     {
         "data_id": 471,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3777,7 +3777,7 @@
     },
     {
         "data_id": 472,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3785,7 +3785,7 @@
     },
     {
         "data_id": 473,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3793,7 +3793,7 @@
     },
     {
         "data_id": 474,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3801,7 +3801,7 @@
     },
     {
         "data_id": 475,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3809,7 +3809,7 @@
     },
     {
         "data_id": 476,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3817,7 +3817,7 @@
     },
     {
         "data_id": 477,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3825,7 +3825,7 @@
     },
     {
         "data_id": 478,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3833,7 +3833,7 @@
     },
     {
         "data_id": 479,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 11,
         "risk_level": null,
@@ -3841,7 +3841,7 @@
     },
     {
         "data_id": 480,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3849,7 +3849,7 @@
     },
     {
         "data_id": 481,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3857,7 +3857,7 @@
     },
     {
         "data_id": 482,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3865,7 +3865,7 @@
     },
     {
         "data_id": 483,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3873,7 +3873,7 @@
     },
     {
         "data_id": 484,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3881,7 +3881,7 @@
     },
     {
         "data_id": 485,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3889,7 +3889,7 @@
     },
     {
         "data_id": 486,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3897,7 +3897,7 @@
     },
     {
         "data_id": 487,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3905,7 +3905,7 @@
     },
     {
         "data_id": 488,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3913,7 +3913,7 @@
     },
     {
         "data_id": 489,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 12,
         "risk_level": null,
@@ -3921,7 +3921,7 @@
     },
     {
         "data_id": 490,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3929,7 +3929,7 @@
     },
     {
         "data_id": 491,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3937,7 +3937,7 @@
     },
     {
         "data_id": 492,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3945,7 +3945,7 @@
     },
     {
         "data_id": 493,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3953,7 +3953,7 @@
     },
     {
         "data_id": 494,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3961,7 +3961,7 @@
     },
     {
         "data_id": 495,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3969,7 +3969,7 @@
     },
     {
         "data_id": 496,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3977,7 +3977,7 @@
     },
     {
         "data_id": 497,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3985,7 +3985,7 @@
     },
     {
         "data_id": 498,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -3993,7 +3993,7 @@
     },
     {
         "data_id": 499,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 5,
         "route_id": 13,
         "risk_level": null,
@@ -4001,7 +4001,7 @@
     },
     {
         "data_id": 500,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4009,7 +4009,7 @@
     },
     {
         "data_id": 501,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4017,7 +4017,7 @@
     },
     {
         "data_id": 502,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4025,7 +4025,7 @@
     },
     {
         "data_id": 503,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4033,7 +4033,7 @@
     },
     {
         "data_id": 504,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4041,7 +4041,7 @@
     },
     {
         "data_id": 505,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4049,7 +4049,7 @@
     },
     {
         "data_id": 506,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4057,7 +4057,7 @@
     },
     {
         "data_id": 507,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4065,7 +4065,7 @@
     },
     {
         "data_id": 508,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4073,7 +4073,7 @@
     },
     {
         "data_id": 509,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 4,
         "risk_level": null,
@@ -4081,7 +4081,7 @@
     },
     {
         "data_id": 510,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4089,7 +4089,7 @@
     },
     {
         "data_id": 511,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4097,7 +4097,7 @@
     },
     {
         "data_id": 512,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4105,7 +4105,7 @@
     },
     {
         "data_id": 513,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4113,7 +4113,7 @@
     },
     {
         "data_id": 514,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4121,7 +4121,7 @@
     },
     {
         "data_id": 515,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4129,7 +4129,7 @@
     },
     {
         "data_id": 516,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4137,7 +4137,7 @@
     },
     {
         "data_id": 517,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4145,7 +4145,7 @@
     },
     {
         "data_id": 518,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4153,7 +4153,7 @@
     },
     {
         "data_id": 519,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 5,
         "risk_level": null,
@@ -4161,7 +4161,7 @@
     },
     {
         "data_id": 520,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4169,7 +4169,7 @@
     },
     {
         "data_id": 521,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4177,7 +4177,7 @@
     },
     {
         "data_id": 522,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4185,7 +4185,7 @@
     },
     {
         "data_id": 523,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4193,7 +4193,7 @@
     },
     {
         "data_id": 524,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4201,7 +4201,7 @@
     },
     {
         "data_id": 525,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4209,7 +4209,7 @@
     },
     {
         "data_id": 526,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4217,7 +4217,7 @@
     },
     {
         "data_id": 527,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4225,7 +4225,7 @@
     },
     {
         "data_id": 528,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4233,7 +4233,7 @@
     },
     {
         "data_id": 529,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 6,
         "risk_level": null,
@@ -4241,7 +4241,7 @@
     },
     {
         "data_id": 530,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4249,7 +4249,7 @@
     },
     {
         "data_id": 531,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4257,7 +4257,7 @@
     },
     {
         "data_id": 532,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4265,7 +4265,7 @@
     },
     {
         "data_id": 533,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4273,7 +4273,7 @@
     },
     {
         "data_id": 534,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4281,7 +4281,7 @@
     },
     {
         "data_id": 535,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4289,7 +4289,7 @@
     },
     {
         "data_id": 536,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4297,7 +4297,7 @@
     },
     {
         "data_id": 537,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4305,7 +4305,7 @@
     },
     {
         "data_id": 538,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4313,7 +4313,7 @@
     },
     {
         "data_id": 539,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 7,
         "risk_level": null,
@@ -4321,7 +4321,7 @@
     },
     {
         "data_id": 540,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4329,7 +4329,7 @@
     },
     {
         "data_id": 541,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4337,7 +4337,7 @@
     },
     {
         "data_id": 542,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4345,7 +4345,7 @@
     },
     {
         "data_id": 543,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4353,7 +4353,7 @@
     },
     {
         "data_id": 544,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4361,7 +4361,7 @@
     },
     {
         "data_id": 545,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4369,7 +4369,7 @@
     },
     {
         "data_id": 546,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4377,7 +4377,7 @@
     },
     {
         "data_id": 547,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4385,7 +4385,7 @@
     },
     {
         "data_id": 548,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4393,7 +4393,7 @@
     },
     {
         "data_id": 549,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 8,
         "risk_level": null,
@@ -4401,7 +4401,7 @@
     },
     {
         "data_id": 550,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4409,7 +4409,7 @@
     },
     {
         "data_id": 551,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4417,7 +4417,7 @@
     },
     {
         "data_id": 552,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4425,7 +4425,7 @@
     },
     {
         "data_id": 553,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4433,7 +4433,7 @@
     },
     {
         "data_id": 554,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4441,7 +4441,7 @@
     },
     {
         "data_id": 555,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4449,7 +4449,7 @@
     },
     {
         "data_id": 556,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4457,7 +4457,7 @@
     },
     {
         "data_id": 557,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4465,7 +4465,7 @@
     },
     {
         "data_id": 558,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4473,7 +4473,7 @@
     },
     {
         "data_id": 559,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 9,
         "risk_level": null,
@@ -4481,7 +4481,7 @@
     },
     {
         "data_id": 560,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4489,7 +4489,7 @@
     },
     {
         "data_id": 561,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4497,7 +4497,7 @@
     },
     {
         "data_id": 562,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4505,7 +4505,7 @@
     },
     {
         "data_id": 563,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4513,7 +4513,7 @@
     },
     {
         "data_id": 564,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4521,7 +4521,7 @@
     },
     {
         "data_id": 565,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4529,7 +4529,7 @@
     },
     {
         "data_id": 566,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4537,7 +4537,7 @@
     },
     {
         "data_id": 567,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4545,7 +4545,7 @@
     },
     {
         "data_id": 568,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4553,7 +4553,7 @@
     },
     {
         "data_id": 569,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 10,
         "risk_level": null,
@@ -4561,7 +4561,7 @@
     },
     {
         "data_id": 570,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4569,7 +4569,7 @@
     },
     {
         "data_id": 571,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4577,7 +4577,7 @@
     },
     {
         "data_id": 572,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4585,7 +4585,7 @@
     },
     {
         "data_id": 573,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4593,7 +4593,7 @@
     },
     {
         "data_id": 574,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4601,7 +4601,7 @@
     },
     {
         "data_id": 575,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4609,7 +4609,7 @@
     },
     {
         "data_id": 576,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4617,7 +4617,7 @@
     },
     {
         "data_id": 577,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4625,7 +4625,7 @@
     },
     {
         "data_id": 578,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4633,7 +4633,7 @@
     },
     {
         "data_id": 579,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 11,
         "risk_level": null,
@@ -4641,7 +4641,7 @@
     },
     {
         "data_id": 580,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4649,7 +4649,7 @@
     },
     {
         "data_id": 581,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4657,7 +4657,7 @@
     },
     {
         "data_id": 582,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4665,7 +4665,7 @@
     },
     {
         "data_id": 583,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4673,7 +4673,7 @@
     },
     {
         "data_id": 584,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4681,7 +4681,7 @@
     },
     {
         "data_id": 585,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4689,7 +4689,7 @@
     },
     {
         "data_id": 586,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4697,7 +4697,7 @@
     },
     {
         "data_id": 587,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4705,7 +4705,7 @@
     },
     {
         "data_id": 588,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4713,7 +4713,7 @@
     },
     {
         "data_id": 589,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 12,
         "risk_level": null,
@@ -4721,7 +4721,7 @@
     },
     {
         "data_id": 590,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4729,7 +4729,7 @@
     },
     {
         "data_id": 591,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4737,7 +4737,7 @@
     },
     {
         "data_id": 592,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4745,7 +4745,7 @@
     },
     {
         "data_id": 593,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4753,7 +4753,7 @@
     },
     {
         "data_id": 594,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4761,7 +4761,7 @@
     },
     {
         "data_id": 595,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4769,7 +4769,7 @@
     },
     {
         "data_id": 596,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4777,7 +4777,7 @@
     },
     {
         "data_id": 597,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4785,7 +4785,7 @@
     },
     {
         "data_id": 598,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4793,7 +4793,7 @@
     },
     {
         "data_id": 599,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 6,
         "route_id": 13,
         "risk_level": null,
@@ -4801,7 +4801,7 @@
     },
     {
         "data_id": 600,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4809,7 +4809,7 @@
     },
     {
         "data_id": 601,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4817,7 +4817,7 @@
     },
     {
         "data_id": 602,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4825,7 +4825,7 @@
     },
     {
         "data_id": 603,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4833,7 +4833,7 @@
     },
     {
         "data_id": 604,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4841,7 +4841,7 @@
     },
     {
         "data_id": 605,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4849,7 +4849,7 @@
     },
     {
         "data_id": 606,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4857,7 +4857,7 @@
     },
     {
         "data_id": 607,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4865,7 +4865,7 @@
     },
     {
         "data_id": 608,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4873,7 +4873,7 @@
     },
     {
         "data_id": 609,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 4,
         "risk_level": null,
@@ -4881,7 +4881,7 @@
     },
     {
         "data_id": 610,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4889,7 +4889,7 @@
     },
     {
         "data_id": 611,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4897,7 +4897,7 @@
     },
     {
         "data_id": 612,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4905,7 +4905,7 @@
     },
     {
         "data_id": 613,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4913,7 +4913,7 @@
     },
     {
         "data_id": 614,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4921,7 +4921,7 @@
     },
     {
         "data_id": 615,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4929,7 +4929,7 @@
     },
     {
         "data_id": 616,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4937,7 +4937,7 @@
     },
     {
         "data_id": 617,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4945,7 +4945,7 @@
     },
     {
         "data_id": 618,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4953,7 +4953,7 @@
     },
     {
         "data_id": 619,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 5,
         "risk_level": null,
@@ -4961,7 +4961,7 @@
     },
     {
         "data_id": 620,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -4969,7 +4969,7 @@
     },
     {
         "data_id": 621,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -4977,7 +4977,7 @@
     },
     {
         "data_id": 622,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -4985,7 +4985,7 @@
     },
     {
         "data_id": 623,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -4993,7 +4993,7 @@
     },
     {
         "data_id": 624,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -5001,7 +5001,7 @@
     },
     {
         "data_id": 625,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -5009,7 +5009,7 @@
     },
     {
         "data_id": 626,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -5017,7 +5017,7 @@
     },
     {
         "data_id": 627,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -5025,7 +5025,7 @@
     },
     {
         "data_id": 628,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -5033,7 +5033,7 @@
     },
     {
         "data_id": 629,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 6,
         "risk_level": null,
@@ -5041,7 +5041,7 @@
     },
     {
         "data_id": 630,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5049,7 +5049,7 @@
     },
     {
         "data_id": 631,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5057,7 +5057,7 @@
     },
     {
         "data_id": 632,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5065,7 +5065,7 @@
     },
     {
         "data_id": 633,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5073,7 +5073,7 @@
     },
     {
         "data_id": 634,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5081,7 +5081,7 @@
     },
     {
         "data_id": 635,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5089,7 +5089,7 @@
     },
     {
         "data_id": 636,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5097,7 +5097,7 @@
     },
     {
         "data_id": 637,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5105,7 +5105,7 @@
     },
     {
         "data_id": 638,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5113,7 +5113,7 @@
     },
     {
         "data_id": 639,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 7,
         "risk_level": null,
@@ -5121,7 +5121,7 @@
     },
     {
         "data_id": 640,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5129,7 +5129,7 @@
     },
     {
         "data_id": 641,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5137,7 +5137,7 @@
     },
     {
         "data_id": 642,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5145,7 +5145,7 @@
     },
     {
         "data_id": 643,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5153,7 +5153,7 @@
     },
     {
         "data_id": 644,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5161,7 +5161,7 @@
     },
     {
         "data_id": 645,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5169,7 +5169,7 @@
     },
     {
         "data_id": 646,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5177,7 +5177,7 @@
     },
     {
         "data_id": 647,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5185,7 +5185,7 @@
     },
     {
         "data_id": 648,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5193,7 +5193,7 @@
     },
     {
         "data_id": 649,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 8,
         "risk_level": null,
@@ -5201,7 +5201,7 @@
     },
     {
         "data_id": 650,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5209,7 +5209,7 @@
     },
     {
         "data_id": 651,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5217,7 +5217,7 @@
     },
     {
         "data_id": 652,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5225,7 +5225,7 @@
     },
     {
         "data_id": 653,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5233,7 +5233,7 @@
     },
     {
         "data_id": 654,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5241,7 +5241,7 @@
     },
     {
         "data_id": 655,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5249,7 +5249,7 @@
     },
     {
         "data_id": 656,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5257,7 +5257,7 @@
     },
     {
         "data_id": 657,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5265,7 +5265,7 @@
     },
     {
         "data_id": 658,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5273,7 +5273,7 @@
     },
     {
         "data_id": 659,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 9,
         "risk_level": null,
@@ -5281,7 +5281,7 @@
     },
     {
         "data_id": 660,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5289,7 +5289,7 @@
     },
     {
         "data_id": 661,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5297,7 +5297,7 @@
     },
     {
         "data_id": 662,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5305,7 +5305,7 @@
     },
     {
         "data_id": 663,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5313,7 +5313,7 @@
     },
     {
         "data_id": 664,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5321,7 +5321,7 @@
     },
     {
         "data_id": 665,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5329,7 +5329,7 @@
     },
     {
         "data_id": 666,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5337,7 +5337,7 @@
     },
     {
         "data_id": 667,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5345,7 +5345,7 @@
     },
     {
         "data_id": 668,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5353,7 +5353,7 @@
     },
     {
         "data_id": 669,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 10,
         "risk_level": null,
@@ -5361,7 +5361,7 @@
     },
     {
         "data_id": 670,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5369,7 +5369,7 @@
     },
     {
         "data_id": 671,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5377,7 +5377,7 @@
     },
     {
         "data_id": 672,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5385,7 +5385,7 @@
     },
     {
         "data_id": 673,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5393,7 +5393,7 @@
     },
     {
         "data_id": 674,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5401,7 +5401,7 @@
     },
     {
         "data_id": 675,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5409,7 +5409,7 @@
     },
     {
         "data_id": 676,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5417,7 +5417,7 @@
     },
     {
         "data_id": 677,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5425,7 +5425,7 @@
     },
     {
         "data_id": 678,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5433,7 +5433,7 @@
     },
     {
         "data_id": 679,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 11,
         "risk_level": null,
@@ -5441,7 +5441,7 @@
     },
     {
         "data_id": 680,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5449,7 +5449,7 @@
     },
     {
         "data_id": 681,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5457,7 +5457,7 @@
     },
     {
         "data_id": 682,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5465,7 +5465,7 @@
     },
     {
         "data_id": 683,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5473,7 +5473,7 @@
     },
     {
         "data_id": 684,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5481,7 +5481,7 @@
     },
     {
         "data_id": 685,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5489,7 +5489,7 @@
     },
     {
         "data_id": 686,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5497,7 +5497,7 @@
     },
     {
         "data_id": 687,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5505,7 +5505,7 @@
     },
     {
         "data_id": 688,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5513,7 +5513,7 @@
     },
     {
         "data_id": 689,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 12,
         "risk_level": null,
@@ -5521,7 +5521,7 @@
     },
     {
         "data_id": 690,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5529,7 +5529,7 @@
     },
     {
         "data_id": 691,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5537,7 +5537,7 @@
     },
     {
         "data_id": 692,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5545,7 +5545,7 @@
     },
     {
         "data_id": 693,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5553,7 +5553,7 @@
     },
     {
         "data_id": 694,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5561,7 +5561,7 @@
     },
     {
         "data_id": 695,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5569,7 +5569,7 @@
     },
     {
         "data_id": 696,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5577,7 +5577,7 @@
     },
     {
         "data_id": 697,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5585,7 +5585,7 @@
     },
     {
         "data_id": 698,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5593,7 +5593,7 @@
     },
     {
         "data_id": 699,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 7,
         "route_id": 13,
         "risk_level": null,
@@ -5601,7 +5601,7 @@
     },
     {
         "data_id": 700,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5609,7 +5609,7 @@
     },
     {
         "data_id": 701,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5617,7 +5617,7 @@
     },
     {
         "data_id": 702,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5625,7 +5625,7 @@
     },
     {
         "data_id": 703,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5633,7 +5633,7 @@
     },
     {
         "data_id": 704,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5641,7 +5641,7 @@
     },
     {
         "data_id": 705,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5649,7 +5649,7 @@
     },
     {
         "data_id": 706,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5657,7 +5657,7 @@
     },
     {
         "data_id": 707,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5665,7 +5665,7 @@
     },
     {
         "data_id": 708,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5673,7 +5673,7 @@
     },
     {
         "data_id": 709,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 4,
         "risk_level": null,
@@ -5681,7 +5681,7 @@
     },
     {
         "data_id": 710,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5689,7 +5689,7 @@
     },
     {
         "data_id": 711,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5697,7 +5697,7 @@
     },
     {
         "data_id": 712,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5705,7 +5705,7 @@
     },
     {
         "data_id": 713,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5713,7 +5713,7 @@
     },
     {
         "data_id": 714,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5721,7 +5721,7 @@
     },
     {
         "data_id": 715,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5729,7 +5729,7 @@
     },
     {
         "data_id": 716,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5737,7 +5737,7 @@
     },
     {
         "data_id": 717,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5745,7 +5745,7 @@
     },
     {
         "data_id": 718,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5753,7 +5753,7 @@
     },
     {
         "data_id": 719,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 5,
         "risk_level": null,
@@ -5761,7 +5761,7 @@
     },
     {
         "data_id": 720,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5769,7 +5769,7 @@
     },
     {
         "data_id": 721,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5777,7 +5777,7 @@
     },
     {
         "data_id": 722,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5785,7 +5785,7 @@
     },
     {
         "data_id": 723,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5793,7 +5793,7 @@
     },
     {
         "data_id": 724,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5801,7 +5801,7 @@
     },
     {
         "data_id": 725,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5809,7 +5809,7 @@
     },
     {
         "data_id": 726,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5817,7 +5817,7 @@
     },
     {
         "data_id": 727,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5825,7 +5825,7 @@
     },
     {
         "data_id": 728,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5833,7 +5833,7 @@
     },
     {
         "data_id": 729,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 6,
         "risk_level": null,
@@ -5841,7 +5841,7 @@
     },
     {
         "data_id": 730,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5849,7 +5849,7 @@
     },
     {
         "data_id": 731,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5857,7 +5857,7 @@
     },
     {
         "data_id": 732,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5865,7 +5865,7 @@
     },
     {
         "data_id": 733,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5873,7 +5873,7 @@
     },
     {
         "data_id": 734,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5881,7 +5881,7 @@
     },
     {
         "data_id": 735,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5889,7 +5889,7 @@
     },
     {
         "data_id": 736,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5897,7 +5897,7 @@
     },
     {
         "data_id": 737,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5905,7 +5905,7 @@
     },
     {
         "data_id": 738,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5913,7 +5913,7 @@
     },
     {
         "data_id": 739,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 7,
         "risk_level": null,
@@ -5921,7 +5921,7 @@
     },
     {
         "data_id": 740,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5929,7 +5929,7 @@
     },
     {
         "data_id": 741,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5937,7 +5937,7 @@
     },
     {
         "data_id": 742,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5945,7 +5945,7 @@
     },
     {
         "data_id": 743,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5953,7 +5953,7 @@
     },
     {
         "data_id": 744,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5961,7 +5961,7 @@
     },
     {
         "data_id": 745,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5969,7 +5969,7 @@
     },
     {
         "data_id": 746,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5977,7 +5977,7 @@
     },
     {
         "data_id": 747,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5985,7 +5985,7 @@
     },
     {
         "data_id": 748,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -5993,7 +5993,7 @@
     },
     {
         "data_id": 749,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 8,
         "risk_level": null,
@@ -6001,7 +6001,7 @@
     },
     {
         "data_id": 750,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6009,7 +6009,7 @@
     },
     {
         "data_id": 751,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6017,7 +6017,7 @@
     },
     {
         "data_id": 752,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6025,7 +6025,7 @@
     },
     {
         "data_id": 753,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6033,7 +6033,7 @@
     },
     {
         "data_id": 754,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6041,7 +6041,7 @@
     },
     {
         "data_id": 755,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6049,7 +6049,7 @@
     },
     {
         "data_id": 756,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6057,7 +6057,7 @@
     },
     {
         "data_id": 757,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6065,7 +6065,7 @@
     },
     {
         "data_id": 758,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6073,7 +6073,7 @@
     },
     {
         "data_id": 759,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 9,
         "risk_level": null,
@@ -6081,7 +6081,7 @@
     },
     {
         "data_id": 760,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6089,7 +6089,7 @@
     },
     {
         "data_id": 761,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6097,7 +6097,7 @@
     },
     {
         "data_id": 762,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6105,7 +6105,7 @@
     },
     {
         "data_id": 763,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6113,7 +6113,7 @@
     },
     {
         "data_id": 764,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6121,7 +6121,7 @@
     },
     {
         "data_id": 765,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6129,7 +6129,7 @@
     },
     {
         "data_id": 766,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6137,7 +6137,7 @@
     },
     {
         "data_id": 767,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6145,7 +6145,7 @@
     },
     {
         "data_id": 768,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6153,7 +6153,7 @@
     },
     {
         "data_id": 769,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 10,
         "risk_level": null,
@@ -6161,7 +6161,7 @@
     },
     {
         "data_id": 770,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6169,7 +6169,7 @@
     },
     {
         "data_id": 771,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6177,7 +6177,7 @@
     },
     {
         "data_id": 772,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6185,7 +6185,7 @@
     },
     {
         "data_id": 773,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6193,7 +6193,7 @@
     },
     {
         "data_id": 774,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6201,7 +6201,7 @@
     },
     {
         "data_id": 775,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6209,7 +6209,7 @@
     },
     {
         "data_id": 776,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6217,7 +6217,7 @@
     },
     {
         "data_id": 777,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6225,7 +6225,7 @@
     },
     {
         "data_id": 778,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6233,7 +6233,7 @@
     },
     {
         "data_id": 779,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 11,
         "risk_level": null,
@@ -6241,7 +6241,7 @@
     },
     {
         "data_id": 780,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6249,7 +6249,7 @@
     },
     {
         "data_id": 781,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6257,7 +6257,7 @@
     },
     {
         "data_id": 782,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6265,7 +6265,7 @@
     },
     {
         "data_id": 783,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6273,7 +6273,7 @@
     },
     {
         "data_id": 784,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6281,7 +6281,7 @@
     },
     {
         "data_id": 785,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6289,7 +6289,7 @@
     },
     {
         "data_id": 786,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6297,7 +6297,7 @@
     },
     {
         "data_id": 787,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6305,7 +6305,7 @@
     },
     {
         "data_id": 788,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6313,7 +6313,7 @@
     },
     {
         "data_id": 789,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 12,
         "risk_level": null,
@@ -6321,7 +6321,7 @@
     },
     {
         "data_id": 790,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6329,7 +6329,7 @@
     },
     {
         "data_id": 791,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6337,7 +6337,7 @@
     },
     {
         "data_id": 792,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6345,7 +6345,7 @@
     },
     {
         "data_id": 793,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6353,7 +6353,7 @@
     },
     {
         "data_id": 794,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6361,7 +6361,7 @@
     },
     {
         "data_id": 795,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6369,7 +6369,7 @@
     },
     {
         "data_id": 796,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6377,7 +6377,7 @@
     },
     {
         "data_id": 797,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6385,7 +6385,7 @@
     },
     {
         "data_id": 798,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,
@@ -6393,7 +6393,7 @@
     },
     {
         "data_id": 799,
-        "method": "advtraj",
+        "scenario_folder": "advtraj",
         "scenario_id": 8,
         "route_id": 13,
         "risk_level": null,

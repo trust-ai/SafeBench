@@ -23,7 +23,7 @@ class ScenarioConfig(object):
     num_scenario = None
     route_region = ''
     data_id = 0
-    scenario_generation_method = None
+    scenario_folder = None
     scenario_id = 0
     route_id = 0
     risk_level = 0

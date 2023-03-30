@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 00:40:41
+LastEditTime: 2023-03-30 12:17:19
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -109,7 +109,7 @@ class PerceptionScenario(RouteScenario):
             # get the class of the scenario
             scenario_path = [
                 'safebench.scenario.scenario_definition',
-                self.config.scenario_generation_method,
+                self.config.scenario_folder,
                 definition['name'],
             ]
             scenario_class = class_from_path('.'.join(scenario_path))

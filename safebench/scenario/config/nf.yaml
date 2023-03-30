@@ -1,5 +1,5 @@
 scenario_type_dir: 'safebench/scenario/config/scenario_type'
-scenario_type: 'lc.json'
+scenario_type: 'adv_init_state.json'
 scenario_category: 'planning'
 policy_type: 'nf'
 

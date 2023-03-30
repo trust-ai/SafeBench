@@ -1,7 +1,7 @@
 [
     {
         "data_id": 0,
-        "method": "ordinary",
+        "scenario_folder": "ordinary",
         "scenario_id": 0,
         "route_id": 0,
         "risk_level": null,
@@ -9,7 +9,7 @@
     },
     {
         "data_id": 1,
-        "method": "ordinary",
+        "scenario_folder": "ordinary",
         "scenario_id": 0,
         "route_id": 0,
         "risk_level": null,
@@ -17,7 +17,7 @@
     },
     {
         "data_id": 2,
-        "method": "ordinary",
+        "scenario_folder": "ordinary",
         "scenario_id": 0,
         "route_id": 0,
         "risk_level": null,
@@ -25,7 +25,7 @@
     },
     {
         "data_id": 3,
-        "method": "ordinary",
+        "scenario_folder": "ordinary",
         "scenario_id": 0,
         "route_id": 0,
         "risk_level": null,

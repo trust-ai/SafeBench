@@ -115,7 +115,7 @@ def main(config):
                     # add data to scenario_route_datas
                     data = {
                         "data_id": data_id,
-                        "method": "standard",
+                        "scenario_folder": "standard",
                         "scenario_id": config.scenario,
                         "route_id": route_id,
                         "risk_level": None,
