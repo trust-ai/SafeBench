@@ -139,7 +139,7 @@ class ScenicRunner:
         
     def _init_scenic(self, config):
         self.logger.log(f">> Initializing scenic simulator: {config.scenic_file}")
-        self.scenic = ScenicSimulator(config.scenic_file)
+        self.scenic = ScenicSimulator(config.scenic_file, self.scenario_config)
         # dummy scene 
         scene, _ = self.scenic.generateScene()
         if self.run_scenes([scene]):
