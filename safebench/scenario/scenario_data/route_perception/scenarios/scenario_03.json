@@ -17,7 +17,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario_Ped"
+                    "scenario_name": "Detection_Pedestrian"
                 }
             ]
         }

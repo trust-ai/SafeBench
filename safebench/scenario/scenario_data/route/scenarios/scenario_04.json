@@ -53,7 +53,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario6"
+                    "scenario_name": "ManeuverOppositeDirection"
                 }
             ],
             "Town01": [
@@ -132,7 +132,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario6"
+                    "scenario_name": "ManeuverOppositeDirection"
                 }
             ],
             "Town02": [
@@ -157,31 +157,31 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario6"
+                    "scenario_name": "ManeuverOppositeDirection"
                 }
             ],
             "Town03": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario6"
+                    "scenario_name": "ManeuverOppositeDirection"
                 }
             ],
             "Town04": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario6"
+                    "scenario_name": "ManeuverOppositeDirection"
                 }
             ],
             "Town05": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario6"
+                    "scenario_name": "ManeuverOppositeDirection"
                 }
             ],
             "Town06": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario6"
+                    "scenario_name": "ManeuverOppositeDirection"
                 }
             ]
         }

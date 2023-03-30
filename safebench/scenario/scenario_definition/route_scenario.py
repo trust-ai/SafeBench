@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-22 17:57:25
+LastEditTime: 2023-03-30 00:32:59
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,6 +15,7 @@ import traceback
 
 import carla
 
+from safebench.util.run_util import class_from_path
 from safebench.scenario.scenario_manager.timer import GameTime
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.scenario_manager.scenario_config import RouteScenarioConfig
@@ -38,138 +39,7 @@ from safebench.scenario.scenario_definition.atomic_criteria import (
     RouteCompletionTest,
     RunningRedLightTest,
     RunningStopTest,
-    ActorSpeedAboveThresholdTest
 )
-
-# ordinary scenario (for training)
-from safebench.scenario.scenario_definition.ordinary.autopolit_background_vehicle import AutopolitBackgroundVehicle
-# standard
-from safebench.scenario.scenario_definition.standard.object_crash_vehicle import DynamicObjectCrossing as scenario_03_standard
-from safebench.scenario.scenario_definition.standard.object_crash_intersection import VehicleTurningRoute as scenario_04_standard
-from safebench.scenario.scenario_definition.standard.other_leading_vehicle import OtherLeadingVehicle as scenario_05_standard
-from safebench.scenario.scenario_definition.standard.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_standard
-from safebench.scenario.scenario_definition.standard.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_standard
-
-# carla challenge
-from safebench.scenario.scenario_definition.carla_challenge.object_crash_vehicle import DynamicObjectCrossing as scenario_03_carla_challenge
-from safebench.scenario.scenario_definition.carla_challenge.object_crash_intersection import VehicleTurningRoute as scenario_04_carla_challenge
-from safebench.scenario.scenario_definition.carla_challenge.other_leading_vehicle import OtherLeadingVehicle as scenario_05_carla_challenge
-from safebench.scenario.scenario_definition.carla_challenge.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_carla_challenge
-from safebench.scenario.scenario_definition.carla_challenge.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_carla_challenge
-from safebench.scenario.scenario_definition.carla_challenge.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_carla_challenge
-from safebench.scenario.scenario_definition.carla_challenge.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_carla_challenge
-from safebench.scenario.scenario_definition.carla_challenge.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_carla_challenge
-
-# lc
-from safebench.scenario.scenario_definition.lc.object_crash_vehicle import DynamicObjectCrossing as scenario_03_lc
-from safebench.scenario.scenario_definition.lc.object_crash_intersection import VehicleTurningRoute as scenario_04_lc
-from safebench.scenario.scenario_definition.lc.other_leading_vehicle import OtherLeadingVehicle as scenario_05_lc
-from safebench.scenario.scenario_definition.lc.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_lc
-from safebench.scenario.scenario_definition.lc.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_lc
-from safebench.scenario.scenario_definition.lc.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_lc
-from safebench.scenario.scenario_definition.lc.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_lc
-from safebench.scenario.scenario_definition.lc.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_lc
-
-# AdvTraj
-from safebench.scenario.scenario_definition.adv_trajectory.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advtraj
-from safebench.scenario.scenario_definition.adv_trajectory.object_crash_intersection import VehicleTurningRoute as scenario_04_advtraj
-from safebench.scenario.scenario_definition.adv_trajectory.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advtraj
-from safebench.scenario.scenario_definition.adv_trajectory.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advtraj
-from safebench.scenario.scenario_definition.adv_trajectory.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advtraj
-from safebench.scenario.scenario_definition.adv_trajectory.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advtraj
-from safebench.scenario.scenario_definition.adv_trajectory.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advtraj
-from safebench.scenario.scenario_definition.adv_trajectory.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advtraj
-
-# AdvSim
-from safebench.scenario.scenario_definition.advsim.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advsim
-from safebench.scenario.scenario_definition.advsim.object_crash_intersection import VehicleTurningRoute as scenario_04_advsim
-from safebench.scenario.scenario_definition.advsim.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advsim
-from safebench.scenario.scenario_definition.advsim.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advsim
-from safebench.scenario.scenario_definition.advsim.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advsim
-from safebench.scenario.scenario_definition.advsim.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advsim
-from safebench.scenario.scenario_definition.advsim.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advsim
-from safebench.scenario.scenario_definition.advsim.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advsim
-
-# AdvMADDPG
-from safebench.scenario.scenario_definition.advmaddpg.object_crash_vehicle import DynamicObjectCrossing as scenario_03_advpolicy
-from safebench.scenario.scenario_definition.advmaddpg.object_crash_intersection import VehicleTurningRoute as scenario_04_advpolicy
-from safebench.scenario.scenario_definition.advmaddpg.other_leading_vehicle import OtherLeadingVehicle as scenario_05_advpolicy
-from safebench.scenario.scenario_definition.advmaddpg.maneuver_opposite_direction import ManeuverOppositeDirection as scenario_06_advpolicy
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import OppositeVehicleRunningRedLight as scenario_07_advpolicy
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import SignalizedJunctionLeftTurn as scenario_08_advpolicy
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import SignalizedJunctionRightTurn as scenario_09_advpolicy
-from safebench.scenario.scenario_definition.advmaddpg.junction_crossing_route import NoSignalJunctionCrossingRoute as scenario_10_advpolicy
-
-
-SECONDS_GIVEN_PER_METERS = 1
-SCENARIO_CLASS_MAPPING = {
-    "ordinary": {
-        "Scenario0": AutopolitBackgroundVehicle,
-    },
-    "standard": {
-        "Scenario3": scenario_03_standard,
-        "Scenario4": scenario_04_standard,
-        "Scenario5": scenario_05_standard,
-        "Scenario6": scenario_06_standard,
-        "Scenario7": scenario_07_standard,
-        "Scenario8": scenario_08_standard,
-        "Scenario9": scenario_09_standard,
-        "Scenario10": scenario_10_standard,
-    },
-    'carla_challenge': {
-        "Scenario3": scenario_03_carla_challenge,
-        "Scenario4": scenario_04_carla_challenge,
-        "Scenario5": scenario_05_carla_challenge,
-        "Scenario6": scenario_06_carla_challenge,
-        "Scenario7": scenario_07_carla_challenge,
-        "Scenario8": scenario_08_carla_challenge,
-        "Scenario9": scenario_09_carla_challenge,
-        "Scenario10": scenario_10_carla_challenge,
-    },
-    'lc': {
-        "Scenario3": scenario_03_lc,
-        "Scenario4": scenario_04_lc,
-        "Scenario5": scenario_05_lc,
-        "Scenario6": scenario_06_lc,
-        "Scenario7": scenario_07_lc,
-        "Scenario8": scenario_08_lc,
-        "Scenario9": scenario_09_lc,
-        "Scenario10": scenario_10_lc,
-    },
-    'advtraj': {
-        "Scenario3": scenario_03_advtraj,
-        "Scenario4": scenario_04_advtraj,
-        "Scenario5": scenario_05_advtraj,
-        "Scenario6": scenario_06_advtraj,
-        "Scenario7": scenario_07_advtraj,
-        "Scenario8": scenario_08_advtraj,
-        "Scenario9": scenario_09_advtraj,
-        "Scenario10": scenario_10_advtraj,
-    },
-    'advsim': {
-        "Scenario3": scenario_03_advsim,
-        "Scenario4": scenario_04_advsim,
-        "Scenario5": scenario_05_advsim,
-        "Scenario6": scenario_06_advsim,
-        "Scenario7": scenario_07_advsim,
-        "Scenario8": scenario_08_advsim,
-        "Scenario9": scenario_09_advsim,
-        "Scenario10": scenario_10_advsim,
-    },
-    'advmaddpg': {
-        "Scenario3": scenario_03_advpolicy,
-        "Scenario4": scenario_04_advpolicy,
-        "Scenario5": scenario_05_advpolicy,
-        "Scenario6": scenario_06_advpolicy,
-        "Scenario7": scenario_07_advpolicy,
-        "Scenario8": scenario_08_advpolicy,
-        "Scenario9": scenario_09_advpolicy,
-        "Scenario10": scenario_10_advpolicy,
-    },
-}
 
 
 class RouteScenario():
@@ -247,6 +117,7 @@ class RouteScenario():
     def _estimate_route_timeout(self, route):
         route_length = 0.0  # in meters
         min_length = 100.0
+        SECONDS_GIVEN_PER_METERS = 1
 
         if len(route) == 1:
             return int(SECONDS_GIVEN_PER_METERS * min_length)
@@ -265,8 +136,12 @@ class RouteScenario():
         ego_vehicle = None
         while not success:
             try:
-                ego_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3', elevate_transform,
-                                                                  rolename=role_name, autopilot=autopilot)
+                ego_vehicle = CarlaDataProvider.request_new_actor(
+                    'vehicle.tesla.model3', 
+                    elevate_transform,
+                    rolename=role_name, 
+                    autopilot=autopilot
+                )
                 ego_vehicle.set_autopilot(autopilot, CarlaDataProvider.get_traffic_manager_port())
                 success = True
             except RuntimeError:
@@ -278,9 +153,14 @@ class RouteScenario():
             Based on the parsed route and possible scenarios, build all the scenario classes.
         """
         scenario_instance_list = []
-        for scenario_number, definition in enumerate(scenario_definitions):
-            # get the class possibilities for this scenario number
-            scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
+        for _, definition in enumerate(scenario_definitions):
+            # get the class of the scenario
+            scenario_path = [
+                'safebench.scenario.scenario_definition',
+                self.config.scenario_generation_method,
+                definition['name'],
+            ]
+            scenario_class = class_from_path('.'.join(scenario_path))
 
             # create the other actors that are going to appear
             if definition['other_actors'] is not None:

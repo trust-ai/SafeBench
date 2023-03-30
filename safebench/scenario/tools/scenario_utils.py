@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-22 17:58:18
+LastEditTime: 2023-03-30 00:36:39
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -93,6 +93,7 @@ def scenario_parse(config, logger):
             config_by_map[parsed_config.town].append(parsed_config)
 
     return config_by_map
+
 
 def scenic_parse(config, logger):
     """

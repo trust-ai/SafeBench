@@ -85,31 +85,31 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario4"
+                    "scenario_name": "VehicleTurningRoute"
                 }
             ],
             "Town01": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario4"
+                    "scenario_name": "VehicleTurningRoute"
                 }
             ],
             "Town02": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario4"
+                    "scenario_name": "VehicleTurningRoute"
                 }
             ],
             "Town03": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario4"
+                    "scenario_name": "VehicleTurningRoute"
                 }
             ],
             "Town04": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario4"
+                    "scenario_name": "VehicleTurningRoute"
                 }
             ],
             "Town05": [
@@ -618,13 +618,13 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario4"
+                    "scenario_name": "VehicleTurningRoute"
                 }
             ],
             "Town06": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario4"
+                    "scenario_name": "VehicleTurningRoute"
                 }
             ]
         }

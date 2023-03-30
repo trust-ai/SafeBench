@@ -85,7 +85,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario9"
+                    "scenario_name": "SignalizedJunctionRightTurn"
                 }
             ],
             "Town01": [
@@ -112,7 +112,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario9"
+                    "scenario_name": "SignalizedJunctionRightTurn"
                 }
             ],
             "Town02": [
@@ -159,13 +159,13 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario9"
+                    "scenario_name": "SignalizedJunctionRightTurn"
                 }
             ],
             "Town03": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario9"
+                    "scenario_name": "SignalizedJunctionRightTurn"
                 }
             ],
             "Town04": [
@@ -192,7 +192,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario9"
+                    "scenario_name": "SignalizedJunctionRightTurn"
                 }
             ],
             "Town05": [
@@ -319,13 +319,13 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario9"
+                    "scenario_name": "SignalizedJunctionRightTurn"
                 }
             ],
             "Town06": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario9"
+                    "scenario_name": "SignalizedJunctionRightTurn"
                 }
             ]
         }

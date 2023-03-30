@@ -85,31 +85,31 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario10"
+                    "scenario_name": "NoSignalJunctionCrossingRoute"
                 }
             ],
             "Town01": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario10"
+                    "scenario_name": "NoSignalJunctionCrossingRoute"
                 }
             ],
             "Town02": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario10"
+                    "scenario_name": "NoSignalJunctionCrossingRoute"
                 }
             ],
             "Town03": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario10"
+                    "scenario_name": "NoSignalJunctionCrossingRoute"
                 }
             ],
             "Town04": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario10"
+                    "scenario_name": "NoSignalJunctionCrossingRoute"
                 }
             ],
             "Town05": [
@@ -316,13 +316,13 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario10"
+                    "scenario_name": "NoSignalJunctionCrossingRoute"
                 }
             ],
             "Town06": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario10"
+                    "scenario_name": "NoSignalJunctionCrossingRoute"
                 }
             ]
         }

@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-22 17:57:21
+LastEditTime: 2023-03-30 00:40:41
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,24 +15,13 @@ import carla
 import numpy as np
 import cv2
 
+from safebench.util.run_util import class_from_path
 from safebench.scenario.scenario_manager.scenario_config import PerceptionScenarioConfig
 from safebench.scenario.scenario_manager.timer import GameTime
-from safebench.scenario.scenario_definition.object_detection.stopsign import Detection_StopSign
-from safebench.scenario.scenario_definition.object_detection.vehicle import Detection_Vehicle
-from safebench.scenario.scenario_definition.object_detection.pedestrian import Detection_Pedestrian
 from safebench.scenario.scenario_definition.atomic_criteria import Status
 from safebench.scenario.scenario_definition.route_scenario import RouteScenario
 from safebench.scenario.tools.scenario_utils import convert_json_to_transform
 from safebench.util.od_util import *
-
-
-SCENARIO_CLASS_MAPPING = {
-    "od": {
-        "Scenario_StopSign": Detection_StopSign,
-        "Scenario_Vehicle": Detection_Vehicle,
-        "Scenario_Ped": Detection_Pedestrian
-    }
-}
 
 
 class PerceptionScenario(RouteScenario):
@@ -117,9 +106,13 @@ class PerceptionScenario(RouteScenario):
         """
         scenario_instance_list = []
         for scenario_number, definition in enumerate(scenario_definitions):
-            # get the class possibilities for this scenario number
-            # TODO: add self.config.scenario_generation_method then we dont need to override this method
-            scenario_class = SCENARIO_CLASS_MAPPING[self.config.scenario_generation_method][definition['name']]
+            # get the class of the scenario
+            scenario_path = [
+                'safebench.scenario.scenario_definition',
+                self.config.scenario_generation_method,
+                definition['name'],
+            ]
+            scenario_class = class_from_path('.'.join(scenario_path))
 
             # create the other actors that are going to appear
             if definition['other_actors'] is not None:

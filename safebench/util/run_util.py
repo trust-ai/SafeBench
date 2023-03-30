@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 14:14:23
+LastEditTime: 2023-03-30 00:27:14
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,6 +15,7 @@ from fnmatch import fnmatch
 
 import yaml
 import imageio
+import importlib
 
 
 def save_gif(frame_list, filename):
@@ -98,3 +99,9 @@ def setup_eval_configs(dir, itr=None):
     config_path = osp.join(path, config_name)
     configs = load_config(config_path)
     return model_path, load_itr, configs["policy"], configs["timeout_steps"], configs[configs["policy"]]
+
+
+def class_from_path(path):
+    module_name, class_name = path.rsplit(".", 1)
+    class_object = getattr(importlib.import_module(module_name), class_name)
+    return class_object

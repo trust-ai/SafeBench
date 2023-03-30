@@ -1,9 +1,11 @@
-'''
- Haohong Lin
-Email: haohongl@andrew.cmu.edu
-Date: 2023-02-04 16:30:08
-LastEditTime: 2023-03-05 14:55:10
+''' 
+Date: 2023-01-31 22:23:17
+LastEditTime: 2023-03-30 01:07:50
 Description: 
+    Copyright (c) 2022-2023 Safebench Team
+
+    This work is licensed under the terms of the MIT license.
+    For a copy, see <https://opensource.org/licenses/MIT>
 '''
 
 import os
@@ -75,7 +77,7 @@ class ObjectDetection(object):
         self.raw_image = np.expand_dims(self.raw_image.transpose(2, 0, 1), 0)
         assert self.raw_image.shape == (1, 3, 1024, 1024), "shape should match template"
     
-    def get_init_action(self, obs=None):
+    def get_init_action(self, obs=None, deterministic=False):
         if self.mode == 'train':
             eps = CUDA(self._dist.sample((self.batch_size, )))
             img = CUDA(self.add_patch(CUDA(self.raw_image), CUDA(eps)))
@@ -91,7 +93,7 @@ class ObjectDetection(object):
     def get_action(self, obs, infos, deterministic=False):
         return [{'attack': [], 'image': self._img} for _ in range(len(obs))]
     
-    def load_model(self):
+    def load_model(self, scenario_configs=None):
         pass
     
     def set_mode(self, mode):
