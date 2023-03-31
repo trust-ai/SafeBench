@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-22 15:25:09
+LastEditTime: 2023-03-30 22:00:24
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -86,9 +86,13 @@ class CarlaRunner:
         agent_config['ego_action_limit'] = scenario_config['ego_action_limit']
 
         # define logger
-        logger_kwargs = setup_logger_kwargs(self.exp_name, self.output_dir, self.seed,
-                                            agent=agent_config['policy_type'],
-                                            scenario=scenario_config['policy_type'])
+        logger_kwargs = setup_logger_kwargs(
+            self.exp_name, 
+            self.output_dir, 
+            self.seed,
+            agent=agent_config['policy_type'],
+            scenario=scenario_config['policy_type']
+        )
         self.logger = Logger(**logger_kwargs)
         
         # prepare parameters
@@ -116,7 +120,7 @@ class CarlaRunner:
         self.logger.log('>> Scenario Policy: ' + scenario_config['policy_type'])
 
         if self.scenario_config['auto_ego']:
-            self.logger.log('>> Using auto-polit for ego vehicle, the action of agent policy will be ignored', 'yellow')
+            self.logger.log('>> Using auto-polit for ego vehicle, action of policy will be ignored', 'yellow')
         if scenario_config['policy_type'] == 'ordinary' and self.mode != 'train_agent':
             self.logger.log('>> Ordinary scenario can only be used in agent training', 'red')
             raise Exception()
@@ -273,9 +277,9 @@ class CarlaRunner:
                 self.logger.save_video(data_ids=data_ids)
 
             # print score for ranking
-            self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', color='yellow')
+            self.logger.log(f'[{num_finished_scenario}/{data_loader.num_total_scenario}] Ranking scores for batch scenario:', 'yellow')
             for s_i in score_list.keys():
-                self.logger.log('\t Env id ' + str(s_i) + ': ' + str(np.mean(score_list[s_i])), color='yellow')
+                self.logger.log('\t Env id ' + str(s_i) + ': ' + str(np.mean(score_list[s_i])), 'yellow')
 
             # calculate evaluation results
             score_function = get_route_scores if self.scenario_category == 'planning' else get_perception_scores
@@ -296,7 +300,14 @@ class CarlaRunner:
             self._init_renderer()
 
             # create scenarios within the vectorized wrapper
-            self.env = VectorWrapper(self.env_params, self.scenario_config, self.world, self.birdeye_render, self.display, self.logger)
+            self.env = VectorWrapper(
+                self.env_params, 
+                self.scenario_config, 
+                self.world, 
+                self.birdeye_render, 
+                self.display, 
+                self.logger
+            )
 
             # prepare data loader and buffer
             data_loader = ScenarioDataLoader(config_by_map[m_i], self.num_scenario, m_i, self.world)

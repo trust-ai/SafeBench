@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-03 12:43:48
+LastEditTime: 2023-03-30 12:19:31
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -29,7 +29,7 @@ class DynamicObjectCrossing(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing-LC", config, world)
+        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
         

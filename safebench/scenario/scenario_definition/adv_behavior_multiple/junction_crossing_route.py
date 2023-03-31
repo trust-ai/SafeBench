@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-29 17:39:43
+LastEditTime: 2023-03-30 12:20:31
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -35,7 +35,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-MADDPG", config, world)
+        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-Behavior-Multiple", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -218,7 +218,7 @@ class SignalizedJunctionLeftTurn(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-MADDPG", config, world)
+        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-Behavior-Multiple", config, world)
         self.ego_vehicle = ego_vehicle
         self._world = world
         self._map = CarlaDataProvider.get_map()
@@ -394,7 +394,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn-MADDPG", config, world)
+        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn-Behavior-Multiple", config, world)
         self.ego_vehicle = ego_vehicle
         self._world = world
         self._map = CarlaDataProvider.get_map()
@@ -573,7 +573,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
 
 class NoSignalJunctionCrossingRoute(BasicScenario):
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-MADDPG", config, world)
+        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-Behavior-Multiple", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
         self.scenario_operation = ScenarioOperation()

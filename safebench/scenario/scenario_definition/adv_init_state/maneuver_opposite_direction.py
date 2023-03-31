@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-29 17:44:33
+LastEditTime: 2023-03-30 12:19:20
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -26,7 +26,7 @@ class ManeuverOppositeDirection(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(ManeuverOppositeDirection, self).__init__("ManeuverOppositeDirection-LC", config, world)
+        super(ManeuverOppositeDirection, self).__init__("ManeuverOppositeDirection-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 

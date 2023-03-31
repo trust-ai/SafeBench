@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:49:28
+LastEditTime: 2023-03-30 12:19:04
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -26,7 +26,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-LC", config, world)
+        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -107,7 +107,7 @@ class SignalizedJunctionLeftTurn(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-LC", config, world)
+        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -183,7 +183,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn-LC", config, world)
+        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -259,7 +259,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
 
 class NoSignalJunctionCrossingRoute(BasicScenario):
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-LC", config, world)
+        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 

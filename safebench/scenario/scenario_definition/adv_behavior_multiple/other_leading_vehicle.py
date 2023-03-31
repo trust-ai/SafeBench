@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-29 18:20:00
+LastEditTime: 2023-03-30 12:20:50
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -35,7 +35,7 @@ class OtherLeadingVehicle(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle-MADDPG", config, world)
+        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle-Behavior-Multiple", config, world)
         self.ego_vehicle = ego_vehicle
         self._world = world
         self._map = CarlaDataProvider.get_map()

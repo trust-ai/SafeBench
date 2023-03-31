@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:49:55
+LastEditTime: 2023-03-30 12:19:37
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -30,7 +30,7 @@ class OtherLeadingVehicle(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle-LC", config, world)
+        super(OtherLeadingVehicle, self).__init__("OtherLeadingVehicle-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 

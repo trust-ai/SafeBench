@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:52:51
+LastEditTime: 2023-03-30 22:00:32
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -12,7 +12,6 @@ Description:
 '''
 
 import carla
-import json
 
 from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataProvider
 from safebench.scenario.tools.scenario_helper import get_waypoint_in_distance
@@ -21,10 +20,9 @@ from safebench.scenario.tools.scenario_operation import ScenarioOperation
 
 
 class ManeuverOppositeDirection(BasicScenario):
-
     """
-    "Vehicle Maneuvering In Opposite Direction" (Traffic Scenario 06)
-    This is a single ego vehicle scenario
+        "Vehicle Maneuvering In Opposite Direction" (Traffic Scenario 06)
+        This is a single ego vehicle scenario
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=120):
@@ -60,11 +58,7 @@ class ManeuverOppositeDirection(BasicScenario):
         self.perturbed_actor_transform_list = []
         self.running_distance = 50
 
-
     def initialize_actors(self):
-        """
-        Custom initialization
-        """
         first_actor_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
         second_actor_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._second_vehicle_location)
         second_actor_waypoint = second_actor_waypoint.get_left_lane()
@@ -94,10 +88,7 @@ class ManeuverOppositeDirection(BasicScenario):
                 self.actor_transform_list[1].rotation))
 
     def update_behavior(self, scenario_action):
-        """
-        first actor run in low speed
-        second actor run in normal speed from oncoming route
-        """
+        # first actor run in low speed, second actor run in normal speed from oncoming route
         assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
         target_transform = self.perturbed_actor_transform_list[self.step if self.step < self.total_steps else -1]
         self.step += 1  # <= 50 steps

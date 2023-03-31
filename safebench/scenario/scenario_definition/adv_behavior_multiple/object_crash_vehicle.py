@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-29 18:06:59
+LastEditTime: 2023-03-30 12:20:45
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -36,7 +36,7 @@ class DynamicObjectCrossing(BasicScenario):
         The ego vehicle is passing through a road, and encounters a cyclist/pedestrian crossing the road.
     """
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing-MADDPG", config, world)
+        super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing-Behavior-Multiple", config, world)
         self.ego_vehicle = ego_vehicle
         self._wmap = CarlaDataProvider.get_map()
         self._reference_waypoint = self._wmap.get_waypoint(config.trigger_points[0].location)

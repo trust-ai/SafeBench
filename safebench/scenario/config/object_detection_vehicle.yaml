@@ -6,7 +6,7 @@ save_video: True
 
 route_dir: 'safebench/scenario/scenario_data/route_perception'
 texture_dir: 'safebench/scenario/scenario_data/template_od/car.jpg'
-method: null
+scenario_folder: null
 scenario_id: 2
 route_id: null
 

@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:49:28
+LastEditTime: 2023-03-30 21:56:48
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -26,7 +26,7 @@ class OppositeVehicleRunningRedLight(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-LC", config, world)
+        super(OppositeVehicleRunningRedLight, self).__init__("OppositeVehicleRunningRedLight-Behavior-Single", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -43,20 +43,14 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         self.ego_max_driven_distance = 150
 
     def convert_actions(self, actions):
-        """ Process the action from model. action is assumed in [-1, 1] """
-        y_scale = 5
-        yaw_scale = 5
-        d_scale = 5
-        y_mean = yaw_mean = dist_mean = 0
-
-        y = actions[0] * y_scale + y_mean
-        yaw = actions[1] * yaw_scale + yaw_mean
-        dist = actions[2] * d_scale + dist_mean
-        return [y, yaw, dist]
+        base_speed = 5.0
+        speed_scale = 5.0
+        speed = actions[0] * speed_scale + base_speed
+        return speed
 
     def initialize_actors(self):
         other_actor_transform = self.config.other_actors[0].transform
-        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.other_actor_delta_x
         other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
             carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
@@ -77,20 +71,14 @@ class OppositeVehicleRunningRedLight(BasicScenario):
             traffic_light_other.set_red_time(self.timeout)
 
     def create_behavior(self, scenario_init_action):
-        actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = actions  
-        self.actor_speed = 10 + delta_v
-        self.trigger_distance_threshold = 35 + delta_dist
+        assert scenario_init_action is None, f'{self.name} should receive [None] initial action.'
+        self.other_actor_delta_x = 1.0
+        self.trigger_distance_threshold = 35
 
     def update_behavior(self, scenario_action):
-        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
-
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
-        if cur_ego_speed and cur_ego_speed > 0.5:
-            self.trigger = True
-        if self.trigger:
-            for i in range(len(self.other_actors)):
-                self.scenario_operation.go_straight(self.actor_speed, i)
+        other_actor_speed = self.convert_actions(scenario_action)
+        for i in range(len(self.other_actors)):
+            self.scenario_operation.go_straight(other_actor_speed, i)
 
     def check_stop_condition(self):
         # stop when actor runs a specific distance
@@ -107,7 +95,7 @@ class SignalizedJunctionLeftTurn(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-LC", config, world)
+        super(SignalizedJunctionLeftTurn, self).__init__("SignalizedJunctionLeftTurn-Behavior-Single", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -128,22 +116,21 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         self.ego_max_driven_distance = 150
 
     def convert_actions(self, actions):
-        y_scale = 5
-        yaw_scale = 5
-        d_scale = 5
-        y_mean = yaw_mean = dist_mean = 0
-
-        y = actions[0] * y_scale + y_mean
-        yaw = actions[1] * yaw_scale + yaw_mean
-        dist = actions[2] * d_scale + dist_mean
-        return [y, yaw, dist]
+        base_speed = 5.0
+        speed_scale = 5.0
+        speed = actions[0] * speed_scale + base_speed
+        return speed
 
     def initialize_actors(self):
         other_actor_transform = self.config.other_actors[0].transform
-        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.other_actor_delta_x
         other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
+            carla.Location(
+                other_actor_transform.location.x, 
+                other_actor_transform.location.y, 
+                other_actor_transform.location.z
+            ),
             other_actor_transform.rotation
         )
         self.actor_transform_list = [first_vehicle_transform]
@@ -158,17 +145,15 @@ class SignalizedJunctionLeftTurn(BasicScenario):
             traffic_light_other.set_state(carla.TrafficLightState.Green)
             traffic_light_other.set_green_time(self.timeout)
 
-    def update_behavior(self, scenario_action):
-        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
-
-        for i in range(len(self.other_actors)):
-            self.scenario_operation.go_straight(self._target_vel, i)
-
     def create_behavior(self, scenario_init_action):
-        actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = actions  
-        self._target_vel = 12.0 + delta_v
-        self.trigger_distance_threshold = 45 + delta_dist
+        assert scenario_init_action is None, f'{self.name} should receive [None] initial action.'
+        self.other_actor_delta_x = 1.0
+        self.trigger_distance_threshold = 45
+
+    def update_behavior(self, scenario_action):
+        other_actor_speed = self.convert_actions(scenario_action)
+        for i in range(len(self.other_actors)):
+            self.scenario_operation.go_straight(other_actor_speed, i)
 
     def check_stop_condition(self):
         cur_distance = calculate_distance_transforms(CarlaDataProvider.get_transform(self.other_actors[0]), self.actor_transform_list[0])
@@ -183,7 +168,7 @@ class SignalizedJunctionRightTurn(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn-LC", config, world)
+        super(SignalizedJunctionRightTurn, self).__init__("SignalizedJunctionRightTurn-Behavior-Single", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -203,19 +188,14 @@ class SignalizedJunctionRightTurn(BasicScenario):
         self.ego_max_driven_distance = 150
 
     def convert_actions(self, actions):
-        y_scale = 5
-        yaw_scale = 5
-        d_scale = 5
-        y_mean = yaw_mean = dist_mean = 0
-
-        y = actions[0] * y_scale + y_mean
-        yaw = actions[1] * yaw_scale + yaw_mean
-        dist = actions[2] * d_scale + dist_mean
-        return [y, yaw, dist]
+        base_speed = 5.0
+        speed_scale = 5.0
+        speed = actions[0] * speed_scale + base_speed
+        return speed
 
     def initialize_actors(self):
         other_actor_transform = self.config.other_actors[0].transform
-        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.other_actor_delta_x
         other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
             carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
@@ -234,20 +214,14 @@ class SignalizedJunctionRightTurn(BasicScenario):
             traffic_light_other.set_green_time(self.timeout)
 
     def create_behavior(self, scenario_init_action):
-        actions = self.convert_actions(scenario_init_action)
-        self.x, delta_v, delta_dist = actions  
-        self._target_vel = 12 + delta_v
-        self.trigger_distance_threshold = 35 + delta_dist
+        assert scenario_init_action is None, f'{self.name} should receive [None] initial action.'
+        self.other_actor_delta_x = 1.0
+        self.trigger_distance_threshold = 45
 
     def update_behavior(self, scenario_action):
-        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
-
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
-        if cur_ego_speed and cur_ego_speed > 0.5:
-            self.trigger = True
-        if self.trigger:
-            for i in range(len(self.other_actors)):
-                self.scenario_operation.go_straight(self._target_vel, i)
+        other_actor_speed = self.convert_actions(scenario_action)
+        for i in range(len(self.other_actors)):
+            self.scenario_operation.go_straight(other_actor_speed, i)
 
     def check_stop_condition(self):
         # stop when actor runs a specific distance
@@ -258,8 +232,12 @@ class SignalizedJunctionRightTurn(BasicScenario):
 
 
 class NoSignalJunctionCrossingRoute(BasicScenario):
+    """
+        Vehicle turning right at an intersection without traffic lights.
+    """
+    
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-LC", config, world)
+        super(NoSignalJunctionCrossingRoute, self).__init__("NoSignalJunctionCrossingRoute-Behavior-Single", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
@@ -271,44 +249,37 @@ class NoSignalJunctionCrossingRoute(BasicScenario):
         self.ego_max_driven_distance = 150
 
     def convert_actions(self, actions):
-        y_scale = 5
-        yaw_scale = 5
-        d_scale = 5
-        y_mean = yaw_mean = dist_mean = 0
-
-        y = actions[0] * y_scale + y_mean
-        yaw = actions[1] * yaw_scale + yaw_mean
-        dist = actions[2] * d_scale + dist_mean
-        return [y, yaw, dist]
+        base_speed = 5.0
+        speed_scale = 5.0
+        speed = actions[0] * speed_scale + base_speed
+        return speed
 
     def initialize_actors(self):
         other_actor_transform = self.config.other_actors[0].transform
-        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.x
+        forward_vector = other_actor_transform.rotation.get_forward_vector() * self.other_actor_delta_x
         other_actor_transform.location += forward_vector
         first_vehicle_transform = carla.Transform(
-            carla.Location(other_actor_transform.location.x, other_actor_transform.location.y, other_actor_transform.location.z),
+            carla.Location(
+                other_actor_transform.location.x, 
+                other_actor_transform.location.y, 
+                other_actor_transform.location.z
+            ),
             other_actor_transform.rotation
         )
         self.actor_transform_list = [first_vehicle_transform]
         self.actor_type_list = ["vehicle.audi.tt"]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
         self.reference_actor = self.other_actors[0] # used for triggering this scenario
-        
-    def update_behavior(self, scenario_action):
-        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
-
-        cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
-        if cur_ego_speed and cur_ego_speed > 0.5:
-            self.trigger = True
-        if self.trigger:
-            for i in range(len(self.other_actors)):
-                self.scenario_operation.go_straight(self.actor_speed, i)
-
+    
     def create_behavior(self, scenario_init_action):
-        actions = self.convert_actions(scenario_init_action)
-        self.x, self.y, delta_v, delta_dist = actions  
-        self.actor_speed = 10 + delta_v
-        self.trigger_distance_threshold = 35 + delta_dist
+        assert scenario_init_action is None, f'{self.name} should receive [None] initial action.'
+        self.other_actor_delta_x = 1.0
+        self.trigger_distance_threshold = 35
+
+    def update_behavior(self, scenario_action):
+        other_actor_speed = self.convert_actions(scenario_action)
+        for i in range(len(self.other_actors)):
+            self.scenario_operation.go_straight(other_actor_speed, i)
 
     def check_stop_condition(self):
         # stop when actor runs a specific distance

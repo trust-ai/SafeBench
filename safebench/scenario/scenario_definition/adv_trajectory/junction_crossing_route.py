@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-27 18:52:39
+LastEditTime: 2023-03-30 21:56:19
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -310,10 +310,6 @@ class SignalizedJunctionRightTurn(BasicScenario):
 
 
 class NoSignalJunctionCrossingRoute(BasicScenario):
-    """
-
-    """
-
     def __init__(self, world, ego_vehicle, config, timeout=60):
         """
         Setup all relevant parameters and create scenario

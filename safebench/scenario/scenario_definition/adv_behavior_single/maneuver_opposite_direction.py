@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-29 17:44:33
+LastEditTime: 2023-03-30 22:05:09
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -26,17 +26,14 @@ class ManeuverOppositeDirection(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(ManeuverOppositeDirection, self).__init__("ManeuverOppositeDirection-LC", config, world)
+        super(ManeuverOppositeDirection, self).__init__("ManeuverOppositeDirection-Init-State", config, world)
         self.ego_vehicle = ego_vehicle
         self.timeout = timeout
 
         self._map = CarlaDataProvider.get_map()
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
-        # self._source_transform = None
-        # self._sink_location = None
         self._first_actor_transform = None
         self._second_actor_transform = None
-        # self._third_actor_transform = None
 
         self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 45
@@ -77,17 +74,16 @@ class ManeuverOppositeDirection(BasicScenario):
         self.reference_actor = self.other_actors[0] # used for triggering this scenario
         
     def create_behavior(self, scenario_init_action):
-        actions = self.convert_actions(scenario_init_action)
+        assert scenario_init_action is None, f'{self.name} should receive [None] action.'
+        #actions = self.convert_actions(scenario_init_action)
         x1, x2, v2 = actions  
         self._first_vehicle_location = x1
         self._second_vehicle_location = self._first_vehicle_location + x2
-        self._opposite_speed = v2  # m/s
 
     def update_behavior(self, scenario_action):
-        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
-
         # first actor run in low speed, second actor run in normal speed from oncoming route
-        self.scenario_operation.go_straight(self._opposite_speed, 1)
+        opposite_actor_speed = self.convert_actions(scenario_action) 
+        self.scenario_operation.go_straight(opposite_actor_speed, 1)
 
     def check_stop_condition(self):
         pass

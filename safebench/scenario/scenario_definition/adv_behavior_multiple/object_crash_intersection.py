@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-29 18:00:43
+LastEditTime: 2023-03-30 12:20:40
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -115,7 +115,7 @@ class VehicleTurningRoute(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-MADDPG", config, world)
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-Behavior-Multiple", config, world)
         self.timeout = timeout
         self.ego_vehicle = ego_vehicle
         self._wmap = CarlaDataProvider.get_map()
