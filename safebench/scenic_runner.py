@@ -239,7 +239,6 @@ class ScenicRunner:
         video_count = 0
         data_loader.reset_idx_counter()
         # recording the score and the id of corresponding selected scenes
-        map_id_score = {}
             
         while len(data_loader) > 0:
             # sample scenarios
@@ -301,17 +300,23 @@ class ScenicRunner:
             self.logger.print_eval_results()
             if len(self.env.running_results) % self.save_freq == 0:
                 self.logger.save_eval_results()
-            for config in sampled_scenario_configs:
-                map_id_score[config.data_id] = all_scores['final_score']
         self.logger.save_eval_results()
         
         if select:
             behavior_name = data_loader.behavior
             # TODO: define new selection mechanism
-            self.scene_map[behavior_name] = sorted([item[0] for item in sorted(map_id_score.items(), key=lambda x:x[1])][:data_loader.select_num])
+            self.scene_map[behavior_name] = self.select_adv_scene(all_running_results, score_function, data_loader.select_num)
             self.dump_scene_map()
         self.scenic.destroy()
-        
+    
+    def select_adv_scene(self, results, score_function, select_num):
+        # define your own selection mechanism here
+        map_id_score = {}
+        for i in results.keys():
+            map_id_score[i] = score_function({i:results[i]})['final_score']
+        selected_scene_id = sorted([item[0] for item in sorted(map_id_score.items(), key=lambda x:x[1])][:select_num])
+        return selected_scene_id
+
     def run(self):
         # get scenario data of different maps
         config_list = scenic_parse(self.scenario_config, self.logger)
