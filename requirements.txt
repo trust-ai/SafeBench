@@ -6,7 +6,6 @@ myst_parser==1.0.0
 gym==0.23.1
 numpy==1.21.6
 pygame==2.3.0
-scikit-image==0.20.0
 tqdm==4.65.0
 pyyaml==6.0
 matplotlib==3.7.1

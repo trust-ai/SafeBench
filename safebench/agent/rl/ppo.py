@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-10 11:52:25
+LastEditTime: 2023-04-01 16:00:55
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -200,3 +200,6 @@ class PPO(BasePolicy):
             self.policy.load_state_dict(checkpoint['policy'])
             self.value.load_state_dict(checkpoint['value'])
             self.continue_episode = episode
+        else:
+            self.logger.log(f'>> No {self.name} model found at {filepath}', 'red')
+            exit()

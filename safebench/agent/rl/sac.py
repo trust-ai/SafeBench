@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 14:55:51
+LastEditTime: 2023-04-01 16:00:31
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -243,3 +243,6 @@ class SAC(BasePolicy):
             self.value_net.load_state_dict(checkpoint['value_net'])
             self.Q_net.load_state_dict(checkpoint['Q_net'])
             self.continue_episode = episode
+        else:
+            self.logger.log(f'>> No {self.name} model found at {filepath}', 'red')
+            exit()

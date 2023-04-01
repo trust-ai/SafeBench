@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 00:27:14
+LastEditTime: 2023-04-01 15:15:03
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -15,37 +15,9 @@ import numpy as np
 from fnmatch import fnmatch
 
 import yaml
-import imageio
 import importlib
 
 from moviepy.video.io.ffmpeg_writer import FFMPEG_VideoWriter
-
-
-def save_gif(frame_list, filename):
-    imageio.v2.mimsave(filename, frame_list, fps=30)
-
-
-class VideoRecorder(object):
-    def __init__(self, output_dir, logger):
-        self.logger = logger
-        self.output_dir = output_dir
-        self.video_count = 0
-        self.frame_list = []
-        hms_time = time.strftime("%Y-%m-%d_%H-%M-%S")
-        self.video_dir = os.path.join(self.output_dir, 'video', hms_time)
-
-    def add_frame(self, frame):
-        self.frame_list.append(frame)
-    
-    def save(self, data_ids):
-        data_ids = ['{:04d}'.format(data_id) for data_id in data_ids]
-        video_name = f'video_{"{:04d}".format(self.video_count)}_id_{"_".join(data_ids)}.gif'
-        os.makedirs(self.video_dir, exist_ok=True)
-        video_file = os.path.join(self.video_dir, video_name)
-        self.logger.log(f'>> Saving video to {video_file}')
-        save_gif(self.frame_list, video_file)
-        self.frame_list = []
-        self.video_count += 1
 
 
 class VideoWriter:
@@ -63,7 +35,6 @@ class VideoWriter:
         if len(img.shape) == 2:
             img = np.repeat(img[..., None], 3, -1)
         # self.writer.write_frame(img)
-        
         try:
             self.writer.write_frame(img)
         except:
@@ -80,6 +51,38 @@ class VideoWriter:
     def __exit__(self, *kw):
         self.close()
 
+
+class VideoRecorder(object):
+    def __init__(self, output_dir, logger):
+        self.logger = logger
+        self.output_dir = output_dir
+        self.video_count = 0
+        self.fps = 20
+        self.frame_list = []
+        hms_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        self.video_dir = os.path.join(self.output_dir, 'video', hms_time)
+
+    def add_frame(self, frame):
+        self.frame_list.append(frame)
+    
+    def save(self, data_ids):
+        data_ids = ['{:04d}'.format(data_id) for data_id in data_ids]
+        video_name = f'video_{"{:04d}".format(self.video_count)}_id_{"_".join(data_ids)}.mp4'
+        os.makedirs(self.video_dir, exist_ok=True)
+        video_file = os.path.join(self.video_dir, video_name)
+        self.logger.log(f'>> Saving video to {video_file}')
+
+        # define video writer
+        video_writer = VideoWriter(filename=video_file, fps=self.fps)
+        for f in self.frame_list:
+            video_writer.add(f)
+        video_writer.close()
+
+        # reset frame list
+        self.frame_list = []
+        self.video_count += 1
+
+
 class VideoRecorder_Perception(object):
     def __init__(self, output_dir, logger, width=1024, height=1024):
         self.logger = logger
@@ -94,7 +97,6 @@ class VideoRecorder_Perception(object):
     def add_frame(self, frame):
         self.frame_list.append(frame)
 
-    
     def save(self, data_ids):
         num_episodes = len(data_ids)
         os.makedirs(self.video_dir, exist_ok=True)
@@ -103,7 +105,7 @@ class VideoRecorder_Perception(object):
         video_name = [f'video_{"{:04d}".format(self.video_count)}_id_{"_{:04d}".format(data)}.mp4' for data in data_ids]
         video_file = [os.path.join(self.video_dir, v) for v in video_name]
         self.logger.log(f'>> Saving video to {self.video_dir}')
-        self.writer_list = [VideoWriter(filename=v,fps=20.0) for v in video_file]
+        self.writer_list = [VideoWriter(filename=v, fps=20.0) for v in video_file]
         for f in self.frame_list:
             for n_i in range(num_episodes): 
                 try:
@@ -116,6 +118,7 @@ class VideoRecorder_Perception(object):
         self.logger.log(f'>> Saving video done.')
         self.frame_list = []
         self.video_count += 1
+
 
 def print_dict(d):
     print(yaml.dump(d, sort_keys=False, default_flow_style=False))

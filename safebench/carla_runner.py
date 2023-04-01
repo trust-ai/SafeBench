@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-04-01 01:45:57
+LastEditTime: 2023-04-01 15:13:29
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -270,7 +270,7 @@ class CarlaRunner:
                         self.logger.add_frame(pygame.surfarray.array3d(self.display).transpose(1, 0, 2))
                     else:
                         self.logger.add_frame({s_i['scenario_id']: ego_actions[n_i]['annotated_image'] for n_i, s_i in enumerate(infos)})
-                
+
                 # accumulate scores of corresponding scenario
                 reward_idx = 0
                 for s_i in infos:

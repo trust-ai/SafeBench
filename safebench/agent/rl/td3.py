@@ -238,3 +238,6 @@ class TD3(BasePolicy):
             self.policy.load_state_dict(checkpoint['policy'])
             self.target_policy.load_state_dict(checkpoint['target_policy'])
             self.continue_episode = episode
+        else:
+            self.logger.log(f'>> No {self.name} model found at {filepath}', 'red')
+            exit()

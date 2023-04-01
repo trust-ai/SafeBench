@@ -53,19 +53,19 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario5"
+                    "scenario_name": "OtherLeadingVehicle"
                 }
             ],
             "Town01": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario5"
+                    "scenario_name": "OtherLeadingVehicle"
                 }
             ],
             "Town02": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario5"
+                    "scenario_name": "OtherLeadingVehicle"
                 }
             ],
             "Town03": [
@@ -81,7 +81,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario5"
+                    "scenario_name": "OtherLeadingVehicle"
                 }
             ],
             "Town04": [
@@ -97,7 +97,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario5"
+                    "scenario_name": "OtherLeadingVehicle"
                 }
             ],
             "Town05": [
@@ -176,13 +176,13 @@
                             }
                         }
                     ],
-                    "scenario_name": "Scenario5"
+                    "scenario_name": "OtherLeadingVehicle"
                 }
             ],
             "Town06": [
                 {
                     "available_event_configurations": [],
-                    "scenario_name": "Scenario5"
+                    "scenario_name": "OtherLeadingVehicle"
                 }
             ]
         }

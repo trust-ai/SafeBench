@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-04-01 14:32:39
+LastEditTime: 2023-04-01 16:02:49
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -206,7 +206,7 @@ class Logger:
                 self.log(f'>> Loading existing evaluation records from {self.record_file}, ')
                 self.eval_records = joblib.load(self.record_file)
             else:
-                self.log(f'>> Loading existing fail because no records.pkl is found.')
+                self.log(f'>> Loading existing record fail because no records.pkl is found.')
                 self.eval_records = {}
 
     def add_eval_results(self, scores=None, records=None):

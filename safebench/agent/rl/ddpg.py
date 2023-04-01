@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:58:04
+LastEditTime: 2023-04-01 15:59:51
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -200,4 +200,6 @@ class DDPG(BasePolicy):
             self.actor_target.load_state_dict(checkpoint['actor_target'])
             self.critic_target.load_state_dict(checkpoint['critic_target'])
             self.continue_episode = episode
-
+        else:
+            self.logger.log(f'>> No {self.name} model found at {filepath}', 'red')
+            exit()
