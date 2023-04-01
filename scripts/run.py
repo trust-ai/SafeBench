@@ -32,8 +32,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument('--threads', type=int, default=4)
-    parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')   
-
+    parser.add_argument('--device', type=str, default='cuda:0' if torch.cuda.is_available() else 'cpu')
+    
     parser.add_argument('--num_scenario', '-ns', type=int, default=2, help='num of scenarios we run in one episode')
     parser.add_argument('--save_video', action='store_true')
     parser.add_argument('--render', type=bool, default=True)
