@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 22:00:24
+LastEditTime: 2023-04-01 01:45:57
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -102,12 +102,14 @@ class CarlaRunner:
             self.save_freq = agent_config['save_freq']
             self.train_episode = agent_config['train_episode']
             self.logger.save_config(agent_config)
+            self.logger.create_training_dir()
         elif self.mode == 'train_scenario':
             self.buffer_capacity = scenario_config['buffer_capacity']
             self.eval_in_train_freq = scenario_config['eval_in_train_freq']
             self.save_freq = scenario_config['save_freq']
             self.train_episode = scenario_config['train_episode']
             self.logger.save_config(scenario_config)
+            self.logger.create_training_dir()
         elif self.mode == 'eval':
             self.save_freq = scenario_config['save_freq']
             self.logger.log('>> Evaluation Mode, skip config saving', 'yellow')
@@ -192,6 +194,7 @@ class CarlaRunner:
             self.agent_policy.set_ego_and_route(self.env.get_ego_vehicles(), infos)
 
             # start loop
+            episode_reward = []
             while not self.env.all_scenario_done():
                 # get action from agent policy and scenario policy (assume using one batch)
                 ego_actions = self.agent_policy.get_action(obs, infos, deterministic=False)
@@ -201,6 +204,7 @@ class CarlaRunner:
                 next_obs, rewards, dones, infos = self.env.step(ego_actions=ego_actions, scenario_actions=scenario_actions)
                 replay_buffer.store([ego_actions, scenario_actions, obs, next_obs, rewards, dones], additional_dict=infos)
                 obs = copy.deepcopy(next_obs)
+                episode_reward.append(np.mean(rewards))
 
                 # train off-policy agent or scenario
                 if self.mode == 'train_agent' and self.agent_policy.type == 'offpolicy':
@@ -211,6 +215,9 @@ class CarlaRunner:
             # end up environment
             self.env.clean_up()
             replay_buffer.finish_one_episode()
+            self.logger.add_training_results('episode', e_i)
+            self.logger.add_training_results('episode_reward', np.sum(episode_reward))
+            self.logger.save_training_results()
 
             # train on-policy agent or scenario
             if self.mode == 'train_agent' and self.agent_policy.type == 'onpolicy':

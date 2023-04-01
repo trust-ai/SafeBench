@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-04 17:05:20
+LastEditTime: 2023-03-31 22:32:03
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -169,8 +169,30 @@ class Logger:
         self.output_file = open(osp.join(self.output_dir, output_fname), 'a')
         atexit.register(self.output_file.close)
         self.log(">> Logging data to %s" % self.output_file.name, 'green')
+        
         self.eval_results = {}
         self.eval_records = {}
+        self.training_results = {}
+
+    def create_training_dir(self):
+        result_dir = os.path.join(self.output_dir, 'training_results')
+        os.makedirs(result_dir, exist_ok=True)
+        self.result_file = os.path.join(result_dir, 'results.pkl')
+
+    def add_training_results(self, name=None, value=None):
+        if name is not None:
+            if name not in self.training_results:
+                self.training_results[name] = []
+            self.training_results[name].append(value)
+
+    def save_training_results(self):
+        self.log(f'>> Saving training results to {self.result_file}')
+        joblib.dump(self.training_results, self.result_file)
+
+    def print_training_results(self):
+        self.log("Training results:")
+        for key, value in self.eval_results.items():
+            self.log(f"\t {key: <25}{value}")
 
     def create_eval_dir(self, load_existing_results=True):
         result_dir = os.path.join(self.output_dir, 'eval_results')

@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-09 13:23:14
+LastEditTime: 2023-03-31 18:20:55
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -28,12 +28,24 @@ class CarlaBasicAgent(BasePolicy):
         self.continue_episode = 0
         self.route = None
         self.controller_list = []
-        self.target_speed = 30
+
+        # parameters for PID controller
+        self.target_speed = config['target_speed']
+        dt = config['dt']
+        lateral_KP = config['lateral_KP']
+        lateral_KI = config['lateral_KI']
+        lateral_KD = config['lateral_KD']
+        longitudinal_KP = config['longitudinal_KP']
+        longitudinal_KI = config['longitudinal_KI']
+        longitudinal_KD = config['longitudinal_KD']
+        max_steering = config['max_steering']
+        max_throttle = config['max_throttle']
 
         self.opt_dict = {
-            #'lateral_control_dict': {'K_P': 1.0, 'K_I': 0.0, 'K_D': 0.0, 'dt': 0.5},
-            #'longitudinal_control_dict': {'K_P': 1.0, 'K_I': 0.05, 'K_D': 0, 'dt': 0.5},
-            #'max_steering': 0.8,
+            'lateral_control_dict': {'K_P': lateral_KP, 'K_I': lateral_KI, 'K_D': lateral_KD, 'dt': dt},
+            'longitudinal_control_dict': {'K_P': longitudinal_KP, 'K_I': longitudinal_KI, 'K_D': longitudinal_KD, 'dt': dt},
+            'max_steering': max_steering,
+            'max_throttle': max_throttle,
         }
 
     def set_ego_and_route(self, ego_vehicles, info):
