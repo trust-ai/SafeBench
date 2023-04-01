@@ -79,12 +79,7 @@ class PerceptionScenario(RouteScenario):
             if running_status['route_complete'] == 100:
                 stop = True
                 self.logger.log('>> Scenario stops due to route completion', color='yellow')
-            if running_status['speed_above_threshold'] == Status.FAILURE:
-                if running_status['route_complete'] == 0:
-                    raise RuntimeError("Agent not moving")
-                else:
-                    stop = True
-                    self.logger.log('>> Scenario stops due to low speed', color='yellow')
+
         else:
             if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
