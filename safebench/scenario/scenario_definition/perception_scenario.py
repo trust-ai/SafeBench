@@ -55,13 +55,16 @@ class PerceptionScenario(RouteScenario):
 
         self.criteria = self._create_criteria()
         self._iou = 0.0
-
+    
     def get_running_status(self, running_record):
         running_status = {
             "iou": self._iou, 
             'gt': self._gt,
             'scores': self._scores,
             'logits': self._logits,
+            'pred': self._pred,
+            'class': self._class,
+            'scores': self._scores,
             'current_game_time': GameTime.get_time()
         }
 
@@ -76,12 +79,7 @@ class PerceptionScenario(RouteScenario):
             if running_status['route_complete'] == 100:
                 stop = True
                 self.logger.log('>> Scenario stops due to route completion', color='yellow')
-            if running_status['speed_above_threshold'] == Status.FAILURE:
-                if running_status['route_complete'] == 0:
-                    raise RuntimeError("Agent not moving")
-                else:
-                    stop = True
-                    self.logger.log('>> Scenario stops due to low speed', color='yellow')
+
         else:
             if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
@@ -205,6 +203,12 @@ class PerceptionScenario(RouteScenario):
         self._gt = ret['gt']
         self._scores = ret['scores']
         self._logits = ret['logits']
+        self._pred = ret['pred']
+        self._class = ret['class']
+        self._scores = ret['scores']
+
+
+
 
     def update_info(self):
         return {

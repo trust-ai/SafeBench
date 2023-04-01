@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-31 22:32:03
+LastEditTime: 2023-04-01 14:32:39
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -18,7 +18,7 @@ import joblib
 import numpy as np
 import yaml
 
-from safebench.util.run_util import VideoRecorder
+from safebench.util.run_util import VideoRecorder, VideoRecorder_Perception
 
 
 # Where experiment outputs are saved by default:
@@ -29,7 +29,7 @@ DEFAULT_DATA_DIR = osp.abspath(osp.dirname(osp.dirname(osp.dirname(__file__))))
 FORCE_DATESTAMP = False
 
 
-def setup_logger_kwargs(exp_name, output_dir, seed, datestamp=False, agent=None, scenario=None):
+def setup_logger_kwargs(exp_name, output_dir, seed, datestamp=False, agent=None, scenario=None, scenario_category='planning'):
     # Datestamp forcing
     datestamp = datestamp or FORCE_DATESTAMP
 
@@ -56,6 +56,7 @@ def setup_logger_kwargs(exp_name, output_dir, seed, datestamp=False, agent=None,
     logger_kwargs = dict(
         output_dir=osp.join(data_dir, relpath),
         exp_name=exp_name, 
+        scenario_category=scenario_category,
     )
     return logger_kwargs
 
@@ -137,7 +138,7 @@ class Logger:
         A general-purpose logger.
         Makes it easy to save diagnostics, hyperparameter configurations, the state of a training run, and the trained model.
     """
-    def __init__(self, output_dir=None, output_fname='progress.txt', exp_name=None):
+    def __init__(self, output_dir=None, output_fname='progress.txt', exp_name=None, scenario_category='planning'):
         """
             Initialize a Logger.
 
@@ -159,7 +160,8 @@ class Logger:
         self.exp_name = exp_name
         self.log_print_history = []
         self.video_recorder = None
-
+        self.scenario_category = scenario_category
+        
         self.output_dir = output_dir or "/tmp/experiments/%i" % int(time.time())
         self.log('>> ' + '-' * 40)
         if osp.exists(self.output_dir):
@@ -316,9 +318,12 @@ class Logger:
         self.log_current_row.clear()
         self.first_row = False
         return data_dict
-
+    
     def init_video_recorder(self):
-        self.video_recorder = VideoRecorder(self.output_dir, logger=self)
+        if self.scenario_category == 'planning':
+            self.video_recorder = VideoRecorder(self.output_dir, logger=self)
+        elif self.scenario_category == 'perception':
+            self.video_recorder = VideoRecorder_Perception(self.output_dir, logger=self)
 
     def add_frame(self, frame):
         self.video_recorder.add_frame(frame)

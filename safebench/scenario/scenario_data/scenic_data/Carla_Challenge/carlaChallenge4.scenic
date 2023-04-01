@@ -46,6 +46,3 @@ bicycle = Bicycle at spotBicycle offset by 3.5@0,
     with heading 90 deg relative to spotBicycle.heading,
     with behavior BicycleBehavior(BICYCLE_MIN_SPEED, THRESHOLD),
     with regionContainedIn None
-
-require 10 <= (distance to intersec) <= 15
-require 10 <= (distance from bicycle to intersec) <= 15

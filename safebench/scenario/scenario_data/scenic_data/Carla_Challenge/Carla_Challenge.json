@@ -1,0 +1,79 @@
+{
+    "carlaChallenge1": [
+        4,
+        6,
+        7,
+        8,
+        9
+    ],
+    "carlaChallenge10": [
+        1,
+        3,
+        4,
+        5,
+        10
+    ],
+    "carlaChallenge2": [
+        10,
+        12,
+        13,
+        15,
+        18
+    ],
+    "carlaChallenge3_dynamic": [
+        0,
+        2,
+        4,
+        5,
+        10
+    ],
+    "carlaChallenge3_static": [
+        14,
+        15,
+        17,
+        18,
+        19
+    ],
+    "carlaChallenge4": [
+        3,
+        4,
+        7,
+        10,
+        12
+    ],
+    "carlaChallenge5": [
+        5,
+        9,
+        11,
+        14,
+        18
+    ],
+    "carlaChallenge6": [
+        3,
+        7,
+        9,
+        11,
+        16
+    ],
+    "carlaChallenge7": [
+        0,
+        6,
+        9,
+        11,
+        19
+    ],
+    "carlaChallenge8": [
+        0,
+        1,
+        4,
+        7,
+        13
+    ],
+    "carlaChallenge9": [
+        1,
+        4,
+        5,
+        9,
+        10
+    ]
+}

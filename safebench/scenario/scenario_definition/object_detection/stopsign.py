@@ -94,6 +94,7 @@ class Detection_StopSign(BasicScenario):
                 "gt": bbox_gt['stopsign'], 
                 "scores": bbox_pred['scores'],
                 "pred": bbox_pred['boxes'], 
+                "class": types, 
                 "TP+FP": 0,
                 "TP+FP+FN": len(bbox_pred['scores']),
             }
@@ -116,7 +117,9 @@ class Detection_StopSign(BasicScenario):
             "iou": match_ret, 
             "logits": types_flag, 
             "gt": bbox_gt['stopsign'], 
-            "scores": bbox_pred['scores'], 
+            "scores": bbox_pred['scores'],
+            "pred": bbox_pred['boxes'],
+            "class": types,
         }
     
     def _find_indices(self, types, name):
