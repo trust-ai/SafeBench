@@ -129,7 +129,6 @@ class ScenicDataLoader:
         while len(self.scene) < self.config.sample_num:
             scene, _ = scenic.generateScene()
             if scenic.setSimulation(scene):
-                scenic.update_behavior = scenic.runSimulation()
                 self.scene.append(scene)
                 scenic.endSimulation()
             

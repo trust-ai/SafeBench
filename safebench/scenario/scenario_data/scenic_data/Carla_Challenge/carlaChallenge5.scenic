@@ -49,5 +49,3 @@ ego = Car at spawnPt,
 cyclist = Car following roadDirection from ego for EGO_TO_BICYCLE,
 	with behavior SlowCarBehavior()
 
-require (distance from ego to intersection) > 10
-require (distance from cyclist to intersection) > 10
