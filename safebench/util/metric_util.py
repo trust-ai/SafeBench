@@ -1,22 +1,11 @@
-''' 
-Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-02 17:42:44
-Description: 
-    Copyright (c) 2022-2023 Safebench Team
-
-    This work is licensed under the terms of the MIT license.
-    For a copy, see <https://opensource.org/licenses/MIT>
-'''
-
+import joblib
 import math
+import numpy as np
+
 from copy import deepcopy
 import argparse
 
-import numpy as np
-import joblib
 import torch
-import json
-
 from safebench.scenario.scenario_definition.atomic_criteria import Status
 
 
@@ -44,10 +33,8 @@ def cal_avg_yaw_velocity(sequence):
             continue
         total_yaw_change += abs(sequence[i]['ego_yaw'] - sequence[i - 1]['ego_yaw'])
     total_yaw_change = total_yaw_change / 180 * math.pi
-    try:
-        avg_yaw_velocity = total_yaw_change / (sequence[-1]['current_game_time'] - sequence[0]['current_game_time'])
-    except:
-        avg_yaw_velocity = 0
+    avg_yaw_velocity = total_yaw_change / (sequence[-1]['current_game_time'] - sequence[0]['current_game_time'])
+
     return avg_yaw_velocity
 
 
@@ -132,8 +119,7 @@ def get_route_scores(record_dict, time_out=30):
 
     return all_scores
 
-
-def compute_ap(recall, precision):
+def compute_ap(recall, precision, method='interp'):
     """ Compute the average precision, given the recall and precision curves
     # Arguments
         recall:    The recall curve (list)
@@ -150,7 +136,7 @@ def compute_ap(recall, precision):
     mpre = np.flip(np.maximum.accumulate(np.flip(mpre_input)))
 
     # Integrate area under curve
-    method = 'interp'  # methods: 'continuous', 'interp'
+      # methods: 'continuous', 'interp'
     if method == 'interp':
         x = np.linspace(0, 1, 101)  # 101-point interp (COCO)
         ap = np.trapz(np.interp(x, mrec, mpre), x)  # integrate
@@ -167,27 +153,45 @@ def _get_pr_curve(conf_scores, logits, num_gt, data_id, iou_thres=0.5):
     logits = logits[idx]
     tp = torch.cumsum(logits >= iou_thres, dim=0)
     tp_fp = torch.cumsum(logits >= -0., dim=0)
-    print(tp.shape, tp_fp.shape)
     precision = (tp / tp_fp).numpy()
     recall = (tp / (num_gt + eps)).numpy()
 
-    ap, mpre_input, mpre, mrec = compute_ap(recall, precision)
+    ap, mpre_input, mpre, mrec = compute_ap(recall, precision, method='continuous')
     return ap
 
-
 def get_perception_scores(record_dict): 
+    
     mAP = []
     IoU_list = []
+    pred = []
+    gt = []
+    cls = []
+    scores = []
     for data_id in record_dict.keys():
         IoU_list.append([rec['iou'] for rec in record_dict[data_id]])
         conf_scores = torch.cat([rec['scores'] for rec in record_dict[data_id]])
         logits = torch.cat([rec['logits'] for rec in record_dict[data_id]])
         num_gt = len(record_dict[data_id])
-        mAP.append(_get_pr_curve(conf_scores, logits, num_gt, data_id))
+        
+        map_iou = []
+        for th in np.arange(0.5, 1.0, 0.05):
+            map_iou.append(_get_pr_curve(conf_scores, logits, num_gt, data_id, iou_thres=th))
+
+        mAP.append(np.mean(map_iou))
+        pred.append([rec['pred'] for rec in record_dict[data_id]])
+        gt.append([rec['gt'] for rec in record_dict[data_id]])
+        cls.append([rec['class'] for rec in record_dict[data_id]])
+        scores.append([rec['scores'] for rec in record_dict[data_id]])
 
     IoU_mean = [np.mean(iou) for iou in IoU_list]
+    
+
 
     return {
+        # 'scores': scores,
+        # 'pred': pred,
+        # 'gt': gt,
+        # 'class': cls,
         'mean_iou': IoU_mean,
         'mAP_evaluate': mAP, 
     }
@@ -195,8 +199,7 @@ def get_perception_scores(record_dict):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--record_file', default='results.pkl')
-    parser.add_argument('--data_file', default='safebench/scenario/config/scenario_type/standard.json')
+    parser.add_argument('--record_file', default='/home/carla/output/testing_records/record.pkl')
     arguments = parser.parse_args()
     return arguments
 
@@ -204,16 +207,5 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     record = joblib.load(args.record_file)
-    with open(args.data_file, 'r') as f:
-        dataset = json.loads(f.read())
-    for scenario_id in range(1, 9):
-        ids = [item['data_id'] for item in dataset if item['scenario_id'] == scenario_id]
-        current_record = {data_id: traj for data_id, traj in record.items() if data_id in ids}
-        current_result = get_route_scores(current_record)
-        print(scenario_id, len(current_record))
-        for key, value in current_result.items():
-            print(f"{key: <25}{value}")
-    current_result = get_route_scores(record)
-    print(len(record))
-    for key, value in current_result.items():
-        print(f"{key: <25}{value}")
+    # all_scores, normalized_scores, final_score = get_scores(record)
+    # print('overall score:', final_score)

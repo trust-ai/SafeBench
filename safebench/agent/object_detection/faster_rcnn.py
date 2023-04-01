@@ -10,13 +10,14 @@ from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.utils import draw_bounding_boxes
 from torchvision.transforms.functional import to_pil_image
 
+from safebench.agent.base_policy import BasePolicy
 from safebench.util.od_util import names_coco_paper, CUDA, CPU
 from safebench.agent.object_detection.references_coco.detection.engine import train_one_epoch, evaluate
 
 # /home/wenhao/.cache/torch/hub/checkpoints/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth
 
 
-class FasterRCNNAgent(object):
+class FasterRCNNAgent(BasePolicy):
     def __init__(self, config, logger, train_mode='none') -> None:
 
         self.ego_action_dim = config['ego_action_dim']
@@ -57,7 +58,7 @@ class FasterRCNNAgent(object):
             
             # TODO: CUDA Memory Management
             torch.cuda.empty_cache()
-        return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred_list[i]} for i in range(n_envs)]
+        return [{'ego_action': np.array([0.2, 0.0]), 'od_result': pred_list[i], 'annotated_image': []} for i in range(n_envs)]
     
 
     def load_model(self):

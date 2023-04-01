@@ -98,7 +98,6 @@ class ScenarioDataLoader:
     def sampler(self):
         # sometimes the length of list is smaller than num_scenario
         sample_num = np.min([self.num_scenario, len(self.scenario_idx)])
-
         # select scenarios
         # selected_idx = np.random.choice(self.scenario_idx, size=sample_num, replace=False)
         selected_idx = self._select_non_overlap_idx(self.scenario_idx, sample_num)
