@@ -44,8 +44,11 @@ class Detection_Pedestrian(BasicScenario):
         # self.other_actors = actors
 
         # the trigger distance will always be 0, trigger at the beginning
+        print('spawn pedestrians')
+        self._try_spawn_random_walker_at()
+        print('spawned')
         self.reference_actor = self.ego_vehicle 
-    
+
     
     def create_behavior(self, scenario_init_action):
         if self.ego_id == 0:
@@ -76,30 +79,56 @@ class Detection_Pedestrian(BasicScenario):
 
 
     def eval(self, bbox_pred, bbox_gt):
+        '''
+            bbox_pred: dictionary from detection modules (torch)
+            bbox_gt: dictionary from carla envs (numpy)
+        '''
         types = bbox_pred['labels']
+        types_flag = -torch.ones_like(bbox_pred['scores'])
+
         if isinstance(types, torch.Tensor) or 'person' not in types:
-            return 0
+            return {
+                "iou": 0., 
+                "logits": types_flag, 
+                "gt": bbox_gt['person'], 
+                "scores": bbox_pred['scores'],
+                "pred": bbox_pred['boxes'], 
+                "class": types, 
+                "TP+FP": 0,
+                "TP+FP+FN": len(bbox_pred['scores']),
+            }
         
-        index = types.index('person')
-
-        objectiveness = bbox_pred['scores'][[index]]
-        pred = bbox_pred['boxes'][[index]]
-
-
+        index = torch.LongTensor(self._find_indices(types, 'person'))
+        pred = bbox_pred['boxes'][index]
+        types_flag[index] += 1
         match_ret = 0.
         
         if 'person' in bbox_gt.keys():
             box_true = bbox_gt['person']
             if len(box_true) > 0:
-                for b_true in box_true:
-                    b_true = get_xyxy(b_true)[None, :]
-                    ret = box_iou(pred, b_true)[0][0].item()
-                    if ret > match_ret:
-                        match_ret = ret
-        return match_ret
+                b_true = torch.from_numpy(np.concatenate(box_true))
+                ret = box_iou(pred, b_true)
+                match_ret = ret.max().item()
+                logits, idx_tp = torch.max(ret, dim=0)
+                types_flag[index[idx_tp]] = logits
         
+        return {
+            "iou": match_ret, 
+            "logits": types_flag, 
+            "gt": bbox_gt['person'], 
+            "scores": bbox_pred['scores'],
+            "pred": bbox_pred['boxes'],
+            "class": types,
+        }
     
-    def _try_spawn_random_walker_at(self, transform):
+    def _find_indices(self, types, name):
+        index = []
+        for i in range(len(types)):
+            if types[i] == name:
+                index.append(i)
+        return index
+    
+    def _try_spawn_random_walker_at(self):
         """
             Try to spawn a walker at specific transform with random bluprint.
             Args:
@@ -111,17 +140,32 @@ class Detection_Pedestrian(BasicScenario):
         # set as not invencible
         if walker_bp.has_attribute('is_invincible'):
             walker_bp.set_attribute('is_invincible', 'false')
-        walker_actor = self.world.try_spawn_actor(walker_bp, transform)
+        # carla.Transform(carla.Transform(-20.00, 190.00, 0.0), carla.Rotate(0.00, -180.0, 0.0))
+        transform_list = [carla.Transform(carla.Location(x=-50.00, y=203.00, z=2.0), carla.Rotation(pitch=0.00, yaw=-180.0, roll=0.0)), 
+                        carla.Transform(carla.Location(x=-50.00, y=5-1.750, z=2.0), carla.Rotation(pitch=0.00, yaw=-180.0, roll=0.0)), 
+                        carla.Transform(carla.Location(x=5-5.00, y=50.00, z=2.0), carla.Rotation(pitch=0.00, yaw=90.0, roll=0.0)),
+                        carla.Transform(carla.Location(x=5+195.00, y=50.00, z=2.0), carla.Rotation(pitch=0.00, yaw=90.0, roll=0.0)),    
+        ] # CarlaDataProvider._rng.choice(CarlaDataProvider._spawn_points)       
+        destination_list = [carla.Location(x=-60.0, y=203.384308, z=2.0), 
+                        carla.Location(x=-60.0, y=5-1.750, z=2.0),
+                        carla.Location(x=5-5.0, y=60.00, z=2.0),
+                        carla.Location(x=200.0, y=60.00, z=2.0)
+        ]
 
-        if walker_actor is not None:
-            walker_controller_bp = self.world.get_blueprint_library().find('controller.ai.walker')
-            walker_controller_actor = self.world.spawn_actor(walker_controller_bp, carla.Transform(), walker_actor)
-            # start walker
-            walker_controller_actor.start()
-            # set walk to random point
-            walker_controller_actor.go_to_location(self.world.get_random_location_from_navigation())
-            # random max speed
-            walker_controller_actor.set_max_speed(1 + random.random())  # max speed between 1 and 2 (default is 1.4 m/s)
+        for transform, destination in zip(transform_list, destination_list): 
+            walker_actor = self.world.try_spawn_actor(walker_bp, transform)
+            print(walker_actor)
+            if walker_actor is not None:
+                walker_controller_bp = self.world.get_blueprint_library().find('controller.ai.walker')
+                walker_controller_actor = self.world.spawn_actor(walker_controller_bp, carla.Transform(), walker_actor)
+                # start walker
+                walker_controller_actor.start()
+                # set walk to random point
+                 # self.world.get_random_location_from_navigation()
+                print('destination: ',  destination)
+                walker_controller_actor.go_to_location(destination)
+                # random max speed
+                walker_controller_actor.set_max_speed(1 + random.random())  # max speed between 1 and 2 (default is 1.4 m/s)
         return walker_actor
 
     def _try_spawn_random_vehicle_at(self, transform, number_of_wheels=[4]):

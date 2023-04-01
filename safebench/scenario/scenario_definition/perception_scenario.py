@@ -62,6 +62,9 @@ class PerceptionScenario(RouteScenario):
             'gt': self._gt,
             'scores': self._scores,
             'logits': self._logits,
+            'pred': self._pred,
+            'class': self._class,
+            'scores': self._scores,
             'current_game_time': GameTime.get_time()
         }
 
@@ -205,6 +208,12 @@ class PerceptionScenario(RouteScenario):
         self._gt = ret['gt']
         self._scores = ret['scores']
         self._logits = ret['logits']
+        self._pred = ret['pred']
+        self._class = ret['class']
+        self._scores = ret['scores']
+
+
+
 
     def update_info(self):
         return {
