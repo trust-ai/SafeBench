@@ -55,7 +55,7 @@ class PerceptionScenario(RouteScenario):
 
         self.criteria = self._create_criteria()
         self._iou = 0.0
-
+    
     def get_running_status(self, running_record):
         running_status = {
             "iou": self._iou, 

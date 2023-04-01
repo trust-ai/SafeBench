@@ -53,7 +53,7 @@
                             }
                         }
                     ],
-                    "scenario_name": "Detection_StopSign"
+                    "scenario_type": "Detection_StopSign"
                 }
             ]
         }
