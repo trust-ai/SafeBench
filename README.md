@@ -84,7 +84,7 @@ SDL_VIDEODRIVER="dummy" python scripts/run.py --agent_cfg=dummy.yaml --scenario_
 First, launch CARLA with headless mode, and run our platform on a virtual display.
 ```
 # Launch CARLA
-./CarlaUE4.sh -prefernvidia -RenderOffScreen -carla-port=2000
+./CarlaUE4.sh -prefernvidia -windowed -carla-port=2000
 
 # Run a remote VNC-Xserver. This will create a virtual display "8".
 /opt/TurboVNC/bin/vncserver :8 -noxstartup
