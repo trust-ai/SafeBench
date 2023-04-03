@@ -129,7 +129,24 @@ def _compute_ap(recall, precision, method='interp'):
     """
 
     # TODO TAIAT C2: Insert the `compute_ap` function you implemented for Challenge 1
-    ap = 0.
+    
+    appended_recall = np.concatenate(([0.0], recall, [1.0]))
+    appended_prec_input = np.concatenate(([1.0], precision, [0.0]))
+
+    # Compute the precision envelope
+    appended_prec = appended_prec_input
+    for idx in range(appended_prec.shape[0]-1):
+      appended_prec[idx] = np.max(appended_prec_input[idx:-1])
+
+
+    # Integrate area under curve
+    if method == 'interp':
+        x = np.linspace(0, 1, 101)    # 101-point interp (COCO)
+        ap = np.trapz(np.interp(x, appended_recall, appended_prec), x=x)                                # TODO: get the average precision based on the areas under interpolated curves
+    else:                                                                                               # 'continuous', you can refer to the computation of AP in this setting when finishing the interp AP calculation
+        i = np.where(appended_recall[1:] != appended_recall[:-1])[0]                                    # points where x axis (recall) changes
+        ap = np.sum((appended_recall[i + 1] - appended_recall[i]) * appended_prec[i + 1])               # area under curve
+
     return ap
 
 
@@ -141,8 +158,8 @@ def _get_pr_ap(conf_scores, logits, num_gt, data_id, iou_thres=0.5):
     tp_fp = torch.cumsum(logits >= -0., dim=0)
     
     # TODO TAIAT C2: get the precision and recall based on the tp, tp+fp, and tp+fn (num_gt)
-    precision = (...).numpy()
-    recall = (...).numpy()
+    precision = (tp/tp_fp).numpy()
+    recall = (tp/num_gt).numpy()
 
     ap = _compute_ap(recall, precision, method='continuous')
     return ap
