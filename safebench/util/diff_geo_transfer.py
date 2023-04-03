@@ -22,6 +22,7 @@ if __name__ == '__main__':
     size = 100
     for center_x in range(210, 411, 50):
         for center_y in range(210, 411, 50):
+            image0 = cv2.imread('/home/ubuntu/carla/SafeBench/safebench/scenario/scenario_data/template_od/stopsign.jpg')
             image1 = cv2.circle(image0, [center_x, center_y], size, color_bgr, -1)
             filename = '/home/ubuntu/carla/SafeBench/safebench/scenario/scenario_data/template_od/stopsign_patchcenter_' + str(center_x) + '_' + str(center_y) + '.jpg'
             cv2.imwrite(filename, image1)
