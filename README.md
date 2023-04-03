@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-04-03 18:53:36
+ * @LastEditTime: 2023-04-03 19:11:11
  * @Description: 
 -->
 
@@ -56,11 +56,15 @@ Step 4: Download our [CARLA_0.9.13](https://drive.google.com/file/d/139vLRgXP90Z
 
 Step 5: Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
-Step 6: Install carla python pachage
+Step 6: Add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
 ```bash
-cd {path/to/carla}/PythonAPI/carla/dist
-pip install carla-0.9.13-py3.8-linux-x86_64.whl
+export CARLA_ROOT={path/to/your/carla}
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.8-linux-x86_64.egg
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
+export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
+
 
 ### 2. Docker Installation
 
