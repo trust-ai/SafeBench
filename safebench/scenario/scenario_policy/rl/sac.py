@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-28 22:58:30
+LastEditTime: 2023-04-03 16:41:28
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -134,6 +134,11 @@ class SAC(BasePolicy):
             self.Q_net.eval()
         else:
             raise ValueError(f'Unknown mode {mode}')
+
+    def get_init_action(self, state, deterministic=False):
+        num_scenario = len(state)
+        additional_in = {}
+        return [None] * num_scenario, additional_in
 
     def get_action(self, state, infos, deterministic=False):
         state = CUDA(torch.FloatTensor(state))

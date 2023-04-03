@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 12:19:31
+LastEditTime: 2023-04-03 17:40:25
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -37,7 +37,6 @@ class DynamicObjectCrossing(BasicScenario):
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
 
         # other vehicle parameters
-        self._other_actor_target_velocity = 2.5
         self._num_lane_changes = 1
 
         # Note: transforms for walker and blocker
@@ -50,20 +49,6 @@ class DynamicObjectCrossing(BasicScenario):
         self.scenario_operation = ScenarioOperation()
         self.trigger_distance_threshold = 20
         self.ego_max_driven_distance = 150
-
-    def convert_actions(self, actions):
-        yaw_scale = 60
-        yaw_mean = 0
-
-        d_min = 15
-        d_max = 50
-        d_scale = (d_max - d_min) / 2
-        dist_mean = (d_max + d_min)/2
-
-        y = actions[0] / 2 + 0.5
-        yaw = actions[1] * yaw_scale + yaw_mean
-        dist = actions[2] * d_scale + dist_mean
-        return [y, yaw, dist]
 
     def _calculate_base_transform(self, _start_distance, waypoint):
         lane_width = waypoint.lane_width
@@ -110,12 +95,11 @@ class DynamicObjectCrossing(BasicScenario):
             Set a blocker that blocks ego's view on the walker
             Request a walker walk through the street when ego come
         """
-        y, yaw, self.trigger_distance_threshold = self.actions  # [0, 1], [-60, 60], [15, 50]
 
-        # cyclist transform
-        _start_distance = 45
-        # we start by getting and waypoint in the closest sidewalk.
-        waypoint = self._reference_waypoint
+        y = 0.5
+        yaw = 0
+        _start_distance = 45 # cyclist transform
+        waypoint = self._reference_waypoint  # we start by getting and waypoint in the closest sidewalk.
 
         while True:
             wp_next = waypoint.get_right_lane()
@@ -170,15 +154,21 @@ class DynamicObjectCrossing(BasicScenario):
         self.actor_transform_list = [disp_transform, prop_disp_transform]
         self.other_actors = self.scenario_operation.initialize_vehicle_actors(self.actor_transform_list, self.actor_type_list)
         self.reference_actor = self.other_actors[0] # used for triggering this scenario
-        
+
+    def convert_actions(self, actions):
+        base_speed = 1.0
+        speed_scale = 2.0
+        speed = actions[0] * speed_scale + base_speed
+        return speed
+
     def create_behavior(self, scenario_init_action):
-        self.actions = self.convert_actions(scenario_init_action)
+        assert scenario_init_action is None, f'{self.name} should receive [None] initial action.'
 
     def update_behavior(self, scenario_action):
-        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
-        
+        other_actor_speed = self.convert_actions(scenario_action)
+
         # the walker starts crossing the road
-        self.scenario_operation.walker_go_straight(self._other_actor_target_velocity, 0)
+        self.scenario_operation.walker_go_straight(other_actor_speed, 0)
 
     def check_stop_condition(self):
         lane_width = self._reference_waypoint.lane_width

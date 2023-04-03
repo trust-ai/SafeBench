@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 12:19:25
+LastEditTime: 2023-04-03 17:32:41
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -109,21 +109,18 @@ class VehicleTurningRoute(BasicScenario):
         self.ego_max_driven_distance = 180
 
     def convert_actions(self, actions, x_scale, y_scale, x_mean, y_mean):
-        yaw_min = 0
-        yaw_max = 360
-        yaw_scale = (yaw_max - yaw_min) / 2
-        yaw_mean = (yaw_max + yaw_min) / 2
 
-        d_min = 10
-        d_max = 50
-        d_scale = (d_max - d_min) / 2
-        dist_mean = (d_max + d_min) / 2
-
-        x = actions[0] * x_scale + x_mean
-        y = actions[1] * y_scale + y_mean
-        yaw = actions[2] * yaw_scale + yaw_mean
-        dist = actions[3] * d_scale + dist_mean
+        x = x_mean
+        y = y_mean
+        yaw = yaw_mean
+        dist = dist_mean
         return [x, y, yaw, dist]
+
+    def convert_actions(self, actions):
+        base_speed = 5.0
+        speed_scale = 5.0
+        speed = actions[0] * speed_scale + base_speed
+        return speed
 
     def initialize_actors(self):
         cross_location = get_crossing_point(self.ego_vehicle)
@@ -142,8 +139,10 @@ class VehicleTurningRoute(BasicScenario):
             max_y_scale = max(max_y_scale, abs(entry_wps[i].transform.location.y - y_mean), abs(exit_wps[i].transform.location.y - y_mean))
         max_x_scale *= 0.8
         max_y_scale *= 0.8
-        #center_transform = carla.Transform(carla.Location(x=x_mean, y=y_mean, z=0), carla.Rotation(pitch=0, yaw=0, roll=0))
-        x, y, yaw, self.trigger_distance_threshold = self.convert_actions(self.actions, max_x_scale, max_y_scale, x_mean, y_mean)
+
+        x = x_mean
+        y = y_mean
+        yaw = 180
         other_actor_transform = carla.Transform(carla.Location(x, y, 0), carla.Rotation(yaw=yaw))
         
         self.actor_transform_list = [other_actor_transform]
@@ -152,13 +151,11 @@ class VehicleTurningRoute(BasicScenario):
         self.reference_actor = self.other_actors[0] # used for triggering this scenario
         
     def create_behavior(self, scenario_init_action):
-        self.actions = scenario_init_action
+        assert scenario_init_action is None, f'{self.name} should receive [None] initial action.'
 
     def update_behavior(self, scenario_action):
-        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
-        for i in range(len(self.other_actors)):
-            cur_actor_target_speed = 10
-            self.scenario_operation.go_straight(cur_actor_target_speed, i)
+        cur_actor_target_speed = self.convert_actions(scenario_action)
+        self.scenario_operation.go_straight(cur_actor_target_speed, 0)
 
     def check_stop_condition(self):
-        return False
+        pass

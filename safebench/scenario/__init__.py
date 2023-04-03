@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-22 16:32:04
+LastEditTime: 2023-04-03 16:25:21
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -14,6 +14,7 @@ from safebench.scenario.scenario_policy.reinforce_continuous import REINFORCE
 from safebench.scenario.scenario_policy.normalizing_flow_policy import NormalizingFlow
 from safebench.scenario.scenario_policy.hardcode_policy import HardCodePolicy
 from safebench.scenario.scenario_policy.adv_patch import ObjectDetection
+from safebench.scenario.scenario_policy.rl.sac import SAC
 
 
 SCENARIO_POLICY_LIST = {
@@ -24,5 +25,6 @@ SCENARIO_POLICY_LIST = {
     'advtraj': HardCodePolicy,
     'lc': REINFORCE,
     'nf': NormalizingFlow,
-    'od': ObjectDetection
+    'od': ObjectDetection,
+    'sac': SAC,
 }

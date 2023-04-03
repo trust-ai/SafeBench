@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 22:05:09
+LastEditTime: 2023-04-03 17:22:23
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -40,26 +40,10 @@ class ManeuverOppositeDirection(BasicScenario):
         self.ego_max_driven_distance = 200
 
     def convert_actions(self, actions):
-        x_min = 40
-        x_max = 60
-        x_scale = (x_max-x_min)/2
-
-        y_min = 20
-        y_max = 40
-        y_scale = (y_max-y_min)/2
-
-        yaw_min = 6
-        yaw_max = 10
-        yaw_scale = (yaw_max-yaw_min)/2
-
-        x_mean = (x_max + x_min)/2
-        y_mean = (y_max + y_min)/2
-        yaw_mean = (yaw_max + yaw_min)/2
-
-        x = actions[0] * x_scale + x_mean
-        y = actions[1] * y_scale + y_mean
-        yaw = actions[2] * yaw_scale + yaw_mean
-        return [x, y, yaw]
+        base_speed = 5.0
+        speed_scale = 5.0
+        speed = actions[0] * speed_scale + base_speed
+        return speed
 
     def initialize_actors(self):
         first_actor_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
@@ -75,10 +59,8 @@ class ManeuverOppositeDirection(BasicScenario):
         
     def create_behavior(self, scenario_init_action):
         assert scenario_init_action is None, f'{self.name} should receive [None] action.'
-        #actions = self.convert_actions(scenario_init_action)
-        x1, x2, v2 = actions  
-        self._first_vehicle_location = x1
-        self._second_vehicle_location = self._first_vehicle_location + x2
+        self._first_vehicle_location = 30
+        self._second_vehicle_location = self._first_vehicle_location + 20
 
     def update_behavior(self, scenario_action):
         # first actor run in low speed, second actor run in normal speed from oncoming route

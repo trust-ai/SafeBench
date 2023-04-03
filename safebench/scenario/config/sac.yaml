@@ -1,0 +1,28 @@
+scenario_type_dir: 'safebench/scenario/config/scenario_type'
+scenario_type: 'adv_behavior_single.json'
+scenario_category: 'planning'
+policy_type: 'sac'
+
+route_dir: 'safebench/scenario/scenario_data/route'
+scenario_folder: null
+scenario_id: null
+route_id: null
+
+ego_action_dim: 2
+ego_state_dim: 4
+ego_action_limit: 3.0
+
+# for SAC policy model
+model_path: 'safebench/scenario/scenario_data/model_ckpt/sac'
+model_id: 1
+train_episode: 2000
+save_freq: 10
+eval_in_train_freq: 10
+buffer_capacity: 10000
+buffer_start_training: 100
+lr: 5.0e-4
+tau: 0.005
+update_iteration: 3
+gamma: 0.99
+batch_size: 32
+min_Val: 1.0e-7
