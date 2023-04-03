@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-04-03 00:06:31
+ * @LastEditTime: 2023-04-03 00:08:51
  * @Description: 
 -->
 
@@ -187,6 +187,7 @@ Or if you want to Launch it on the virtual display:
 DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode train_scenario
 DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml --num_scenario 1 --mode eval
 ``` 
+</details>
 
 ## Running Argument
 
@@ -199,5 +200,3 @@ DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml
 | `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
 | `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
 | `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |
-
-</details>
