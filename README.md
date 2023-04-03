@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-03-29 21:28:15
+ * @LastEditTime: 2023-04-03 00:06:31
  * @Description: 
 -->
 
@@ -79,6 +79,9 @@ The CARLA simulator is installed at `/home/safebench/carla` and SafeBench is ins
 
 ### 1. Desktop Users
 
+<details>
+    <summary> Click to expand </summary>
+
 Enter the CARLA root folder, launch the CARLA server and run our platform with
 ```bash
 # Launch CARLA
@@ -87,8 +90,13 @@ Enter the CARLA root folder, launch the CARLA server and run our platform with
 # Launch SafeBench in another terminal
 python scripts/run.py --agent_cfg basic.yaml --scenario_cfg standard.yaml --mode eval
 ```
+</details>
 
 ### 2. Remote Server Users
+
+<details>
+    <summary> Click to expand </summary>
+
 Enter the CARLA root folder, launch the CARLA server with headless mode, and run our platform with
 ```bash
 # Launch CARLA
@@ -123,7 +131,12 @@ ssh -L fp:localhost:5900+n user@host
 ```
 where `user@host` is your remote server, `fp` is a free TCP port on the local machine, and `n` is the display port specified when you started the VNC server on the remote server ("8" in our example).
 
+</details>
+
 ### 3. Visualization with CarlaViz
+
+<details>
+    <summary> Click to expand </summary>
 
 ![carlaviz](./docs/source/images/carlaviz.png)
 CarlaViz is a convenient visualization tool for CARLA developed by a former member [mjxu96](https://github.com/mjxu96) of our team. To use CarlaViz, please open another terminal and follow the intructions:
@@ -136,9 +149,12 @@ cd Safebench/scripts
 sh start_carlaviz.sh
 ```
 Then, you can open the CarlaViz window at http://localhost:8080. You can also remotely access the CarlaViz window by forwarding the port 8080 to your local machine.
-
+</details>
 
 ### 4. Scenic users
+
+<details>
+    <summary> Click to expand </summary>
 
 If you want to use scenic to control the surrounding adversarial agents, and use RL to control the ego, then first install scenic as follows:
 
@@ -183,3 +199,5 @@ DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml
 | `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
 | `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
 | `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |
+
+</details>
