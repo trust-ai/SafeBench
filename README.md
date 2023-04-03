@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-04-03 00:08:51
+ * @LastEditTime: 2023-04-03 18:53:36
  * @Description: 
 -->
 
@@ -32,40 +32,37 @@ This is the source code of Safebench platform, which is designed based on Carla 
 
 **Recommended system: Ubuntu 20.04 or 22.04**
 
-### Local Installation
+### 1. Local Installation
 
-1. Setup conda environment
+Step 1: Setup conda environment
 ```bash
 conda create -n safebench python=3.8
 conda activate safebench
 ```
 
-2. Clone this git repo in an appropriate folder
+Step 2: Clone this git repo in an appropriate folder
 ```bash
 git clone git@github.com:trust-ai/SafeBench.git
 ```
 
-3. Enter the repo root folder and install the packages:
+Step 3: Enter the repo root folder and install the packages:
 ```bash
 cd SafeBench
 pip install -r requirements.txt
 pip install -e .
 ```
 
-4. Download our [CARLA_0.9.13](https://drive.google.com/file/d/139vLRgXP90Zk6Q_du9cRdOLx7GJIw_0v/view?usp=sharing) and extract it to your folder.
+Step 4: Download our [CARLA_0.9.13](https://drive.google.com/file/d/139vLRgXP90Zk6Q_du9cRdOLx7GJIw_0v/view?usp=sharing) and extract it to your folder.
 
-5. Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
+Step 5: Run `sudo apt install libomp5` as per this [git issue](https://github.com/carla-simulator/carla/issues/4498).
 
-6. Add the python API of CARLA to the ```PYTHONPATH``` environment variable. You can add the following commands to your `~/.bashrc`:
+Step 6: Install carla python pachage
 ```bash
-export CARLA_ROOT={path/to/your/carla}
-export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/dist/carla-0.9.13-py3.8-linux-x86_64.egg
-export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
-export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
-export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
+cd {path/to/carla}/PythonAPI/carla/dist
+pip install carla-0.9.13-py3.8-linux-x86_64.whl
 ```
 
-### Docker Installation
+### 2. Docker Installation
 
 We also provide a docker image with CARLA and SafeBench installed. Use the following command to launch a docker container:
 
