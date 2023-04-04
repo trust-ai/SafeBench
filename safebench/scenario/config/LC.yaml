@@ -4,7 +4,6 @@ scenario_category: 'planning'
 policy_type: 'lc'
 
 route_dir: 'safebench/scenario/scenario_data/route'
-scenario_folder: null
 scenario_id: 2
 route_id: null
 

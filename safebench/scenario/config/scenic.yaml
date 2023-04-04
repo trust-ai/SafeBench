@@ -4,11 +4,11 @@ scenario_category: 'scenic'
 policy_type: 'scenic'
 
 scenic_dir: 'safebench/scenario/scenario_data/scenic_data/Carla_Challenge'
-sample_num: 20
-select_num: 5
-scenario_folder: null
 scenario_id: null
 route_id: null
+
+sample_num: 20
+select_num: 5
 
 ego_action_dim: 2
 ego_state_dim: 4

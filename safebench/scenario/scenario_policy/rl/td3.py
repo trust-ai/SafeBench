@@ -1,6 +1,7 @@
 import os
 import copy
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -113,7 +114,18 @@ class TD3(BasePolicy):
         else:
             raise ValueError(f'Unknown mode {mode}')
 
+    def info_process(self, infos):
+        info_batch = np.stack([i_i['actor_info'] for i_i in infos], axis=0)
+        info_batch = info_batch.reshape(info_batch.shape[0], -1)
+        return info_batch
+
+    def get_init_action(self, state, deterministic=False):
+        num_scenario = len(state)
+        additional_in = {}
+        return [None] * num_scenario, additional_in
+
     def get_action(self, state, infos, deterministic=False):
+        state = self.info_process(infos)
         state = CUDA(torch.FloatTensor(state))
         with torch.no_grad():
             action = self.policy(state)
@@ -158,29 +170,21 @@ class TD3(BasePolicy):
             return
 
         q1_loss, q2_loss, pi_loss = 0, 0, None
-
         for _ in range(self.update_iteration):
             # sample replay buffer
             batch = replay_buffer.sample(self.batch_size)
-            state_batch = CUDA(torch.FloatTensor(batch['state']))
-            nextstate_batch = CUDA(torch.FloatTensor(batch['n_state']))
-            action_batch = CUDA(torch.FloatTensor(batch['action']))
-            reward_batch = CUDA(torch.FloatTensor(batch['reward'])).unsqueeze(-1) # [B, 1]
-            done_batch = CUDA(torch.FloatTensor(1-batch['done'])).unsqueeze(-1) # [B, 1]
+            bn_s = CUDA(torch.FloatTensor(batch['actor_info'])).reshape(self.batch_size, -1)
+            bn_s_ = CUDA(torch.FloatTensor(batch['n_actor_info'])).reshape(self.batch_size, -1)
+            bn_a = CUDA(torch.FloatTensor(batch['action']))
+            bn_r = CUDA(torch.FloatTensor(batch['reward'])).unsqueeze(-1) # [B, 1]
+            bn_d = CUDA(torch.FloatTensor(1-batch['done'])).unsqueeze(-1) # [B, 1]
 
             # update q-funcs
-            q1_loss_step, q2_loss_step = self.update_q_functions(
-                state_batch, 
-                action_batch, 
-                reward_batch,
-                nextstate_batch, 
-                done_batch
-            )
+            q1_loss_step, q2_loss_step = self.update_q_functions(bn_s, bn_a, bn_r, bn_s_, bn_d)
             q_loss_step = q1_loss_step + q2_loss_step
             self.q_optimizer.zero_grad()
             q_loss_step.backward()
             self.q_optimizer.step()
-
             self._update_counter += 1
 
             q1_loss += q1_loss_step.detach().item()
@@ -192,7 +196,7 @@ class TD3(BasePolicy):
                 # update policy
                 for p in self.q_funcs.parameters():
                     p.requires_grad = False
-                pi_loss_step = self.update_policy(state_batch)
+                pi_loss_step = self.update_policy(bn_s)
                 self.policy_optimizer.zero_grad()
                 pi_loss_step.backward()
                 self.policy_optimizer.step()
@@ -212,7 +216,7 @@ class TD3(BasePolicy):
             'target_policy': self.target_policy.state_dict(),
         }
         filepath = os.path.join(self.model_path, f'model.td3.{self.model_id}.{episode:04}.torch')
-        self.logger.log(f'>> Saving {self.name} model to {filepath}')
+        self.logger.log(f'>> Saving scenario policy {self.name} model to {filepath}')
         with open(filepath, 'wb+') as f:
             torch.save(states, f)
 
@@ -227,7 +231,7 @@ class TD3(BasePolicy):
                             episode = cur_episode
         filepath = os.path.join(self.model_path, f'model.td3.{self.model_id}.{episode:04}.torch')
         if os.path.isfile(filepath):
-            self.logger.log(f'>> Loading {self.name} model from {filepath}')
+            self.logger.log(f'>> Loading scenario policy {self.name} model from {filepath}')
             with open(filepath, 'rb') as f:
                 checkpoint = torch.load(f)
             self.q_funcs.load_state_dict(checkpoint['q_funcs'])
@@ -236,5 +240,5 @@ class TD3(BasePolicy):
             self.target_policy.load_state_dict(checkpoint['target_policy'])
             self.continue_episode = episode
         else:
-            self.logger.log(f'>> No {self.name} model found at {filepath}', 'red')
+            self.logger.log(f'>> No scenario policy {self.name} model found at {filepath}', 'red')
             exit()

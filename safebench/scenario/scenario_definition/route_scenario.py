@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-04-03 17:16:09
+LastEditTime: 2023-04-03 20:22:30
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -13,6 +13,7 @@ Description:
 
 import traceback
 
+import numpy as np
 import carla
 
 from safebench.util.run_util import class_from_path
@@ -57,7 +58,7 @@ class RouteScenario():
         self.timeout = 60
 
         self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego()
-        self.other_actors = []
+        self.background_actors = []
         self.list_scenarios = self._build_scenario_instances(scenario_definitions)
         self.criteria = self._create_criteria()
 
@@ -218,7 +219,7 @@ class RouteScenario():
         if new_actors is None:
             raise Exception("Error: Unable to add the background activity, all spawn points were occupied")
         for _actor in new_actors:
-            self.other_actors.append(_actor)
+            self.background_actors.append(_actor)
 
     def get_running_status(self, running_record):
         running_status = {
@@ -291,6 +292,31 @@ class RouteScenario():
             criteria['route_complete'] = RouteCompletionTest(self.ego_vehicle, route=route)
         return criteria
 
+    @staticmethod
+    def _get_actor_state(actor):
+        actor_trans = actor.get_transform()
+        actor_x = actor_trans.location.x
+        actor_y = actor_trans.location.y
+        actor_yaw = actor_trans.rotation.yaw / 180 * np.pi
+        yaw = np.array([np.cos(actor_yaw), np.sin(actor_yaw)])
+        velocity = actor.get_velocity()
+        acc = actor.get_acceleration()
+        return [actor_x, actor_y, actor_yaw, yaw[0], yaw[1], velocity.x, velocity.y, acc.x, acc.y]
+
+    def update_info(self):
+        ego_state = self._get_actor_state(self.ego_vehicle)
+        actor_info = [ego_state]
+        for s_i in self.list_scenarios:
+            for a_i in s_i.other_actors:
+                actor_state = self._get_actor_state(a_i)
+                actor_info.append(actor_state)
+
+        actor_info = np.array(actor_info)
+        # get the info of the ego vehicle and the other actors
+        return {
+            'actor_info': actor_info
+        }
+
     def clean_up(self):
         # stop criterion and destroy sensors
         for _, criterion in self.criteria.items():
@@ -301,9 +327,9 @@ class RouteScenario():
             scenario.clean_up()
 
         # remove background vehicles
-        for s_i in range(len(self.other_actors)):
-            if self.other_actors[s_i].type_id.startswith('vehicle'):
-                self.other_actors[s_i].set_autopilot(enabled=False)
-            if CarlaDataProvider.actor_id_exists(self.other_actors[s_i].id):
-                CarlaDataProvider.remove_actor_by_id(self.other_actors[s_i].id)
-        self.other_actors = []
+        for s_i in range(len(self.background_actors)):
+            if self.background_actors[s_i].type_id.startswith('vehicle'):
+                self.background_actors[s_i].set_autopilot(enabled=False)
+            if CarlaDataProvider.actor_id_exists(self.background_actors[s_i].id):
+                CarlaDataProvider.remove_actor_by_id(self.background_actors[s_i].id)
+        self.background_actors = []

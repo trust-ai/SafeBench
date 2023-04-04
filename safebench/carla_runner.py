@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-04-01 15:13:29
+LastEditTime: 2023-04-03 19:33:12
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -182,7 +182,7 @@ class CarlaRunner:
         for e_i in tqdm(range(start_episode, self.train_episode)):
             # sample scenarios
             sampled_scenario_configs, _ = data_loader.sampler()
-            # TODO: to restart the data loader, reset the index counter every time
+            # reset the index counter to create endless loader
             data_loader.reset_idx_counter()
 
             # get static obs and then reset with init action 

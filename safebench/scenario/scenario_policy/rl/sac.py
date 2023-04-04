@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-04-03 16:41:28
+LastEditTime: 2023-04-03 22:12:59
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -10,6 +10,7 @@ Description:
 
 import os
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -88,8 +89,8 @@ class SAC(BasePolicy):
         self.buffer_start_training = config['buffer_start_training']
         self.lr = config['lr']
         self.continue_episode = 0
-        self.state_dim = config['ego_state_dim']
-        self.action_dim = config['ego_action_dim']
+        self.state_dim = config['scenario_state_dim']
+        self.action_dim = config['scenario_action_dim']
         self.min_Val = torch.tensor(config['min_Val']).float()
         self.batch_size = config['batch_size']
         self.update_iteration = config['update_iteration']
@@ -135,12 +136,18 @@ class SAC(BasePolicy):
         else:
             raise ValueError(f'Unknown mode {mode}')
 
+    def info_process(self, infos):
+        info_batch = np.stack([i_i['actor_info'] for i_i in infos], axis=0)
+        info_batch = info_batch.reshape(info_batch.shape[0], -1)
+        return info_batch
+
     def get_init_action(self, state, deterministic=False):
         num_scenario = len(state)
         additional_in = {}
         return [None] * num_scenario, additional_in
 
     def get_action(self, state, infos, deterministic=False):
+        state = self.info_process(infos)
         state = CUDA(torch.FloatTensor(state))
         mu, log_sigma = self.policy_net(state)
 
@@ -171,10 +178,10 @@ class SAC(BasePolicy):
         for _ in range(self.update_iteration):
             # sample replay buffer
             batch = replay_buffer.sample(self.batch_size)
-            bn_s = CUDA(torch.FloatTensor(batch['state']))
+            bn_s = CUDA(torch.FloatTensor(batch['actor_info'])).reshape(self.batch_size, -1)
+            bn_s_ = CUDA(torch.FloatTensor(batch['n_actor_info'])).reshape(self.batch_size, -1)
             bn_a = CUDA(torch.FloatTensor(batch['action']))
             bn_r = CUDA(torch.FloatTensor(batch['reward'])).unsqueeze(-1) # [B, 1]
-            bn_s_ = CUDA(torch.FloatTensor(batch['n_state']))
             bn_d = CUDA(torch.FloatTensor(1-batch['done'])).unsqueeze(-1) # [B, 1]
 
             target_value = self.Target_value_net(bn_s_)
@@ -226,7 +233,7 @@ class SAC(BasePolicy):
             'Q_net': self.Q_net.state_dict()
         }
         filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{episode:04}.torch')
-        self.logger.log(f'>> Saving {self.name} model to {filepath}')
+        self.logger.log(f'>> Saving scenario policy {self.name} model to {filepath}')
         with open(filepath, 'wb+') as f:
             torch.save(states, f)
 
@@ -241,7 +248,7 @@ class SAC(BasePolicy):
                             episode = cur_episode
         filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{episode:04}.torch')
         if os.path.isfile(filepath):
-            self.logger.log(f'>> Loading {self.name} model from {filepath}')
+            self.logger.log(f'>> Loading scenario policy {self.name} model from {filepath}')
             with open(filepath, 'rb') as f:
                 checkpoint = torch.load(f)
             self.policy_net.load_state_dict(checkpoint['policy_net'])

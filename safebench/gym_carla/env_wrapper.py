@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-05 14:47:22
+LastEditTime: 2023-04-03 19:30:36
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -156,7 +156,7 @@ class VectorWrapper():
         self.world.tick()
 
 
-class EnvWrapper(gym.Wrapper):
+class ObservationWrapper(gym.Wrapper):
     def __init__(self, env, obs_type):
         super().__init__(env)
         self._env = env
@@ -208,8 +208,10 @@ class EnvWrapper(gym.Wrapper):
             raise NotImplementedError
 
     def _preprocess_obs(self, obs):
+        # only use the 4-dimensional state space
         if self.obs_type == 0:
             return obs['state'][:4].astype(np.float64)
+        # concat the 4-dimensional state space and lane info
         elif self.obs_type == 1:
             new_obs = np.array([
                 obs['state'][0], obs['state'][1], obs['state'][2], obs['state'][3],
@@ -219,8 +221,10 @@ class EnvWrapper(gym.Wrapper):
                 obs['target_forward'][0], obs['target_forward'][1]
             ])
             return new_obs
+        # return a dictionary with bird-eye view image and state
         elif self.obs_type == 2:
             return {"img": obs['birdeye'], "states": obs['state'][:4].astype(np.float64)}
+        # return a dictionary with front-view image and state
         elif self.obs_type == 3:
             return {"img": obs['camera'], "states": obs['state'][:4].astype(np.float64)}
         else:
@@ -237,7 +241,7 @@ class EnvWrapper(gym.Wrapper):
 
 
 def carla_env(env_params, birdeye_render=None, display=None, world=None, logger=None):
-    return EnvWrapper(
+    return ObservationWrapper(
         gym.make(
             'carla-v0', 
             env_params=env_params, 

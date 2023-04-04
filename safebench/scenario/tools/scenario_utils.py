@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 00:36:39
+LastEditTime: 2023-04-03 19:26:20
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -50,9 +50,6 @@ def scenario_parse(config, logger):
     with open(list_of_scenario_config, 'r') as f:
         data_full = json.loads(f.read())
         # filter the list if any parameter is specified
-        if config["scenario_folder"] is not None:
-            logger.log('>> Selecting method: ' + config["scenario_folder"])
-            data_full = [item for item in data_full if item["scenario_folder"] == config["scenario_folder"]]
         if config['scenario_id'] is not None:
             logger.log('>> Selecting scenario_id: ' + str(config['scenario_id']))
             data_full = [item for item in data_full if item["scenario_id"] == config['scenario_id']]

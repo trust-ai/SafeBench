@@ -1,6 +1,6 @@
 '''
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-22 17:14:37
+LastEditTime: 2023-04-03 21:37:36
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -72,7 +72,7 @@ class RouteReplayBuffer:
             self.buffer_rewards[sid].append(rewards[s_i])
             self.buffer_dones[sid].append(dones[s_i])
 
-            # store additional information in given dict (e.g., cost)
+            # store additional information in given dict (e.g., cost and actor_info)
             for key in additional_dict[s_i].keys():
                 if key == 'scenario_id':
                     continue
@@ -127,6 +127,7 @@ class RouteReplayBuffer:
         prepared_next_obs = []
         prepared_rewards = []
         prepared_dones = []
+        prepared_infos = {}
 
         # get the length of each sub-buffer
         samples_per_trajectory = self.buffer_capacity // self.num_scenario # assume average over all sub-buffer
@@ -143,19 +144,34 @@ class RouteReplayBuffer:
             prepared_rewards += self.buffer_rewards[s_i][start_idx:]
             prepared_dones += self.buffer_dones[s_i][start_idx:]
 
+            # add additional information 
+            for k_i in self.buffer_additional_dict[s_i].keys():
+                if k_i not in prepared_infos.keys():
+                    prepared_infos[k_i] = []
+                prepared_infos[k_i] += self.buffer_additional_dict[s_i][k_i][start_idx:]
+
         # sample from concatenated list
-        sample_index = np.random.randint(0, len(prepared_rewards), size=batch_size)
-        if self.mode == 'train_agent':
-            action = np.stack(prepared_ego_actions)[sample_index]       # action of agent
-        else:
-            action = np.stack(prepared_scenario_actions)[sample_index]  # action of scenario
+        # the first sample does not have previous state ()
+        sample_index = np.random.randint(1, len(prepared_rewards), size=batch_size)
+
+        # prepare batch 
+        action = prepared_ego_actions if self.mode == 'train_agent' else prepared_scenario_actions
         batch = {
-            'action': action,                                         # action
+            'action': np.stack(action)[sample_index],# action
             'state': np.stack(prepared_obs)[sample_index, :],         # state
             'n_state': np.stack(prepared_next_obs)[sample_index, :],  # next state
             'reward': np.stack(prepared_rewards)[sample_index],       # reward
             'done': np.stack(prepared_dones)[sample_index],           # done
         }
+
+        # add additional information to the batch
+        batch_info = {} 
+        for k_i in prepared_infos.keys():
+            batch_info[k_i] = np.stack(prepared_infos[k_i])[sample_index-1]
+            batch_info['n_' + k_i] = np.stack(prepared_infos[k_i])[sample_index]
+
+        # combine two dicts
+        batch.update(batch_info)
         return batch
 
 

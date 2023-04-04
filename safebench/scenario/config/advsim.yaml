@@ -4,7 +4,6 @@ scenario_category: 'planning'
 policy_type: 'advsim'
 
 route_dir: 'safebench/scenario/scenario_data/route'
-scenario_folder: null
 scenario_id: null
 route_id: null
 

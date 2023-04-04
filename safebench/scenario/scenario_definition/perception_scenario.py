@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 12:17:19
+LastEditTime: 2023-04-03 19:36:06
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -79,7 +79,6 @@ class PerceptionScenario(RouteScenario):
             if running_status['route_complete'] == 100:
                 stop = True
                 self.logger.log('>> Scenario stops due to route completion', color='yellow')
-
         else:
             if len(running_record) >= self.max_running_step:  # stop at max step when training
                 stop = True
@@ -159,7 +158,6 @@ class PerceptionScenario(RouteScenario):
             # normalize
             point_img[0] /= point_img[2]
             point_img[1] /= point_img[2]
-
             return point_img[0:2]
 
         self.ground_truth_bbox = {}
@@ -173,7 +171,6 @@ class PerceptionScenario(RouteScenario):
         for key, bounding_box_set in self.bbox_ground_truth.items():
             self.ground_truth_bbox.setdefault(key, [])
             for bbox in bounding_box_set:
-                bbox_label = []
                 if bbox.location.distance(self.ego_vehicle.get_transform().location) < 50:
                     forward_vec = self.ego_vehicle.get_transform().get_forward_vector()
                     ray = bbox.location - self.ego_vehicle.get_transform().location
@@ -206,9 +203,6 @@ class PerceptionScenario(RouteScenario):
         self._pred = ret['pred']
         self._class = ret['class']
         self._scores = ret['scores']
-
-
-
 
     def update_info(self):
         return {

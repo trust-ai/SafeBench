@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-07 12:18:47
+LastEditTime: 2023-04-03 19:41:22
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -375,9 +375,10 @@ class CarlaEnv(gym.Env):
             'vehicle_front': self.vehicle_front,
             'cost': self._get_cost()
         }
-        if self.scenario_category in ['perception']:
-            info.update(self.scenario_manager.background_scenario.update_info())
-        return info #copy.deepcopy(info)
+
+        # info from scenarios
+        info.update(self.scenario_manager.background_scenario.update_info())
+        return info
 
     def _init_traffic_light(self):
         actor_list = self.world.get_actors()
