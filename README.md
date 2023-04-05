@@ -6,7 +6,7 @@
 
 # SafeBench
 
-### :mega: **We are hosting the Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge at CVPR 2023! Please fill this [form](https://forms.gle/285qesnQQks7BLdv9) to if you are intereted and check our [website](https://trust-ai.github.io/SSAD2023/) for more details.**
+### :mega: **We are hosting the Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7) to if you are intereted and check our [website](https://trust-ai.github.io/SSAD2023/) for more details.**
 
 ---
 
