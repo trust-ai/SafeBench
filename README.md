@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-04-03 19:11:11
+ * @LastEditTime: 2023-04-06 13:04:32
  * @Description: 
 -->
 
@@ -34,6 +34,9 @@ This is the source code of Safebench platform, which is designed based on Carla 
 
 ### 1. Local Installation
 
+<details>
+    <summary> Click to expand </summary>
+
 Step 1: Setup conda environment
 ```bash
 conda create -n safebench python=3.8
@@ -64,9 +67,12 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla/agents
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
-
+</details>
 
 ### 2. Docker Installation
+
+<details>
+    <summary> Click to expand </summary>
 
 We also provide a docker image with CARLA and SafeBench installed. Use the following command to launch a docker container:
 
@@ -75,6 +81,8 @@ bash docker/run_docker.sh
 ```
 
 The CARLA simulator is installed at `/home/safebench/carla` and SafeBench is installed at `/home/safebench/SafeBench`.
+
+</details>
 
 ## Usage
 
@@ -190,14 +198,15 @@ DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml
 ``` 
 </details>
 
-## Running Argument
+## Running Arguments
 
 | Argument | Choice | Usage |
 | :----: | :----: | :---- |
-| `mode` | `[train_agent\train_scenario\eval]` | We provide three modes for training agent, training scenario, and evaluation. |
-| `agent_cfg`      | path of .yaml  |  configuration file of agent. |
-| `scenario_cfg`   | path of .yaml  |  configuration file of scenario. |
+| `mode` | `{train_agent, train_scenario, eval}` | We provide three modes for training agent, training scenario, and evaluation. |
+| `agent_cfg`      | str  |  path to the configuration file of agent. |
+| `scenario_cfg`   | str  |  path to the configuration file of scenario. |
 | `max_episode_step`      | int     | Number of episode used for training agents and scenario. |
 | `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
 | `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
 | `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |
+| `port`      | int     |  Port used by Carla, default 2000 |

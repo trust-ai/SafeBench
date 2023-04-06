@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-04-03 19:33:12
+LastEditTime: 2023-04-03 22:35:17
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -229,7 +229,7 @@ class CarlaRunner:
             # eval during training
             if (e_i+1) % self.eval_in_train_freq == 0:
                 #self.eval(env, data_loader)
-                self.logger.log('>> ' + '-' * 40)
+                pass
 
             # save checkpoints
             if (e_i+1) % self.save_freq == 0:
@@ -357,6 +357,6 @@ class CarlaRunner:
         return start_episode
 
     def close(self):
-        pygame.quit() # close pygame renderer
+        pygame.quit() 
         if self.env:
             self.env.clean_up()

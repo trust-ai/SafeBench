@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 12:20:50
+LastEditTime: 2023-04-04 11:12:51
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -22,16 +22,15 @@ from safebench.scenario.scenario_manager.carla_data_provider import CarlaDataPro
 from safebench.scenario.tools.scenario_helper import get_waypoint_in_distance
 from safebench.scenario.scenario_definition.basic_scenario import BasicScenario
 from safebench.scenario.tools.route_manipulation import interpolate_trajectory
-
 from safebench.gym_carla.envs.route_planner import RoutePlanner
 from safebench.gym_carla.envs.misc import *
-
 from safebench.scenario.scenario_policy.maddpg.agent import Agent
 
 
 class OtherLeadingVehicle(BasicScenario):
     """
-        This class holds everything required for a simple "Other Leading Vehicle", scenario involving a user controlled vehicle and two other actors.
+        This scenario contains two other vehicles. 
+        Ego-vehicle performs a lane changing to evade a leading vehicle, which is moving too slowly.
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
@@ -109,6 +108,9 @@ class OtherLeadingVehicle(BasicScenario):
         self._first_actor_transform = first_vehicle_transform
         self.initialize_route_planner()
 
+    def create_behavior(self):
+        pass
+
     def update_behavior(self):
         cur_distance = calculate_distance_transforms(self.other_actor_transform[0], CarlaDataProvider.get_transform(self.other_actors[0]))
 
@@ -169,40 +171,6 @@ class OtherLeadingVehicle(BasicScenario):
         
         state = np.concatenate((state[:4], np.array([rel_ego_yaw, projection_x, projection_y]))).astype(float)
         return state
-
-    def _get_reward(self):
-        """Calculate the step reward."""
-        # reward for speed tracking
-        v = self.other_actors[0].get_velocity()
-
-        # reward for steering:
-        r_steer = -self.other_actors[0].get_control().steer ** 2
-
-        # reward for out of lane
-        ego_x, ego_y = get_pos(self.other_actors[0])
-        dis, w = get_lane_dis(self.waypoints, ego_x, ego_y)
-        r_out = 0
-        if abs(dis) > self.out_lane_thres:
-            r_out = -1
-
-        # longitudinal speed
-        lspeed = np.array([v.x, v.y])
-        lspeed_lon = np.dot(lspeed, w)
-
-        # cost for too fast
-        r_fast = 0
-        if lspeed_lon > self._other_actor_max_velocity:
-            r_fast = -1
-
-        # cost for lateral acceleration
-        r_lat = -abs(self.other_actors[0].get_control().steer) * lspeed_lon**2
-        r = 0.1
-        r = 1 * lspeed_lon + 10 * r_fast + 1 * r_out + r_steer * 5 + 0.2 * r_lat + 0.1
-        
-        return r
-    
-    def _create_behavior(self):
-        pass
 
     def check_stop_condition(self):
         pass

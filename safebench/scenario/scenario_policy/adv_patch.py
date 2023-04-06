@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-30 01:07:50
+LastEditTime: 2023-04-04 01:03:34
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -11,42 +11,21 @@ Description:
 import os
 import sys
 from pathlib import Path
-import yaml
-from matplotlib import pyplot as plt
 
 import numpy as np
 import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader
-from torch.autograd import Variable
 import torch.distributions as D
+from matplotlib import pyplot as plt
+
+from safebench.util.od_util import CUDA
+from safebench.agent.object_detection.utils.general import cv2
+
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
-ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
-
-from safebench.util.od_util import CUDA, CPU
-from safebench.agent.object_detection.models.common import DetectMultiBackend
-from safebench.agent.object_detection.utils.dataloader_label import LoadImagesAndBoxLabels
-from safebench.agent.object_detection.utils.loss import ComputeLoss
-from safebench.agent.object_detection.utils.plots import Annotator, colors
-
-from safebench.agent.object_detection.utils.general import (
-    check_img_size, 
-    check_imshow, 
-    check_requirements, 
-    colorstr, 
-    cv2,
-    increment_path, 
-    non_max_suppression, 
-    print_args, 
-    scale_coords, 
-    strip_optimizer, 
-    xyxy2xywh, 
-    labels_to_class_weights
-)
+ROOT = Path(os.path.relpath(ROOT, Path.cwd()))
 
 
 class ObjectDetection(object):
@@ -82,7 +61,6 @@ class ObjectDetection(object):
             eps = CUDA(self._dist.sample((self.batch_size, )))
             img = CUDA(self.add_patch(CUDA(self.raw_image), CUDA(eps)))
             self._eps = eps
-
         elif self.mode == 'eval': # TODO
             eps = CUDA(self._dist.sample((self.batch_size, )))
             img = CUDA(self.add_patch(CUDA(self.raw_image), CUDA(eps)))
@@ -101,29 +79,22 @@ class ObjectDetection(object):
 
     def train(self, replay_buffer):
         batch = replay_buffer.sample(self.batch_size)
-
-        # eps = torch.FloatTensor(batch['attack'])
         loss = CUDA(torch.FloatTensor(batch['loss']))
-
-        # print(eps.shape, loss.shape)
 
         log_prob = CUDA(self._dist.log_prob(self._eps).sum(-1).sum(-1).sum(-1))
         loss_pg = (-loss * log_prob).mean()
         
         self.optimizer.zero_grad()
         loss_pg.backward()
-        self.optimizer.step()                               # update self.patch
+        self.optimizer.step()                             
 
         print('Attack_agents: ', loss.detach().cpu().numpy())
         print('Attack_agents PG: ', loss_pg.detach().cpu().numpy())
-        
+
         # Update the distribution
         self._dist = D.Bernoulli(torch.sigmoid(self.patch), )
     
     def add_patch(self, img, input_patch):
-        # img: [1,3,416,416]
-        # patch_size = cfg.patch_size
-
         patch_mask = CUDA(self.create_patch_mask(img, input_patch))
         with_patch = img * patch_mask
         return with_patch
@@ -146,7 +117,11 @@ class ObjectDetection(object):
         pass
 
 if __name__ == '__main__':
-    agent = ObjectDetection({'ego_action_dim': 2, 'model_path': None, 'batch_size': 16, 
-                             'ROOT_DIR': '/home/wenhao/7_carla/from_github_lhh/SafeBench_v2'}, None)
+    agent = ObjectDetection({
+        'ego_action_dim': 2, 
+        'model_path': None, 
+        'batch_size': 16, 
+        'ROOT_DIR': '/home/wenhao/7_carla/from_github_lhh/SafeBench_v2'
+    }, None)
     ret = agent.get_init_action()
     cv2.imwrite('demo.jpg', np.array(ret['image'].detach().cpu().numpy()*255, dtype=np.int)[0].transpose(1, 2, 0))

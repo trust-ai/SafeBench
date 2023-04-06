@@ -1,6 +1,6 @@
 ''' 
 Date: 2023-01-31 22:23:17
-LastEditTime: 2023-03-01 16:46:23
+LastEditTime: 2023-04-04 01:01:01
 Description: 
     Copyright (c) 2022-2023 Safebench Team
 
@@ -106,7 +106,6 @@ class MADDPG:
             critic_value, q_list = agent.critic.predict(states, old_actions)
 
             target = rewards[:,agent_idx] + agent.gamma*critic_value_.flatten()
-#             critic_loss = F.mse_loss(target, critic_value)
             critic_loss = sum([((q.flatten() - target)**2).mean() for q in q_list])
     
             agent.critic.optimizer.zero_grad()
