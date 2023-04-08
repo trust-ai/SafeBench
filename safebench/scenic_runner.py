@@ -252,9 +252,10 @@ class ScenicRunner:
             
             # reset envs with new config, get init action from scenario policy, and run scenario
             static_obs = self.env.get_static_obs(sampled_scenario_configs)
-            scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs)
+            self.scenario_policy.load_model(sampled_scenario_configs)
+            scenario_init_action, _ = self.scenario_policy.get_init_action(static_obs, deterministic=True)
             obs, infos = self.env.reset(sampled_scenario_configs, scenario_init_action)
-            
+
             # get ego vehicle from scenario
             self.agent_policy.set_ego_and_route(self.env.get_ego_vehicles(), infos)
 

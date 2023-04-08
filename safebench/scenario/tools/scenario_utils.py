@@ -126,7 +126,6 @@ def scenic_parse(config, logger):
         parsed_config.data_id = i
         parsed_config.scenic_file = scenic_file
         parsed_config.behavior = behaviors[i]
-        parsed_config.scenario_folder = config["scenario_folder"]
         parsed_config.scenario_id = config['scenario_id']
         parsed_config.sample_num = config['sample_num']
         parsed_config.trajectory = []
