@@ -8,7 +8,7 @@ numpy==1.21.6
 pygame==2.3.0
 tqdm==4.65.0
 pyyaml==6.0
-matplotlib==3.7.1
+matplotlib==3.5.3
 opencv-python==4.7.0.72
 pandas==1.5.3
 seaborn==0.12.2
