@@ -1,6 +1,6 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-04-06 13:04:32
+ * @LastEditTime: 2023-04-10 11:55:06
  * @Description: 
 -->
 
@@ -14,8 +14,6 @@
 <strong>
 [
 <a href="https://safebench.readthedocs.io">Documentation</a>
-|
-<a href="https://drive.google.com/file/d/1x09q0DYkVBtSAaJPDi3GpQo1bITSXrv2/view?usp=sharing">Demo Video</a>
 |
 <a href="https://safebench.github.io">Website</a>
 |
