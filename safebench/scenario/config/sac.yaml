@@ -10,7 +10,7 @@ route_id: null
 # parameters for agent policy
 ego_action_dim: 2
 ego_state_dim: 4
-ego_action_limit: 3.0
+ego_action_limit: 1.0
 
 # parameters for scenario policy
 # for scenario id 1
