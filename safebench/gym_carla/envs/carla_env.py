@@ -85,6 +85,7 @@ class CarlaEnv(gym.Env):
         # for scenario
         self.ROOT_DIR = env_params['ROOT_DIR']
         self.scenario_category = env_params['scenario_category']
+        self.warm_up_steps = env_params['warm_up_steps']
 
         if self.scenario_category in ['planning', 'scenic']:
             self.obs_size = int(self.obs_range/self.lidar_bin)
@@ -247,9 +248,12 @@ class CarlaEnv(gym.Env):
         # removing this block will cause error: AttributeError: 'NoneType' object has no attribute 'raw_data'
         self.settings = self.world.get_settings()
         self.world.apply_settings(self.settings)
+
+        for _ in range(self.warm_up_steps):
+            self.world.tick()
         return self._get_obs(), self._get_info()
 
-    def _attack_sensor(self):
+    def _attach_sensor(self):
         # Add collision sensor
         self.collision_sensor = self.world.spawn_actor(self.collision_bp, carla.Transform(), attach_to=self.ego_vehicle)
         self.collision_sensor.listen(lambda event: get_collision_hist(event))
