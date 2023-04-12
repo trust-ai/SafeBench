@@ -1,12 +1,12 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-04-12 12:27:22
+ * @LastEditTime: 2023-04-12 12:31:03
  * @Description: 
 -->
 
 # SafeBench
 
-### :mega: **We are hosting the Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7) to if you are intereted and check our [website](https://trust-ai.github.io/SSAD2023/) for more details. If you have any questions, please join our [discord channel](https://discord.gg/ewDxfbx3) for further discussion!**
+### :mega: **We are hosting the Secure and [Safe Autonomous Driving (SSAD) Workshop and Challenge](https://trust-ai.github.io/SSAD2023/) at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7), join our [discord channel](https://discord.gg/ewDxfbx3) for further discussion if you are intereted.**
 
 ---
 
@@ -25,7 +25,7 @@
 This is the source code of Safebench platform, which is designed based on Carla to evaluate the security and safety of autonomous driving vehicles. More details about this platform can be found in this [NeurIPS 2022](https://arxiv.org/pdf/2206.09682.pdf) paper.
 
 
-| <!-- -->    | <!-- -->    |
+| Perception Evaluation | Control Evaluation |
 | :-------------------: | :----------------: | 
 | ![pipeline](https://github.com/safebench/safebench.github.io/blob/master/videos/perception.gif) | ![pipeline](https://github.com/safebench/safebench.github.io/blob/master/videos/control.gif) | 
 
