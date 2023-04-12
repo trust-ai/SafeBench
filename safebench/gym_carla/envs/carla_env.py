@@ -217,7 +217,7 @@ class CarlaEnv(gym.Env):
         self._create_sensors()
         self._create_scenario(config, env_id)
         self._run_scenario(scenario_init_action)
-        self._attack_sensor()
+        self._attach_sensor()
 
         # route planner for ego vehicle
         self.route_waypoints = self._parse_route(config)
