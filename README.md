@@ -1,12 +1,12 @@
 <!--
  * @Date: 2023-01-25 19:36:50
- * @LastEditTime: 2023-04-12 12:31:03
+ * @LastEditTime: 2023-04-12 14:02:50
  * @Description: 
 -->
 
 # SafeBench
 
-### :mega: **We are hosting the Secure and [Safe Autonomous Driving (SSAD) Workshop and Challenge](https://trust-ai.github.io/SSAD2023/) at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7), join our [discord channel](https://discord.gg/ewDxfbx3) for further discussion if you are intereted.**
+### :mega: **We are hosting the [Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge](https://trust-ai.github.io/SSAD2023/) at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7), join our [discord channel](https://discord.gg/ewDxfbx3) for further discussion if you are intereted.**
 
 ---
 
