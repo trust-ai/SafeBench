@@ -6,7 +6,7 @@
 
 # SafeBench
 
-### :mega: **We are hosting the Secure and [Safe Autonomous Driving (SSAD) Workshop and Challenge](https://trust-ai.github.io/SSAD2023/) at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7), join our [discord channel](https://discord.gg/ewDxfbx3) for further discussion if you are intereted.**
+### :mega: **We are hosting the [Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge](https://trust-ai.github.io/SSAD2023/) at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7), join our [discord channel](https://discord.gg/ewDxfbx3) for further discussion if you are intereted.**
 
 ---
 
@@ -208,7 +208,7 @@ DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml
 | `agent_cfg`      | str  |  path to the configuration file of agent. |
 | `scenario_cfg`   | str  |  path to the configuration file of scenario. |
 | `max_episode_step`      | int     | Number of episode used for training agents and scenario. |
-| `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
+| `num_scenario`  | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
 | `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
 | `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |
 | `port`      | int     |  Port used by Carla, default 2000 |
