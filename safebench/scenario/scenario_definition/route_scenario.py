@@ -138,7 +138,7 @@ class RouteScenario():
         while not success:
             try:
                 ego_vehicle = CarlaDataProvider.request_new_actor(
-                    'vehicle.tesla.model3', 
+                    'vehicle.lincoln.mkz_2017',
                     elevate_transform,
                     rolename=role_name, 
                     autopilot=autopilot

@@ -61,6 +61,7 @@ class CarlaRunner:
             'obs_type': agent_config['obs_type'],
             'scenario_category': self.scenario_category,
             'ROOT_DIR': scenario_config['ROOT_DIR'],
+            'warm_up_steps': 9,                                        # number of ticks after spawning the vehicles
             'disable_lidar': True,                                     # show bird-eye view lidar or not
             'display_size': 128,                                       # screen size of one bird-eye view window
             'obs_range': 32,                                           # observation range (meter)
