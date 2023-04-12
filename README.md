@@ -208,7 +208,7 @@ DISPLAY=:8 python scripts/run.py --agent_cfg sac.yaml --scenario_cfg scenic.yaml
 | `agent_cfg`      | str  |  path to the configuration file of agent. |
 | `scenario_cfg`   | str  |  path to the configuration file of scenario. |
 | `max_episode_step`      | int     | Number of episode used for training agents and scenario. |
-| `num_scenarios` | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
+| `num_scenario`  | `{1, 2, 3, 4}` | We support running multiple scenarios in parallel. Current map allows at most 4 scenarios. |
 | `save_video`    | store_true     |  We support saving videos during the evaluation mode. | 
 | `auto_ego`      | store_true     |  Overwrite the action of ego agent with auto-polit |
 | `port`      | int     |  Port used by Carla, default 2000 |
