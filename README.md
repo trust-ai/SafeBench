@@ -71,7 +71,7 @@ export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 ```
 </details>
 
-### 2. Docker Installation
+### 2. Docker Installation (Beta)
 
 <details>
     <summary> Click to expand </summary>
