@@ -245,4 +245,3 @@ class SAC(BasePolicy):
             self.continue_episode = episode
         else:
             self.logger.log(f'>> No {self.name} model found at {filepath}', 'red')
-            exit()
