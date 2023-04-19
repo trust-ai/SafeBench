@@ -1,4 +1,4 @@
-# build the docker image in the CARLA dir with: docker build -t safebench/safebench -f Dockerfile_carla_09132 .
+# build the docker image in the CARLA dir with: docker build -t safebench/safebench .
 
 # FROM nvidia/vulkan:1.1.121-cuda-10.1--ubuntu18.04
 # nvidia/vulkan:1.3-470 failed
