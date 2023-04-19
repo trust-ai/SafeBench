@@ -40,7 +40,7 @@ class PerceptionScenario(RouteScenario):
         self.texture_dir = os.path.join(ROOT_DIR, config.texture_dir)
         self.sampled_scenarios_definitions = None
         self.vehicle_spawn_points = list(self.world.get_map().get_spawn_points())
-        self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego()
+        self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego(timeout=self.timeout)
 
         self.list_scenarios = self._build_scenario_instances(scenario_definitions)
         self.n_step = 0

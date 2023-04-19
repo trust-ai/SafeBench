@@ -57,7 +57,7 @@ class RouteScenario():
         self.max_running_step = max_running_step
         self.timeout = 60
 
-        self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego()
+        self.route, self.ego_vehicle, scenario_definitions = self._update_route_and_ego(timeout=self.timeout)
         self.background_actors = []
         self.list_scenarios = self._build_scenario_instances(scenario_definitions)
         self.criteria = self._create_criteria()

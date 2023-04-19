@@ -36,7 +36,7 @@ class ScenicScenario():
         self.max_running_step = max_running_step
         self.timeout = 60
 
-        self.route, self.ego_vehicle = self._update_route_and_ego()
+        self.route, self.ego_vehicle = self._update_route_and_ego(timeout=self.timeout)
         self.other_actors = []
         self.list_scenarios = [scenario_scenic(world, self.ego_vehicle, self.config, timeout=self.timeout)]
         self.criteria = self._create_criteria()
