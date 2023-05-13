@@ -32,7 +32,7 @@ class Actor(nn.Module):
         self.tanh = nn.Tanh()
         self.softplus = nn.Softplus()
         self.min_val = 1e-3
-        self.apply(kaiming_init)
+        # self.apply(kaiming_init)
 
     def forward(self, x):
         x = self.relu(self.fc1(x))
@@ -85,6 +85,7 @@ class SAC(BasePolicy):
 
     def __init__(self, config, logger):
         self.logger = logger
+        self.policy_type = config['scenario_type']
 
         self.buffer_start_training = config['buffer_start_training']
         self.lr = config['lr']
@@ -99,6 +100,7 @@ class SAC(BasePolicy):
 
         self.model_id = config['model_id']
         self.model_path = os.path.join(config['ROOT_DIR'], config['model_path'])
+        self.scenario_id = config['scenario_id']
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
 
@@ -181,7 +183,7 @@ class SAC(BasePolicy):
             bn_s = CUDA(torch.FloatTensor(batch['actor_info'])).reshape(self.batch_size, -1)
             bn_s_ = CUDA(torch.FloatTensor(batch['n_actor_info'])).reshape(self.batch_size, -1)
             bn_a = CUDA(torch.FloatTensor(batch['action']))
-            bn_r = CUDA(torch.FloatTensor(batch['reward'])).unsqueeze(-1) # [B, 1]
+            bn_r = CUDA(torch.FloatTensor(-batch['cost'])).unsqueeze(-1) # [B, 1]
             bn_d = CUDA(torch.FloatTensor(1-batch['done'])).unsqueeze(-1) # [B, 1]
 
             target_value = self.Target_value_net(bn_s_)
@@ -232,26 +234,45 @@ class SAC(BasePolicy):
             'value_net': self.value_net.state_dict(), 
             'Q_net': self.Q_net.state_dict()
         }
-        filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{episode:04}.torch')
+        save_dir = os.path.join(self.model_path, str(self.scenario_id))
+        os.makedirs(save_dir, exist_ok=True)
+        filepath = os.path.join(save_dir, f'model.sac.{self.model_id}.{episode:04}.torch')
         self.logger.log(f'>> Saving scenario policy {self.name} model to {filepath}')
         with open(filepath, 'wb+') as f:
             torch.save(states, f)
 
-    def load_model(self, episode=None):
-        if episode is None:
-            episode = -1
-            for _, _, files in os.walk(self.model_path):
-                for name in files:
-                    if fnmatch(name, "*torch"):
-                        cur_episode = int(name.split(".")[-2])
-                        if cur_episode > episode:
-                            episode = cur_episode
-        filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{episode:04}.torch')
-        if os.path.isfile(filepath):
-            self.logger.log(f'>> Loading scenario policy {self.name} model from {filepath}')
-            with open(filepath, 'rb') as f:
-                checkpoint = torch.load(f)
-            self.policy_net.load_state_dict(checkpoint['policy_net'])
-            self.value_net.load_state_dict(checkpoint['value_net'])
-            self.Q_net.load_state_dict(checkpoint['Q_net'])
-            self.continue_episode = episode
+    def load_model(self, scenario_configs=None):
+        if scenario_configs is not None:
+            for config in scenario_configs:
+                scenario_id = config.scenario_id
+                model_file = config.parameters
+                model_filename = os.path.join(self.model_path, str(scenario_id), model_file)
+                if os.path.exists(model_filename):
+                    self.logger.log(f'>> Loading {self.policy_type} model from {model_filename}')
+                    with open(model_filename, 'rb') as f:
+                        checkpoint = torch.load(f)
+                    self.policy_net.load_state_dict(checkpoint['policy_net'])
+                    self.value_net.load_state_dict(checkpoint['value_net'])
+                    self.Q_net.load_state_dict(checkpoint['Q_net'])
+                else:
+                    self.logger.log(f'>> Fail to find {self.policy_type} model from {model_filename}', color='yellow')
+
+    # def load_model(self, episode=None):
+    #     if episode is None:
+    #         episode = -1
+    #         for _, _, files in os.walk(self.model_path):
+    #             for name in files:
+    #                 if fnmatch(name, "*torch"):
+    #                     cur_episode = int(name.split(".")[-2])
+    #                     if cur_episode > episode:
+    #                         episode = cur_episode
+    #     print(self.model_path, self.model_id, episode)
+    #     filepath = os.path.join(self.model_path, f'model.sac.{self.model_id}.{episode:04}.torch')
+    #     if os.path.isfile(filepath):
+    #         self.logger.log(f'>> Loading scenario policy {self.name} model from {filepath}')
+    #         with open(filepath, 'rb') as f:
+    #             checkpoint = torch.load(f)
+    #         self.policy_net.load_state_dict(checkpoint['policy_net'])
+    #         self.value_net.load_state_dict(checkpoint['value_net'])
+    #         self.Q_net.load_state_dict(checkpoint['Q_net'])
+    #         self.continue_episode = episode

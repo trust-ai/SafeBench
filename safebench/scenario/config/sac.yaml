@@ -4,7 +4,7 @@ scenario_category: 'planning'
 policy_type: 'sac'
 
 route_dir: 'safebench/scenario/scenario_data/route'
-scenario_id: 1
+scenario_id: 8
 route_id: null
 
 # parameters for agent policy
@@ -14,14 +14,18 @@ ego_action_limit: 1.0
 
 # parameters for scenario policy
 # for scenario id 1
-scenario_state_dim: 27 # 3*9 - actor number * actor info dim
+#scenario_state_dim: 27 # 3*9 - actor number * actor info dim
+#scenario_action_dim: 1
+
+# for scenario id 8
+scenario_state_dim: 18 # 2*9 - actor number * actor info dim
 scenario_action_dim: 1
 
 # for SAC policy model
 model_path: 'safebench/scenario/scenario_data/model_ckpt/sac'
 model_id: 1
 train_episode: 2000
-save_freq: 10
+save_freq: 1
 eval_in_train_freq: 10
 buffer_capacity: 10000
 buffer_start_training: 100
