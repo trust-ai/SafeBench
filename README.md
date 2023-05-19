@@ -6,7 +6,7 @@
 
 <div align="center">
 
-<h1>SafeBench: A Benchmark for Evaluating Autonomous Vehicles </br> in Safety-critical Scenarios</h1>
+<h1>SafeBench: A Benchmark for Evaluating Autonomous Vehicles in Safety-critical Scenarios</h1>
 
 [![](https://img.shields.io/badge/documentation-online-blue)](https://safebench.readthedocs.io)
 [![](https://img.shields.io/website?down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fsafebench.readthedocs.io)](https://safebench.github.io)
