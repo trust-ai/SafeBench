@@ -4,25 +4,22 @@
  * @Description: 
 -->
 
-# SafeBench
+<div align="center">
+
+<h1>SafeBench: A Benchmark for Evaluating Autonomous Vehicles </br> in Safety-critical Scenarios</h1>
+
+[![](https://img.shields.io/badge/documentation-online-blue)](https://safebench.readthedocs.io)
+[![](https://img.shields.io/website?down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fsafebench.readthedocs.io)](https://safebench.github.io)
+[![](https://img.shields.io/badge/Paper-2206.09682-b31b1b.svg)](https://arxiv.org/pdf/2206.09682.pdf)
+[![](https://img.shields.io/badge/license-mit-green)](#License)
+![GitHub stars](https://badgen.net/github/stars/trust-ai/SafeBench)
+</div>
+
+---
 
 ### :mega: **We are hosting the [Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge](https://trust-ai.github.io/SSAD2023/) at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7), join our [discord channel](https://discord.gg/xW8paTzB) for further discussion if you are intereted.**
 
 ---
-
-<div style="text-align: center; width:100%; margin: 0 auto; display: inline-block">
-<strong>
-[
-<a href="https://safebench.readthedocs.io">Documentation</a>
-|
-<a href="https://safebench.github.io">Website</a>
-|
-<a href="https://arxiv.org/pdf/2206.09682.pdf">Paper</a>
-]
-</strong>
-</div>
-
-This is the source code of Safebench platform, which is designed based on Carla to evaluate the security and safety of autonomous driving vehicles. More details about this platform can be found in this [NeurIPS 2022](https://arxiv.org/pdf/2206.09682.pdf) paper.
 
 
 | Perception Evaluation | Control Evaluation |
