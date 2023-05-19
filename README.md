@@ -8,10 +8,10 @@
 
 <h1>SafeBench: A Benchmark for Evaluating Autonomous Vehicles in Safety-critical Scenarios</h1>
 
-[![](https://img.shields.io/badge/documentation-online-blue)](https://safebench.readthedocs.io)
-[![](https://img.shields.io/website?down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fsafebench.readthedocs.io)](https://safebench.github.io)
+[![](https://img.shields.io/badge/Documentation-online-green)](https://safebench.readthedocs.io)
+[![](https://img.shields.io/badge/Website-online-green)](https://safebench.github.io)
 [![](https://img.shields.io/badge/Paper-2206.09682-b31b1b.svg)](https://arxiv.org/pdf/2206.09682.pdf)
-[![](https://img.shields.io/badge/license-mit-green)](#License)
+[![](https://img.shields.io/badge/License-MIT-green)](#License)
 ![GitHub stars](https://badgen.net/github/stars/trust-ai/SafeBench)
 </div>
 
