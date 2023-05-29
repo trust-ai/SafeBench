@@ -11,8 +11,7 @@
 [![](https://img.shields.io/badge/Documentation-online-green)](https://safebench.readthedocs.io)
 [![](https://img.shields.io/badge/Website-online-green)](https://safebench.github.io)
 [![](https://img.shields.io/badge/Paper-2206.09682-b31b1b.svg)](https://arxiv.org/pdf/2206.09682.pdf)
-[![](https://img.shields.io/badge/License-MIT-green)](#License)
-![GitHub stars](https://badgen.net/github/stars/trust-ai/SafeBench)
+[![](https://img.shields.io/badge/License-MIT-blue)](#License)
 </div>
 
 ---
