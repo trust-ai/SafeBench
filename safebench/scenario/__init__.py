@@ -23,6 +23,8 @@ SCENARIO_POLICY_LIST = {
     'scenic': DummyPolicy,
     'advsim': HardCodePolicy,
     'advtraj': HardCodePolicy,
+    'human': HardCodePolicy,
+    'random': HardCodePolicy,
     'lc': REINFORCE,
     'nf': NormalizingFlow,
     'od': ObjectDetection,

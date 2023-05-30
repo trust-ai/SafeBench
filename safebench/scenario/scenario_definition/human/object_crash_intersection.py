@@ -99,7 +99,7 @@ class VehicleTurningRoute(BasicScenario):
     """
 
     def __init__(self, world, ego_vehicle, config, timeout=60):
-        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-CC", ego_vehicle, config, world)
+        super(VehicleTurningRoute, self).__init__("VehicleTurningRoute-CC", config, world)
         self.ego_vehicle = ego_vehicle
 
         # parameters = [self._other_actor_target_velocity, self.trigger_distance_threshold, start_distance]

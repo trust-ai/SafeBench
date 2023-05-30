@@ -41,11 +41,17 @@ class HardCodePolicy(BasePolicy):
         self.parameters = []
         for config in scenario_configs:
             scenario_id = config.scenario_id
-            model_file = config.parameters
-            model_filename = os.path.join(self.model_path, str(scenario_id), model_file)
-            if os.path.exists(model_filename):
-                self.logger.log(f'>> Loading {self.scenario_type} model from {model_filename}')
-                with open(model_filename, 'r') as f:
-                    self.parameters.append(json.load(f))
+            parameters = config.parameters
+            if isinstance(parameters, str):
+                model_file = config.parameters
+                model_filename = os.path.join(self.model_path, str(scenario_id), model_file)
+                if os.path.exists(model_filename):
+                    self.logger.log(f'>> Loading {self.scenario_type} model from {model_filename}')
+                    with open(model_filename, 'r') as f:
+                        self.parameters.append(json.load(f))
+                else:
+                    self.logger.log(f'>> Fail to find {self.scenario_type} model from {model_filename}', color='yellow')
+            elif isinstance(parameters, list):
+                self.parameters.append(None)
             else:
-                self.logger.log(f'>> Fail to find {self.scenario_type} model from {model_filename}', color='yellow')
+                self.logger.log(f'>> Fail to find {self.scenario_type} parameters', color='yellow')
