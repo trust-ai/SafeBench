@@ -67,16 +67,18 @@ class OppositeVehicleRunningRedLight(BasicScenario):
         traffic_light_other.set_state(carla.TrafficLightState.Red)
         traffic_light_other.set_red_time(self.timeout)
 
-    def update_behavior(self):
+    def create_behavior(self, scenario_init_action):
+        assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
+    def update_behavior(self, scenario_action):
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
         cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
         if cur_ego_speed and cur_ego_speed > 0.5:
             self.trigger = True
         if self.trigger:
             for i in range(len(self.other_actors)):
                 self.scenario_operation.go_straight(self.actor_speed, i)
-
-    def _create_behavior(self):
-        pass
 
     def check_stop_condition(self):
         # stops when actor runs a specific distance
@@ -136,13 +138,15 @@ class SignalizedJunctionLeftTurn(BasicScenario):
         traffic_light_other.set_state(carla.TrafficLightState.Green)
         traffic_light_other.set_green_time(self.timeout)
 
-    def update_behavior(self):
+    def create_behavior(self, scenario_init_action):
+        assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
+    def update_behavior(self, scenario_action):
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
         # just move forward with a specific speed
         for i in range(len(self.other_actors)):
             self.scenario_operation.go_straight(self._target_vel, i)
-
-    def _create_behavior(self):
-        pass
 
     def check_stop_condition(self):
         # stops when actor runs a specific distance
@@ -202,16 +206,18 @@ class SignalizedJunctionRightTurn(BasicScenario):
         traffic_light_other.set_state(carla.TrafficLightState.Green)
         traffic_light_other.set_green_time(self.timeout)
 
-    def update_behavior(self):
+    def create_behavior(self, scenario_init_action):
+        assert scenario_init_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
+    def update_behavior(self, scenario_action):
+        assert scenario_action is None, f'{self.name} should receive [None] action. A wrong scenario policy is used.'
+
         cur_ego_speed = CarlaDataProvider.get_velocity(self.ego_vehicle)
         if cur_ego_speed and cur_ego_speed > 0.5:
             self.trigger = True
         if self.trigger:
             for i in range(len(self.other_actors)):
                 self.scenario_operation.go_straight(self._target_vel, i)
-
-    def _create_behavior(self):
-        pass
 
     def check_stop_condition(self):
         # stops when actor runs a specific distance

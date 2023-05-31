@@ -12,4 +12,4 @@ ego_state_dim: 4
 ego_action_limit: 1.0
 
 model_path: ''
-save_freq: 80
+save_freq: 40
