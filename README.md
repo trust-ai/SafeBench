@@ -14,11 +14,6 @@
 [![](https://img.shields.io/badge/License-MIT-blue)](#License)
 </div>
 
----
-
-### :mega: **We are hosting the [Secure and Safe Autonomous Driving (SSAD) Workshop and Challenge](https://trust-ai.github.io/SSAD2023/) at CVPR 2023! Please fill this [form](https://forms.gle/LuwDXmFoQEyK2VoK7), join our [discord channel](https://discord.gg/xW8paTzB) for further discussion if you are intereted.**
-
----
 
 
 | Perception Evaluation | Control Evaluation |
