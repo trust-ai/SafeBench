@@ -6,6 +6,8 @@
 
 <div align="center">
 
+<img src="https://github.com/trust-ai/SafeBench/blob/main/docs/source/images/logo.png" alt="logo" width="400"/>
+
 <h1>SafeBench: A Benchmark for Evaluating Autonomous Vehicles in Safety-critical Scenarios</h1>
 
 [![](https://img.shields.io/badge/Documentation-online-green)](https://safebench.readthedocs.io)
@@ -18,7 +20,7 @@
 
 | Perception Evaluation | Control Evaluation |
 | :-------------------: | :----------------: | 
-| ![pipeline](https://github.com/safebench/safebench.github.io/blob/master/videos/perception.gif) | ![pipeline](https://github.com/safebench/safebench.github.io/blob/master/videos/control.gif) | 
+| ![perception](https://github.com/safebench/safebench.github.io/blob/master/videos/perception.gif) | ![control](https://github.com/safebench/safebench.github.io/blob/master/videos/control.gif) | 
 
 
 ## Installation
