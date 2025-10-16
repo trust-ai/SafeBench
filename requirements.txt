@@ -15,6 +15,6 @@ shapely==1.8.5
 ephem==4.1.4
 joblib==1.2.0
 cpprb==10.7.0
-pycocotools==2.0.6
+pycocotools==2.0.7
 moviepy==1.0.3
 scikit-image==0.19.3
