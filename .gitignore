@@ -134,3 +134,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+
+# Challenge 3 generated files
+/log/
+/safebench/agent/model_ckpt/
+*.mp4
+*.pkl
